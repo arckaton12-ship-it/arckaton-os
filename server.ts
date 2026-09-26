@@ -1114,7 +1114,10 @@ app.post("/api/leads", async (req, res) => {
   }
 });
 
-app.get("/api/leads", async (_req, res) => {
+// La lecture des leads contient des noms, telephones et emails clients :
+// elle est reservee aux membres habilites. L'ecriture (POST) reste publique
+// car le formulaire de contact du site vitrine alimente le CRM.
+app.get("/api/leads", requireAuth, async (_req, res) => {
   try {
     const serverLeads = await fetchLeadsServer();
     if (serverLeads !== null) {
@@ -1126,7 +1129,7 @@ app.get("/api/leads", async (_req, res) => {
   res.json({ leads: leadsStore });
 });
 
-app.get("/api/reports", async (_req, res) => {
+app.get("/api/reports", requireAuth, async (_req, res) => {
   try {
     const serverReports = await fetchReportsServer();
     if (serverReports !== null) {

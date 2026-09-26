@@ -618,14 +618,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshDashboardData = async () => {
     setIsDataFetching(true);
     try {
-      // /api/projects exige une session valide : on transmet le jeton
+      // /api/projects, /api/leads et /api/reports exigent une session valide
       const authToken = localStorage.getItem('arckaton_os_token');
       const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
 
       // Synchronisation réelle avec le serveur (Supabase si configurée)
       const [leadsRes, reportsRes, projectsRes] = await Promise.all([
-        fetch('/api/leads').then((r) => r.json()).catch(() => null),
-        fetch('/api/reports').then((r) => r.json()).catch(() => null),
+        fetch('/api/leads', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
+        fetch('/api/reports', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
         fetch('/api/projects', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
       ]);
 
