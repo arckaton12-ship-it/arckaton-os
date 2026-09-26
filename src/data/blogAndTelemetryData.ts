@@ -26,7 +26,7 @@ export const DEFAULT_SITE_CONFIG: UniversalSiteConfig = {
     whatsapp_number: '+237681462982',
     whatsapp_display: '+237 681 46 29 82',
     phone_call: '+237 681 46 29 82',
-    email_contact: 'contact@arckaton.com',
+    email_contact: 'ARCKATON12@gmail.com',
     address_yaounde: 'Quartier Bastos, Carrefour Dragages, Yaoundé, Cameroun',
     address_douala: 'Bonanjo, Face Chambre de Commerce, Douala, Cameroun',
     disponibilite: 'Support technique 24/7 sous astreinte • Bureaux 8h00 - 18h30',
@@ -46,7 +46,7 @@ export const INITIAL_BLOG_POSTS: BlogPost[] = [
 
 Accompagné d'un stabilisateur DJI RS3, de micros HF cravate et d'éclairages LED autonomes sur batterie, Boris W. et Diane B. ont orchestré 3 heures de captation continue.
 
-"Le commerçant n'a pas 15 jours à consacrer à un studio photo. Notre doctrine est claire : c'est l'agence qui descend dans la poussière du terrain pour capter la réalité et l'élever aux standards internationaux."
+"Le commerçant n'a pas 15 jours à consacrer à un studio photo. Notre méthode est claire : c'est l'agence qui descend dans la poussière du terrain pour capter la réalité et l'élever aux standards internationaux."
 
 Résultats livrés en 48 heures :
 - 60 visuels produits détourés et optimisés pour le web mobile

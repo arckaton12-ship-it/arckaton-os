@@ -18,7 +18,7 @@ export const AgentModal: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string; pole?: Pole }>>([
     {
       role: 'assistant',
-      text: "Bonjour ! Je suis l'agent conseiller d'Arckaton, entraîné sur la doctrine officielle de l'agence. Quel est votre projet digital ou quelle question souhaitez-vous me poser ?",
+      text: "Bonjour ! Je suis l'agent conseiller d'Arckaton, entraîné sur la méthode officielle de l'agence. Quel est votre projet digital ou quelle question souhaitez-vous me poser ?",
       pole: 'Direction'
     }
   ]);
@@ -227,7 +227,7 @@ export const AgentModal: React.FC = () => {
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   </div>
-                  <span>L'agent consulte la doctrine du Pôle {selectedPole}...</span>
+                  <span>L'agent consulte la méthode du Pôle {selectedPole}...</span>
                 </div>
               )}
               <div ref={messagesEndRef} />

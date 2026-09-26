@@ -18,6 +18,8 @@ import {
   BlogPost,
   DataTransferEvent,
   UniversalSiteConfig,
+  Realisation,
+  Temoignage,
 } from '../types';
 import {
   INITIAL_LEADS,
@@ -28,12 +30,15 @@ import {
   INITIAL_PROJETS,
   CURRENT_PROFILES,
   FORFAITS_DATA,
+  INITIAL_REALISATIONS,
+  INITIAL_TEMOIGNAGES,
 } from '../data/mockData';
 import {
   DEFAULT_SITE_CONFIG,
   INITIAL_BLOG_POSTS,
   INITIAL_DATA_TRANSFERS,
 } from '../data/blogAndTelemetryData';
+import { useAuth } from './AuthContext';
 
 // Helpers de synchronisation serveur (persistance Supabase côté Express)
 const recipientPhonesForPole = (pole: Pole): string[] => {
@@ -173,7 +178,7 @@ interface AppContextType {
   dataTransfers: DataTransferEvent[];
   triggerDataTransfer: (fromMemberId: string, toMemberId: string, dataType: DataTransferEvent['data_type'], summary: string) => DataTransferEvent;
 
-  // Blueprint & Doctrine Modal
+  // Blueprint & Méthode Modal
   isBlueprintModalOpen: boolean;
   setIsBlueprintModalOpen: (open: boolean) => void;
 
@@ -181,6 +186,20 @@ interface AppContextType {
   isDataFetching: boolean;
   lastSyncTime: string;
   refreshDashboardData: () => Promise<void>;
+
+  // CMS Contenu temps réel (supabase via serveur)
+  realisations: Realisation[];
+  updateRealisation: (id: string, data: Partial<Realisation>) => void;
+  addRealisation: (data: Omit<Realisation, 'id'>) => void;
+  deleteRealisation: (id: string) => void;
+  temoignages: Temoignage[];
+  updateTemoignage: (id: string, data: Partial<Temoignage>) => void;
+  addTemoignage: (data: Omit<Temoignage, 'id'>) => void;
+  deleteTemoignage: (id: string) => void;
+  contentStatus: 'live' | 'local' | 'saving' | 'error';
+  persistContent: (kind: string, slug: string, data: any, opts?: { published?: boolean; title?: string }) => Promise<void>;
+  importSeedContent: () => Promise<number>;
+  refreshContent: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -260,6 +279,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
   const [activeBlogPost, setActiveBlogPost] = useState<BlogPost | null>(null);
 
+  // Réalisations & Témoignages publics (édition CMS)
+  const [realisations, setRealisations] = useState<Realisation[]>(() => {
+    const saved = localStorage.getItem('arckaton_cms_realisations');
+    return saved ? JSON.parse(saved) : INITIAL_REALISATIONS;
+  });
+
+  const [temoignages, setTemoignages] = useState<Temoignage[]>(() => {
+    const saved = localStorage.getItem('arckaton_cms_temoignages');
+    return saved ? JSON.parse(saved) : INITIAL_TEMOIGNAGES;
+  });
+
+  const [contentStatus, setContentStatus] = useState<'live' | 'local' | 'saving' | 'error'>('local');
+
   // Nodal Command Center Data Transfers
   const [dataTransfers, setDataTransfers] = useState<DataTransferEvent[]>(() => {
     const saved = localStorage.getItem('arckaton_data_transfers');
@@ -334,6 +366,160 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return updated;
     });
   };
+
+  // ---- Contenu CMS (Réalisations & Témoignages) ----
+  const saveRealisations = (next: Realisation[]) => {
+    setRealisations(next);
+    localStorage.setItem('arckaton_cms_realisations', JSON.stringify(next));
+  };
+  const updateRealisation = (id: string, data: Partial<Realisation>) => {
+    saveRealisations(realisations.map((r) => (r.id === id ? { ...r, ...data } : r)));
+  };
+  const addRealisation = (data: Omit<Realisation, 'id'>) => {
+    saveRealisations([{ ...data, id: `real-${Date.now()}` }, ...realisations]);
+  };
+  const deleteRealisation = (id: string) => {
+    saveRealisations(realisations.filter((r) => r.id !== id));
+  };
+
+  const saveTemoignages = (next: Temoignage[]) => {
+    setTemoignages(next);
+    localStorage.setItem('arckaton_cms_temoignages', JSON.stringify(next));
+  };
+  const updateTemoignage = (id: string, data: Partial<Temoignage>) => {
+    saveTemoignages(temoignages.map((t) => (t.id === id ? { ...t, ...data } : t)));
+  };
+  const addTemoignage = (data: Omit<Temoignage, 'id'>) => {
+    saveTemoignages([{ ...data, id: `tem-${Date.now()}` }, ...temoignages]);
+  };
+  const deleteTemoignage = (id: string) => {
+    saveTemoignages(temoignages.filter((t) => t.id !== id));
+  };
+
+  const bearerHeaders = () => {
+    const t = localStorage.getItem('arckaton_os_token');
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  };
+
+  // ---- Synchronisation temps réel du contenu (supabase via serveur) ----
+  const refreshContent = async () => {
+    try {
+      const res = await fetch('/api/content');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const hasLive =
+        Boolean(data.config) ||
+        (Array.isArray(data.forfaits) && data.forfaits.length > 0) ||
+        (Array.isArray(data.blog) && data.blog.length > 0) ||
+        (Array.isArray(data.realisations) && data.realisations.length > 0);
+      setContentStatus(hasLive ? 'live' : 'local');
+      if (data.config && typeof data.config === 'object') {
+        setSiteConfig((prev) => {
+          const updated = { ...prev, ...data.config };
+          localStorage.setItem('arckaton_site_config', JSON.stringify(updated));
+          return updated;
+        });
+      }
+      if (Array.isArray(data.forfaits) && data.forfaits.length > 0) {
+        const updated = data.forfaits;
+        localStorage.setItem('arckaton_cms_forfaits', JSON.stringify(updated));
+        setForfaits(updated);
+      }
+      if (Array.isArray(data.blog) && data.blog.length > 0) {
+        const mapped = data.blog.map((b: any) => (b.id ? b : { ...b, id: `post-${b.slug}` }));
+        localStorage.setItem('arckaton_cms_blog_posts', JSON.stringify(mapped));
+        setBlogPosts(mapped);
+      }
+      if (Array.isArray(data.realisations) && data.realisations.length > 0) {
+        localStorage.setItem('arckaton_cms_realisations', JSON.stringify(data.realisations));
+        setRealisations(data.realisations);
+      }
+      if (Array.isArray(data.temoignages) && data.temoignages.length > 0) {
+        localStorage.setItem('arckaton_cms_temoignages', JSON.stringify(data.temoignages));
+        setTemoignages(data.temoignages);
+      }
+    } catch (err) {
+      console.warn('Sync contenu indisponible, seeds locales conservées:', err);
+      setContentStatus('local');
+    }
+  };
+
+  const persistContent = async (
+    kind: string,
+    slug: string,
+    data: any,
+    opts?: { published?: boolean; title?: string }
+  ) => {
+    setContentStatus('saving');
+    try {
+      const res = await fetch(`/api/content/${kind}/${slug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...bearerHeaders() },
+        body: JSON.stringify({ data, published: opts?.published, title: opts?.title }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      await refreshContent();
+    } catch (err) {
+      setContentStatus('local');
+      throw err;
+    }
+  };
+
+  const importSeedContent = async () => {
+    const items = [
+      { kind: 'config', slug: 'site', title: 'Configuration du site', data: siteConfig },
+      ...forfaits.map((f) => ({ kind: 'forfait' as const, slug: f.id, title: f.name, data: f })),
+      ...realisations.map((r) => ({ kind: 'realisation' as const, slug: r.id, title: r.name, data: r })),
+      ...temoignages.map((t) => ({ kind: 'temoignage' as const, slug: t.id, title: t.author, data: t })),
+      ...blogPosts.map((b) => ({ kind: 'blog' as const, slug: b.slug || b.id, title: b.title, data: b })),
+    ];
+    setContentStatus('saving');
+    try {
+      const res = await fetch('/api/content/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...bearerHeaders() },
+        body: JSON.stringify({ items }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      await refreshContent();
+      return json.imported || items.length;
+    } catch (err) {
+      setContentStatus('local');
+      throw err;
+    }
+  };
+
+  // Polling temps réel ~45s (plan free : pas de websockets)
+  useEffect(() => {
+    let stopped = false;
+    refreshContent();
+    const id = setInterval(() => {
+      if (!stopped) refreshContent();
+    }, 45000);
+    return () => {
+      stopped = true;
+      clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Identité des messages/actions du dashboard calquée sur la session réelle
+  const { member } = useAuth();
+  useEffect(() => {
+    if (member) {
+      setCurrentUser({
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        role: member.role,
+        phone: member.phone || undefined,
+        poste_id: member.poste_id || undefined,
+        poste_titre: member.poste_titre || undefined,
+        pole: member.pole,
+      });
+    }
+  }, [member]);
 
   const triggerDataTransfer = (
     fromMemberId: string,
@@ -952,6 +1138,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isDataFetching,
         lastSyncTime,
         refreshDashboardData,
+        realisations,
+        updateRealisation,
+        addRealisation,
+        deleteRealisation,
+        temoignages,
+        updateTemoignage,
+        addTemoignage,
+        deleteTemoignage,
+        contentStatus,
+        persistContent,
+        importSeedContent,
+        refreshContent,
       }}
     >
       {children}

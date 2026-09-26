@@ -3,80 +3,11 @@ import { useApp } from '../../contexts/AppContext';
 import { TrendingUp, Star, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-interface CaseStudy {
-  id: string;
-  name: string;
-  category: string;
-  categoryLabel: string;
-  forfait: string;
-  description: string;
-  mainMetric: string;
-  mainMetricLabel: string;
-  subMetric: string;
-  points: string[];
-  delay: string;
-  badgeAccent?: string;
-}
-
-const CASES: CaseStudy[] = [
-  {
-    id: 'kotto',
-    name: 'Maison Kotto',
-    category: 'ecommerce',
-    categoryLabel: 'Cosmétique & Luxe Africain',
-    forfait: 'Forfait Architecture',
-    description: "Refonte complète de l'identité de marque, boutique e-commerce avec encaissement Mobile Money automatisé (MTN/Orange) et 3 capsules vidéo par semaine.",
-    mainMetric: '+337%',
-    mainMetricLabel: 'De conversion e-commerce en 6 mois',
-    subMetric: 'Paniers moyens passés de 14 000 FCFA à 38 000 FCFA',
-    points: [
-      'Passerelle MTN MoMo & Orange Money sans friction avec validation instantanée',
-      'Shooting photo studio & direction artistique packaging à Yaoundé',
-      'Suivi régulier des stocks et synchronisation multi-boutiques'
-    ],
-    delay: '7 semaines de déploiement'
-  },
-  {
-    id: 'districash',
-    name: 'Districash Nord',
-    category: 'saas',
-    categoryLabel: 'Grande Distribution & Négoce',
-    forfait: 'ARKA-PME SaaS',
-    description: 'Déploiement du logiciel ARKA-PME sur 4 dépôts régionaux pour synchroniser les stocks, éliminer les pertes et automatiser la facturation hors-ligne.',
-    mainMetric: '12,8M FCFA',
-    mainMetricLabel: 'Flux financier consolidé sans écart de caisse',
-    subMetric: '12 000 références suivies en temps réel',
-    points: [
-      "Temps d'inventaire complet réduit de 3 heures à 12 minutes",
-      'Fonctionnement 100% garanti hors connexion en cas de coupure',
-      'Clôture comptable automatique par caissier et par point de vente'
-    ],
-    delay: 'Déployé en 10 jours'
-  },
-  {
-    id: 'rapha',
-    name: 'Clinique El Rapha',
-    category: 'sante',
-    categoryLabel: 'Santé & Établissement Médical',
-    forfait: 'Forfait Synergie',
-    description: 'Site vitrine médical haut de gamme, prise de rendez-vous en ligne, SEO local Yaoundé et 9 sorties terrain pour valoriser les spécialistes et équipements.',
-    mainMetric: '4.9 / 5',
-    mainMetricLabel: 'Note moyenne Google & Avis Patients',
-    subMetric: '1ère position sur les requêtes spécialisées à Yaoundé',
-    points: [
-      'Taux de rebond réduit à 24% sur mobile avec design ergonomique',
-      'Prise de rendez-vous directe synchronisée avec le secrétariat',
-      'Capsules pédagogiques vidéo animées par les médecins'
-    ],
-    delay: '3 semaines de production'
-  }
-];
-
 export const Realisations: React.FC = () => {
-  const { setIsQuoteModalOpen } = useApp();
+  const { realisations, setIsQuoteModalOpen } = useApp();
   const [filter, setFilter] = useState<string>('all');
 
-  const filteredCases = filter === 'all' ? CASES : CASES.filter(c => c.category === filter);
+  const filteredCases = filter === 'all' ? realisations : realisations.filter(c => c.category === filter);
 
   return (
     <section id="realisations" className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
@@ -123,6 +54,11 @@ export const Realisations: React.FC = () => {
 
         {/* Case Studies Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {realisations.length === 0 && (
+            <div className="col-span-full text-center py-16 text-sm text-slate-400">
+              Les études de cas sont en cours de publication par l'équipe Arckaton.
+            </div>
+          )}
           <AnimatePresence mode="popLayout">
             {filteredCases.map((cs, idx) => (
               <motion.div

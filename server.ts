@@ -262,6 +262,383 @@ async function fetchReportsServer() {
   return data || [];
 }
 
+// ============================================================
+// Supabase anon client — nécessaire au login membres (GoTrue).
+// Requis : SUPABASE_ANON_KEY dans .env / variables Render.
+// ============================================================
+let supabaseAnon: SupabaseClient | null = null;
+function getSupabaseAnon(): SupabaseClient | null {
+  if (supabaseAnon) return supabaseAnon;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+  if (url && key && key !== "MY_SUPABASE_ANON_KEY") {
+    supabaseAnon = createClient(url, key);
+    return supabaseAnon;
+  }
+  return null;
+}
+
+// ============================================================
+// Auth membres, permissions & journal d'activité (Arckaton OS)
+// Tables : members, activity_log, content_items (voir supabase/migrations)
+// ============================================================
+interface MemberRow {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: string;
+  pole: string;
+  poste_id?: string | null;
+  poste_titre?: string | null;
+  permissions: string[];
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ContentRow {
+  id: string;
+  kind: string;
+  slug: string;
+  title?: string | null;
+  published: boolean;
+  position: number;
+  data: any;
+  created_at: string;
+  updated_at: string;
+}
+
+async function getMemberByUserId(uid: string): Promise<MemberRow | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb.from('members').select('*').eq('id', uid).maybeSingle();
+  if (error) {
+    console.warn('members select:', error.message);
+    return null;
+  }
+  return (data as MemberRow) || null;
+}
+
+function normalizePermissions(p: any): string[] {
+  if (Array.isArray(p)) return p.map(String);
+  if (p && typeof p === 'object') {
+    return Object.entries(p).filter(([, v]) => v === true).map(([k]) => k);
+  }
+  return [];
+}
+
+function hasPerm(member: MemberRow, perm: string): boolean {
+  if (!member.active) return false;
+  if (member.role === 'admin') return true;
+  return normalizePermissions(member.permissions).includes(perm);
+}
+
+type AuthReq = express.Request & { member?: MemberRow };
+
+async function requireAuth(req: AuthReq, res: any, next: any): Promise<void> {
+  const anon = getSupabaseAnon();
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  if (!anon || !token) {
+    return res.status(401).json({ error: 'Authentification requise' });
+  }
+  try {
+    const { data, error } = await anon.auth.getUser(token);
+    if (error || !data.user) {
+      return res.status(401).json({ error: 'Session invalide ou expirée' });
+    }
+    const member = await getMemberByUserId(data.user.id);
+    if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS' });
+    if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction' });
+    req.member = member;
+    next();
+  } catch (err) {
+    console.error('requireAuth error:', err);
+    res.status(500).json({ error: 'Erreur authentification' });
+  }
+}
+
+const requirePerm = (perm: string) => async (req: AuthReq, res: any, next: any) => {
+  await requireAuth(req, res, () => {
+    if (!req.member || !hasPerm(req.member, perm)) {
+      return res.status(403).json({ error: 'Privilèges insuffisants' });
+    }
+    next();
+  });
+};
+
+async function logActivity(actor: MemberRow, action: string, kind: string, ref: string, details?: any) {
+  const sb = getSupabase();
+  if (!sb) return;
+  const { error } = await sb.from('activity_log').insert({
+    actor_id: actor.id,
+    actor_name: actor.name,
+    action,
+    kind,
+    ref,
+    details: details || {},
+  });
+  if (error) console.warn('activity_log insert:', error.message);
+}
+
+async function fetchContentItems(): Promise<ContentRow[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb.from('content_items').select('*').order('position', { ascending: true });
+  if (error) {
+    console.warn('content_items select:', error.message);
+    return [];
+  }
+  return (data || []) as ContentRow[];
+}
+
+function groupContent(items: ContentRow[]): Record<string, any[]> {
+  const grouped: Record<string, any[]> = {};
+  for (const item of items) {
+    if (!grouped[item.kind]) grouped[item.kind] = [];
+    grouped[item.kind].push(item.data);
+  }
+  return grouped;
+}
+
+// ============================================================
+// API Auth (login membres Arckaton OS)
+// ============================================================
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email et mot de passe requis' });
+    const anon = getSupabaseAnon();
+    if (!anon) {
+      return res.status(500).json({ error: 'Authentification non configurée (SUPABASE_ANON_KEY manquante)' });
+    }
+    const { data, error } = await anon.auth.signInWithPassword({ email, password });
+    if (error || !data.session) {
+      return res.status(401).json({ error: 'Identifiants invalides' });
+    }
+    const member = await getMemberByUserId(data.user.id);
+    if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS. Contactez la direction.' });
+    if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction.' });
+    await logActivity(member, 'login', 'member', member.id, {});
+    res.json({ token: data.session.access_token, member });
+  } catch (err: any) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Erreur de connexion' });
+  }
+});
+
+app.post('/api/auth/logout', requireAuth, async (req: AuthReq, res) => {
+  res.json({ success: true });
+});
+
+app.get('/api/auth/me', requireAuth, (req: AuthReq, res) => {
+  res.json({ member: req.member });
+});
+
+// ============================================================
+// API Membres (admin — seul le boss ajoute / supprime / active)
+// ============================================================
+app.get('/api/members', requirePerm('admin'), async (_req, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+  const { data, error } = await sb.from('members').select('*').order('created_at', { ascending: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ members: data });
+});
+
+app.post('/api/members', requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const { name, email, password, role, pole, poste_id, poste_titre, phone, permissions } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'Nom, email et mot de passe requis' });
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    const { data: created, error: createErr } = await sb.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name },
+    });
+    if (createErr || !created.user) {
+      return res.status(400).json({ error: createErr?.message || 'Échec création du compte' });
+    }
+    const perms = normalizePermissions(permissions);
+    const { data: member, error: insErr } = await sb
+      .from('members')
+      .insert({
+        id: created.user.id,
+        name,
+        email,
+        phone: phone || null,
+        role: role || 'membre',
+        pole: pole || 'Direction',
+        poste_id: poste_id || null,
+        poste_titre: poste_titre || null,
+        permissions: perms,
+        active: true,
+      })
+      .select('*')
+      .single();
+    if (insErr) {
+      await sb.auth.admin.deleteUser(created.user.id).catch(() => {});
+      return res.status(400).json({ error: insErr.message });
+    }
+    await logActivity(req.member!, 'create', 'member', member.id, { name, email, role, pole });
+    res.status(201).json({ member });
+  } catch (err: any) {
+    console.error('Create member error:', err);
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.patch('/api/members/:id', requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, role, pole, poste_id, poste_titre, phone, permissions, active, password } = req.body;
+    if (req.member!.id === id && (active === false || role === 'delete')) {
+      return res.status(400).json({ error: 'Vous ne pouvez pas désactiver ou rétrograder votre propre compte administrateur.' });
+    }
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    const patch: any = { updated_at: new Date().toISOString() };
+    if (name !== undefined) patch.name = name;
+    if (email !== undefined) patch.email = email;
+    if (phone !== undefined) patch.phone = phone;
+    if (role !== undefined) patch.role = role;
+    if (pole !== undefined) patch.pole = pole;
+    if (poste_id !== undefined) patch.poste_id = poste_id;
+    if (poste_titre !== undefined) patch.poste_titre = poste_titre;
+    if (permissions !== undefined) patch.permissions = normalizePermissions(permissions);
+    if (active !== undefined) patch.active = active;
+    const { data: member, error } = await sb.from('members').update(patch).eq('id', id).select('*').single();
+    if (error) return res.status(400).json({ error: error.message });
+    if (password) await sb.auth.admin.updateUserById(id, { password }).catch(() => {});
+    if (email !== undefined) await sb.auth.admin.updateUserById(id, { email }).catch(() => {});
+    await logActivity(req.member!, 'update', 'member', id, { patch });
+    res.json({ member });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.delete('/api/members/:id', requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const { id } = req.params;
+    if (req.member!.id === id) return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte.' });
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    await sb.auth.admin.deleteUser(id).catch(() => {});
+    const { error } = await sb.from('members').delete().eq('id', id);
+    if (error) return res.status(400).json({ error: error.message });
+    await logActivity(req.member!, 'delete', 'member', id, {});
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.get('/api/activity', requirePerm('admin'), async (_req, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+  const { data, error } = await sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(50);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ activity: data });
+});
+
+// ============================================================
+// API Contenu (CMS public — lu publiquement, écrit par habilités)
+// ============================================================
+const CONTENT_KINDS = ['config', 'forfait', 'blog', 'realisation', 'temoignage'];
+
+app.get('/api/content', async (_req, res) => {
+  try {
+    const items = await fetchContentItems();
+    if (items.length === 0) {
+      return res.json({ config: null, forfaits: [], blog: [], realisations: [], temoignages: [] });
+    }
+    const grouped = groupContent(items);
+    res.json({
+      config: grouped.config?.[0] || null,
+      forfaits: grouped.forfaits || [],
+      blog: grouped.blog || [],
+      realisations: grouped.realisations || [],
+      temoignages: grouped.temoignages || [],
+    });
+  } catch (err) {
+    console.error('GET /api/content error:', err);
+    res.status(500).json({ error: 'Erreur lecture du contenu' });
+  }
+});
+
+app.put('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthReq, res) => {
+  try {
+    const { kind, slug } = req.params;
+    if (!CONTENT_KINDS.includes(kind)) return res.status(400).json({ error: 'Type de contenu inconnu' });
+    const { data, title, published, position } = req.body;
+    if (kind !== 'config' && data === undefined) return res.status(400).json({ error: 'Donnée manquante' });
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    const payload: any = {
+      kind,
+      slug,
+      title: title || null,
+      published: published !== false,
+      position: position ?? 0,
+      updated_at: new Date().toISOString(),
+    };
+    if (data !== undefined) payload.data = data;
+    const { data: row, error } = await sb
+      .from('content_items')
+      .upsert(payload, { onConflict: 'kind,slug' })
+      .select('*')
+      .single();
+    if (error) return res.status(400).json({ error: error.message });
+    await logActivity(req.member!, 'update', 'content', `${kind}/${slug}`, {});
+    res.json({ item: row });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.post('/api/content/bulk', requirePerm('content'), async (req: AuthReq, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Items requis' });
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    const rows = items.map((it: any, idx: number) => ({
+      kind: it.kind,
+      slug: it.slug,
+      title: it.title || null,
+      published: it.published !== false,
+      position: it.position ?? idx,
+      data: it.data || {},
+    }));
+    const { error } = await sb.from('content_items').upsert(rows, { onConflict: 'kind,slug' });
+    if (error) return res.status(400).json({ error: error.message });
+    await logActivity(req.member!, 'bulk_import', 'content', `${rows.length} items`, {
+      kinds: [...new Set(rows.map((r) => r.kind))],
+    });
+    res.json({ success: true, imported: rows.length });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.delete('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthReq, res) => {
+  try {
+    const { kind, slug } = req.params;
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    const { error } = await sb.from('content_items').delete().match({ kind, slug });
+    if (error) return res.status(400).json({ error: error.message });
+    await logActivity(req.member!, 'delete', 'content', `${kind}/${slug}`, {});
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
 // Gemini Client Lazy Initializer
 let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI | null {
@@ -296,7 +673,8 @@ RÈGLES CAPITALES STRICTES :
 4. ARKA-PME : Logiciel SaaS de gestion de stock, caisse, clients et Mobile Money, conçu pour fonctionner même avec une connexion internet faible ou intermittente. Essai GRATUIT de 30 jours disponible. Fait passer l'inventaire de 3h au cahier à ~12 minutes.
 5. LIVRAISON : Partout dans le monde 🌍 (le digital n'a pas de frontière). Travail 100% à distance avec support réactif.
 6. PAIEMENT : FCFA, Mobile Money (MTN MoMo, Orange Money) ou virement bancaire. Acompte au démarrage + solde à la livraison. Le budget publicitaire est toujours séparé des honoraires.
-7. PREUVES & CONTACT : +337% de conversion chez Maison Kotto, 12 840 000 FCFA consolidés chez Districash Nord, note 4.9/5 sur Google. WhatsApp : +237 681 46 29 82, email : contact@arckaton.com, bureau Mimboman Yaoundé.
+7. PREUVES & CONTACT : +337% de conversion chez Maison Kotto, 12 840 000 FCFA consolidés chez Districash Nord, note 4.9/5 sur Google. WhatsApp : +237 681 46 29 82, email : ARCKATON12@gmail.com, bureau Mimboman Yaoundé.
+8. INSTITUTIONNEL : Arckaton est la filiale technologique de SLOMAH SARL. Cette information peut être partagée de manière factuelle si le client l'évoque.
 
 Ton style : Professionnel, chaleureux, concis, orienté conseil et conversion. Réponds en français soigné.
 `;
@@ -578,6 +956,21 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+
+    // PWA : service worker (jamais mis en cache long) & manifest
+    app.get('/sw.js', (_req, res) => {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(path.join(distPath, 'sw.js'));
+    });
+    app.get('/manifest.webmanifest', (_req, res) => {
+      res.setHeader('Content-Type', 'application/manifest+json');
+      res.sendFile(path.join(distPath, 'manifest.webmanifest'));
+    });
+    app.get('/icons/:file', (req, res) => {
+      res.sendFile(path.join(distPath, 'icons', req.params.file));
+    });
+
     app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });

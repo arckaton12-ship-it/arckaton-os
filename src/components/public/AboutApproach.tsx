@@ -75,7 +75,7 @@ export const AboutApproach: React.FC = () => {
                 onClick={() => setIsAgentModalOpen(true)}
                 className="bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] px-5 py-3.5 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Consulter la doctrine d'agence</span>
+                <span>Consulter la méthode d'agence</span>
               </button>
             </div>
           </motion.div>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#0b1329"/>
+  <rect x="72" y="72" width="368" height="368" rx="72" fill="none" stroke="#10c97a" stroke-opacity="0.25" stroke-width="6" stroke-dasharray="2 14"/>
+  <path d="M256 96 L416 240 L256 416 L96 240 Z" fill="none" stroke="#10c97a" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M160 256 L220 256 L256 320 L290 208 L330 256 L352 256" fill="none" stroke="#e8f6ef" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="452" font-family="monospace" font-size="26" fill="#64748b" text-anchor="middle" letter-spacing="6">ARCKATON</text>
+</svg>

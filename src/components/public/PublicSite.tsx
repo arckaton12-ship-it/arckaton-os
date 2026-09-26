@@ -4,6 +4,8 @@ import { Hero } from './Hero';
 import { BentoApproach } from './BentoApproach';
 import { ProductArkaPme } from './ProductArkaPme';
 import { Realisations } from './Realisations';
+import { Testimonials } from './Testimonials';
+import { FieldBlogSection } from './FieldBlogSection';
 import { Forfaits } from './Forfaits';
 import { AboutApproach } from './AboutApproach';
 import { Faq } from './Faq';
@@ -30,6 +32,8 @@ export const PublicSite: React.FC = () => {
         <BentoApproach />
         <ProductArkaPme />
         <Realisations />
+        <Testimonials />
+        <FieldBlogSection />
         <Forfaits />
         <AboutApproach />
         <Faq />

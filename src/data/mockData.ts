@@ -1,4 +1,4 @@
-import { ForfaitData, Poste, Task, Lead, AgentReport, AppNotification, ChannelMessage, CalendarEvent, Projet, UserProfile } from '../types';
+import { ForfaitData, Poste, Task, Lead, AgentReport, AppNotification, ChannelMessage, CalendarEvent, Projet, UserProfile, Realisation, Temoignage } from '../types';
 
 export const OFFICIAL_KNOWLEDGE = {
   agency: {
@@ -8,7 +8,8 @@ export const OFFICIAL_KNOWLEDGE = {
     phone: '+237 681 46 29 82',
     phoneFormatted: '+237 681 46 29 82',
     whatsappUrl: 'https://wa.me/237681462982',
-    email: 'contact@arckaton.com',
+    email: 'ARCKATON12@gmail.com',
+    parentGroup: 'Filiale Technologique de SLOMAH SARL',
     deliveryScope: 'Livraison partout dans le monde 🌍 (100% à distance, le digital n\'a pas de frontières)',
     paymentMethods: 'FCFA, Mobile Money (MTN Money / Orange Money) ou virement bancaire. Acompte au démarrage + solde à la livraison. Budget publicitaire toujours séparé des honoraires.',
     responseTime: 'Réponse humaine garantie sous 24h',
@@ -517,4 +518,85 @@ export const CURRENT_PROFILES: UserProfile[] = [
   { id: 'u3', name: 'Arthur N.', email: 'tech@arckaton.com', role: 'membre', pole: 'Tech', poste_id: 'p8', poste_titre: 'Dev Full-Stack / CTO', phone: '+237 690 98 76 54' },
   { id: 'u4', name: 'Nadine E.', email: 'growth@arckaton.com', role: 'membre', pole: 'Digital', poste_id: 'p9', poste_titre: 'Responsable Ads & SEO', phone: '+237 671 22 33 44' },
   { id: 'u5', name: 'Amina N.', email: 'client@arckaton.com', role: 'membre', pole: 'Client', poste_id: 'p5', poste_titre: 'Chargée de Compte', phone: '+237 695 55 66 77' },
+];
+
+export const INITIAL_REALISATIONS: Realisation[] = [
+  {
+    id: 'kotto',
+    name: 'Maison Kotto',
+    category: 'ecommerce',
+    categoryLabel: 'Cosmétique & Luxe Africain',
+    forfait: 'Forfait Architecture',
+    description: "Refonte complète de l'identité de marque, boutique e-commerce avec encaissement Mobile Money automatisé (MTN/Orange) et 3 capsules vidéo par semaine.",
+    mainMetric: '+337%',
+    mainMetricLabel: 'De conversion e-commerce en 6 mois',
+    subMetric: 'Paniers moyens passés de 14 000 FCFA à 38 000 FCFA',
+    points: [
+      'Passerelle MTN MoMo & Orange Money sans friction avec validation instantanée',
+      'Shooting photo studio & direction artistique packaging à Yaoundé',
+      'Suivi régulier des stocks et synchronisation multi-boutiques'
+    ],
+    delay: '7 semaines de déploiement'
+  },
+  {
+    id: 'districash',
+    name: 'Districash Nord',
+    category: 'saas',
+    categoryLabel: 'Grande Distribution & Négoce',
+    forfait: 'ARKA-PME SaaS',
+    description: 'Déploiement du logiciel ARKA-PME sur 4 dépôts régionaux pour synchroniser les stocks, éliminer les pertes et automatiser la facturation hors-ligne.',
+    mainMetric: '12,8M FCFA',
+    mainMetricLabel: 'Flux financier consolidé sans écart de caisse',
+    subMetric: '12 000 références suivies en temps réel',
+    points: [
+      "Temps d'inventaire complet réduit de 3 heures à 12 minutes",
+      'Fonctionnement 100% garanti hors connexion en cas de coupure',
+      'Clôture comptable automatique par caissier et par point de vente'
+    ],
+    delay: 'Déployé en 10 jours'
+  },
+  {
+    id: 'rapha',
+    name: 'Clinique El Rapha',
+    category: 'sante',
+    categoryLabel: 'Santé & Établissement Médical',
+    forfait: 'Forfait Synergie',
+    description: 'Site vitrine médical haut de gamme, prise de rendez-vous en ligne, SEO local Yaoundé et 9 sorties terrain pour valoriser les spécialistes et équipements.',
+    mainMetric: '4.9 / 5',
+    mainMetricLabel: 'Note moyenne Google & Avis Patients',
+    subMetric: '1ère position sur les requêtes spécialisées à Yaoundé',
+    points: [
+      'Taux de rebond réduit à 24% sur mobile avec design ergonomique',
+      'Prise de rendez-vous directe synchronisée avec le secrétariat',
+      'Capsules pédagogiques vidéo animées par les médecins'
+    ],
+    delay: '3 semaines de production'
+  }
+];
+
+export const INITIAL_TEMOIGNAGES: Temoignage[] = [
+  {
+    id: 'temoignage-kotto',
+    author: 'Mireille Kotto',
+    role: 'Fondatrice & Gérante',
+    company: 'Maison Kotto, Bastos',
+    text: "Arckaton a résolu le cauchemar des fausses captures d'écran de transfert. Désormais, l'argent est sur notre compte avant même que le livreur ne charge le colis. C'est le jour et la nuit.",
+    metrics: '+337% de conversion • 12.4M FCFA encaissés • 0 impayé'
+  },
+  {
+    id: 'temoignage-districash',
+    author: 'Direction Générale',
+    role: 'Directeur des Opérations',
+    company: 'Districash Nord, Douala',
+    text: "Nos gérants ne perdent plus aucune vente lors des coupures de courant. L'inventaire est passé de 3 heures à 12 minutes chrono. ARKA-PME a sauvé notre rentabilité.",
+    metrics: 'Inventaire en 12 min • 12 000 références • Mode hors-ligne'
+  },
+  {
+    id: 'temoignage-rapha',
+    author: 'Direction Médicale',
+    role: 'Praticien Hospitalier',
+    company: 'Clinique El Rapha, Yaoundé',
+    text: "La fiche Google a déjà généré une hausse visible des appels pour les consultations. Les rendez-vous en ligne ont modernisé l'accueil de notre secrétariat.",
+    metrics: '4.9/5 Google • +38 appels/semaine • 1ère position locales'
+  }
 ];

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
-import { BlogPost, ForfaitData } from '../../types';
+import { BlogPost, ForfaitData, Realisation, Temoignage } from '../../types';
 import { 
   Globe, 
   FileText, 
@@ -19,7 +19,10 @@ import {
   Layers,
   ArrowRight,
   Eye,
-  Sliders
+  Sliders,
+  Rocket,
+  Star,
+  FolderKanban
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -36,10 +39,19 @@ export const SiteAdmin: React.FC = () => {
     addBlogPost,
     updateBlogPost,
     deleteBlogPost,
-    setActiveBlogPost
+    setActiveBlogPost,
+    realisations,
+    addRealisation,
+    updateRealisation,
+    deleteRealisation,
+    temoignages,
+    addTemoignage,
+    updateTemoignage,
+    deleteTemoignage,
+    importSeedContent
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'announcement' | 'hero' | 'forfaits' | 'blog' | 'contact'>('announcement');
+  const [activeTab, setActiveTab] = useState<'announcement' | 'hero' | 'forfaits' | 'blog' | 'contact' | 'realisations' | 'temoignages'>('announcement');
   const [saveToast, setSaveToast] = useState<string | null>(null);
 
   // Announcement state form
@@ -70,6 +82,33 @@ export const SiteAdmin: React.FC = () => {
     image: 'https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?auto=format&fit=crop&w=1200&q=80',
     tags: ['Terrain', 'Yaoundé', 'PME'],
     featured: false,
+  });
+
+  // Réalisations (étude de cas) : modals & forms
+  const [isRealModalOpen, setIsRealModalOpen] = useState(false);
+  const [editingRealisation, setEditingRealisation] = useState<Realisation | null>(null);
+  const [realForm, setRealForm] = useState<Omit<Realisation, 'id'>>({
+    name: '',
+    category: 'camac',
+    categoryLabel: 'CAMAC & Commerce de proximité',
+    forfait: 'Forfait N°1',
+    description: '',
+    mainMetric: '',
+    mainMetricLabel: '',
+    subMetric: '',
+    points: [],
+    delay: '',
+  });
+
+  // Témoignages : modals & forms
+  const [isTemModalOpen, setIsTemModalOpen] = useState(false);
+  const [editingTemoignage, setEditingTemoignage] = useState<Temoignage | null>(null);
+  const [temForm, setTemForm] = useState<Omit<Temoignage, 'id'>>({
+    author: '',
+    role: '',
+    company: '',
+    text: '',
+    metrics: '',
   });
 
   const triggerToast = (msg: string) => {
@@ -157,6 +196,92 @@ export const SiteAdmin: React.FC = () => {
     setIsBlogModalOpen(true);
   };
 
+  const saveRealisation = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingRealisation) {
+      updateRealisation(editingRealisation.id, realForm);
+      triggerToast(`Étude de cas "${realForm.name}" mise à jour en direct !`);
+    } else {
+      addRealisation(realForm);
+      triggerToast('Nouvelle réalisation publiée dans la section Réalisations !');
+    }
+    setIsRealModalOpen(false);
+    setEditingRealisation(null);
+  };
+
+  const openNewRealModal = () => {
+    setEditingRealisation(null);
+    setRealForm({
+      name: '',
+      category: 'camac',
+      categoryLabel: 'CAMAC & Commerce de proximité',
+      forfait: 'Forfait N°1',
+      description: '',
+      mainMetric: '',
+      mainMetricLabel: '',
+      subMetric: '',
+      points: [],
+      delay: '',
+    });
+    setIsRealModalOpen(true);
+  };
+
+  const openEditRealModal = (r: Realisation) => {
+    setEditingRealisation(r);
+    setRealForm({
+      name: r.name,
+      category: r.category,
+      categoryLabel: r.categoryLabel,
+      forfait: r.forfait,
+      description: r.description,
+      mainMetric: r.mainMetric,
+      mainMetricLabel: r.mainMetricLabel,
+      subMetric: r.subMetric,
+      points: r.points,
+      delay: r.delay,
+    });
+    setIsRealModalOpen(true);
+  };
+
+  const saveTemoignage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingTemoignage) {
+      updateTemoignage(editingTemoignage.id, temForm);
+      triggerToast(`Témoignage de ${temForm.author} mis à jour en direct !`);
+    } else {
+      addTemoignage(temForm);
+      triggerToast('Nouveau témoignage client publié sur le site !');
+    }
+    setIsTemModalOpen(false);
+    setEditingTemoignage(null);
+  };
+
+  const openNewTemModal = () => {
+    setEditingTemoignage(null);
+    setTemForm({ author: '', role: '', company: '', text: '', metrics: '' });
+    setIsTemModalOpen(true);
+  };
+
+  const openEditTemModal = (t: Temoignage) => {
+    setEditingTemoignage(t);
+    setTemForm({ author: t.author, role: t.role, company: t.company, text: t.text, metrics: t.metrics || '' });
+    setIsTemModalOpen(true);
+  };
+
+  const handleImportSeeds = async () => {
+    if (!confirm("Importer / réinitialiser le contenu CMS avec les données de départ (réalisations, témoignages, forfaits, blog, config) ?")) return;
+    const n = await importSeedContent();
+    triggerToast(`${n} éléments importés depuis Arckaton OS !`);
+  };
+
+  const CATEGORIES: { key: string; label: string }[] = [
+    { key: 'camac', label: 'CAMAC & Commerce de proximité' },
+    { key: 'restauration', label: 'Restauration & Hôtellerie' },
+    { key: 'artisanat', label: 'Artisanat & Production locale' },
+    { key: 'vente', label: 'Vente & Distribution' },
+    { key: 'corporate', label: 'Corporate & Administration' },
+  ];
+
   // Permission Gate: allows admin, superadmin, editor
   if (!isSiteEditor) {
     return (
@@ -208,6 +333,14 @@ export const SiteAdmin: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleImportSeeds}
+              className="text-xs font-mono text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl hover:bg-amber-500/20 transition-colors flex items-center gap-1.5 cursor-pointer"
+              title="Importer les réalisations, témoignages, forfaits et articles de départ"
+            >
+              <Rocket className="w-3.5 h-3.5" />
+              <span>Importer les données de départ</span>
+            </button>
             <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>Mode Écriture Actif</span>
@@ -263,6 +396,30 @@ export const SiteAdmin: React.FC = () => {
           >
             <FileText className="w-3.5 h-3.5" />
             <span>Journal de Bord ({blogPosts.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('realisations')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
+              activeTab === 'realisations'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
+                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+            }`}
+          >
+            <FolderKanban className="w-3.5 h-3.5" />
+            <span>Réalisations ({realisations.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('temoignages')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
+              activeTab === 'temoignages'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
+                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+            }`}
+          >
+            <Star className="w-3.5 h-3.5" />
+            <span>Témoignages ({temoignages.length})</span>
           </button>
 
           <button
@@ -830,6 +987,273 @@ export const SiteAdmin: React.FC = () => {
                     >
                       <Save className="w-3.5 h-3.5" />
                       <span>{editingBlogPost ? "Mettre à jour" : "Publier l'article"}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 5BIS : RÉALISATIONS (ÉTUDES DE CAS) */}
+      {activeTab === 'realisations' && (
+        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 className="font-serif text-xl font-bold text-white">Études de Cas & Réalisations</h3>
+              <p className="text-xs text-slate-400 mt-1">Ces dossiers clients s'affichent dans la section « Réalisations » du site public, avec métriques chiffrées.</p>
+            </div>
+            <button
+              onClick={openNewRealModal}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Ajouter une Réalisation</span>
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {realisations.map((r) => (
+              <div
+                key={r.id}
+                className="bg-[#070c1e] border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                      {r.categoryLabel}
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-500">{r.forfait}</span>
+                  </div>
+                  <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{r.name}</h4>
+                  <div className="text-xs text-slate-400 mt-1 font-mono">
+                    <span className="text-emerald-400 font-bold">{r.mainMetric}</span> {r.mainMetricLabel} • {r.delay}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end md:self-auto">
+                  <button
+                    onClick={() => openEditRealModal(r)}
+                    className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-emerald-400 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Éditer</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Supprimer la réalisation "${r.name}" ?`)) {
+                        deleteRealisation(r.id);
+                        triggerToast('Réalisation retirée de la vitrine.');
+                      }
+                    }}
+                    className="p-2 bg-white/[0.04] hover:bg-rose-500/20 text-rose-400 rounded-xl text-xs transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {realisations.length === 0 && (
+              <div className="p-8 text-center text-xs text-slate-400">
+                Aucune réalisation. Cliquez sur « Importer les données de départ » (en haut) ou ajoutez la première.
+              </div>
+            )}
+          </div>
+
+          {/* Realisation Modal */}
+          {isRealModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+              <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
+                <h3 className="font-serif text-2xl font-bold text-white mb-1">
+                  {editingRealisation ? 'Modifier la Réalisation' : 'Ajouter une Réalisation'}
+                </h3>
+                <p className="text-xs text-slate-400 mb-6">Publiée instantanément sur la vitrine Réalisations.</p>
+
+                <form onSubmit={saveRealisation} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du dossier client :</label>
+                    <input type="text" required value={realForm.name} onChange={(e) => setRealForm({ ...realForm, name: e.target.value })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Catégorie :</label>
+                      <select
+                        value={realForm.category}
+                        onChange={(e) => {
+                          const cat = CATEGORIES.find((c) => c.key === e.target.value);
+                          setRealForm({ ...realForm, category: e.target.value, categoryLabel: cat?.label || e.target.value });
+                        }}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                      >
+                        {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Forfait associé :</label>
+                      <input type="text" value={realForm.forfait} onChange={(e) => setRealForm({ ...realForm, forfait: e.target.value })}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Description :</label>
+                    <textarea rows={3} required value={realForm.description} onChange={(e) => setRealForm({ ...realForm, description: e.target.value })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique principale :</label>
+                      <input type="text" required value={realForm.mainMetric} onChange={(e) => setRealForm({ ...realForm, mainMetric: e.target.value })}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="+38%" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Libellé de la métrique :</label>
+                      <input type="text" required value={realForm.mainMetricLabel} onChange={(e) => setRealForm({ ...realForm, mainMetricLabel: e.target.value })}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="chiffre d'affaires" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique secondaire :</label>
+                      <input type="text" value={realForm.subMetric} onChange={(e) => setRealForm({ ...realForm, subMetric: e.target.value })}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="×2 rotations" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Délai de déploiement :</label>
+                    <input type="text" value={realForm.delay} onChange={(e) => setRealForm({ ...realForm, delay: e.target.value })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="14 jours" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Points de livraison (un par ligne) :</label>
+                    <textarea
+                      rows={3}
+                      value={realForm.points.join('\n')}
+                      onChange={(e) => setRealForm({ ...realForm, points: e.target.value.split('\n').filter((p) => p.trim()) })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
+                      placeholder={'Système de point de vente digitalisé\nFormation de l équipe sur 3 semaines'}
+                    />
+                  </div>
+
+                  <div className="pt-4 flex items-center justify-end gap-3">
+                    <button type="button" onClick={() => setIsRealModalOpen(false)} className="px-4 py-2 text-xs text-slate-400 hover:text-white">Annuler</button>
+                    <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{editingRealisation ? "Mettre à jour" : "Publier la réalisation"}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 5TER : TÉMOIGNAGES CLIENTS */}
+      {activeTab === 'temoignages' && (
+        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 className="font-serif text-xl font-bold text-white">Témoignages Clients</h3>
+              <p className="text-xs text-slate-400 mt-1">Citations de clients publiées dans la section « Voix de nos clients » sous la vitrine Réalisations.</p>
+            </div>
+            <button
+              onClick={openNewTemModal}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Ajouter un Témoignage</span>
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {temoignages.map((t) => (
+              <div
+                key={t.id}
+                className="bg-[#070c1e] border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">5/5</span>
+                    <span className="text-[11px] font-mono text-slate-500">{t.metrics || '—'}</span>
+                  </div>
+                  <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">
+                    {t.author} <span className="text-emerald-400 font-normal">— {t.company}</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1 line-clamp-2 font-light">« {t.text} »</p>
+                </div>
+
+                <div className="flex items-center gap-2 self-end md:self-auto">
+                  <button
+                    onClick={() => openEditTemModal(t)}
+                    className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-emerald-400 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Éditer</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Supprimer le témoignage de ${t.author} ?`)) {
+                        deleteTemoignage(t.id);
+                        triggerToast('Témoignage retiré.');
+                      }
+                    }}
+                    className="p-2 bg-white/[0.04] hover:bg-rose-500/20 text-rose-400 rounded-xl text-xs transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {temoignages.length === 0 && (
+              <div className="p-8 text-center text-xs text-slate-400">
+                Aucun témoignage. Ajoutez le premier ou cliquez sur « Importer les données de départ ».
+              </div>
+            )}
+          </div>
+
+          {/* Temoignage Modal */}
+          {isTemModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+              <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
+                <h3 className="font-serif text-2xl font-bold text-white mb-1">
+                  {editingTemoignage ? 'Modifier le Témoignage' : 'Ajouter un Témoignage'}
+                </h3>
+                <p className="text-xs text-slate-400 mb-6">Citation publiée dans la section Témoignages du site public.</p>
+
+                <form onSubmit={saveTemoignage} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du client :</label>
+                      <input type="text" required value={temForm.author} onChange={(e) => setTemForm({ ...temForm, author: e.target.value })}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Fonction :</label>
+                      <input type="text" value={temForm.role} onChange={(e) => setTemForm({ ...temForm, role: e.target.value })}
+                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="Gérant" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Entreprise :</label>
+                    <input type="text" value={temForm.company} onChange={(e) => setTemForm({ ...temForm, company: e.target.value })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Citation :</label>
+                    <textarea rows={4} required value={temForm.text} onChange={(e) => setTemForm({ ...temForm, text: e.target.value })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique / résultat (optionnel) :</label>
+                    <input type="text" value={temForm.metrics} onChange={(e) => setTemForm({ ...temForm, metrics: e.target.value })}
+                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="+38% CA en 3 mois" />
+                  </div>
+
+                  <div className="pt-4 flex items-center justify-end gap-3">
+                    <button type="button" onClick={() => setIsTemModalOpen(false)} className="px-4 py-2 text-xs text-slate-400 hover:text-white">Annuler</button>
+                    <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{editingTemoignage ? "Mettre à jour" : "Publier le témoignage"}</span>
                     </button>
                   </div>
                 </form>

@@ -293,3 +293,47 @@ export interface UniversalSiteConfig {
   hero: SiteHeroConfig;
   contact: SiteAgencyContactConfig;
 }
+
+// Case studies publics (section Réalisations) — éditables via CMS
+export interface Realisation {
+  id: string;
+  name: string;
+  category: string;
+  categoryLabel: string;
+  forfait: string;
+  description: string;
+  mainMetric: string;
+  mainMetricLabel: string;
+  subMetric: string;
+  points: string[];
+  delay: string;
+  badgeAccent?: string;
+}
+
+// Témoignages clients (éditables via CMS)
+export interface Temoignage {
+  id: string;
+  author: string;
+  role: string;
+  company: string;
+  text: string;
+  metrics?: string;
+}
+
+// Membre Arckaton OS (retour API -> Supabase Auth + table members)
+export type MemberPerm = 'content' | 'bat' | 'finance';
+
+export interface MemberProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: UserRole;
+  pole: Pole;
+  poste_id?: string | null;
+  poste_titre?: string | null;
+  permissions?: string[];
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}

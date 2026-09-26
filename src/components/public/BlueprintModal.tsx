@@ -33,7 +33,7 @@ export const BlueprintModal: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-serif text-lg font-bold text-white">
-                    Fiche Cadre & Doctrine Opérationnelle
+                    Fiche Cadre & Méthode Opérationnelle
                   </h3>
                   <span className="text-[10px] font-mono bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20">
                     Officiel v2.4
@@ -74,7 +74,7 @@ export const BlueprintModal: React.FC = () => {
               }`}
             >
               <Network className="w-3.5 h-3.5" />
-              <span>1. Doctrine des 6 Pôles</span>
+              <span>1. Méthode des 6 Pôles</span>
             </button>
 
             <button

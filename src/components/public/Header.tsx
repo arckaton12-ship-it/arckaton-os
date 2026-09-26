@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { Phone, LayoutDashboard, Menu, X, ArrowUpRight, Sparkles, Eye, Sun, Moon, FileText, Globe } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { Currency } from '../../types';
@@ -18,6 +19,7 @@ export const Header: React.FC = () => {
     setCurrency,
     setIsBlueprintModalOpen
   } = useApp();
+  const { canBat } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -59,6 +61,21 @@ export const Header: React.FC = () => {
           </a>
           <a href="#realisations" className="hover:text-white transition-colors">
             Réalisations
+          </a>
+          <a href="#temoignages" className="hover:text-white transition-colors">
+            Témoignages
+          </a>
+          <button
+            onClick={() => setIsBlueprintModalOpen(true)}
+            className="hover:text-white transition-colors cursor-pointer"
+          >
+            Méthode
+          </button>
+          <a href="#blog" className="hover:text-white transition-colors flex items-center gap-2">
+            <span>Journal de Bord</span>
+            <span className="text-[10px] font-mono bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
+              Blog
+            </span>
           </a>
           <a href="#forfaits" className="hover:text-white transition-colors">
             Forfaits & ROI
@@ -106,25 +123,27 @@ export const Header: React.FC = () => {
             )}
           </button>
 
-          {/* Doctrine / Blueprint Fiche Cadre */}
+          {/* Méthode / Blueprint Fiche Cadre */}
           <button
             onClick={() => setIsBlueprintModalOpen(true)}
             className="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] px-3 py-2 rounded-xl border border-white/[0.08] transition-all cursor-pointer"
-            title="Consulter la Fiche Cadre & Doctrine Officielle Arckaton"
+            title="Consulter la Fiche Cadre & Méthode Officielle Arckaton"
           >
             <FileText className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="whitespace-nowrap">Doctrine</span>
+            <span className="whitespace-nowrap">Méthode</span>
           </button>
 
-          {/* Client Tracking Portal */}
-          <button
-            onClick={() => openClientPortal()}
-            className="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] px-3 py-2 rounded-xl border border-white/[0.08] transition-all cursor-pointer"
-            title="Suivre mon projet et valider les livrables (BAT)"
-          >
-            <Eye className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="whitespace-nowrap">Suivi BAT</span>
-          </button>
+          {/* Client Tracking Portal — réservé aux habilités (perm bat) */}
+          {canBat && (
+            <button
+              onClick={() => openClientPortal()}
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] px-3 py-2 rounded-xl border border-white/[0.08] transition-all cursor-pointer"
+              title="Suivre mon projet et valider les livrables (BAT)"
+            >
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="whitespace-nowrap">Suivi BAT</span>
+            </button>
+          )}
 
           {/* AI Advisor Button */}
           <button
@@ -223,6 +242,32 @@ export const Header: React.FC = () => {
                 Réalisations & Cas clients
               </a>
               <a
+                href="#temoignages"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-white/[0.04]"
+              >
+                Témoignages clients
+              </a>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsBlueprintModalOpen(true);
+                }}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-white/[0.04] text-left"
+              >
+                Méthode & Fiche Cadre
+              </button>
+              <a
+                href="#blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-white/[0.04] flex items-center justify-between"
+              >
+                <span>Journal de Bord (Blog)</span>
+                <span className="text-[10px] font-mono bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full">
+                  Actu
+                </span>
+              </a>
+              <a
                 href="#forfaits"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl hover:bg-white/[0.04]"
@@ -269,7 +314,7 @@ export const Header: React.FC = () => {
                 </div>
               </div>
 
-              {/* Fiche Cadre & Doctrine Mobile */}
+              {/* Fiche Cadre & Méthode Mobile */}
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
@@ -278,19 +323,21 @@ export const Header: React.FC = () => {
                 className="w-full bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/[0.1] py-2.5 rounded-xl text-center text-xs font-medium flex items-center justify-center gap-2"
               >
                 <FileText className="w-4 h-4 text-emerald-400" />
-                <span>Fiche Cadre & Doctrine Officielle (PDF)</span>
+                <span>Fiche Cadre & Méthode Officielle (PDF)</span>
               </button>
 
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openClientPortal();
-                }}
-                className="w-full bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/[0.1] py-2.5 rounded-xl text-center text-xs font-medium flex items-center justify-center gap-2"
-              >
-                <Eye className="w-4 h-4 text-emerald-400" />
-                <span>Suivre mon projet (Espace Client & BAT)</span>
-              </button>
+              {canBat && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openClientPortal();
+                  }}
+                  className="w-full bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/[0.1] py-2.5 rounded-xl text-center text-xs font-medium flex items-center justify-center gap-2"
+                >
+                  <Eye className="w-4 h-4 text-emerald-400" />
+                  <span>Suivre mon projet (Espace Client & BAT)</span>
+                </button>
+              )}
 
               <button
                 onClick={() => {

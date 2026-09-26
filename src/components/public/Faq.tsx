@@ -116,7 +116,7 @@ export const Faq: React.FC = () => {
               Une autre question spécifique à votre secteur ?
             </h4>
             <p className="text-xs text-slate-400 mt-0.5">
-              Consultez notre agent interactif entraîné sur l'ensemble de notre doctrine.
+              Consultez notre agent interactif entraîné sur l'ensemble de notre méthode.
             </p>
           </div>
           <button

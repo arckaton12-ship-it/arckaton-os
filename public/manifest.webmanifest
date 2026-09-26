@@ -1,0 +1,27 @@
+{
+  "name": "Arckaton — Agence Digitale & Arckaton OS",
+  "short_name": "Arckaton",
+  "description": "Systèmes digitaux complets pour PME africaines et internationales : vitrines premium, e-commerce Mobile Money MTN/Orange, identité, marketing et logiciel SaaS ARKA-PME.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070c1e",
+  "theme_color": "#10c97a",
+  "lang": "fr-FR",
+  "categories": ["business", "productivity", "technology"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

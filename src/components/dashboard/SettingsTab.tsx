@@ -48,7 +48,7 @@ export const SettingsTab: React.FC = () => {
             </div>
 
             <div className="pt-2 flex items-center justify-between">
-              <span className="text-slate-300">Doctrine 6 Pôles :</span>
+              <span className="text-slate-300">Méthode 6 Pôles :</span>
               <span className="text-blue-400 font-mono">Chargée & active</span>
             </div>
 

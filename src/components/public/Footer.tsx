@@ -86,10 +86,11 @@ export const Footer: React.FC = () => {
             <div className="pt-2">
               <button
                 onClick={() => setMode('dashboard')}
-                className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition-all cursor-pointer"
+                className="text-[10px] font-mono text-slate-500 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Espace réservé aux membres habilités"
               >
-                <LayoutDashboard className="w-4 h-4 text-blue-400" />
-                <span>Accès Interne Arckaton OS</span>
+                <LayoutDashboard className="w-3 h-3" />
+                <span>Arckaton OS — Espace Membres</span>
               </button>
             </div>
           </div>
@@ -99,7 +100,7 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px] font-mono">
           <div>
-            &copy; {new Date().getFullYear()} Arckaton Technologies SARL. Tous droits réservés. Mentions Légales & Confidentialité.
+            &copy; {new Date().getFullYear()} Arckaton Technologies — Filiale Technologique de <span className="text-slate-400">SLOMAH SARL</span>. Tous droits réservés. Mentions Légales & Confidentialité.
           </div>
           <div className="flex items-center gap-4">
             <span>Yaoundé • Cameroun</span>

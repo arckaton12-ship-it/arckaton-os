@@ -30,14 +30,16 @@ import { CopilotTab } from './CopilotTab';
 import { SiteAdmin } from '../siteadmin/SiteAdmin';
 import { SettingsTab } from './SettingsTab';
 import { NotificationsDrawer } from './NotificationsDrawer';
-import { RoleSwitcher } from '../auth/RoleSwitcher';
+import { MembersTab } from './MembersTab';
+import { PoleDashboard } from './PoleDashboard';
+import { LoginPanel } from '../auth/LoginPanel';
 
 export const DashboardLayout: React.FC = () => {
   const { setMode, notifications, projets } = useApp();
-  const { user, role, isSiteEditor, isAdmin } = useAuth();
+  const { user, role, isSiteEditor, isAdmin, logout, isAuthenticated, loading } = useAuth();
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'projects' | 'orgchart' | 'tasks' | 'crm' | 'messaging' | 'copilot' | 'siteadmin' | 'settings'
+    | 'overview' | 'projects' | 'orgchart' | 'tasks' | 'crm' | 'messaging' | 'copilot' | 'siteadmin' | 'settings' | 'members'
   >('overview');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -45,17 +47,40 @@ export const DashboardLayout: React.FC = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  // Session réelle : chargement, puis login requis
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#070c1e] flex items-center justify-center">
+        <div className="text-slate-400 text-sm font-mono flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+          Arckaton OS — Vérification de la session…
+        </div>
+      </div>
+    );
+  }
+
+  // Accès OS réservé aux membres habilités (login requis)
+  if (!isAuthenticated) {
+    return <LoginPanel />;
+  }
+
+  // Les membres (non-admin / non-gestionnaire contenu) pilotent leur pôle uniquement
+  if (!isSiteEditor) {
+    return <PoleDashboard />;
+  }
+
   const navItems = [
-    { id: 'overview' as const, label: "Vue d'ensemble", icon: LayoutDashboard, badge: null },
-    { id: 'projects' as const, label: "Projets & Production", icon: FolderKanban, badge: projets.length.toString() },
-    { id: 'orgchart' as const, label: "Organigramme (17 Postes)", icon: Users, badge: "Équipe" },
-    { id: 'tasks' as const, label: "Tableau Kanban", icon: CheckSquare, badge: null },
-    { id: 'crm' as const, label: "CRM & Devis / Ventes", icon: Briefcase, badge: "Ventes" },
-    { id: 'messaging' as const, label: "Messagerie Interne", icon: MessageSquare, badge: "Direct" },
-    { id: 'copilot' as const, label: "Copilote IA Stratégique", icon: Sparkles, badge: "Spécial" },
-    { id: 'siteadmin' as const, label: "Gestion Site (/site CMS)", icon: FileEdit, badge: "CMS" },
-    { id: 'settings' as const, label: "Paramètres & Grille", icon: Settings, badge: null },
-  ];
+    { id: 'overview' as const, label: "Vue d'ensemble", icon: LayoutDashboard, badge: null, adminOnly: false },
+    { id: 'projects' as const, label: "Projets & Production", icon: FolderKanban, badge: projets.length.toString(), adminOnly: false },
+    { id: 'orgchart' as const, label: "Organigramme (17 Postes)", icon: Users, badge: "Équipe", adminOnly: false },
+    { id: 'tasks' as const, label: "Tableau Kanban", icon: CheckSquare, badge: null, adminOnly: false },
+    { id: 'crm' as const, label: "CRM & Devis / Ventes", icon: Briefcase, badge: "Ventes", adminOnly: false },
+    { id: 'messaging' as const, label: "Messagerie Interne", icon: MessageSquare, badge: "Direct", adminOnly: false },
+    { id: 'copilot' as const, label: "Copilote IA Stratégique", icon: Sparkles, badge: "Spécial", adminOnly: false },
+    { id: 'siteadmin' as const, label: "Gestion Site (/site CMS)", icon: FileEdit, badge: "CMS", adminOnly: false },
+    { id: 'members' as const, label: "Membres & Habilitations", icon: ShieldCheck, badge: "Boss", adminOnly: true },
+    { id: 'settings' as const, label: "Paramètres & Grille", icon: Settings, badge: null, adminOnly: false },
+  ].filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <div className="min-h-screen bg-[#070c1e] text-slate-100 flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
@@ -222,8 +247,20 @@ export const DashboardLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Role Switcher */}
-            <RoleSwitcher />
+            {/* Session Membre */}
+            <div className="flex items-center gap-2 bg-[#0a122e] border border-white/10 px-3 py-1.5 rounded-xl">
+              <div className="hidden md:block text-right">
+                <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
+                <div className="text-[10px] font-mono text-slate-400 mt-0.5">{role}</div>
+              </div>
+              <button
+                onClick={logout}
+                className="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                title="Se déconnecter"
+              >
+                Déconnexion
+              </button>
+            </div>
 
             {/* Notification Bell */}
             <button
@@ -269,6 +306,7 @@ export const DashboardLayout: React.FC = () => {
           {activeTab === 'messaging' && <InternalChat />}
           {activeTab === 'copilot' && <CopilotTab />}
           {activeTab === 'siteadmin' && <SiteAdmin />}
+          {activeTab === 'members' && <MembersTab />}
           {activeTab === 'settings' && <SettingsTab />}
         </div>
       </main>
