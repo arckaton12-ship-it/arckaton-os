@@ -39,7 +39,7 @@ La clé `service_role` est utilisée **côté serveur uniquement** (Express) : e
 - `POST /api/leads` : chaque formulaire (devis interactif, essai ARKA 30j, contact) persiste le lead, l'assigne à un pôle et inscrit une notification WhatsApp en **file idempotente** (`whatsapp_outbox`, `unique(client_ref, to_number)`).
 - `POST /api/ai/generate-report` : la synthèse générée par l'agent IA est persistée et notifiée au pôle concerné.
 - `GET /api/leads` et `GET /api/reports` : le dashboard se synchronise (bouton refresh / ouverture dashboard).
-- Le consommateur final des notifications WhatsApp (provider WhatsApp Business API) lira les lignes `status='pending'` de `whatsapp_outbox`. En attendant, le retour client contient un lien `wa.me` pré-rempli (fallback manuel immédiat).
+- Le consommateur final des notifications WhatsApp est **intégré au serveur** : un worker lève les lignes `status='pending'` de `whatsapp_outbox` et les envoie via la **Meta WhatsApp Cloud API** (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, voir `.env.example`). Sans configuration, la file reste en `pending` et le retour client garde le lien `wa.me` pré-rempli (fallback manuel immédiat).
 
 ## Production
 - **URL : https://arckaton-os.onrender.com** (Render, plan free, région Oregon, Node 22, health check `/api/health`)

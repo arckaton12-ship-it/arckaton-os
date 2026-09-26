@@ -131,6 +131,107 @@ async function persistOutbox(entry: OutboxEntry): Promise<void> {
   if (error) console.warn("Supabase upsert outbox:", error.message);
 }
 
+// ============================================================
+// Envoi WhatsApp AUTOMATIQUE — Meta WhatsApp Cloud API
+// Config (optionnelle) :
+//   WHATSAPP_TOKEN       → token d'accès longue durée Meta
+//   WHATSAPP_PHONE_ID    → ID du numéro WhatsApp Business émetteur
+//   WHATSAPP_API_VERSION → défaut v22.0
+//   WHATSAPP_POLL_MS     → fréquence du worker (défaut 15000)
+// Sans WHATSAPP_TOKEN / WHATSAPP_PHONE_ID, la file whatsapp_outbox
+// reste at status='pending' (consultable) et le site garde le lien
+// wa.me pré-rempli : aucun comportement cassé.
+// ============================================================
+const WHATSAPP_API_VERSION = process.env.WHATSAPP_API_VERSION || 'v22.0';
+const WHATSAPP_MAX_ATTEMPTS = 5;
+
+interface OutboxRow {
+  id: string;
+  client_ref: string;
+  kind: string;
+  to_number: string;
+  message: string;
+  status: string;
+  attempts: number;
+}
+
+function whatsappConfigured(): boolean {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  return Boolean(token && phoneId && token !== 'MY_WHATSAPP_TOKEN' && phoneId !== 'MY_WHATSAPP_PHONE_ID');
+}
+
+async function sendWhatsAppMessage(toNumber: string, bodyText: string): Promise<{ ok: boolean; messageId?: string; error?: string }> {
+  const token = process.env.WHATSAPP_TOKEN!;
+  const phoneId = process.env.WHATSAPP_PHONE_ID!;
+  const cleanTo = toNumber.replace(/[^\d]/g, '');
+  if (!cleanTo) return { ok: false, error: 'Numéro vide' };
+  const url = `https://graph.facebook.com/${WHATSAPP_API_VERSION}/${phoneId}/messages`;
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: cleanTo,
+        type: 'text',
+        text: { body: bodyText.slice(0, 1024), preview_url: false },
+      }),
+    });
+    const data: any = await resp.json().catch(() => ({}));
+    if (resp.ok && data?.messages?.[0]?.id) {
+      return { ok: true, messageId: data.messages[0].id };
+    }
+    const msg = data?.error?.message || data?.error?.error_user_msg || JSON.stringify(data).slice(0, 200);
+    return { ok: false, error: `Meta ${resp.status}: ${msg}`.slice(0, 300) };
+  } catch (err: any) {
+    return { ok: false, error: String(err?.message || err).slice(0, 300) };
+  }
+}
+
+async function drainWhatsAppOutbox(): Promise<void> {
+  const sb = getSupabase();
+  if (!sb || !whatsappConfigured()) return;
+  const { data, error } = await sb
+    .from('whatsapp_outbox')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .limit(10);
+  if (error) { console.warn('Outbox select:', error.message); return; }
+  for (const row of (data || []) as OutboxRow[]) {
+    const result = await sendWhatsAppMessage(row.to_number, row.message);
+    const attempts = (row.attempts || 0) + 1;
+    if (result.ok) {
+      const { error: upErr } = await sb
+        .from('whatsapp_outbox')
+        .update({ status: 'sent', sent_at: new Date().toISOString(), attempts })
+        .eq('id', row.id);
+      if (upErr) console.warn('Outbox update (sent):', upErr.message);
+      else console.log(`[WhatsApp] envoyé à ${row.to_number} (${row.kind}/${row.client_ref}) → ${result.messageId}`);
+    } else {
+      const finalStatus = attempts >= WHATSAPP_MAX_ATTEMPTS ? 'failed' : 'pending';
+      const { error: upErr } = await sb
+        .from('whatsapp_outbox')
+        .update({ status: finalStatus, attempts })
+        .eq('id', row.id);
+      if (upErr) console.warn('Outbox update (retry):', upErr.message);
+      else console.warn(`[WhatsApp] échec ${row.to_number}: ${result.error} (tentative ${attempts})`);
+    }
+  }
+}
+
+function startWhatsAppWorker(): void {
+  if (!whatsappConfigured()) {
+    console.log('[WhatsApp] non configuré (WHATSAPP_TOKEN / WHATSAPP_PHONE_ID manquants) — file conservée en pending, lien wa.me actif.');
+    return;
+  }
+  const pollMs = Math.max(5000, Number(process.env.WHATSAPP_POLL_MS) || 15000);
+  console.log(`[WhatsApp] worker actif — poll toutes les ${pollMs}ms via Meta WhatsApp Cloud API (${WHATSAPP_API_VERSION}).`);
+  setTimeout(() => drainWhatsAppOutbox().catch(console.error), 2000);
+  setInterval(() => drainWhatsAppOutbox().catch(console.error), pollMs);
+}
+
 async function fetchLeadsServer() {
   const sb = getSupabase();
   if (!sb) return null;
@@ -484,6 +585,7 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
+    startWhatsAppWorker();
   });
 }
 

@@ -23,3 +23,7 @@ services:
         sync: false
       - key: APP_URL
         sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_ID
+        sync: false
