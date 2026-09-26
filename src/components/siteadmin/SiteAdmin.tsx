@@ -25,6 +25,7 @@ import {
   FolderKanban
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { REALISATION_CATEGORIES } from '../../data/categories';
 
 export const SiteAdmin: React.FC = () => {
   const { isSiteEditor, role, user } = useAuth();
@@ -274,13 +275,8 @@ export const SiteAdmin: React.FC = () => {
     triggerToast(`${n} éléments importés depuis Arckaton OS !`);
   };
 
-  const CATEGORIES: { key: string; label: string }[] = [
-    { key: 'camac', label: 'CAMAC & Commerce de proximité' },
-    { key: 'restauration', label: 'Restauration & Hôtellerie' },
-    { key: 'artisanat', label: 'Artisanat & Production locale' },
-    { key: 'vente', label: 'Vente & Distribution' },
-    { key: 'corporate', label: 'Corporate & Administration' },
-  ];
+  // Catégories partagées avec les filtres du site public (source unique : src/data/categories.ts)
+  const CATEGORIES: { key: string; label: string }[] = REALISATION_CATEGORIES.map((c) => ({ key: c.id, label: c.label }));
 
   // Permission Gate: allows admin, superadmin, editor
   if (!isSiteEditor) {

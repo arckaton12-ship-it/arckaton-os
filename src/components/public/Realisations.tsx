@@ -2,12 +2,20 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { TrendingUp, Star, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { REALISATION_CATEGORIES, getCategoryLabel } from '../../data/categories';
 
 export const Realisations: React.FC = () => {
   const { realisations, setIsQuoteModalOpen } = useApp();
   const [filter, setFilter] = useState<string>('all');
 
   const filteredCases = filter === 'all' ? realisations : realisations.filter(c => c.category === filter);
+
+  // Filtres alignés sur les catégories du CMS : on n'affiche que celles qui ont au moins une réalisation
+  const usedCategoryIds = new Set(realisations.map((r) => r.category));
+  const filters = [
+    { id: 'all', label: 'Toutes les réalisations' },
+    ...REALISATION_CATEGORIES.filter((c) => usedCategoryIds.has(c.id)).map((c) => ({ id: c.id, label: c.label })),
+  ];
 
   return (
     <section id="realisations" className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
@@ -31,12 +39,7 @@ export const Realisations: React.FC = () => {
 
           {/* Filter Pills */}
           <div className="pt-4 flex items-center justify-center gap-2">
-            {[
-              { id: 'all', label: 'Toutes les réalisations' },
-              { id: 'ecommerce', label: 'E-commerce' },
-              { id: 'saas', label: 'ARKA-PME SaaS' },
-              { id: 'sante', label: 'Santé & Services' }
-            ].map(tab => (
+            {filters.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setFilter(tab.id)}
@@ -72,7 +75,7 @@ export const Realisations: React.FC = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                      {cs.categoryLabel}
+                      {getCategoryLabel(cs.category)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">{cs.forfait}</span>
                   </div>

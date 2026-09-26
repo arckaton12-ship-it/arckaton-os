@@ -795,8 +795,27 @@ Quelle est votre activitÃ© et quel objectif souhaitez-vous atteindre en prioritÃ
 }
 
 // API Routes
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "Arckaton Express Backend" });
+app.get("/api/health", async (_req, res) => {
+  // Diagnostic Supabase (aucun secret expose) : etat du client service +Volume de contenu
+  const supabase: { adminClient: boolean; anonClient: boolean; contentItems: number | null; error: string | null } = {
+    adminClient: false,
+    anonClient: false,
+    contentItems: null,
+    error: null,
+  };
+  try {
+    const sb = getSupabase();
+    supabase.adminClient = Boolean(sb);
+    supabase.anonClient = Boolean(getSupabaseAnon());
+    if (sb) {
+      const { count, error } = await sb.from('content_items').select('*', { count: 'exact', head: true });
+      if (error) supabase.error = error.message;
+      else supabase.contentItems = count ?? 0;
+    }
+  } catch (err: any) {
+    supabase.error = err?.message || 'exception inattendue';
+  }
+  res.json({ status: "ok", service: "Arckaton Express Backend", supabase });
 });
 
 // Agent Chat endpoint
