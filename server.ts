@@ -396,8 +396,9 @@ async function fetchContentItems(): Promise<ContentRow[]> {
 function groupContent(items: ContentRow[]): Record<string, any[]> {
   const grouped: Record<string, any[]> = {};
   for (const item of items) {
-    if (!grouped[item.kind]) grouped[item.kind] = [];
-    grouped[item.kind].push(item.data);
+    const key = KIND_TO_RESPONSE_KEY[item.kind] || item.kind;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(item.data);
   }
   return grouped;
 }
@@ -626,6 +627,15 @@ app.get('/api/activity', requirePerm('admin'), async (_req, res) => {
 // API Contenu (CMS public — lu publiquement, écrit par habilités)
 // ============================================================
 const CONTENT_KINDS = ['config', 'forfait', 'blog', 'realisation', 'temoignage'];
+
+// Les `kind` stockes en base sont au singulier, les cles de reponse au pluriel
+const KIND_TO_RESPONSE_KEY: Record<string, string> = {
+  config: 'config',
+  forfait: 'forfaits',
+  blog: 'blog',
+  realisation: 'realisations',
+  temoignage: 'temoignages',
+};
 
 app.get('/api/content', async (_req, res) => {
   try {
