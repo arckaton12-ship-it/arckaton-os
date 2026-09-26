@@ -951,7 +951,18 @@ app.get("/api/health", async (_req, res) => {
   } catch (err: any) {
     supabase.error = err?.message || 'exception inattendue';
   }
-  res.json({ status: "ok", service: "Arckaton Express Backend", supabase });
+  res.json({
+    status: "ok",
+    service: "Arckaton Express Backend",
+    supabase,
+    // Etat reels, derives de la configuration du serveur. La cle n'est
+    // jamais renvoyee, seulement sa presence.
+    ai: {
+      provider: "gemini",
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      configured: Boolean(getGeminiClient()),
+    },
+  });
 });
 
 // Agent Chat endpoint
@@ -1379,6 +1390,62 @@ app.delete("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) =
   } catch (err: any) {
     console.error("Erreur suppression devis:", err);
     res.status(500).json({ error: "Erreur suppression devis" });
+  }
+});
+
+// ------------------------------------------------------------
+// Parametres de l'agence
+// L'onglet Parametres affichait un bouton "Enregistrer" qui ne
+// sauvegardait rien : les coordonnees ne subsistaient pas au
+// rechargement. Elles sont desormais persistees.
+// ------------------------------------------------------------
+const SETTINGS_KEYS = ['agency_phone', 'agency_email', 'agency_location'];
+
+app.get("/api/settings", requireAuth, async (_req, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.json({ settings: {} });
+    const { data, error } = await sb.from('app_settings').select('*');
+    if (error) throw error;
+    const settings: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      settings[row.key] = row.value;
+    });
+    res.json({ settings });
+  } catch (err: any) {
+    console.error("Erreur lecture parametres:", err);
+    res.status(500).json({ error: "Erreur lecture parametres" });
+  }
+});
+
+app.put("/api/settings", requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+
+    const body = req.body || {};
+    const rows = Object.entries(body)
+      .filter(([k, v]) => SETTINGS_KEYS.includes(k) && typeof v === 'string')
+      .map(([key, value]) => ({ key, value: String(value).slice(0, 300), updated_at: new Date().toISOString() }));
+
+    if (rows.length === 0) {
+      return res.status(400).json({ error: "Aucun parametre reconnu" });
+    }
+
+    const { data, error } = await sb
+      .from('app_settings')
+      .upsert(rows, { onConflict: 'key' })
+      .select('*');
+    if (error) throw error;
+
+    const settings: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      settings[row.key] = row.value;
+    });
+    res.json({ success: true, settings });
+  } catch (err: any) {
+    console.error("Erreur enregistrement parametres:", err);
+    res.status(500).json({ error: "Erreur enregistrement parametres" });
   }
 });
 

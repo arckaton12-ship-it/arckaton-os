@@ -138,6 +138,15 @@ create index if not exists idx_quotes_status on public.quotes (status);
 create index if not exists idx_quotes_created_at on public.quotes (created_at desc);
 
 -- ------------------------------------------------------------
+-- Parametres de l'agence (coordonnees editees depuis l'OS)
+-- ------------------------------------------------------------
+create table if not exists public.app_settings (
+  key text primary key,
+  value text default '',
+  updated_at timestamptz not null default now()
+);
+
+-- ------------------------------------------------------------
 -- Sécurité : RLS activée partout. Seul le service_role
 -- (clé gardée côté serveur Express dans .env, jamais dans le
 -- bundle client) lit/écrit. L'accès anonyme est fermé par défaut.
@@ -147,6 +156,7 @@ alter table public.agent_reports enable row level security;
 alter table public.whatsapp_outbox enable row level security;
 alter table public.projects enable row level security;
 alter table public.quotes enable row level security;
+alter table public.app_settings enable row level security;
 
 -- ------------------------------------------------------------
 -- NOTE FUTURE (non bloquant pour la v1) :
