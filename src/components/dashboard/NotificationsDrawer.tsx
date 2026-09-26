@@ -1,0 +1,95 @@
+import React from 'react';
+import { useApp } from '../../contexts/AppContext';
+import { X, Bell, Check, ArrowUpRight, User, AlertCircle, Sparkles } from 'lucide-react';
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
+  const { notifications, markNotificationAsRead, clearNotifications } = useApp();
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fadeIn">
+      <div className="w-full max-w-md bg-[#0a0f2e] border-l border-white/15 h-full flex flex-col shadow-2xl">
+        
+        {/* Top Header */}
+        <div className="p-5 border-b border-white/10 flex items-center justify-between bg-[#070c1e]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+              <Bell className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-white">Notifications Arckaton OS</h3>
+              <p className="text-[11px] text-slate-400 font-mono">
+                {notifications.filter(n => !n.read).length} non lues
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {notifications.length > 0 && (
+              <button
+                onClick={clearNotifications}
+                className="text-[11px] text-slate-400 hover:text-white font-mono px-2 py-1"
+              >
+                Tout effacer
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Notifications List */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {notifications.length === 0 ? (
+            <div className="text-center py-16 text-slate-500 space-y-3">
+              <Check className="w-8 h-8 mx-auto opacity-40 text-emerald-400" />
+              <p className="text-xs">Toutes les alertes sont à jour. Aucun événement non traité.</p>
+            </div>
+          ) : (
+            notifications.map((n) => (
+              <div
+                key={n.id}
+                onClick={() => markNotificationAsRead(n.id)}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  n.read
+                    ? 'bg-[#070c1e]/60 border-white/5 opacity-70'
+                    : 'bg-[#0e163d] border-blue-500/30 shadow-sm'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                    <span className="text-xs font-semibold text-white">{n.title}</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400">
+                    {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  {n.message}
+                </p>
+
+                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-white/5">
+                  <span className="text-emerald-400">Pôle : {n.pole_target}</span>
+                  <span>Pour : {n.recipient}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+      </div>
+    </div>
+  );
+};

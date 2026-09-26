@@ -1,0 +1,25 @@
+# Render Blueprint — Arckaton OS (site public + dashboard + API Express)
+# Utilisation : Render Dashboard > New > Blueprint > coller ce fichier,
+# ou copier-coller le contenu dans "From existing repository".
+# Les variables SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY
+# et APP_URL sont demandées à la création (jamais commitées).
+services:
+  - type: web
+    name: arckaton-os
+    runtime: node
+    region: oregon
+    plan: free
+    healthCheckPath: /api/health
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: APP_URL
+        sync: false

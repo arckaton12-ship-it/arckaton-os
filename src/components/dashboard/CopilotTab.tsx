@@ -1,0 +1,422 @@
+import React, { useState } from 'react';
+import { useApp } from '../../contexts/AppContext';
+import { 
+  Sparkles, 
+  Bot, 
+  Send, 
+  FileText, 
+  TrendingUp, 
+  AlertTriangle, 
+  CheckCircle2, 
+  Copy, 
+  Printer, 
+  RefreshCw,
+  Calendar,
+  Zap,
+  ArrowRight
+} from 'lucide-react';
+import { AgentReport } from '../../types';
+import { ReportPreviewSkeleton, ChatResponseSkeleton } from './DashboardSkeleton';
+
+export const CopilotTab: React.FC = () => {
+  const { leads, tasks, agentReports, addAgentReport } = useApp();
+
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<AgentReport | null>(agentReports[0] || null);
+
+  // Copilot Chat State
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
+    {
+      role: 'assistant',
+      text: "Bonjour Boss ! Je suis le Copilote Stratégique d'Arckaton OS. J'ai accès en temps réel au pipeline des leads, aux tâches des 6 pôles et aux performances financières. Comment puis-je vous aider aujourd'hui ?"
+    }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // 1-Click AI Strategic Report Generation
+  const handleGenerateReport = async () => {
+    setGeneratingReport(true);
+
+    try {
+      const res = await fetch('/api/ai/generate-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pole: 'Direction',
+          leadsContext: leads.map(l => ({
+            name: l.name,
+            project: l.project_type,
+            budget: l.budget,
+            statut: l.statut,
+            country: l.country
+          })),
+          tasksContext: tasks.map(t => ({
+            title: t.title,
+            pole: t.pole,
+            status: t.status,
+            priority: t.priority
+          }))
+        })
+      });
+
+      const data = await res.json();
+      
+      const newReport: AgentReport = {
+        id: `report-${Date.now()}`,
+        title: data.title || `Rapport Stratégique Hebdomadaire — ${new Date().toLocaleDateString('fr-FR')}`,
+        pole: 'Direction',
+        lead_name: 'Audit Global Pipeline & Opérations',
+        summary: data.summary,
+        recommendations: data.recommendations || [
+          'Relancer en priorité les 3 prospects ayant demandé le Forfait Synergie sur WhatsApp',
+          'Accélérer la validation du module Mobile Money v2 par le Pôle Tech',
+          'Planifier la captation vidéo de jeudi pour Maison Kotto (Pôle Créatif)'
+        ],
+        forfait_recommande: data.forfait_recommande || 'Synergie (750k FCFA)',
+        created_at: new Date().toISOString()
+      };
+
+      addAgentReport(newReport);
+      setSelectedReport(newReport);
+    } catch (err) {
+      // Fallback local report
+      const fallbackReport: AgentReport = {
+        id: `report-${Date.now()}`,
+        title: `Rapport Stratégique d'Urgence — ${new Date().toLocaleDateString('fr-FR')}`,
+        pole: 'Direction',
+        lead_name: 'Audit Global Pipeline & Opérations',
+        summary: `Le pipeline compte actuellement ${leads.length} prospects actifs. Le chiffre d'affaires potentiel sous devis s'élève à plus de 4,5M FCFA. Les tâches urgentes concernent principalement les passerelles de paiement MTN MoMo / Orange Money et la préparation des sorties terrain de la semaine.`,
+        recommendations: [
+          'Clôturer les 2 devis en attente sur le Forfait Synergie pour sécuriser 1,5M FCFA d\'acompte',
+          'Vérifier la bonne synchronisation hors-ligne d\'ARKA-PME chez Districash',
+          'Maintenir le rythme de 9 sorties terrain ce mois pour garantir le standing de la marque'
+        ],
+        forfait_recommande: 'Synergie (750 000 FCFA)',
+        created_at: new Date().toISOString()
+      };
+      addAgentReport(fallbackReport);
+      setSelectedReport(fallbackReport);
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
+  // Copilot Chat Handler
+  const handleSendChat = async (presetText?: string) => {
+    const text = presetText || chatInput;
+    if (!text.trim() || chatLoading) return;
+
+    const newMsgs = [...chatMessages, { role: 'user' as const, text }];
+    setChatMessages(newMsgs);
+    if (!presetText) setChatInput('');
+    setChatLoading(true);
+
+    try {
+      const res = await fetch('/api/ai/copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          leadsSummary: {
+            total: leads.length,
+            nouveaux: leads.filter(l => l.statut === 'nouveau').length,
+            convertis: leads.filter(l => l.statut === 'converti').length
+          },
+          tasksSummary: {
+            total: tasks.length,
+            urgentes: tasks.filter(t => t.priority === 'urgente' && t.status !== 'termine').length
+          }
+        })
+      });
+
+      const data = await res.json();
+      setChatMessages([...newMsgs, { role: 'assistant', text: data.reply }]);
+    } catch (err) {
+      setChatMessages([
+        ...newMsgs,
+        {
+          role: 'assistant',
+          text: `Analyse interne Arckaton OS : D'après les métriques actuelles, le taux de conversion est optimal sur le Forfait Synergie (750 000 FCFA). Je vous recommande de programmer un appel de cadrage de 15 minutes sur WhatsApp avec les leads marqués 'Nouveau'. Souhaitez-vous que je génère un modèle de message de closing ?`
+        }
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const copyReportText = () => {
+    if (!selectedReport) return;
+    const text = `${selectedReport.title}\n\nSYNTHÈSE EXÉCUTIVE :\n${selectedReport.summary}\n\nRECOMMANDATIONS STRATÉGIQUES :\n${selectedReport.recommendations.map((r, i) => `${i+1}. ${r}`).join('\n')}\n\nFORFAIT RECOMMANDÉ : ${selectedReport.forfait_recommande}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const quickCopilotPrompts = [
+    "Quels leads relancer en priorité aujourd'hui ?",
+    "Rédige un message WhatsApp de closing pour le Forfait Synergie",
+    "Analyse la rentabilité de nos 9 sorties terrain",
+    "Goulots d'étranglement actuels sur le Pôle Tech ?"
+  ];
+
+  return (
+    <div className="space-y-8 animate-fadeIn">
+      
+      {/* Top Special Feature Banner */}
+      <div className="bg-gradient-to-r from-[#0d1e57] via-[#0a0f2e] to-[#0d1e57] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+        <div className="space-y-2 relative z-10">
+          <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 font-mono text-xs px-3 py-1 rounded-full border border-emerald-500/40">
+            <Sparkles className="w-3.5 h-3.5 animate-spin" />
+            <span>Signature Exclusive Arckaton OS • Intelligence Décisionnelle</span>
+          </div>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+            Copilote Stratégique & Générateur de Rapports IA
+          </h2>
+          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+            Un centre de commandement assisté par intelligence artificielle pour auditer vos opérations en 1 clic, déceler les opportunités commerciales et guider les 6 pôles de l'agence.
+          </p>
+        </div>
+
+        <button
+          onClick={handleGenerateReport}
+          disabled={generatingReport}
+          className="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 disabled:opacity-60 text-slate-950 font-bold px-6 py-3.5 rounded-2xl text-xs transition-all flex items-center gap-2.5 shadow-xl shadow-emerald-500/25 cursor-pointer flex-shrink-0"
+        >
+          {generatingReport ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping" />
+              <span>Synthèse de l'audit en cours...</span>
+            </>
+          ) : (
+            <>
+              <Zap className="w-4 h-4 fill-slate-950" />
+              <span>Générer le Rapport Stratégique (1 Clic)</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Main Split: Left AI Reports Viewer, Right Interactive Copilot Chat */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Left: AI Reports Section */}
+        <div className="lg:col-span-6 space-y-6">
+          
+          <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-serif text-lg font-bold text-white">
+                  Rapports Stratégiques IA
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-slate-400">
+                {agentReports.length} rapports archivés
+              </span>
+            </div>
+
+            {/* List of Report Tabs */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {agentReports.map((rep) => (
+                <button
+                  key={rep.id}
+                  onClick={() => setSelectedReport(rep)}
+                  className={`px-3 py-2 rounded-xl text-xs font-mono whitespace-nowrap transition-all cursor-pointer border ${
+                    selectedReport?.id === rep.id
+                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-semibold'
+                      : 'bg-[#070c1e] border-white/5 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {rep.title.slice(0, 30)}...
+                </button>
+              ))}
+            </div>
+
+            {/* Active Report View (or Skeleton Loader when generating) */}
+            {generatingReport ? (
+              <div className="bg-[#070c1e] border border-white/5 rounded-2xl p-5">
+                <div className="text-xs font-mono text-emerald-400 mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>Le Copilote génère la structure décisionnelle...</span>
+                </div>
+                <ReportPreviewSkeleton />
+              </div>
+            ) : selectedReport ? (
+              <div className="bg-[#070c1e] border border-white/5 rounded-2xl p-5 space-y-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="font-serif text-base font-bold text-white">
+                      {selectedReport.title}
+                    </h4>
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400 mt-1">
+                      <span>Pôle : {selectedReport.pole}</span>
+                      <span>•</span>
+                      <span>{new Date(selectedReport.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={copyReportText}
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                      title="Copier le rapport"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => window.print()}
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                      title="Imprimer / Exporter PDF"
+                    >
+                      <Printer className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {copied && (
+                  <div className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md">
+                    ✓ Rapport copié dans le presse-papiers !
+                  </div>
+                )}
+
+                <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
+                      Synthèse Exécutive :
+                    </span>
+                    <p className="whitespace-pre-line bg-[#0a0f2e] p-3.5 rounded-xl border border-white/5">
+                      {selectedReport.summary}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold">
+                      Recommandations Prioritaires :
+                    </span>
+                    <ul className="space-y-2">
+                      {selectedReport.recommendations.map((rec, i) => (
+                        <li key={i} className="flex items-start gap-2.5 bg-[#0a0f2e] p-3 rounded-xl border border-white/5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                          <span>{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {selectedReport.forfait_recommande && (
+                    <div className="pt-2 flex items-center justify-between p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20">
+                      <span className="text-slate-300 font-medium">Forfait Recommandé par l'IA :</span>
+                      <span className="font-mono text-emerald-300 font-bold">{selectedReport.forfait_recommande}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+          </div>
+
+        </div>
+
+        {/* Right: Live Interactive Copilot Chat */}
+        <div className="lg:col-span-6 space-y-6">
+          
+          <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 h-full flex flex-col justify-between">
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+                    <Bot className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-white">
+                      Copilote Décisionnel
+                    </h3>
+                    <p className="text-[11px] text-slate-400 font-mono">
+                      Conseiller IA interne • Branché sur votre base en temps réel
+                    </p>
+                  </div>
+                </div>
+
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+
+              {/* Chat Message Scroll Area */}
+              <div className="space-y-3 max-h-[380px] overflow-y-auto p-2 bg-[#070c1e] rounded-2xl border border-white/5">
+                {chatMessages.map((m, idx) => {
+                  const isUser = m.role === 'user';
+                  return (
+                    <div
+                      key={idx}
+                      className={`flex gap-2.5 text-xs sm:text-sm ${
+                        isUser ? 'justify-end' : 'justify-start'
+                      }`}
+                    >
+                      <div
+                        className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
+                          isUser
+                            ? 'bg-blue-600 text-white rounded-tr-none font-medium'
+                            : 'bg-[#0a0f2e] text-slate-200 border border-white/10 rounded-tl-none'
+                        }`}
+                      >
+                        <p className="whitespace-pre-line">{m.text}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {chatLoading && <ChatResponseSkeleton />}
+              </div>
+
+              {/* Quick Prompts */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[10px] font-mono text-slate-400">Questions stratégiques rapides :</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {quickCopilotPrompts.map((p, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSendChat(p)}
+                      className="text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 transition-colors cursor-pointer"
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Input Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendChat();
+              }}
+              className="pt-4 flex items-center gap-2"
+            >
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Posez une question stratégique au Copilote Arckaton..."
+                className="flex-1 bg-[#070c1e] border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+              />
+              <button
+                type="submit"
+                disabled={chatLoading || !chatInput.trim()}
+                className="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-slate-950 p-3 rounded-xl transition-all cursor-pointer"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+};

@@ -1,0 +1,6 @@
+{
+  "name": "Arckaton - Agence Digitale & Arckaton OS",
+  "description": "Site officiel de l'agence digitale Arckaton à Yaoundé et cockpit opérationnel Arckaton OS avec CRM, tâches, organigramme, copilote IA et gestion des leads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
