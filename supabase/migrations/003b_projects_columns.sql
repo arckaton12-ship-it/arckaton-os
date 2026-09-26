@@ -1,0 +1,10 @@
+alter table public.projects add column if not exists deliverables jsonb default '[]'::jsonb;
+alter table public.projects add column if not exists score int default 0;
+alter table public.projects add column if not exists notes_internes text default '';
+alter table public.projects add column if not exists client_email text default '';
+alter table public.projects add column if not exists client_phone text default '';
+alter table public.projects add column if not exists forfait text default '';
+alter table public.projects add column if not exists budget_estime text default '';
+alter table public.projects add column if not exists deadline text default '';
+alter table public.projects add column if not exists chef_de_projet text default '';
+alter table public.projects add column if not exists updated_at timestamptz not null default now();

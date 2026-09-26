@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Pole, POLE_COLORS, ChannelMessage } from '../../types';
@@ -11,15 +11,70 @@ import {
   Smile, 
   Paperclip, 
   Clock, 
-  ShieldCheck 
+  ShieldCheck,
+  X,
+  Play
 } from 'lucide-react';
 
+// Scenarios de simulation : chaque etape est ecrite par le membre suivant
+const SIM_SCENARIOS: Array<{ id: string; label: string; hint: string; steps: string[] }> = [
+  {
+    id: 'relais',
+    label: 'Passage de relais projet',
+    hint: 'Tech transmet la maquette au Creatif puis au Client',
+    steps: [
+      'Maquette de la page vitrine integree sur la branche de test, aucun souci bloquant. Je la passe en revue ce soir.',
+      'Recu, je retravaille le hero et les visuels produits pour qu\'on ait la V2 avant la presentation client.',
+      'Version prete pour validation. Merci d\'ajouter le numero de telephone sur le pied de page.',
+      'Telephone ajoute et test du parcours de prise de contact effectue, tout remonte correctement.'
+    ]
+  },
+  {
+    id: 'ajustement',
+    label: 'Ajustement budgetaire',
+    hint: 'Le Client demande un extra, la Direction arbitre',
+    steps: [
+      'Le client souhaite ajouter une campagne Meta Ads sur le prochain projet, hors devis initial.',
+      'Je chiffre l\'option en jours-homme : 3 jours Tech et 2 jours Digital, a valider avant de relancer le client.',
+      'Valide au forfait, on absorbe sur la marge du projet. Je mets a jour le suivi commercial.',
+      'Client informe de l\'option et de l\'impact budgetaire, il confirme la signature aujourd\'hui.'
+    ]
+  },
+  {
+    id: 'blocage',
+    label: 'Blocage technique + escalade',
+    hint: 'Un blocage remonte, arbitrage puis resolution',
+    steps: [
+      'Blocage sur la passerelle de paiement : le webhook de confirmation ne remonte plus chez le client.',
+      'Je remonte le detail a la Direction, on est a deux jours du lancement et sans solution de repli.',
+      'On active le mode degrade (paiement a la livraison) en attendant, et je Mobilise le prestataire externalise.',
+      'Mode degrade en production chez le client, aucun impact utilisateur. Correctif webhook planifie vendredi.'
+    ]
+  },
+  {
+    id: 'terrain',
+    label: 'Sortie terrain + activation',
+    hint: 'Le Client planifie, le Digital declenche, la Tech surveille',
+    steps: [
+      'Sortie terrain confirmee pour samedi, 60 flyers et 2 roll-up a imprimer avant vendredi midi.',
+      'Publicite geolocalisee programmee samedi matin, budget 35 000 FCFA sur 4 jours.',
+      'Point technique : la connexion 4G est faible sur le spot, je prevois une box de secours et un cache hors-ligne.',
+      'Activation terminee, 142 contacts collectes sur place, photos et chiffres envoyes au client.'
+    ]
+  }
+];
+
 export const InternalChat: React.FC = () => {
-  const { messages, sendMessage } = useApp();
+  const { messages, sendMessage, osMembers, simulateExchange } = useApp();
   const { user } = useAuth();
 
   const [activeChannel, setActiveChannel] = useState<string>('c-general');
   const [content, setContent] = useState('');
+
+  // Simulateur d'echanges multi-membres
+  const [isSimOpen, setIsSimOpen] = useState(false);
+  const [simScenario, setSimScenario] = useState<string>(SIM_SCENARIOS[0].id);
+  const [simParticipants, setSimParticipants] = useState<string[]>([]);
 
   const channels: Array<{ id: string; name: string; pole?: Pole; desc: string; isPrivate?: boolean }> = [
     { id: 'c-general', name: 'général', desc: 'Annonces globales, cohésion et vie de l\'agence' },
@@ -40,6 +95,30 @@ export const InternalChat: React.FC = () => {
 
     sendMessage(activeChannel, content.trim());
     setContent('');
+  };
+
+  const previewSteps = useMemo(
+    () => SIM_SCENARIOS.find((s) => s.id === simScenario)?.steps || [],
+    [simScenario]
+  );
+
+  const handleRunSimulation = () => {
+    if (simParticipants.length < 2) return;
+    const scenario = SIM_SCENARIOS.find((s) => s.id === simScenario);
+    if (!scenario) return;
+
+    const participants = simParticipants
+      .map((name) => osMembers.find((m) => m.name === name))
+      .filter((m): m is (typeof osMembers)[number] => Boolean(m))
+      .map((m) => ({ id: m.id, name: m.name, role: m.poste_titre || m.role, pole: m.pole }));
+
+    if (participants.length < 2) return;
+
+    const count = simulateExchange(participants, activeChannel, scenario.steps);
+    if (count > 0) {
+      setIsSimOpen(false);
+      setSimParticipants([]);
+    }
   };
 
   return (
@@ -133,9 +212,20 @@ export const InternalChat: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-[11px] font-mono text-slate-400 hidden sm:flex items-center gap-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Chiffrement Interne Arckaton OS</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsSimOpen(true)}
+              className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-300 transition-colors cursor-pointer"
+              title="Simuler un échange entre plusieurs membres pour tester les flux"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Simuler un échange multi-membres</span>
+              <span className="sm:hidden">Simuler</span>
+            </button>
+            <div className="text-[11px] font-mono text-slate-400 hidden md:flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Chiffrement Interne Arckaton OS</span>
+            </div>
           </div>
         </div>
 
@@ -208,6 +298,120 @@ export const InternalChat: React.FC = () => {
         </form>
 
       </div>
+
+      {/* Simulateur d'échange multi-membres */}
+      {isSimOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#0a122e] border border-amber-500/25 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <div>
+                <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                  <Users className="w-4 h-4 text-amber-400" />
+                  Simuler un échange multi-membres
+                </h3>
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  Vérifie la circulation des flux entre pôles (la console de l'organigramme recording automatiquement)
+                </p>
+              </div>
+              <button onClick={() => setIsSimOpen(false)} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">Canal de destination</label>
+                <select
+                  value={activeChannel}
+                  onChange={(e) => setActiveChannel(e.target.value)}
+                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
+                >
+                  {channels.map((c) => (
+                    <option key={c.id} value={c.id}>#{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">Scénario</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {SIM_SCENARIOS.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setSimScenario(s.id)}
+                      className={`text-left p-3 rounded-xl border transition-colors cursor-pointer ${
+                        simScenario === s.id
+                          ? 'border-amber-400/50 bg-amber-500/10'
+                          : 'border-white/10 bg-[#070c1e] hover:border-white/20'
+                      }`}
+                    >
+                      <div className="text-xs font-semibold text-white">{s.label}</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">{s.hint}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">
+                  Membres participants ({simParticipants.length} sélectionné(s))
+                </label>
+                {osMembers.length === 0 ? (
+                  <p className="text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                    Aucun membre chargé depuis l'annuaire Supabase. Connecte-toi en tant que Directeur
+                    pour charger les membres réels (déjà disponibles dans /api/members).
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {osMembers.map((m) => {
+                      const active = simParticipants.includes(m.name);
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() =>
+                            setSimParticipants((prev) =>
+                              prev.includes(m.name) ? prev.filter((n) => n !== m.name) : [...prev, m.name]
+                            )
+                          }
+                          className={`px-2.5 py-1.5 rounded-lg text-[11px] font-mono border transition-colors cursor-pointer ${
+                            active
+                              ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
+                              : 'bg-[#070c1e] border-white/10 text-slate-300 hover:border-white/25'
+                          }`}
+                        >
+                          {m.name} · {m.pole}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] font-mono text-slate-400">
+                  {previewSteps.length} message(s) seront générés en alternance
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsSimOpen(false)}
+                    className="px-4 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handleRunSimulation}
+                    disabled={simParticipants.length < 2}
+                    className="bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5" />
+                    <span>Lancer la simulation</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

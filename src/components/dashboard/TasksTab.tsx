@@ -47,7 +47,7 @@ export const TasksTab: React.FC = () => {
 
   const filteredTasks = tasks.filter((t) => {
     const matchesPole = selectedPole === 'all' || t.pole === selectedPole;
-    const matchesStatus = selectedStatus === 'all' || t.status === selectedStatus;
+    const matchesStatus = selectedStatus === 'all' || (t.status || t.statut) === selectedStatus;
     const matchesProject = selectedProject === 'all' || t.project_id === selectedProject;
     const member = t.assigned_to || t.assignee_name || '';
     const matchesMember = selectedMember === 'all' || member === selectedMember;
@@ -189,7 +189,7 @@ export const TasksTab: React.FC = () => {
         ) : (
           filteredTasks.map((t) => {
             const isUrgent = t.priority === 'urgente';
-            const isCompleted = t.status === 'termine';
+            const isCompleted = (t.status || t.statut) === 'termine';
 
             return (
               <div
@@ -271,12 +271,12 @@ export const TasksTab: React.FC = () => {
                   {/* Status update switcher */}
                   <div className="flex items-center justify-between gap-2 pt-1">
                     <select
-                      value={t.status}
+                      value={t.status || t.statut}
                       onChange={(e) => updateTaskStatus(t.id, e.target.value as TaskStatus)}
                       className={`text-xs font-mono px-2.5 py-1 rounded-lg border focus:outline-none cursor-pointer w-full ${
-                        t.status === 'termine' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
-                        t.status === 'en_cours' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
-                        t.status === 'revue' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
+                        (t.status || t.statut) === 'termine' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
+                        (t.status || t.statut) === 'en_cours' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
+                        (t.status || t.statut) === 'revue' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
                         'bg-slate-800 text-slate-400 border-white/10'
                       }`}
                     >
@@ -362,7 +362,7 @@ export const TasksTab: React.FC = () => {
                   >
                     <option value="basse">Basse</option>
                     <option value="normale">Normale</option>
-                    <option value="urgente">Urgente ðŸ”¥</option>
+                    <option value="urgente">Urgente 🔥</option>
                   </select>
                 </div>
               </div>

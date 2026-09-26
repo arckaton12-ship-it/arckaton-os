@@ -92,7 +92,7 @@ const mapServerProject = (row: any): Projet => ({
   pole: (row.pole as Pole) || 'Direction',
   budget_estime: row.budget_estime || '',
   deadline: row.deadline || '',
-  deliverables: [],
+  deliverables: Array.isArray(row.deliverables) ? row.deliverables : [],
   score: Number(row.score || 0),
   statut: (row.statut as Projet['statut']) || 'en_cours',
   progression: Number(row.progression || 0),
@@ -102,7 +102,7 @@ const mapServerProject = (row: any): Projet => ({
   sorties_terrain: Array.isArray(row.sorties_terrain) ? row.sorties_terrain : [],
   jalons: Array.isArray(row.jalons) ? row.jalons : [],
   feedbacks: Array.isArray(row.feedbacks) ? row.feedbacks : [],
-  notes_internes: row.notes || undefined,
+  notes_internes: row.notes_internes || row.notes || undefined,
   created_at: row.created_at || new Date().toISOString(),
 });
 
@@ -137,6 +137,17 @@ interface AppContextType {
   addTask: (task: any) => void;
   updateTaskStatus: (id: string, status: TaskStatus) => void;
   remindTask: (id: string) => void;
+  osMembers: Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null; email?: string; phone?: string }>;
+  sendMessageAs: (
+    author: { id?: string; name: string; role?: string; pole?: Pole },
+    channelId: string,
+    content: string
+  ) => void;
+  simulateExchange: (
+    participants: Array<{ id?: string; name: string; role?: string; pole?: Pole }>,
+    channelId: string,
+    steps: string[]
+  ) => number;
 
   // Messages
   messages: ChannelMessage[];
@@ -606,11 +617,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshDashboardData = async () => {
     setIsDataFetching(true);
     try {
+      // /api/projects exige une session valide : on transmet le jeton
+      const authToken = localStorage.getItem('arckaton_os_token');
+      const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+
       // Synchronisation réelle avec le serveur (Supabase si configurée)
       const [leadsRes, reportsRes, projectsRes] = await Promise.all([
         fetch('/api/leads').then((r) => r.json()).catch(() => null),
         fetch('/api/reports').then((r) => r.json()).catch(() => null),
-        fetch('/api/projects').then((r) => r.json()).catch(() => null),
+        fetch('/api/projects', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
       ]);
 
       if (leadsRes && Array.isArray(leadsRes.leads)) {
@@ -1112,6 +1127,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // ---- Journal automatique des échanges (fil d'activité) ----
   // Chaque action impliquant 2 personnes (tâche, message, jalon, retour client)
   // crée une entrée de flux consultable par la direction. Plus de bouton "injecter".
+  const [osMembers, setOsMembers] = useState<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null; email?: string; phone?: string }>>([]);
   const memberDirectory = useRef<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null }>>([]);
 
   useEffect(() => {
@@ -1120,7 +1136,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const t = localStorage.getItem('arckaton_os_token');
         if (!t) return;
-        const res = await fetch('/api/members', { headers: { Authorization: `Bearer ${t}` } });
+        const res = await fetch('/api/members/directory', { headers: { Authorization: `Bearer ${t}` } });
         if (!res.ok) return;
         const json = await res.json();
         const list = Array.isArray(json.members) ? json.members : [];
@@ -1132,6 +1148,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             pole: m.pole,
             poste_titre: m.poste_titre,
           }));
+          setOsMembers(
+            list.map((m: any) => ({
+              id: m.id,
+              name: m.name,
+              role: m.role,
+              pole: m.pole,
+              poste_titre: m.poste_titre,
+              email: m.email,
+              phone: m.phone,
+            }))
+          );
         }
       } catch {
         /* annuaire indisponible : les flux restent crées avec le nom de l'auteur */
@@ -1191,8 +1218,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Task Handler
   const addTask = (taskData: Omit<Task, 'id' | 'created_at'>) => {
+    // Une tache creee est toujours "a faire" et le doit etre dans les deux
+    // champs, sinon elle n'apparait dans aucune colonne du Kanban.
+    const initialStatus: TaskStatus = taskData.status || taskData.statut || 'a_faire';
     const newTask: Task = {
       ...taskData,
+      statut: initialStatus,
+      status: initialStatus,
       id: `t-${Date.now()}`,
       created_at: 'Aujourd\'hui',
       relances: 0,
@@ -1216,7 +1248,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTasks((prev) =>
       prev.map((t) =>
         t.id === id
-          ? { ...t, statut: status, completed_at: status === 'termine' ? new Date().toISOString() : t.completed_at }
+          // `statut` et `status` coexistent dans l'UI historique (filtres, cartes,
+          // Kanban) : on ecrit les deux sinon l'interface ne se met pas a jour.
+          ? {
+              ...t,
+              statut: status,
+              status,
+              completed_at: status === 'termine' ? new Date().toISOString() : t.completed_at,
+            }
           : t
       )
     );
@@ -1264,19 +1303,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Message Handler
   const sendMessage = (channelId: string, content: string) => {
+    sendMessageAs(
+      { id: currentUser.id, name: currentUser.name, role: currentUser.poste_titre || 'Membre Agence', pole: currentUser.pole },
+      channelId,
+      content
+    );
+  };
+
+  // Envoi au nom d'un membre (simulation multi-membres / relais de pôles)
+  const sendMessageAs = (
+    author: { id?: string; name: string; role?: string; pole?: Pole },
+    channelId: string,
+    content: string
+  ) => {
+    const now = new Date();
     const newMsg: ChannelMessage = {
-      id: `m-${Date.now()}`,
+      id: `m-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
       channel_id: channelId,
-      sender_name: currentUser.name,
-      sender_role: currentUser.poste_titre || 'Membre Agence',
-      pole: currentUser.pole,
+      sender_name: author.name,
+      sender_role: author.role || 'Membre Agence',
+      pole: author.pole || currentUser.pole,
       content,
-      created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      created_at: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     setMessages((prev) => [...prev, newMsg]);
 
-    // Fil automatique : tout echange de message est trace
-    logExchange(undefined, 'securite', `Message (${channelId}) : « ${content.slice(0, 120)}${content.length > 120 ? '…' : ''} »`);
+    // Fil automatique : tout échange de message est tracé
+    logExchange(
+      author.id ? { id: author.id, name: author.name, role: author.role, pole: author.pole } : { name: 'Direction' },
+      'securite',
+      `Message (${channelId}) — ${author.name} : « ${content.slice(0, 120)}${content.length > 120 ? '…' : ''} »`
+    );
+  };
+
+  // Simulation d'un échange entre plusieurs membres (test du flux inter-pôles)
+  const simulateExchange = (
+    participants: Array<{ id?: string; name: string; role?: string; pole?: Pole }>,
+    channelId: string,
+    steps: string[]
+  ) => {
+    if (participants.length < 2 || steps.length === 0) return 0;
+    let sent = 0;
+    steps.forEach((text, i) => {
+      const author = participants[i % participants.length];
+      setTimeout(() => {
+        sendMessageAs(author, channelId, text);
+        sent++;
+      }, i * 350);
+    });
+    return steps.length;
   };
 
   // Notification Handler
@@ -1354,6 +1429,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addTask,
     updateTaskStatus,
     remindTask,
+    osMembers,
+    sendMessageAs,
+    simulateExchange,
         messages,
         sendMessage,
         notifications,

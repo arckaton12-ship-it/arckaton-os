@@ -94,7 +94,23 @@ interface StoredProject {
   jalons?: unknown[];
   sorties_terrain?: unknown[];
   feedbacks?: unknown[];
+  deliverables?: unknown[];
+  score?: number;
   notes?: string;
+  notes_internes?: string;
+}
+
+const PROJECT_STATUTS = ['brouillon', 'qualifie', 'en_cours', 'livre', 'annule'];
+
+function normalizeProjectStatut(value: unknown): string {
+  const raw = String(value || '').toLowerCase();
+  if (PROJECT_STATUTS.includes(raw)) return raw;
+  // Anciennes valeurs du projet initial
+  if (raw === 'active' || raw === 'en_pause') return 'en_cours';
+  if (raw === 'livree' || raw === 'livre' || raw === 'termine') return 'livre';
+  if (raw === 'archive' || raw === 'archivee') return 'annule';
+  if (raw === 'clos') return 'livre';
+  return 'en_cours';
 }
 
 function projectRow(p: StoredProject) {
@@ -107,17 +123,19 @@ function projectRow(p: StoredProject) {
     service: p.service || '',
     pole: p.pole || 'Direction',
     chef_de_projet: p.chef_de_projet || '',
-    statut: p.statut || 'active',
+    statut: normalizeProjectStatut(p.statut),
     forfait: p.forfait || '',
     budget_estime: p.budget_estime || '',
     deadline: p.deadline || '',
     progression: Number.isFinite(p.progression) ? Number(p.progression) : 0,
     sorties_terrain_effectuees: Number(p.sorties_terrain_effectuees || 0),
     sorties_terrain_total: Number(p.sorties_terrain_total || 0),
+    deliverables: p.deliverables || [],
+    score: Number(p.score || 0),
     jalons: p.jalons || [],
     sorties_terrain: p.sorties_terrain || [],
     feedbacks: p.feedbacks || [],
-    notes: p.notes || '',
+    notes_internes: p.notes || p.notes_internes || '',
     updated_at: new Date().toISOString(),
   };
 }
@@ -141,16 +159,20 @@ async function persistProject(p: StoredProject): Promise<boolean> {
   const sb = getSupabase();
   if (!sb) return false;
   const ref = p.project_ref || p.id;
-  if (ref) {
-    const { error } = await sb.from('projects').update(projectRow(p)).eq('project_ref', ref);
-    if (!error) return true;
-    console.warn("Supabase update project:", error.message);
-  }
-  const { error } = await sb.from('projects').insert(projectRow(p));
+
+  // upsert : un update sans ligne affectee ne renvoyait aucune erreur,
+  // la creation initiale etait donc "reussie" alors que rien n'etait insere.
+  const { data, error } = await sb
+    .from('projects')
+    .upsert(projectRow(p), { onConflict: 'project_ref' })
+    .select('project_ref')
+    .maybeSingle();
+
   if (error) {
-    console.warn("Supabase insert project:", error.message);
+    console.warn("Supabase upsert project:", error.message);
     return false;
   }
+  if (!data && !ref) return false;
   return true;
 }
 
@@ -606,6 +628,21 @@ app.get('/api/auth/me', requireAuth, (req: AuthReq, res) => {
 // ============================================================
 // API Membres (admin — seul le boss ajoute / supprime / active)
 // ============================================================
+// Annuaire interne lisible par tout membre habilité (affectation de tâches,
+// échanges inter-pôles) : uniquement les champs non sensibles, contrairement
+// à /api/members qui reste réservé à la direction.
+app.get('/api/members/directory', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+  const { data, error } = await sb
+    .from('members')
+    .select('id, name, role, pole, poste_titre, email, phone, active, avatar_url')
+    .eq('active', true)
+    .order('name', { ascending: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ members: data || [] });
+});
+
 app.get('/api/members', requirePerm('admin'), async (_req, res) => {
   const sb = getSupabase();
   if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
@@ -1103,8 +1140,10 @@ app.get("/api/reports", async (_req, res) => {
 
 // ------------------------------------------------------------
 // Projets clients (portail BAT + suivi d'evolution)
+// Toutes les routes exigent une session Arckaton OS valide :
+// lecture pour tout membre habilité, ecriture reservee a la direction.
 // ------------------------------------------------------------
-app.get("/api/projects", async (_req, res) => {
+app.get("/api/projects", requireAuth, async (_req, res) => {
   try {
     const serverProjects = await fetchProjectsServer();
     if (serverProjects !== null) {
@@ -1116,7 +1155,7 @@ app.get("/api/projects", async (_req, res) => {
   res.json({ projects: [] });
 });
 
-app.post("/api/projects", async (req, res) => {
+app.post("/api/projects", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const body = req.body || {};
     if (!body.client_name) {
@@ -1141,7 +1180,7 @@ app.post("/api/projects", async (req, res) => {
   }
 });
 
-app.put("/api/projects/:ref", async (req, res) => {
+app.put("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const ref = req.params.ref;
     if (!ref) return res.status(400).json({ error: "Référence projet manquante" });
@@ -1155,7 +1194,7 @@ app.put("/api/projects/:ref", async (req, res) => {
   }
 });
 
-app.delete("/api/projects/:ref", async (req, res) => {
+app.delete("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
     if (!sb) return res.status(501).json({ error: "Supabase non configure" });
