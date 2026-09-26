@@ -70,6 +70,91 @@ const BOSS_WHATSAPP = "+237681462982";
 // "gemini-3.8-flash" n'existaient pas et faisaient echouer tous les appels IA.
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
+// ============================================================
+// Projets clients : persistance Supabase (source de verite du
+// portail BAT et du suivi d'evolution des projets).
+// ============================================================
+interface StoredProject {
+  id?: string;
+  project_ref?: string | null;
+  client_code?: string | null;
+  client_name: string;
+  client_email?: string;
+  client_phone?: string;
+  service?: string;
+  pole?: string;
+  chef_de_projet?: string;
+  statut?: string;
+  forfait?: string;
+  budget_estime?: string;
+  deadline?: string;
+  progression?: number;
+  sorties_terrain_effectuees?: number;
+  sorties_terrain_total?: number;
+  jalons?: unknown[];
+  sorties_terrain?: unknown[];
+  feedbacks?: unknown[];
+  notes?: string;
+}
+
+function projectRow(p: StoredProject) {
+  return {
+    project_ref: p.project_ref || p.id || null,
+    client_code: p.client_code || null,
+    client_name: p.client_name,
+    client_email: p.client_email || '',
+    client_phone: p.client_phone || '',
+    service: p.service || '',
+    pole: p.pole || 'Direction',
+    chef_de_projet: p.chef_de_projet || '',
+    statut: p.statut || 'active',
+    forfait: p.forfait || '',
+    budget_estime: p.budget_estime || '',
+    deadline: p.deadline || '',
+    progression: Number.isFinite(p.progression) ? Number(p.progression) : 0,
+    sorties_terrain_effectuees: Number(p.sorties_terrain_effectuees || 0),
+    sorties_terrain_total: Number(p.sorties_terrain_total || 0),
+    jalons: p.jalons || [],
+    sorties_terrain: p.sorties_terrain || [],
+    feedbacks: p.feedbacks || [],
+    notes: p.notes || '',
+    updated_at: new Date().toISOString(),
+  };
+}
+
+async function fetchProjectsServer(): Promise<any[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb
+    .from('projects')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(200);
+  if (error) {
+    console.warn("Supabase select projects:", error.message);
+    return null;
+  }
+  return data || [];
+}
+
+async function persistProject(p: StoredProject): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  const ref = p.project_ref || p.id;
+  if (ref) {
+    const { error } = await sb.from('projects').update(projectRow(p)).eq('project_ref', ref);
+    if (!error) return true;
+    console.warn("Supabase update project:", error.message);
+  }
+  const { error } = await sb.from('projects').insert(projectRow(p));
+  if (error) {
+    console.warn("Supabase insert project:", error.message);
+    return false;
+  }
+  return true;
+}
+
+
 interface OutboxEntry {
   client_ref: string;
   kind: 'lead' | 'report';
@@ -1014,6 +1099,73 @@ app.get("/api/reports", async (_req, res) => {
     console.warn("fetchReportsServer fallback:", err);
   }
   res.json({ reports: reportsStore });
+});
+
+// ------------------------------------------------------------
+// Projets clients (portail BAT + suivi d'evolution)
+// ------------------------------------------------------------
+app.get("/api/projects", async (_req, res) => {
+  try {
+    const serverProjects = await fetchProjectsServer();
+    if (serverProjects !== null) {
+      return res.json({ projects: serverProjects });
+    }
+  } catch (err) {
+    console.warn("fetchProjectsServer fallback:", err);
+  }
+  res.json({ projects: [] });
+});
+
+app.post("/api/projects", async (req, res) => {
+  try {
+    const body = req.body || {};
+    if (!body.client_name) {
+      return res.status(400).json({ error: "Nom du client obligatoire" });
+    }
+    const ref = body.project_ref || body.id || `prj-${Date.now()}`;
+    const project: StoredProject = {
+      ...body,
+      id: body.id || ref,
+      project_ref: ref,
+      client_code: body.client_code || (String(ref).startsWith('PRJ-') ? String(ref) : `PRJ-${String(ref).replace(/^prj-/, '')}`),
+      progression: Number(body.progression || 0),
+      jalons: Array.isArray(body.jalons) ? body.jalons : [],
+      sorties_terrain: Array.isArray(body.sorties_terrain) ? body.sorties_terrain : [],
+      feedbacks: Array.isArray(body.feedbacks) ? body.feedbacks : [],
+    };
+    const persisted = await persistProject(project);
+    res.json({ success: true, project: { ...project, project_ref: ref }, persisted });
+  } catch (err: any) {
+    console.error("Erreur enregistrement projet:", err);
+    res.status(500).json({ error: "Erreur enregistrement projet" });
+  }
+});
+
+app.put("/api/projects/:ref", async (req, res) => {
+  try {
+    const ref = req.params.ref;
+    if (!ref) return res.status(400).json({ error: "Référence projet manquante" });
+    const body = req.body || {};
+    const project: StoredProject = { ...body, id: body.id || ref, project_ref: ref };
+    const persisted = await persistProject(project);
+    res.json({ success: true, project, persisted });
+  } catch (err: any) {
+    console.error("Erreur mise a jour projet:", err);
+    res.status(500).json({ error: "Erreur mise a jour projet" });
+  }
+});
+
+app.delete("/api/projects/:ref", async (req, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    const { error } = await sb.from('projects').delete().eq('project_ref', req.params.ref);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("Erreur suppression projet:", err);
+    res.status(500).json({ error: "Erreur suppression projet" });
+  }
 });
 
 // Copilot for Dashboard

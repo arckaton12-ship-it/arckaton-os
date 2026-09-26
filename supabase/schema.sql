@@ -73,6 +73,39 @@ create index if not exists idx_agent_reports_created_at on public.agent_reports 
 create index if not exists idx_outbox_pending on public.whatsapp_outbox (status) where status = 'pending';
 
 -- ------------------------------------------------------------
+-- Projets clients : source de vérité du portail BAT et du
+-- suivi d'évolution. Détails (jalons, sorties terrain, feedbacks)
+-- en jsonb pour coller au type Project côté client.
+-- ------------------------------------------------------------
+create table if not exists public.projects (
+  id uuid primary key default gen_random_uuid(),
+  project_ref text unique,
+  client_code text,
+  client_name text not null,
+  client_email text default '',
+  client_phone text default '',
+  service text default '',
+  pole text default 'Direction',
+  chef_de_projet text default '',
+  statut text default 'active',
+  forfait text default '',
+  budget_estime text default '',
+  deadline text default '',
+  progression int default 0,
+  sorties_terrain_effectuees int default 0,
+  sorties_terrain_total int default 0,
+  jalons jsonb default '[]'::jsonb,
+  sorties_terrain jsonb default '[]'::jsonb,
+  feedbacks jsonb default '[]'::jsonb,
+  notes text default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_projects_updated_at on public.projects (updated_at desc);
+create index if not exists idx_projects_statut on public.projects (statut);
+
+-- ------------------------------------------------------------
 -- Sécurité : RLS activée partout. Seul le service_role
 -- (clé gardée côté serveur Express dans .env, jamais dans le
 -- bundle client) lit/écrit. L'accès anonyme est fermé par défaut.
@@ -80,6 +113,7 @@ create index if not exists idx_outbox_pending on public.whatsapp_outbox (status)
 alter table public.leads enable row level security;
 alter table public.agent_reports enable row level security;
 alter table public.whatsapp_outbox enable row level security;
+alter table public.projects enable row level security;
 
 -- ------------------------------------------------------------
 -- NOTE FUTURE (non bloquant pour la v1) :

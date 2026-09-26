@@ -80,6 +80,32 @@ const mapServerReport = (row: any): AgentReport => ({
   messages_count: row.messages_count ?? 1,
 });
 
+const mapServerProject = (row: any): Projet => ({
+  id: row.project_ref || row.id,
+  client_code: row.client_code || undefined,
+  name: row.client_name || 'Projet',
+  client_name: row.client_name || 'Client',
+  client_phone: row.client_phone || undefined,
+  client_email: row.client_email || undefined,
+  service: row.service || '',
+  forfait: row.forfait || undefined,
+  pole: (row.pole as Pole) || 'Direction',
+  budget_estime: row.budget_estime || '',
+  deadline: row.deadline || '',
+  deliverables: [],
+  score: Number(row.score || 0),
+  statut: (row.statut as Projet['statut']) || 'en_cours',
+  progression: Number(row.progression || 0),
+  chef_de_projet: row.chef_de_projet || undefined,
+  sorties_terrain_total: Number(row.sorties_terrain_total || 0),
+  sorties_terrain_effectuees: Number(row.sorties_terrain_effectuees || 0),
+  sorties_terrain: Array.isArray(row.sorties_terrain) ? row.sorties_terrain : [],
+  jalons: Array.isArray(row.jalons) ? row.jalons : [],
+  feedbacks: Array.isArray(row.feedbacks) ? row.feedbacks : [],
+  notes_internes: row.notes || undefined,
+  created_at: row.created_at || new Date().toISOString(),
+});
+
 interface AppContextType {
   // Navigation Mode
   mode: 'public' | 'dashboard';
@@ -110,6 +136,7 @@ interface AppContextType {
   tasks: Task[];
   addTask: (task: any) => void;
   updateTaskStatus: (id: string, status: TaskStatus) => void;
+  remindTask: (id: string) => void;
 
   // Messages
   messages: ChannelMessage[];
@@ -124,6 +151,7 @@ interface AppContextType {
   // Projects
   projets: Projet[];
   updateProjectProgression: (id: string, progression: number) => void;
+  createProject: (projectData: Omit<Projet, 'id' | 'created_at'>) => Projet;
   updateProjectMilestone: (projectId: string, milestoneId: string, status: ProjectMilestone['statut']) => void;
   addProjectMilestone: (projectId: string, milestone: Omit<ProjectMilestone, 'id'>) => void;
   addProjectFeedback: (projectId: string, feedback: Omit<ClientFeedback, 'id' | 'date'>) => void;
@@ -579,9 +607,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsDataFetching(true);
     try {
       // Synchronisation réelle avec le serveur (Supabase si configurée)
-      const [leadsRes, reportsRes] = await Promise.all([
+      const [leadsRes, reportsRes, projectsRes] = await Promise.all([
         fetch('/api/leads').then((r) => r.json()).catch(() => null),
         fetch('/api/reports').then((r) => r.json()).catch(() => null),
+        fetch('/api/projects').then((r) => r.json()).catch(() => null),
       ]);
 
       if (leadsRes && Array.isArray(leadsRes.leads)) {
@@ -602,6 +631,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...serverReports,
           ...prev.filter((r) => !serverIds.has(r.id) && !serverRefs.has(r.id)),
         ]);
+      }
+
+      // Projets : le serveur fait foi. En mode données réelles, la liste
+      // locale est remplacée (plus de projets de démonstration fantômes).
+      if (projectsRes && Array.isArray(projectsRes.projects)) {
+        const serverProjects = projectsRes.projects.map(mapServerProject);
+        if (isRealDataMode) {
+          setProjets(serverProjects);
+        } else {
+          const serverIds = new Set(serverProjects.map((p) => p.id));
+          setProjets((prev) => [...serverProjects, ...prev.filter((p) => !serverIds.has(p.id))]);
+        }
       }
     } catch (err) {
       console.warn('Synchronisation dashboard échouée, données locales conservées:', err);
@@ -650,6 +691,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (purgeInProgress) return;
     localStorage.setItem('arckaton_projets', JSON.stringify(projets));
   }, [projets]);
+
+  // ---- Persistance serveur des projets (source de vérité du portail BAT) ----
+  // En mode données réelles, chaque création / modification de projet est
+  // poussée vers Supabase. Le localStorage ne sert plus que de cache offline.
+  const projectsSyncTimer = useRef<number | null>(null);
+  const isFirstProjectsSync = useRef(true);
+
+  useEffect(() => {
+    if (purgeInProgress || !isRealDataMode) return;
+    // Le premier passage correspond à l'hydratation depuis le serveur : on ne renvoie rien.
+    if (isFirstProjectsSync.current) {
+      isFirstProjectsSync.current = false;
+      return;
+    }
+    if (projectsSyncTimer.current) window.clearTimeout(projectsSyncTimer.current);
+    projectsSyncTimer.current = window.setTimeout(() => {
+      const token = localStorage.getItem('arckaton_os_token');
+      if (!token) return; // non connecté : cache local uniquement
+      for (const p of projets) {
+        fetch(`/api/projects/${encodeURIComponent(p.id)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(p),
+        }).catch(() => undefined);
+      }
+    }, 1500);
+    return () => {
+      if (projectsSyncTimer.current) window.clearTimeout(projectsSyncTimer.current);
+    };
+  }, [projets, isRealDataMode]);
 
   // ---- Nettoyage des données de démonstration (passage en données réelles) ----
   const PERSISTED_KEEP = [
@@ -871,6 +942,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Project Management Actions
+  const createProject = (projectData: Omit<Projet, 'id' | 'created_at'>) => {
+    const ref = `prj-${Date.now()}`;
+    const newProject: Projet = {
+      ...projectData,
+      id: ref,
+      client_code: projectData.client_code || `PRJ-${ref.replace(/^prj-/, '')}`,
+      created_at: new Date().toISOString(),
+    };
+    setProjets((prev) => [newProject, ...prev]);
+
+    // Création immédiate côté serveur : le portail BAT doit voir le projet
+    // même si l'agent se déconnecte juste après.
+    if (isRealDataMode) {
+      const token = localStorage.getItem('arckaton_os_token');
+      fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(newProject),
+      }).catch(() => undefined);
+    }
+
+    logExchange(
+      { name: newProject.chef_de_projet || 'Chef de Projet', pole: newProject.pole },
+      'specs_tech',
+      `Ouverture du projet ${newProject.client_name} (${newProject.client_code}) — ${newProject.service}`
+    );
+    return newProject;
+  };
+
   const updateProjectProgression = (id: string, progression: number) => {
     setProjets((prev) =>
       prev.map((p) => (p.id === id ? { ...p, progression: Math.min(100, Math.max(0, progression)) } : p))
@@ -1095,31 +1195,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...taskData,
       id: `t-${Date.now()}`,
       created_at: 'Aujourd\'hui',
+      relances: 0,
     };
     setTasks((prev) => [newTask, ...prev]);
 
-    // Fil automatique : la tache est transmise au membre assigne
-    const assignee = (taskData as any).assigned_to || (taskData as any).assignee || (taskData as any).recipient;
-    if (assignee) {
-      const target = typeof assignee === 'string' ? findMemberByName(assignee) : assignee;
+    // Fil automatique : la tâche est transmise au membre assigné, rattachée au projet
+    const assigneeName = taskData.assigned_to || taskData.assignee_name;
+    const project = taskData.project_id ? projets.find((p) => p.id === taskData.project_id) : undefined;
+    if (assigneeName) {
+      const target = findMemberByName(assigneeName);
       logExchange(
-        target ? { id: target.id, name: target.name, role: target.poste_titre || target.role, pole: target.pole } : { name: String(assignee) },
+        target ? { id: target.id, name: target.name, role: target.poste_titre || target.role, pole: target.pole } : { name: assigneeName },
         'specs_tech',
-        `Tâche transmise : « ${taskData.title} » → ${typeof assignee === 'string' ? assignee : target?.name}`
+        `Tâche transmise : « ${taskData.title || taskData.titre} » → ${assigneeName}${project ? ` (projet ${project.client_name})` : ''}`
       );
     }
   };
 
   const updateTaskStatus = (id: string, status: TaskStatus) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, statut: status } : t)));
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, statut: status, completed_at: status === 'termine' ? new Date().toISOString() : t.completed_at }
+          : t
+      )
+    );
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
-    // Fil automatique a chaque changement d'etat notable
+    const label = task.title || task.titre || 'tâche';
     if (status === 'termine') {
-      logExchange(undefined, 'rapport_perf', `Tâche achevée : « ${task.title} »`);
+      logExchange(
+        undefined,
+        'rapport_perf',
+        `Tâche achevée : « ${label} »${task.project_name ? ` — projet ${task.project_name}` : ''}`
+      );
     } else if (status === 'en_cours') {
-      logExchange(undefined, 'ordre_terrain', `Prise en charge : « ${task.title} »`);
+      logExchange(undefined, 'ordre_terrain', `Prise en charge : « ${label} »${task.assignee_name ? ` par ${task.assignee_name}` : ''}`);
     }
+  };
+
+  // Relance d'une tâche en retard (notification + fil d'activité)
+  const remindTask = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    const label = task.title || task.titre || 'tâche';
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, relances: (t.relances || 0) + 1, last_reminder_at: new Date().toISOString() }
+          : t
+      )
+    );
+    setNotifications((prev) => [
+      {
+        id: `notif-relance-${Date.now()}`,
+        title: `Relance envoyée — ${label}`,
+        message: `${task.assignee_name || 'Le membre assigné'} a été relancé${task.project_name ? ` pour le projet ${task.project_name}` : ''}.`,
+        type: 'task',
+        read: false,
+        created_at: 'À l\'instant',
+        pole: task.pole,
+        link: '/tasks',
+      },
+      ...prev,
+    ]);
+    logExchange(undefined, 'securite', `Relance n°${(task.relances || 0) + 1} : « ${label} » → ${task.assignee_name || 'membre assigné'}`);
   };
 
   // Message Handler
@@ -1211,8 +1351,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addAgentReport,
         updateReportStatus,
         tasks,
-        addTask,
-        updateTaskStatus,
+    addTask,
+    updateTaskStatus,
+    remindTask,
         messages,
         sendMessage,
         notifications,
@@ -1221,6 +1362,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         clearNotifications,
         projets,
         updateProjectProgression,
+  createProject,
         updateProjectMilestone,
         addProjectMilestone,
         addProjectFeedback,

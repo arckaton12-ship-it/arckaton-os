@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { 
   X, CheckCircle2, Clock, MessageSquare, Camera,
-  Send, Search, Phone, Calendar
+  Send, Search, Phone, Calendar, FolderKanban
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -27,7 +27,6 @@ export const ClientPortalModal: React.FC = () => {
     p => (p.client_code && p.client_code.toLowerCase() === activeClientProjectCode?.toLowerCase()) ||
          p.id === activeClientProjectCode
   ) || projets[0];
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchCode.trim()) return;
@@ -128,6 +127,7 @@ export const ClientPortalModal: React.FC = () => {
             </div>
 
             {/* Search & Switcher Bar */}
+            {currentProject && (
             <div className="px-6 py-3 bg-[#0a0e17]/80 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
               <div className="flex items-center gap-2 overflow-x-auto text-xs py-1">
                 <span className="text-slate-400 font-mono text-[11px] whitespace-nowrap">Projets actifs :</span>
@@ -161,12 +161,39 @@ export const ClientPortalModal: React.FC = () => {
                 />
               </form>
             </div>
+            )}
 
             {/* Success Alert Banner */}
             {actionSuccessMessage && (
               <div className="mx-6 mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <span>{actionSuccessMessage}</span>
+              </div>
+            )}
+
+            {/* Aucun projet : état explicite au lieu d'un écran vide */}
+            {projets.length === 0 && (
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16 space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <FolderKanban className="w-7 h-7 text-amber-400" />
+                </div>
+                <h4 className="font-serif text-xl font-bold text-white">
+                  Aucun projet client n'est encore ouvert
+                </h4>
+                <p className="text-xs text-slate-300 font-light max-w-md leading-relaxed">
+                  L'espace client se remplit automatiquement dès qu'un projet est créé dans
+                  Arckaton OS &gt; Production &amp; Pilotage. Le client pourra alors suivre ses
+                  jalons, valider ses BAT et déposer ses demandes d'ajustement.
+                </p>
+                <p className="text-[11px] text-slate-400 font-mono">
+                  Source de données : Supabase (table projects) — synchronisation en temps réel
+                </p>
+                <button
+                  onClick={() => setIsClientPortalOpen(false)}
+                  className="mt-2 bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white px-5 py-2.5 rounded-xl text-xs font-medium cursor-pointer"
+                >
+                  Fermer le portail
+                </button>
               </div>
             )}
 
@@ -222,7 +249,8 @@ export const ClientPortalModal: React.FC = () => {
             )}
 
             {/* Navigation Tabs */}
-            <div className="flex border-b border-white/[0.06] bg-[#0a0e17] px-6 text-xs font-medium text-slate-400 flex-shrink-0">
+            {currentProject && (
+            <div className="flex border-b border-white/[0.06] bg-[#0a0e17] px-6 text-xs font-medium text-slate-400 flex-shrink-0 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('avancement')}
                 className={`py-3 px-4 border-b-2 transition-all cursor-pointer ${
@@ -255,11 +283,13 @@ export const ClientPortalModal: React.FC = () => {
                 }`}
               >
                 <MessageSquare className="w-3.5 h-3.5" />
-                <span>Échanges & Validation ({feedbacks.length})</span>
+                <span>Échanges &amp; Validation ({feedbacks.length})</span>
               </button>
             </div>
+            )}
 
             {/* Scrollable Tab Content Area */}
+            {currentProject && (
             <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-[#0a0e17]/50">
               {/* TAB 1: JALONS & LIVRABLES */}
               {activeTab === 'avancement' && (
@@ -545,6 +575,7 @@ export const ClientPortalModal: React.FC = () => {
                 </div>
               )}
             </div>
+            )}
 
             {/* Modal Bottom Footer */}
             <div className="px-6 py-3 bg-[#0a0e17] border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2 flex-shrink-0 font-mono">

@@ -56,6 +56,13 @@ export interface Task {
   date_echeance?: string;
   due_date?: string;
   created_at?: string;
+  // Rattachement au projet actif + suivi de complétion
+  project_id?: string;
+  project_code?: string;
+  project_name?: string;
+  completed_at?: string;
+  relances?: number;
+  last_reminder_at?: string;
 }
 
 export type LeadStatus = 'nouveau' | 'contacte' | 'qualifie' | 'devis_envoye' | 'converti' | 'archive' | 'perdu';

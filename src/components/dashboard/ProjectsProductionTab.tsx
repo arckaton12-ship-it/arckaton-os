@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Projet, ProjectMilestone, FieldVisit } from '../../types';
+import { Projet, ProjectMilestone, FieldVisit, Pole } from '../../types';
+import { POLES_INFO } from '../../data/mockData';
 import { ProductionTabSkeleton } from './DashboardSkeleton';
 import { 
   FolderKanban, 
@@ -24,6 +25,14 @@ import {
   Save
 } from 'lucide-react';
 
+const DEFAULT_JALONS: Array<Pick<ProjectMilestone, 'titre' | 'description'>> = [
+  { titre: 'Cadrage & cahier des charges', description: 'Validation du périmètre, des objectifs et des livrables attendus.' },
+  { titre: 'Maquettes & validation graphique', description: 'Design des écrans clés et approbation de la charte visuelle.' },
+  { titre: 'Développement & intégration', description: 'Intégration technique, contenus et connexions aux services tiers.' },
+  { titre: 'Recette & tests clients', description: 'Tests de bon fonctionnement et corrections finales.' },
+  { titre: 'Mise en ligne & formation', description: 'Mise en production, prise en main et transfert de compétences.' },
+];
+
 export const ProjectsProductionTab: React.FC = () => {
   const { 
     projets, 
@@ -34,6 +43,7 @@ export const ProjectsProductionTab: React.FC = () => {
     addProjectFeedback,
     updateProjectNotes,
     openClientPortal,
+    createProject,
     isDataFetching
   } = useApp();
 
@@ -41,6 +51,63 @@ export const ProjectsProductionTab: React.FC = () => {
   const [selectedPoleFilter, setSelectedPoleFilter] = useState<string>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(projets[0]?.id || null);
+
+  // New project form state
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [newProject, setNewProject] = useState({
+    client_name: '',
+    client_code: '',
+    service: '',
+    chef_de_projet: '',
+    client_phone: '',
+    client_email: '',
+    pole: 'Tech' as Pole,
+    forfait: '',
+    deadline: '',
+    create_milestones: true,
+  });
+
+  const handleCreateProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProject.client_name.trim() || !newProject.service.trim()) return;
+
+    const jalons: ProjectMilestone[] = newProject.create_milestones
+      ? DEFAULT_JALONS.map((j, idx) => ({
+          id: `j-${Date.now()}-${idx}`,
+          titre: j.titre,
+          description: j.description,
+          statut: idx === 0 ? 'en_cours' : 'en_attente',
+          echeance: '',
+        }))
+      : [];
+
+    const created = createProject({
+      name: newProject.client_name,
+      client_name: newProject.client_name,
+      client_code: newProject.client_code || undefined,
+      service: newProject.service,
+      chef_de_projet: newProject.chef_de_projet || undefined,
+      client_phone: newProject.client_phone || undefined,
+      client_email: newProject.client_email || undefined,
+      pole: newProject.pole,
+      forfait: newProject.forfait || undefined,
+      budget_estime: newProject.forfait || '',
+      deadline: newProject.deadline || '',
+      deliverables: [],
+      score: 0,
+      statut: 'en_cours',
+      progression: 0,
+      sorties_terrain_total: 0,
+      sorties_terrain_effectuees: 0,
+      jalons,
+      sorties_terrain: [],
+      feedbacks: [],
+    });
+
+    setExpandedProjectId(created.id);
+    setIsCreatingProject(false);
+    setNewProject((p) => ({ ...p, client_name: '', client_code: '', service: '', chef_de_projet: '', client_phone: '', client_email: '', forfait: '', deadline: '' }));
+  };
 
   // New milestone form state
   const [newMilestoneTitre, setNewMilestoneTitre] = useState('');
@@ -133,14 +200,93 @@ export const ProjectsProductionTab: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => openClientPortal()}
+            onClick={() => setIsCreatingProject((v) => !v)}
+            className="bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-white/10 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nouveau projet</span>
+          </button>
+          <button
+            onClick={() => {
+              if (projets.length === 0) {
+                setIsCreatingProject(true);
+                return;
+              }
+              openClientPortal(filteredProjects[0]?.client_code || projets[0].client_code || projets[0].id);
+            }}
             className="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-md"
           >
             <ExternalLink className="w-4 h-4" />
-            <span>Tester Espace Client & BAT</span>
+            <span>Tester Espace Client &amp; BAT</span>
           </button>
         </div>
       </div>
+
+      {/* Création d'un projet réel (persisté côté serveur) */}
+      {isCreatingProject && (
+        <form
+          onSubmit={handleCreateProject}
+          className="bg-[#09122a] border border-emerald-500/25 rounded-2xl p-5 space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="font-serif text-lg font-bold text-white">Ouvrir un projet client</h3>
+            <button type="button" onClick={() => setIsCreatingProject(false)} className="text-slate-400 hover:text-white text-xs">
+              Fermer
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <input required placeholder="Nom du client *" value={newProject.client_name}
+              onChange={(e) => setNewProject((p) => ({ ...p, client_name: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+            <input placeholder="Code client (ex: PRJ-KOTTO)" value={newProject.client_code}
+              onChange={(e) => setNewProject((p) => ({ ...p, client_code: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400 font-mono" />
+            <input required placeholder="Service / offre *" value={newProject.service}
+              onChange={(e) => setNewProject((p) => ({ ...p, service: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+            <input placeholder="Chef de projet" value={newProject.chef_de_projet}
+              onChange={(e) => setNewProject((p) => ({ ...p, chef_de_projet: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+            <input placeholder="Téléphone client" value={newProject.client_phone}
+              onChange={(e) => setNewProject((p) => ({ ...p, client_phone: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+            <input placeholder="Email client" value={newProject.client_email}
+              onChange={(e) => setNewProject((p) => ({ ...p, client_email: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+            <select value={newProject.pole}
+              onChange={(e) => setNewProject((p) => ({ ...p, pole: e.target.value as Pole }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white">
+              {(['Tech', 'Creatif', 'Digital', 'Client', 'Direction'] as Pole[]).map((p) => (
+                <option key={p} value={p}>{POLES_INFO[p]?.name || p}</option>
+              ))}
+            </select>
+            <input placeholder="Forfait" value={newProject.forfait}
+              onChange={(e) => setNewProject((p) => ({ ...p, forfait: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+            <input placeholder="Livraison cible" value={newProject.deadline}
+              onChange={(e) => setNewProject((p) => ({ ...p, deadline: e.target.value }))}
+              className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+          </div>
+
+          <label className="flex items-center gap-2 text-xs text-slate-300">
+            <input type="checkbox" checked={newProject.create_milestones}
+              onChange={(e) => setNewProject((p) => ({ ...p, create_milestones: e.target.checked }))}
+              className="accent-emerald-500" />
+            Générer la feuille de route (jalons) pour rendre le portail BAT immédiatement consultable
+          </label>
+
+          <div className="flex items-center justify-end gap-3">
+            <button type="button" onClick={() => setIsCreatingProject(false)} className="px-4 py-2 text-xs text-slate-400 hover:text-white">
+              Annuler
+            </button>
+            <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
+              <Plus className="w-4 h-4" />
+              <span>Créer le projet</span>
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-[#09122a] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">

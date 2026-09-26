@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Pole, Task, TaskStatus } from '../../types';
 import { 
@@ -11,16 +11,20 @@ import {
   Calendar, 
   Filter, 
   Trash2,
+  Bell,
+  FolderKanban,
   X
 } from 'lucide-react';
 import { POLES_INFO } from '../../data/mockData';
 
 export const TasksTab: React.FC = () => {
-  const { tasks, addTask, updateTaskStatus } = useApp();
+  const { tasks, addTask, updateTaskStatus, remindTask, projets } = useApp();
 
   const [selectedPole, setSelectedPole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  
+  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [selectedMember, setSelectedMember] = useState<string>('all');
+
   // New task form state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -29,16 +33,32 @@ export const TasksTab: React.FC = () => {
   const [priority, setPriority] = useState<'basse' | 'normale' | 'urgente'>('normale');
   const [assignedTo, setAssignedTo] = useState('Marc (Lead Dev)');
   const [dueDate, setDueDate] = useState('Vendredi 18h');
+  const [taskProjectId, setTaskProjectId] = useState<string>('');
+
+  // Membres réellement affectés (déduits des tâches existantes)
+  const membersList = useMemo(() => {
+    const set = new Set<string>();
+    tasks.forEach((t) => {
+      if (t.assigned_to) set.add(t.assigned_to);
+      if (t.assignee_name) set.add(t.assignee_name);
+    });
+    return Array.from(set).sort();
+  }, [tasks]);
 
   const filteredTasks = tasks.filter((t) => {
     const matchesPole = selectedPole === 'all' || t.pole === selectedPole;
     const matchesStatus = selectedStatus === 'all' || t.status === selectedStatus;
-    return matchesPole && matchesStatus;
+    const matchesProject = selectedProject === 'all' || t.project_id === selectedProject;
+    const member = t.assigned_to || t.assignee_name || '';
+    const matchesMember = selectedMember === 'all' || member === selectedMember;
+    return matchesPole && matchesStatus && matchesProject && matchesMember;
   });
 
   const handleCreateTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) return;
+
+    const project = taskProjectId ? projets.find((p) => p.id === taskProjectId) : undefined;
 
     addTask({
       title,
@@ -46,7 +66,11 @@ export const TasksTab: React.FC = () => {
       pole,
       priority,
       assigned_to: assignedTo,
-      due_date: dueDate
+      assignee_name: assignedTo,
+      due_date: dueDate,
+      project_id: project?.id,
+      project_code: project?.client_code,
+      project_name: project?.client_name,
     });
 
     setTitle('');
@@ -122,13 +146,37 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none ml-auto"
+          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
         >
           <option value="all">Tous les statuts</option>
           <option value="a_faire">À faire</option>
           <option value="en_cours">En cours</option>
           <option value="revue">En revue</option>
           <option value="termine">Terminé</option>
+        </select>
+
+        {/* Project Filter */}
+        <select
+          value={selectedProject}
+          onChange={(e) => setSelectedProject(e.target.value)}
+          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+        >
+          <option value="all">Tous les projets</option>
+          {projets.map((p) => (
+            <option key={p.id} value={p.id}>{p.client_name} ({p.client_code || p.id})</option>
+          ))}
+        </select>
+
+        {/* Member Filter */}
+        <select
+          value={selectedMember}
+          onChange={(e) => setSelectedMember(e.target.value)}
+          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none ml-auto"
+        >
+          <option value="all">Tous les membres</option>
+          {membersList.map((m) => (
+            <option key={m} value={m}>{m}</option>
+          ))}
         </select>
       </div>
 
@@ -184,10 +232,17 @@ export const TasksTab: React.FC = () => {
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-white/5 space-y-3">
+                  {t.project_name && (
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-300 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2 py-1">
+                      <FolderKanban className="w-3 h-3" />
+                      <span>{t.project_name}{t.project_code ? ` (${t.project_code})` : ''}</span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
                     <div className="flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{t.assigned_to}</span>
+                      <span>{t.assigned_to || t.assignee_name || 'Non assignée'}</span>
                     </div>
                     {t.due_date && (
                       <div className="flex items-center gap-1 text-amber-400">
@@ -196,6 +251,22 @@ export const TasksTab: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {isCompleted && t.completed_at && (
+                    <div className="text-[11px] font-mono text-emerald-300">
+                      Achevée le {new Date(t.completed_at).toLocaleString('fr-FR')}
+                    </div>
+                  )}
+
+                  {!isCompleted && (
+                    <button
+                      onClick={() => remindTask(t.id)}
+                      className="w-full flex items-center justify-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-lg px-2 py-1.5 transition-colors cursor-pointer"
+                    >
+                      <Bell className="w-3 h-3" />
+                      <span>Relancer{t.relances ? ` (${t.relances})` : ''}</span>
+                    </button>
+                  )}
 
                   {/* Status update switcher */}
                   <div className="flex items-center justify-between gap-2 pt-1">
@@ -301,10 +372,14 @@ export const TasksTab: React.FC = () => {
                   <label className="block text-slate-300 font-mono mb-1">Responsable</label>
                   <input
                     type="text"
+                    list="task-members"
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
                     className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
                   />
+                  <datalist id="task-members">
+                    {membersList.map((m) => <option key={m} value={m} />)}
+                  </datalist>
                 </div>
 
                 <div>
@@ -317,6 +392,20 @@ export const TasksTab: React.FC = () => {
                     className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-mono mb-1">Projet actif rattaché</label>
+                <select
+                  value={taskProjectId}
+                  onChange={(e) => setTaskProjectId(e.target.value)}
+                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                >
+                  <option value="">Aucun projet (tâche transverse)</option>
+                  {projets.map((p) => (
+                    <option key={p.id} value={p.id}>{p.client_name} ({p.client_code || p.id})</option>
+                  ))}
+                </select>
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
