@@ -167,6 +167,7 @@ interface AppContextType {
   addProjectMilestone: (projectId: string, milestone: Omit<ProjectMilestone, 'id'>) => void;
   addProjectFeedback: (projectId: string, feedback: Omit<ClientFeedback, 'id' | 'date'>) => void;
   addProjectFieldVisit: (projectId: string, visit: Omit<FieldVisit, 'id'>) => void;
+  updateProjectFieldVisit: (projectId: string, visitId: string, patch: Partial<FieldVisit>) => void;
   updateProjectNotes: (projectId: string, notes: string) => void;
 
   // Public Modals & Client Portal
@@ -1074,6 +1075,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  // Avancement d'une sortie terrain : planifiee -> effectuee -> en_montage -> livree
+  const updateProjectFieldVisit = (
+    projectId: string,
+    visitId: string,
+    patch: Partial<FieldVisit>
+  ) => {
+    let visitLabel = '';
+    let nextStatut = '';
+    let projectName = '';
+
+    setProjets((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p;
+        const visits = (p.sorties_terrain || []).map((v) => {
+          if (v.id !== visitId) return v;
+          visitLabel = v.objectif;
+          projectName = p.client_name;
+          if (patch.statut) nextStatut = patch.statut;
+          return { ...v, ...patch };
+        });
+        const effectuees = visits.filter((v) => v.statut === 'effectuee' || v.statut === 'en_montage' || v.statut === 'livree').length;
+        return {
+          ...p,
+          sorties_terrain: visits,
+          sorties_terrain_effectuees: effectuees,
+        };
+      })
+    );
+
+    if (nextStatut) {
+      const labels: Record<string, string> = {
+        effectuee: 'Sortie terrain réalisée',
+        en_montage: 'Reportage en montage',
+        livree: 'Livraison des médias au client',
+      };
+      logExchange(
+        { name: 'Terrain', pole: 'Client' },
+        'ordre_terrain',
+        `${labels[nextStatut] || 'Sortie terrain mise à jour'} : « ${visitLabel} »${projectName ? ` - projet ${projectName}` : ''}`
+      );
+    }
+  };
+
   const updateProjectNotes = (projectId: string, notes_internes: string) => {
     setProjets((prev) =>
       prev.map((p) => (p.id === projectId ? { ...p, notes_internes } : p))
@@ -1445,6 +1489,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addProjectMilestone,
         addProjectFeedback,
         addProjectFieldVisit,
+  updateProjectFieldVisit,
         updateProjectNotes,
         isClientPortalOpen,
         setIsClientPortalOpen,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Projet, ProjectMilestone, FieldVisit, Pole } from '../../types';
 import { POLES_INFO } from '../../data/mockData';
@@ -33,17 +33,34 @@ const DEFAULT_JALONS: Array<Pick<ProjectMilestone, 'titre' | 'description'>> = [
   { titre: 'Mise en ligne & formation', description: 'Mise en production, prise en main et transfert de compétences.' },
 ];
 
+// Cycle de vie d'une sortie terrain : une session avance d'etape en etape
+const VISIT_NEXT_STATUT: Record<string, string | undefined> = {
+  planifiee: 'effectuee',
+  effectuee: 'en_montage',
+  en_montage: 'livree',
+  livree: undefined,
+};
+
+const VISIT_STATUT_LABEL: Record<string, string> = {
+  planifiee: 'PLANNIFIEE',
+  effectuee: 'REALISEE',
+  en_montage: 'EN MONTAGE',
+  livree: 'LIVREE',
+};
+
 export const ProjectsProductionTab: React.FC = () => {
   const { 
     projets, 
     updateProjectProgression, 
     updateProjectMilestone, 
     addProjectMilestone, 
-    addProjectFieldVisit, 
+    addProjectFieldVisit,
+    updateProjectFieldVisit,
     addProjectFeedback,
     updateProjectNotes,
     openClientPortal,
     createProject,
+    osMembers,
     isDataFetching
   } = useApp();
 
@@ -51,6 +68,12 @@ export const ProjectsProductionTab: React.FC = () => {
   const [selectedPoleFilter, setSelectedPoleFilter] = useState<string>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(projets[0]?.id || null);
+
+  // Équipe terrain : membres réels de l'annuaire, repli sur lihi simple
+  const terrainTeam = useMemo(() => {
+    if (osMembers.length > 0) return osMembers;
+    return [{ id: 'fallback-1', name: 'À affecter', role: 'membre', pole: 'Client' as Pole, poste_titre: null }];
+  }, [osMembers]);
 
   // New project form state
   const [isCreatingProject, setIsCreatingProject] = useState(false);
@@ -652,9 +675,12 @@ export const ProjectsProductionTab: React.FC = () => {
                               onChange={(e) => setNewVisitIntervenant(e.target.value)}
                               className="px-3 py-2 rounded-xl bg-[#070c1e] border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500/50"
                             >
-                              <option value="Boris W. (Vidéaste)">Boris W. (Vidéaste)</option>
-                              <option value="Christian F. (Photographe)">Christian F. (Photographe)</option>
-                              <option value="Patrice M. (Chef d'Agence)">Patrice M. (Chef d'Agence)</option>
+                              <option value="">Intervenant (à affecter)</option>
+                              {terrainTeam.map((m) => (
+                                <option key={m.id || m.name} value={m.name}>
+                                  {m.name}{m.poste_titre ? ` (${m.poste_titre})` : ''}
+                                </option>
+                              ))}
                             </select>
                           </div>
                           <input
@@ -682,8 +708,18 @@ export const ProjectsProductionTab: React.FC = () => {
                       )}
 
                       {/* Field Visits Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {fieldVisits.map((v) => (
+                      {fieldVisits.length === 0 ? (
+                        <div className="py-6 px-4 rounded-2xl border border-dashed border-purple-500/25 bg-purple-500/5 text-center">
+                          <p className="text-xs font-mono text-purple-300">Aucune sortie terrain planifiee pour ce projet.</p>
+                          <p className="text-[11px] text-slate-400 mt-1">
+                            Programmez une captation : chaque session suit son cycle planifiee → realisee → montage → livree.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {fieldVisits.map((v) => {
+                          const nextStatut = VISIT_NEXT_STATUT[v.statut];
+                          return (
                           <div
                             key={v.id}
                             className="p-3.5 rounded-2xl bg-[#0a0f2e] border border-white/5 space-y-1.5 text-xs"
@@ -697,9 +733,11 @@ export const ProjectsProductionTab: React.FC = () => {
                                   ? 'bg-emerald-500/20 text-emerald-300'
                                   : v.statut === 'en_montage'
                                   ? 'bg-amber-500/20 text-amber-300'
-                                  : 'bg-blue-500/20 text-blue-300'
+                                  : v.statut === 'effectuee'
+                                  ? 'bg-blue-500/20 text-blue-300'
+                                  : 'bg-slate-700 text-slate-300'
                               }`}>
-                                {v.statut.toUpperCase()}
+                                 {VISIT_STATUT_LABEL[v.statut] || v.statut.toUpperCase()}
                               </span>
                             </div>
 
@@ -709,16 +747,41 @@ export const ProjectsProductionTab: React.FC = () => {
 
                             <div className="text-slate-400 font-mono text-[11px] pt-1 border-t border-white/5">
                               <div>Lieu : {v.lieu} • Date : {v.date}</div>
-                              <div>Intervenant : {v.intervenant}</div>
-                              {v.medias_count && (
-                                <div className="text-emerald-400 font-bold mt-0.5">
-                                  {v.medias_count} fichiers médias enregistrés
-                                </div>
+                              <div>Intervenant : {v.intervenant || 'Non affecte'}</div>
+                            </div>
+
+                            {/* Saisie des medias produits */}
+                            <div className="flex items-center justify-between gap-2 pt-1">
+                              <label className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
+                                Medias
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={v.medias_count ?? ''}
+                                  onChange={(e) =>
+                                    updateProjectFieldVisit(project.id, v.id, {
+                                      medias_count: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value) || 0),
+                                    })
+                                  }
+                                  placeholder="0"
+                                  className="w-16 bg-[#070c1e] border border-white/10 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none focus:border-emerald-500/50"
+                                />
+                              </label>
+
+                              {nextStatut && (
+                                <button
+                                  onClick={() => updateProjectFieldVisit(project.id, v.id, { statut: nextStatut })}
+                                  className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer"
+                                >
+                                  {VISIT_STATUT_LABEL[nextStatut]}
+                                </button>
                               )}
                             </div>
                           </div>
-                        ))}
-                      </div>
+                          );
+                        })}
+                        </div>
+                      )}
                     </div>
 
                     {/* SECTION 3: NOTES INTERNES & HISTORIQUE */}
