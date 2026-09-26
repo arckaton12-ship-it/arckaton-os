@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshMe: () => Promise<void>;
+  completeSession: (token: string, member: MemberProfile) => void;
   switchUser: (userId: string) => void;
   availableUsers: UserProfile[];
   hasPerm: (perm: string) => boolean;
@@ -109,6 +110,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setMember(null);
   }, []);
 
+  const completeSession = useCallback((t: string, m: MemberProfile) => {
+    localStorage.setItem(TOKEN_KEY, t);
+    localStorage.setItem(MEMBER_KEY, JSON.stringify(m));
+    setToken(t);
+    setMember(m);
+  }, []);
+
   const hasPerm = useCallback(
     (perm: string): boolean => {
       if (!member) return false;
@@ -138,6 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     logout,
     refreshMe,
+    completeSession,
     switchUser: () => {}, // remplacé par la vraie auth : fin de la simulation
     availableUsers: [],
     hasPerm,

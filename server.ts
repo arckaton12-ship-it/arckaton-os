@@ -432,6 +432,83 @@ app.post('/api/auth/logout', requireAuth, async (req: AuthReq, res) => {
   res.json({ success: true });
 });
 
+// ---- Bootstrap du premier admin (création du compte Directeur) ----
+app.get('/api/auth/bootstrap', async (_req, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(500).json({ error: 'Supabase non configuré' });
+    const { data, error } = await sb.from('members').select('id').eq('role', 'admin').limit(1).maybeSingle();
+    if (error) return res.status(500).json({ error: 'Base inaccessible: ' + error.message });
+    res.json({ needs: !data });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur bootstrap' });
+  }
+});
+
+app.post('/api/auth/bootstrap', async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Nom, email et mot de passe requis' });
+    }
+    if (String(password).length < 6) {
+      return res.status(400).json({ error: 'Mot de passe : 6 caractères minimum' });
+    }
+    const admin = getSupabase();
+    const anon = getSupabaseAnon();
+    if (!admin || !anon) return res.status(500).json({ error: 'Supabase non configuré' });
+
+    const { data: existing } = await admin.from('members').select('id').eq('role', 'admin').limit(1).maybeSingle();
+    if (existing) return res.status(403).json({ error: 'Un administrateur existe déjà (bootstrap effectué)' });
+
+    const { data: userData, error: createErr } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name },
+    });
+    if (createErr || !userData?.user) {
+      return res.status(400).json({ error: createErr?.message || 'Impossible de créer le compte' });
+    }
+
+    const { error: memberErr } = await admin.from('members').insert({
+      id: userData.user.id,
+      name,
+      email,
+      phone: phone || null,
+      role: 'admin',
+      pole: 'Direction',
+      poste_titre: 'Directeur Général',
+      permissions: [],
+      active: true,
+    });
+    if (memberErr) {
+      await admin.auth.admin.deleteUser(userData.user.id).catch(() => null);
+      return res.status(500).json({ error: 'Échec enregistrement du membre: ' + memberErr.message });
+    }
+
+    const { data: session, error: signinErr } = await anon.auth.signInWithPassword({ email, password });
+    if (signinErr || !session?.session) {
+      return res.status(500).json({ error: 'Compte créé mais connexion impossible — réessayez.' });
+    }
+    const { data: memberRow } = await admin.from('members').select('*').eq('id', userData.user.id).maybeSingle();
+    await admin
+      .from('activity_log')
+      .insert({
+        actor_id: userData.user.id,
+        actor_name: name,
+        action: 'bootstrap admin',
+        kind: 'member',
+        ref: userData.user.id,
+        details: { note: 'Création du compte Directeur (premier admin)' },
+      });
+    res.json({ token: session.session.access_token, member: memberRow });
+  } catch (err: any) {
+    console.error('Bootstrap error:', err);
+    res.status(500).json({ error: 'Erreur initialisation' });
+  }
+});
+
 app.get('/api/auth/me', requireAuth, (req: AuthReq, res) => {
   res.json({ member: req.member });
 });
