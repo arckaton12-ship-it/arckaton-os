@@ -108,6 +108,36 @@ create index if not exists idx_projects_updated_at on public.projects (updated_a
 create index if not exists idx_projects_statut on public.projects (statut);
 
 -- ------------------------------------------------------------
+-- Devis et factures (references sequentielles, suivi de statut)
+-- ------------------------------------------------------------
+create table if not exists public.quotes (
+  id uuid primary key default gen_random_uuid(),
+  quote_ref text unique not null,
+  type text not null default 'devis',
+  client_name text not null,
+  client_phone text default '',
+  client_email text default '',
+  project_ref text,
+  project_name text,
+  pole text default 'Direction',
+  items jsonb default '[]'::jsonb,
+  total int default 0,
+  deposit int default 0,
+  balance int default 0,
+  currency text default 'FCFA',
+  status text default 'brouillon',
+  valid_days int default 30,
+  notes text default '',
+  created_by text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_quotes_ref on public.quotes (quote_ref);
+create index if not exists idx_quotes_status on public.quotes (status);
+create index if not exists idx_quotes_created_at on public.quotes (created_at desc);
+
+-- ------------------------------------------------------------
 -- Sécurité : RLS activée partout. Seul le service_role
 -- (clé gardée côté serveur Express dans .env, jamais dans le
 -- bundle client) lit/écrit. L'accès anonyme est fermé par défaut.
@@ -116,6 +146,7 @@ alter table public.leads enable row level security;
 alter table public.agent_reports enable row level security;
 alter table public.whatsapp_outbox enable row level security;
 alter table public.projects enable row level security;
+alter table public.quotes enable row level security;
 
 -- ------------------------------------------------------------
 -- NOTE FUTURE (non bloquant pour la v1) :

@@ -27,6 +27,14 @@ export const CrmSection: React.FC = () => {
   
   // Invoice / Quote Modal
   const [activeModal, setActiveModal] = useState<{ lead: Lead; type: 'devis' | 'facture' } | null>(null);
+  const [savedQuoteRef, setSavedQuoteRef] = useState<string | null>(null);
+  // Dernier devis enregistre par lead, pour ne pas perdre la reference
+  const [lastQuoteByLead, setLastQuoteByLead] = useState<Record<string, string>>({});
+
+  const handleQuoteSaved = (leadId: string, quoteRef: string) => {
+    setSavedQuoteRef(quoteRef);
+    setLastQuoteByLead((prev) => ({ ...prev, [leadId]: quoteRef }));
+  };
 
   // Quick note edit
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
@@ -247,6 +255,13 @@ export const CrmSection: React.FC = () => {
                       <Receipt className="w-3.5 h-3.5 text-amber-400" />
                       <span>Facture Proforma</span>
                     </button>
+
+                    {/* Dernier document enregistre pour ce lead */}
+                    {savedQuoteRef && lastQuoteByLead[l.id] === savedQuoteRef && (
+                      <span className="text-[11px] font-mono text-emerald-300 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> {savedQuoteRef} enregistré
+                      </span>
+                    )}
                   </div>
 
                   {/* Convert to Project */}
@@ -273,12 +288,13 @@ export const CrmSection: React.FC = () => {
       </div>
     )}
 
-      {/* Invoice / Devis Modal */}
+      {/* Devis / facture */}
       {activeModal && (
         <InvoiceModal
           lead={activeModal.lead}
           type={activeModal.type}
           onClose={() => setActiveModal(null)}
+          onSaved={(ref) => handleQuoteSaved(activeModal.lead.id, ref)}
         />
       )}
 

@@ -1210,6 +1210,159 @@ app.delete("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res)
   }
 });
 
+// ------------------------------------------------------------
+// Devis et factures
+// La reference est attribuee par le serveur (sequentielle et stable) :
+// elle ne peut pas etre regeneree a chaque affichage comme le faisait
+// l'ancien devis, ou Math.random() changeait la reference au rerender.
+// ------------------------------------------------------------
+const QUOTE_TYPES = ['devis', 'facture'];
+const QUOTE_STATUS = ['brouillon', 'envoye', 'accepte', 'refuse', 'paye'];
+
+function normalizeQuoteStatus(value: unknown): string {
+  const raw = String(value || '').toLowerCase();
+  return QUOTE_STATUS.includes(raw) ? raw : 'brouillon';
+}
+
+function nextQuoteRef(sb: any, type: string): Promise<string> {
+  const prefix = type === 'facture' ? 'FAC' : 'DEV';
+  const year = new Date().getFullYear();
+  return sb
+    .from('quotes')
+    .select('quote_ref')
+    .like('quote_ref', `${prefix}-${year}-%`)
+    .order('quote_ref', { ascending: false })
+    .limit(1)
+    .then(({ data }: any) => {
+      const last = data && data[0] ? String(data[0].quote_ref) : '';
+      const seq = last ? Number(last.split('-')[2] || 0) + 1 : 1;
+      return `${prefix}-${year}-${String(seq).padStart(4, '0')}`;
+    });
+}
+
+app.get("/api/quotes", requireAuth, async (_req, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.json({ quotes: [] });
+    const { data, error } = await sb
+      .from('quotes')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    res.json({ quotes: data || [] });
+  } catch (err: any) {
+    console.error("Erreur lecture devis:", err);
+    res.status(500).json({ error: "Erreur lecture devis" });
+  }
+});
+
+// Attribution de la prochaine reference, pour previsualiser un devis
+// sans encore l'enregistrer.
+app.get("/api/quotes/next-ref", requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    const type = String(req.query.type || 'devis');
+    res.json({ quote_ref: await nextQuoteRef(sb, QUOTE_TYPES.includes(type) ? type : 'devis') });
+  } catch (err: any) {
+    console.error("Erreur generation reference:", err);
+    res.status(500).json({ error: "Erreur generation reference" });
+  }
+});
+
+app.post("/api/quotes", requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+
+    const body = req.body || {};
+    if (!body.client_name) {
+      return res.status(400).json({ error: "Nom du client obligatoire" });
+    }
+    const type = QUOTE_TYPES.includes(body.type) ? body.type : 'devis';
+    const items = Array.isArray(body.items) ? body.items : [];
+    const total = items.reduce((sum: number, it: any) => sum + (Number(it?.montant) || 0), 0);
+    const deposit = Number.isFinite(Number(body.deposit)) ? Number(body.deposit) : Math.round(total * 0.5);
+
+    const quote = {
+      quote_ref: await nextQuoteRef(sb, type),
+      type,
+      client_name: String(body.client_name),
+      client_phone: body.client_phone || '',
+      client_email: body.client_email || '',
+      project_ref: body.project_ref || null,
+      project_name: body.project_name || null,
+      pole: body.pole || 'Direction',
+      items,
+      total,
+      deposit,
+      balance: total - deposit,
+      currency: body.currency || 'FCFA',
+      status: normalizeQuoteStatus(body.status),
+      valid_days: Number(body.valid_days) || 30,
+      notes: body.notes || '',
+      created_by: req.member?.name || 'Direction',
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await sb.from('quotes').insert(quote).select('*').maybeSingle();
+    if (error) throw error;
+    res.json({ success: true, quote: data || quote });
+  } catch (err: any) {
+    console.error("Erreur creation devis:", err);
+    res.status(500).json({ error: "Erreur creation devis" });
+  }
+});
+
+app.patch("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    const ref = req.params.ref;
+    if (!ref) return res.status(400).json({ error: "Reference manquante" });
+
+    const body = req.body || {};
+    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (body.status) patch.status = normalizeQuoteStatus(body.status);
+    if (body.notes !== undefined) patch.notes = body.notes;
+    if (Array.isArray(body.items)) {
+      patch.items = body.items;
+      const total = body.items.reduce((sum: number, it: any) => sum + (Number(it?.montant) || 0), 0);
+      patch.total = total;
+      const deposit = Number.isFinite(Number(body.deposit)) ? Number(body.deposit) : Math.round(total * 0.5);
+      patch.deposit = deposit;
+      patch.balance = total - deposit;
+    }
+
+    const { data, error } = await sb
+      .from('quotes')
+      .update(patch)
+      .eq('quote_ref', ref)
+      .select('*')
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: "Devis introuvable" });
+    res.json({ success: true, quote: data });
+  } catch (err: any) {
+    console.error("Erreur mise a jour devis:", err);
+    res.status(500).json({ error: "Erreur mise a jour devis" });
+  }
+});
+
+app.delete("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
+  try {
+    const sb = getSupabase();
+    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    const { error } = await sb.from('quotes').delete().eq('quote_ref', req.params.ref);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("Erreur suppression devis:", err);
+    res.status(500).json({ error: "Erreur suppression devis" });
+  }
+});
+
 // Copilot for Dashboard
 app.post("/api/ai/copilot", async (req, res) => {
   try {
