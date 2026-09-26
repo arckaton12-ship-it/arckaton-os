@@ -245,7 +245,7 @@ export const TasksTab: React.FC = () => {
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex : Intégrer l'API MTN MoMo v2 pour Maison Kotto"
+                  placeholder="Ex : Intégrer le paiement MTN MoMo pour un client"
                   className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400"
                 />
               </div>

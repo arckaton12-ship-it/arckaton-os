@@ -200,9 +200,31 @@ interface AppContextType {
   persistContent: (kind: string, slug: string, data: any, opts?: { published?: boolean; title?: string }) => Promise<void>;
   importSeedContent: () => Promise<number>;
   refreshContent: () => Promise<void>;
+  isRealDataMode: boolean;
+  purgeDemoData: () => void;
+  restoreDemoData: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+// ---- Mode « données réelles » : purge des données de démonstration ----
+const REAL_DATA_KEY = 'arckaton_real_data';
+let purgeInProgress = false;
+
+const isRealDataMode = (): boolean => localStorage.getItem(REAL_DATA_KEY) === '1';
+
+// Lecture d'un jeu de données : localStorage > (mode réel ? vide : seeds de démo)
+const readSeeds = <T,>(storageKey: string, demoSeeds: T[]): T[] => {
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      // donnée corrompue : on repart des seeds / du mode réel
+    }
+  }
+  return isRealDataMode() ? ([] as T[]) : demoSeeds;
+};
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setMode] = useState<'public' | 'dashboard'>('public');
@@ -210,35 +232,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentUser, setCurrentUser] = useState<UserProfile>(CURRENT_PROFILES[0]); // Patrice M. Admin
 
   // Data states with localStorage persistence
-  const [leads, setLeads] = useState<Lead[]>(() => {
-    const saved = localStorage.getItem('arckaton_leads');
-    return saved ? JSON.parse(saved) : INITIAL_LEADS;
-  });
+  const [leads, setLeads] = useState<Lead[]>(() => readSeeds<Lead>('arckaton_leads', INITIAL_LEADS));
 
-  const [reports, setReports] = useState<AgentReport[]>(() => {
-    const saved = localStorage.getItem('arckaton_reports');
-    return saved ? JSON.parse(saved) : INITIAL_REPORTS;
-  });
+  const [reports, setReports] = useState<AgentReport[]>(() => readSeeds<AgentReport>('arckaton_reports', INITIAL_REPORTS));
 
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('arckaton_tasks');
-    return saved ? JSON.parse(saved) : INITIAL_TASKS;
-  });
+  const [tasks, setTasks] = useState<Task[]>(() => readSeeds<Task>('arckaton_tasks', INITIAL_TASKS));
 
-  const [messages, setMessages] = useState<ChannelMessage[]>(() => {
-    const saved = localStorage.getItem('arckaton_messages');
-    return saved ? JSON.parse(saved) : INITIAL_MESSAGES;
-  });
+  const [messages, setMessages] = useState<ChannelMessage[]>(() => readSeeds<ChannelMessage>('arckaton_messages', INITIAL_MESSAGES));
 
-  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
-    const saved = localStorage.getItem('arckaton_notifications');
-    return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
-  });
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => readSeeds<AppNotification>('arckaton_notifications', INITIAL_NOTIFICATIONS));
 
-  const [projets, setProjets] = useState<Projet[]>(() => {
-    const saved = localStorage.getItem('arckaton_projets');
-    return saved ? JSON.parse(saved) : INITIAL_PROJETS;
-  });
+  const [projets, setProjets] = useState<Projet[]>(() => readSeeds<Projet>('arckaton_projets', INITIAL_PROJETS));
 
   // Modals & Client Portal
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
@@ -273,30 +277,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   // Blog posts editable list
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
-    const saved = localStorage.getItem('arckaton_cms_blog_posts');
-    return saved ? JSON.parse(saved) : INITIAL_BLOG_POSTS;
-  });
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => readSeeds<BlogPost>('arckaton_cms_blog_posts', INITIAL_BLOG_POSTS));
   const [activeBlogPost, setActiveBlogPost] = useState<BlogPost | null>(null);
 
   // Réalisations & Témoignages publics (édition CMS)
-  const [realisations, setRealisations] = useState<Realisation[]>(() => {
-    const saved = localStorage.getItem('arckaton_cms_realisations');
-    return saved ? JSON.parse(saved) : INITIAL_REALISATIONS;
-  });
+  const [realisations, setRealisations] = useState<Realisation[]>(() => readSeeds<Realisation>('arckaton_cms_realisations', INITIAL_REALISATIONS));
 
-  const [temoignages, setTemoignages] = useState<Temoignage[]>(() => {
-    const saved = localStorage.getItem('arckaton_cms_temoignages');
-    return saved ? JSON.parse(saved) : INITIAL_TEMOIGNAGES;
-  });
+  const [temoignages, setTemoignages] = useState<Temoignage[]>(() => readSeeds<Temoignage>('arckaton_cms_temoignages', INITIAL_TEMOIGNAGES));
 
   const [contentStatus, setContentStatus] = useState<'live' | 'local' | 'saving' | 'error'>('local');
 
   // Nodal Command Center Data Transfers
-  const [dataTransfers, setDataTransfers] = useState<DataTransferEvent[]>(() => {
-    const saved = localStorage.getItem('arckaton_data_transfers');
-    return saved ? JSON.parse(saved) : INITIAL_DATA_TRANSFERS;
-  });
+  const [dataTransfers, setDataTransfers] = useState<DataTransferEvent[]>(() => readSeeds<DataTransferEvent>('arckaton_data_transfers', INITIAL_DATA_TRANSFERS));
 
   const updateSiteConfig = (newConfig: Partial<UniversalSiteConfig>) => {
     setSiteConfig((prev) => {
@@ -628,30 +620,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsClientPortalOpen(true);
   };
 
-  // Persistence effects
+  // Persistence effects (suspendus pendant une purge pour ne pas réécrire les seeds)
   useEffect(() => {
+    if (purgeInProgress) return;
     localStorage.setItem('arckaton_leads', JSON.stringify(leads));
   }, [leads]);
 
   useEffect(() => {
+    if (purgeInProgress) return;
     localStorage.setItem('arckaton_reports', JSON.stringify(reports));
   }, [reports]);
 
   useEffect(() => {
+    if (purgeInProgress) return;
     localStorage.setItem('arckaton_tasks', JSON.stringify(tasks));
   }, [tasks]);
 
   useEffect(() => {
+    if (purgeInProgress) return;
     localStorage.setItem('arckaton_messages', JSON.stringify(messages));
   }, [messages]);
 
   useEffect(() => {
+    if (purgeInProgress) return;
     localStorage.setItem('arckaton_notifications', JSON.stringify(notifications));
   }, [notifications]);
 
   useEffect(() => {
+    if (purgeInProgress) return;
     localStorage.setItem('arckaton_projets', JSON.stringify(projets));
   }, [projets]);
+
+  // ---- Nettoyage des données de démonstration (passage en données réelles) ----
+  const PERSISTED_KEEP = [
+    REAL_DATA_KEY,
+    'arckaton_theme',
+    'arckaton_currency',
+    'arckaton_site_config',
+    'arckaton_cms_forfaits',
+    'arckaton_os_token',
+    'arckaton_os_member',
+  ];
+
+  const purgeDemoData = () => {
+    purgeInProgress = true;
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith('arckaton_') && !PERSISTED_KEEP.includes(k))
+      .forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem(REAL_DATA_KEY, '1');
+    window.location.reload();
+  };
+
+  const restoreDemoData = () => {
+    localStorage.removeItem(REAL_DATA_KEY);
+    ['arckaton_leads', 'arckaton_reports', 'arckaton_tasks', 'arckaton_messages', 'arckaton_notifications', 'arckaton_projets', 'arckaton_data_transfers', 'arckaton_cms_blog_posts', 'arckaton_cms_realisations', 'arckaton_cms_temoignages'].forEach(
+      (k) => localStorage.removeItem(k)
+    );
+    window.location.reload();
+  };
 
   // Lead Handler
   const addLead = (leadData: Omit<Lead, 'id' | 'created_at'>) => {
@@ -1150,6 +1176,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         persistContent,
         importSeedContent,
         refreshContent,
+        isRealDataMode: isRealDataMode(),
+        purgeDemoData,
+        restoreDemoData,
       }}
     >
       {children}
