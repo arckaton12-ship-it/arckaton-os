@@ -41,6 +41,12 @@ La clé `service_role` est utilisée **côté serveur uniquement** (Express) : e
 - `GET /api/leads` et `GET /api/reports` : le dashboard se synchronise (bouton refresh / ouverture dashboard).
 - Le consommateur final des notifications WhatsApp (provider WhatsApp Business API) lira les lignes `status='pending'` de `whatsapp_outbox`. En attendant, le retour client contient un lien `wa.me` pré-rempli (fallback manuel immédiat).
 
+## Production
+- **URL : https://arckaton-os.onrender.com** (Render, plan free, région Oregon, Node 22, health check `/api/health`)
+- Config : `render.yaml` + `.node-version` ; déploiement auto sur push `main`.
+- Variables d'environnement Render : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY` (vide par défaut → l'agent répond via la base de connaissances), `APP_URL`.
+- GitHub : `github.com/arckaton12-ship-it/arckaton-os` (branche `main`).
+
 ## Scripts
 - `npm run dev` : serveur de dev complet (Vite + API)
 - `npm run build` : build production (front + `dist/server.cjs`)
