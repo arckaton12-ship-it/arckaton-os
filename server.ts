@@ -1233,7 +1233,8 @@ function nextQuoteRef(sb: any, type: string): Promise<string> {
     .like('quote_ref', `${prefix}-${year}-%`)
     .order('quote_ref', { ascending: false })
     .limit(1)
-    .then(({ data }: any) => {
+    .then(({ data, error }: any) => {
+      if (error) throw new Error(`reference devis illisible: ${error.message}`);
       const last = data && data[0] ? String(data[0].quote_ref) : '';
       const seq = last ? Number(last.split('-')[2] || 0) + 1 : 1;
       return `${prefix}-${year}-${String(seq).padStart(4, '0')}`;
@@ -1286,7 +1287,7 @@ app.post("/api/quotes", requirePerm('admin'), async (req: AuthReq, res) => {
     const deposit = Number.isFinite(Number(body.deposit)) ? Number(body.deposit) : Math.round(total * 0.5);
 
     const quote = {
-      quote_ref: await nextQuoteRef(sb, type),
+      quote_ref: '',
       type,
       client_name: String(body.client_name),
       client_phone: body.client_phone || '',
@@ -1306,9 +1307,27 @@ app.post("/api/quotes", requirePerm('admin'), async (req: AuthReq, res) => {
       updated_at: new Date().toISOString(),
     };
 
-    const { data, error } = await sb.from('quotes').insert(quote).select('*').maybeSingle();
-    if (error) throw error;
-    res.json({ success: true, quote: data || quote });
+    // Deux creations simultanees peuvent lire la meme derniere reference :
+    // la contrainte unique rejette alors la seconde. On rejoue l'attribution.
+    let saved: any = null;
+    let lastError: any = null;
+    for (let attempt = 0; attempt < 5 && !saved; attempt++) {
+      const ref = await nextQuoteRef(sb, type);
+      const { data, error } = await sb.from('quotes').insert({ ...quote, quote_ref: ref }).select('*').maybeSingle();
+      if (error) {
+        lastError = error;
+        if (error.code === '23505') continue; // reference deja prise, on recommence
+        throw error;
+      }
+      saved = data;
+    }
+
+    if (!saved) {
+      console.error("Reference devis indisponible:", lastError?.message);
+      return res.status(503).json({ error: "Reference indisponible, reessayez dans un instant" });
+    }
+
+    res.json({ success: true, quote: saved });
   } catch (err: any) {
     console.error("Erreur creation devis:", err);
     res.status(500).json({ error: "Erreur creation devis" });
