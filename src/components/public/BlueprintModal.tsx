@@ -35,7 +35,7 @@ export const BlueprintModal: React.FC = () => {
                   <h3 className="font-serif text-lg font-bold text-white">
                     Fiche Cadre & Méthode Opérationnelle
                   </h3>
-                  <span className="text-[10px] font-mono bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  <span className="text-[11px] font-mono bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20">
                     Officiel v2.4
                   </span>
                 </div>

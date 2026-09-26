@@ -130,7 +130,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-serif font-bold text-white text-sm">Simulateur Caisse ARKA-PME</span>
-              <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="text-[11px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
                 Interactif
               </span>
             </div>
@@ -177,31 +177,31 @@ export const ArkaInteractiveDemo: React.FC = () => {
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="bg-[#0a0e17] p-3.5 rounded-xl border border-white/[0.06]">
-          <div className="text-[10px] uppercase font-mono text-slate-400">Total Encaissé Aujourd'hui</div>
+          <div className="text-[11px] uppercase font-mono text-slate-400">Total Encaissé Aujourd'hui</div>
           <div className="font-serif text-lg font-bold text-emerald-400 mt-1">
             {dailySalesTotal.toLocaleString()} FCFA
           </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">
+          <div className="text-[11px] text-slate-400 mt-0.5">
             {dailySalesCount} ventes validées
           </div>
         </div>
 
         <div className="bg-[#0a0e17] p-3.5 rounded-xl border border-white/[0.06]">
-          <div className="text-[10px] uppercase font-mono text-slate-400">Inventaire Rapide</div>
+          <div className="text-[11px] uppercase font-mono text-slate-400">Inventaire Rapide</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             12 minutes
           </div>
-          <div className="text-[10px] text-emerald-400 mt-0.5">
+          <div className="text-[11px] text-emerald-400 mt-0.5">
             Zéro écart de caisse
           </div>
         </div>
 
         <div className="bg-[#0a0e17] p-3.5 rounded-xl border border-white/[0.06] col-span-2 sm:col-span-1">
-          <div className="text-[10px] uppercase font-mono text-slate-400">Articles en Stock</div>
+          <div className="text-[11px] uppercase font-mono text-slate-400">Articles en Stock</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             {products.reduce((acc, p) => acc + p.stock, 0)} pièces
           </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">
+          <div className="text-[11px] text-slate-400 mt-0.5">
             Décompte instantané
           </div>
         </div>
@@ -226,7 +226,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                 className="text-left p-3 rounded-xl bg-[#0a0e17] hover:bg-white/[0.04] border border-white/[0.06] hover:border-emerald-500/30 transition-all flex flex-col justify-between group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <div>
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
                     <span>{product.category}</span>
                     <span className={product.stock < 10 ? 'text-amber-400' : 'text-slate-400'}>
                       Stock : {product.stock}
@@ -272,7 +272,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
             {/* Cart Items List */}
             <div className="py-2 space-y-2 max-h-48 overflow-y-auto pr-1">
               {cart.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-500 font-mono">
+                <div className="py-8 text-center text-xs text-slate-400 font-mono">
                   Panier vide. Cliquez sur un article pour l'ajouter.
                 </div>
               ) : (
@@ -283,7 +283,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                   >
                     <div className="truncate pr-2">
                       <div className="text-white font-medium truncate">{item.product.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div className="text-[11px] text-slate-400 font-mono">
                         {item.product.price.toLocaleString()} F × {item.quantity}
                       </div>
                     </div>
@@ -363,7 +363,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
             <button
               onClick={handleCheckout}
               disabled={cart.length === 0 || isProcessing}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/[0.04] disabled:text-slate-600 text-slate-950 font-semibold py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/[0.04] disabled:text-slate-400 text-slate-950 font-semibold py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
             >
               {isProcessing ? (
                 <span>Validation en cours...</span>
@@ -396,7 +396,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                   Ticket de Caisse ARKA-PME #{lastReceipt.number}
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                 Validé ({lastReceipt.timestamp})
               </span>
             </div>
@@ -421,7 +421,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between pt-1">
-              <span className="text-[10px] text-slate-400 font-mono">
+              <span className="text-[11px] text-slate-400 font-mono">
                 Stock & caisse synchronisés avec le tableau de bord
               </span>
               <button

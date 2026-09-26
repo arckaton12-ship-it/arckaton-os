@@ -27,7 +27,7 @@ export const AboutApproach: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3.5 py-1 rounded-full border border-emerald-500/20">
               <MapPin className="w-3.5 h-3.5" />
-              <span>Yaoundé, Mimboman • Rayonnement International 🌍</span>
+              <span>Yaoundé, Mimboman • Rayonnement International ðŸŒ</span>
             </div>
 
             <div className="space-y-4">
@@ -55,7 +55,7 @@ export const AboutApproach: React.FC = () => {
                     Fondatrice Maison Kotto • Cliente Forfait Architecture
                   </div>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                   Résultat certifié
                 </span>
               </div>

@@ -45,6 +45,26 @@ export const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
+  // Navigation centralisee : sidebar, notifications, vue d'ensemble
+  const goToTab = (t: string) => {
+    const alias: Record<string, typeof activeTab> = {
+      leads: 'crm',
+      crm: 'crm',
+      projects: 'projects',
+      tasks: 'tasks',
+      kanban: 'tasks',
+      copilot: 'copilot',
+      settings: 'settings',
+      messaging: 'messaging',
+      members: 'members',
+      orgchart: 'orgchart',
+      siteadmin: 'siteadmin',
+      overview: 'overview',
+    };
+    setActiveTab(alias[t] || 'overview');
+    setIsSidebarOpen(false);
+  };
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   // Session réelle : chargement, puis login requis
@@ -111,7 +131,7 @@ export const DashboardLayout: React.FC = () => {
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] text-white font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[11px] text-white font-bold flex items-center justify-center">
                 {unreadCount}
               </span>
             )}
@@ -147,7 +167,7 @@ export const DashboardLayout: React.FC = () => {
                     OS
                   </span>
                 </div>
-                <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                <div className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Cockpit Production</span>
                 </div>
@@ -192,7 +212,7 @@ export const DashboardLayout: React.FC = () => {
                   </div>
 
                   {item.badge && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${
+                    <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-md ${
                       isSpecial
                         ? 'bg-gradient-to-r from-emerald-400 to-amber-300 text-slate-950 font-bold'
                         : item.badge === 'CMS'
@@ -219,7 +239,7 @@ export const DashboardLayout: React.FC = () => {
                 {role}
               </span>
             </div>
-            <div className="text-[10px] font-mono text-slate-400 truncate mt-0.5">
+            <div className="text-[11px] font-mono text-slate-400 truncate mt-0.5">
               {user.poste_titre} • Pôle {user.pole}
             </div>
           </div>
@@ -251,11 +271,11 @@ export const DashboardLayout: React.FC = () => {
             <div className="flex items-center gap-2 bg-[#0a122e] border border-white/10 px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
                 <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
-                <div className="text-[10px] font-mono text-slate-400 mt-0.5">{role}</div>
+                <div className="text-[11px] font-mono text-slate-400 mt-0.5">{role}</div>
               </div>
               <button
                 onClick={logout}
-                className="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                className="text-[11px] font-mono text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer"
                 title="Se déconnecter"
               >
                 Déconnexion
@@ -270,7 +290,7 @@ export const DashboardLayout: React.FC = () => {
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] text-white font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[11px] text-white font-bold flex items-center justify-center">
                   {unreadCount}
                 </span>
               )}
@@ -290,14 +310,7 @@ export const DashboardLayout: React.FC = () => {
         {/* Tab Content Rendering */}
         <div className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
           {activeTab === 'overview' && (
-            <OverviewTab onSelectTab={(t) => {
-              if (t === 'leads') setActiveTab('crm');
-              else if (t === 'projects') setActiveTab('projects');
-              else if (t === 'tasks') setActiveTab('tasks');
-              else if (t === 'copilot') setActiveTab('copilot');
-              else if (t === 'settings') setActiveTab('settings');
-              else setActiveTab('overview');
-            }} />
+            <OverviewTab onSelectTab={(t) => goToTab(t)} />
           )}
           {activeTab === 'projects' && <ProjectsProductionTab />}
           {activeTab === 'orgchart' && <OrgChart />}
@@ -314,6 +327,7 @@ export const DashboardLayout: React.FC = () => {
       {/* Notifications Drawer */}
       <NotificationsDrawer
         isOpen={isNotificationsOpen}
+        onNavigate={goToTab}
         onClose={() => setIsNotificationsOpen(false)}
       />
 

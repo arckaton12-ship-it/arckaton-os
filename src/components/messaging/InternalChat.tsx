@@ -54,7 +54,7 @@ export const InternalChat: React.FC = () => {
               <MessageSquare className="w-4 h-4 text-blue-400" />
               <h3 className="font-serif text-sm font-bold text-white">Canaux Agence</h3>
             </div>
-            <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+            <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Direct
             </span>
@@ -79,7 +79,7 @@ export const InternalChat: React.FC = () => {
                     {ch.isPrivate ? (
                       <Lock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                     ) : (
-                      <Hash className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                      <Hash className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                     )}
                     <span className="truncate">{ch.name}</span>
                   </div>
@@ -97,12 +97,12 @@ export const InternalChat: React.FC = () => {
 
         {/* User presence footer */}
         <div className="p-3 border-t border-white/10 bg-[#060a18] flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-[10px] font-mono font-bold text-blue-300">
+          <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-[11px] font-mono font-bold text-blue-300">
             {user.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div className="text-left overflow-hidden">
             <div className="text-xs font-semibold text-white truncate">{user.name}</div>
-            <div className="text-[10px] font-mono text-emerald-400 truncate flex items-center gap-1">
+            <div className="text-[11px] font-mono text-emerald-400 truncate flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-emerald-400" />
               <span>En ligne • {user.poste_titre || user.role}</span>
             </div>
@@ -122,7 +122,7 @@ export const InternalChat: React.FC = () => {
               <h4 className="font-serif text-sm font-bold text-white flex items-center gap-2">
                 <span>{currentChannelInfo.name}</span>
                 {currentChannelInfo.pole && (
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${POLE_COLORS[currentChannelInfo.pole].bg} ${POLE_COLORS[currentChannelInfo.pole].text} ${POLE_COLORS[currentChannelInfo.pole].border}`}>
+                  <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${POLE_COLORS[currentChannelInfo.pole].bg} ${POLE_COLORS[currentChannelInfo.pole].text} ${POLE_COLORS[currentChannelInfo.pole].border}`}>
                     Pôle {currentChannelInfo.pole}
                   </span>
                 )}
@@ -133,7 +133,7 @@ export const InternalChat: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-[10px] font-mono text-slate-400 hidden sm:flex items-center gap-2">
+          <div className="text-[11px] font-mono text-slate-400 hidden sm:flex items-center gap-2">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>Chiffrement Interne Arckaton OS</span>
           </div>
@@ -142,10 +142,10 @@ export const InternalChat: React.FC = () => {
         {/* Message Feed */}
         <div className="flex-1 p-4 overflow-y-auto space-y-4">
           {channelMessages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500 space-y-2">
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 space-y-2">
               <MessageSquare className="w-8 h-8 opacity-40 text-blue-400" />
               <p className="text-xs font-mono">Aucun message dans ce canal pour l'instant.</p>
-              <p className="text-[11px] text-slate-600">Soyez le premier à poster une note de service ou une mise à jour d'équipe.</p>
+              <p className="text-[11px] text-slate-400">Soyez le premier à poster une note de service ou une mise à jour d'équipe.</p>
             </div>
           ) : (
             channelMessages.map((m) => {
@@ -168,8 +168,8 @@ export const InternalChat: React.FC = () => {
                   <div className={`space-y-1 max-w-[80%] ${isMe ? 'text-right' : 'text-left'}`}>
                     <div className="flex items-center gap-2 text-[11px] font-mono">
                       <span className="font-bold text-white">{m.sender_name}</span>
-                      <span className="text-[10px] text-slate-400">({m.sender_role})</span>
-                      <span className="text-[10px] text-slate-500">{m.created_at}</span>
+                      <span className="text-[11px] text-slate-400">({m.sender_role})</span>
+                      <span className="text-[11px] text-slate-400">{m.created_at}</span>
                     </div>
 
                     <div className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${

@@ -27,20 +27,28 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const DATA_TYPE_LABELS: Record<DataTransferEvent['data_type'], string> = {
+  specs_tech: 'Spécifications techniques',
+  ordre_terrain: 'Ordre de mission terrain',
+  webhook_momo: 'Webhook paiement (MoMo / Orange Money)',
+  bat_validation: 'Validation jalon & BAT client',
+  rapport_perf: 'Rapport performance / ROI',
+  patch_offline: 'Patch moteur offline',
+  securite: 'Sécurité & audit',
+};
+
 export const OrgChart: React.FC = () => {
-  const { dataTransfers, triggerDataTransfer, tasks } = useApp();
+  const { dataTransfers, tasks } = useApp();
 
   const [viewMode, setViewMode] = useState<'nodal' | 'matrix'>('nodal');
   const [selectedPole, setSelectedPole] = useState<Pole | 'all'>('all');
   const [selectedPhase, setSelectedPhase] = useState<number | 'all'>('all');
   const [activePoste, setActivePoste] = useState<Poste | null>(null);
 
-  // Data transmission simulator state
-  const [isInjecting, setIsInjecting] = useState(false);
-  const [simSender, setSimSender] = useState('u1'); // Patrice M.
-  const [simReceiver, setSimReceiver] = useState('u3'); // Arthur N. / Yannick
-  const [simType, setSimType] = useState<DataTransferEvent['data_type']>('webhook_momo');
-  const [simSummary, setSimSummary] = useState('Synchronisation webhook MTN MoMo & Orange Money avec clés sécurisées');
+  // Console de consultation des echanges (lecture seule, alimentee automatiquement)
+  const [isConsole, setIsConsole] = useState(false);
+  const [consoleFilter, setConsoleFilter] = useState<string>('');
+  const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
   const [justTransferred, setJustTransferred] = useState<string | null>(null);
 
   const [postes, setPostes] = useState<Poste[]>(POSTES_DATA);
@@ -50,14 +58,6 @@ export const OrgChart: React.FC = () => {
   const level1Postes = postes.filter(p => ['p2', 'p4', 'p6', 'p8', 'p9', 'p5'].includes(p.id)); // Tech lead, Art lead, Growth, Client lead
   const level2Postes = postes.filter(p => !level0Postes.some(x => x.id === p.id) && !level1Postes.some(x => x.id === p.id));
 
-  const handleSendPacket = (e: React.FormEvent) => {
-    e.preventDefault();
-    const packet = triggerDataTransfer(simSender, simReceiver, simType, simSummary);
-    setJustTransferred(packet.id);
-    setIsInjecting(false);
-    setTimeout(() => setJustTransferred(null), 4000);
-  };
-
   const getPosteTasks = (titulaire?: string) => {
     if (!titulaire) return [];
     return tasks.filter(t => t.assignee_name && (titulaire.includes(t.assignee_name) || t.assignee_name.includes(titulaire)));
@@ -65,6 +65,18 @@ export const OrgChart: React.FC = () => {
 
   const pourvusCount = postes.filter(p => p.statut_recrutement === 'pourvu').length;
   const ouvertsCount = postes.filter(p => p.statut_recrutement === 'recrutement_ouvert').length;
+
+  // Filtres de la console : recherche sur emetteur, destinataire, type et contenu
+  const filteredFlows = dataTransfers.filter((f) => {
+    const q = consoleFilter.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      f.from_member_name.toLowerCase().includes(q) ||
+      f.to_member_name.toLowerCase().includes(q) ||
+      f.payload_summary.toLowerCase().includes(q) ||
+      (DATA_TYPE_LABELS[f.data_type] || '').toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
@@ -117,7 +129,7 @@ export const OrgChart: React.FC = () => {
 
             {/* Inject Packet Button */}
             <button
-              onClick={() => setIsInjecting(true)}
+              onClick={() => setIsConsole(true)}
               className="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-mono text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5 text-emerald-400" />
@@ -129,19 +141,19 @@ export const OrgChart: React.FC = () => {
         {/* Live Network Counters Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/[0.08]">
           <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Unités Opérationnelles</div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">Unités Opérationnelles</div>
             <div className="text-lg font-serif font-bold text-white mt-0.5">{pourvusCount} Actifs / 17</div>
           </div>
           <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Recrutements en cours</div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">Recrutements en cours</div>
             <div className="text-lg font-serif font-bold text-amber-400 mt-0.5">{ouvertsCount} Ouverts</div>
           </div>
           <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Flux Réseau Traités</div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">Flux Réseau Traités</div>
             <div className="text-lg font-serif font-bold text-emerald-400 mt-0.5">{dataTransfers.length} Transmissions</div>
           </div>
           <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Chiffrement Souverain</div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">Chiffrement Souverain</div>
             <div className="text-lg font-serif font-bold text-blue-400 mt-0.5">SHA-256 Actif</div>
           </div>
         </div>
@@ -168,7 +180,7 @@ export const OrgChart: React.FC = () => {
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>Paquet de données injecté et acheminé avec succès le long de l'arborescence !</span>
                 </div>
-                <span className="text-[10px] text-emerald-400/80">Vérifié SHA-256</span>
+                <span className="text-[11px] text-emerald-400/80">Vérifié SHA-256</span>
               </motion.div>
             )}
 
@@ -190,7 +202,7 @@ export const OrgChart: React.FC = () => {
                     className="w-full sm:w-80 bg-[#0d1733] border-2 border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-5 cursor-pointer shadow-lg shadow-emerald-500/5 transition-all relative group"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-bold">
+                      <span className="text-[11px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-bold">
                         CLEARANCE ALPHA-1
                       </span>
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
@@ -241,10 +253,10 @@ export const OrgChart: React.FC = () => {
                     className="bg-[#0b1329] border border-white/15 hover:border-blue-400/60 rounded-2xl p-4 cursor-pointer transition-all relative group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
+                      <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
                         {p.pole}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-400">Phase {p.phase}</span>
+                      <span className="text-[11px] font-mono text-slate-400">Phase {p.phase}</span>
                     </div>
 
                     <div className="text-xs font-mono text-slate-400">{p.titre}</div>
@@ -357,7 +369,7 @@ export const OrgChart: React.FC = () => {
                         {dt.clearance_level}
                       </span>
                       <span className="text-slate-400">{dt.timestamp}</span>
-                      <span className="text-slate-500 hidden lg:inline">{dt.hash}</span>
+                      <span className="text-slate-400 hidden lg:inline">{dt.hash}</span>
                     </div>
                   </div>
                 );
@@ -416,7 +428,7 @@ export const OrgChart: React.FC = () => {
                     className="bg-[#0b1329] border border-white/10 hover:border-white/25 rounded-2xl p-5 cursor-pointer transition-all"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
+                      <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
                         {p.pole}
                       </span>
                       <span className="text-xs font-mono text-slate-400">Phase {p.phase}</span>
@@ -472,12 +484,12 @@ export const OrgChart: React.FC = () => {
                     {getPosteTasks(activePoste.titulaire).map((t) => (
                       <div key={t.id} className="bg-[#080d1e] border border-white/[0.06] p-3 rounded-xl flex items-center justify-between text-xs">
                         <span className="text-white font-medium">{t.titre || t.title}</span>
-                        <span className="text-[10px] font-mono text-emerald-400 uppercase">{t.statut || t.status}</span>
+                        <span className="text-[11px] font-mono text-emerald-400 uppercase">{t.statut || t.status}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-xs font-mono text-slate-500 bg-[#080d1e] p-3 rounded-xl">
+                  <div className="text-xs font-mono text-slate-400 bg-[#080d1e] p-3 rounded-xl">
                     Aucune tâche bloquante en cours pour ce membre.
                   </div>
                 )}
@@ -487,9 +499,9 @@ export const OrgChart: React.FC = () => {
                 <span className="text-xs font-mono text-slate-400">Charge CPU estimée : {activePoste.charge_estimee}</span>
                 <button
                   onClick={() => {
-                    setSimReceiver(activePoste.titulaire_id || 'u3');
+                    setConsoleFilter(activePoste.titulaire || '');
                     setActivePoste(null);
-                    setIsInjecting(true);
+                    setIsConsole(true);
                   }}
                   className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
                 >
@@ -502,101 +514,155 @@ export const OrgChart: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL 2 : PACKET INJECTION SIMULATOR */}
+      {/* CONSOLE DES ECHANGES : lecture seule, alimentee automatiquement */}
       <AnimatePresence>
-        {isInjecting && (
+        {isConsole && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0b1329] border border-emerald-500/30 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl"
+              className="bg-[#0b1329] border border-blue-500/30 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl"
             >
-              <button
-                onClick={() => setIsInjecting(false)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-2"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono mb-2">
-                <Zap className="w-4 h-4" />
-                <span>Simulateur de Transmission d'Ordre & Données</span>
+              <div className="flex items-start justify-between gap-4 p-6 border-b border-white/10">
+                <div>
+                  <div className="flex items-center gap-2 text-blue-400 text-xs font-mono mb-1.5">
+                    <Terminal className="w-4 h-4" />
+                    <span>Journal automatique des échanges inter-membres</span>
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-white">
+                    Console de consultation des flux
+                  </h3>
+                  <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                    Chaque tâche transmise, message échangé, jalon validé ou retour client crée automatiquement
+                    un fil. Cliquez sur un fil pour lire le contenu de l'échange.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsConsole(false)}
+                  className="shrink-0 text-slate-300 hover:text-white p-2 rounded-lg hover:bg-white/10"
+                  aria-label="Fermer la console"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <h3 className="font-serif text-xl font-bold text-white">
-                Émettre un Paquet Chiffré dans l'Organigramme
-              </h3>
 
-              <form onSubmit={handleSendPacket} className="space-y-4 mt-6">
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 uppercase mb-1.5">Membre Émetteur :</label>
-                  <select
-                    value={simSender}
-                    onChange={(e) => setSimSender(e.target.value)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white"
-                  >
-                    {CURRENT_PROFILES.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name} — {p.poste_titre || p.role}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 uppercase mb-1.5">Membre Destinataire :</label>
-                  <select
-                    value={simReceiver}
-                    onChange={(e) => setSimReceiver(e.target.value)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white"
-                  >
-                    {CURRENT_PROFILES.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name} — {p.poste_titre || p.role}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 uppercase mb-1.5">Nature du Paquet :</label>
-                  <select
-                    value={simType}
-                    onChange={(e) => setSimType(e.target.value as any)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white"
-                  >
-                    <option value="webhook_momo">Webhook MTN MoMo / Orange Money</option>
-                    <option value="ordre_terrain">Ordre de Mission Captation Terrain 4K</option>
-                    <option value="patch_offline">Patch Moteur Offline ARKA-PME</option>
-                    <option value="bat_validation">Validation Jalon & BAT Client</option>
-                    <option value="rapport_perf">Rapport d'Acquisition & ROI</option>
-                    <option value="securite">Rotation Clés & Audit Souveraineté</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 uppercase mb-1.5">Description de la Transmission :</label>
-                  <textarea
-                    rows={3}
-                    value={simSummary}
-                    onChange={(e) => setSimSummary(e.target.value)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
-                  />
-                </div>
-
-                <div className="pt-2 flex items-center justify-end gap-3">
+              <div className="px-6 py-3 border-b border-white/10 flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-mono text-slate-300 uppercase">Filtrer par membre</span>
+                <input
+                  value={consoleFilter}
+                  onChange={(e) => setConsoleFilter(e.target.value)}
+                  placeholder="Nom du membre…"
+                  className="flex-1 min-w-[160px] bg-[#070c1e] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-400"
+                />
+                {consoleFilter && (
                   <button
-                    type="button"
-                    onClick={() => setIsInjecting(false)}
-                    className="px-4 py-2.5 text-xs text-slate-400 hover:text-white"
+                    onClick={() => setConsoleFilter('')}
+                    className="text-[11px] text-slate-300 hover:text-white underline"
                   >
-                    Annuler
+                    Réinitialiser
                   </button>
-                  <button
-                    type="submit"
-                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Acheminer le Paquet</span>
-                  </button>
-                </div>
-              </form>
+                )}
+                <span className="text-[11px] font-mono text-slate-300 ml-auto">
+                  {filteredFlows.length} fil(s)
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
+                {filteredFlows.length === 0 ? (
+                  <div className="text-center py-14 text-slate-300 space-y-2">
+                    <Share2 className="w-8 h-8 mx-auto opacity-50 text-blue-400" />
+                    <p className="text-xs">
+                      Aucun échange enregistré pour l'instant.
+                    </p>
+                    <p className="text-[11px]">
+                      Assignez une tâche à un membre ou envoyez un message : le fil apparaîtra ici automatiquement.
+                    </p>
+                  </div>
+                ) : (
+                  filteredFlows.map((f) => {
+                    const isOpen = expandedFlow === f.id;
+                    return (
+                      <div
+                        key={f.id}
+                        className={`rounded-2xl border transition-colors ${
+                          isOpen ? 'border-blue-400/50 bg-[#0e1a3d]' : 'border-white/10 bg-[#070d1e] hover:border-white/20'
+                        }`}
+                      >
+                        <button
+                          onClick={() => setExpandedFlow(isOpen ? null : f.id)}
+                          className="w-full text-left px-4 py-3 flex items-center gap-3 cursor-pointer"
+                        >
+                          <span
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                              f.status === 'verifie' ? 'bg-emerald-400' : f.status === 'livre' ? 'bg-blue-400' : 'bg-amber-400'
+                            }`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs text-white font-semibold truncate">
+                              {f.from_member_name}
+                              <span className="text-slate-300 font-normal"> → </span>
+                              {f.to_member_name}
+                            </div>
+                            <div className="text-[11px] text-slate-300 font-mono truncate">
+                              {DATA_TYPE_LABELS[f.data_type] || f.data_type} • {f.timestamp}
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-mono text-slate-300 flex-shrink-0 hidden sm:block">
+                            {isOpen ? 'Réduire' : 'Lire'}
+                          </span>
+                        </button>
+
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/10">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-slate-300">
+                                  <div className="bg-black/25 rounded-lg px-3 py-2">
+                                    <div className="text-slate-400">Émetteur</div>
+                                    <div className="text-white">{f.from_member_name} — {f.from_role}</div>
+                                  </div>
+                                  <div className="bg-black/25 rounded-lg px-3 py-2">
+                                    <div className="text-slate-400">Destinataire</div>
+                                    <div className="text-white">{f.to_member_name} — {f.to_role}</div>
+                                  </div>
+                                </div>
+                                <div className="bg-[#060a16] rounded-lg px-3.5 py-3 border border-white/10">
+                                  <div className="text-[11px] font-mono text-slate-400 mb-1">Contenu de l'échange</div>
+                                  <p className="text-xs text-slate-100 leading-relaxed whitespace-pre-wrap">
+                                    {f.payload_summary}
+                                  </p>
+                                </div>
+                                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                                  <span>Pôle : {f.pole}</span>
+                                  <span>{f.hash}</span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="p-4 border-t border-white/10 flex items-center justify-between gap-3">
+                <p className="text-[11px] text-slate-300">
+                  Journal local à l'appareil, alimenté par les actions réelles des membres.
+                </p>
+                <button
+                  onClick={() => setIsConsole(false)}
+                  className="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-4 py-2 rounded-xl text-xs font-medium cursor-pointer"
+                >
+                  Fermer
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

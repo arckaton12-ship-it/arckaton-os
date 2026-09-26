@@ -101,7 +101,7 @@ export const LoginPanel: React.FC = () => {
                     Configuration initiale — Création du Directeur (admin)
                   </span>
                   {needsBoot === false && (
-                    <button type="button" onClick={() => setBootMode(false)} className="text-[10px] text-slate-400 hover:text-white">Masquer</button>
+                    <button type="button" onClick={() => setBootMode(false)} className="text-[11px] text-slate-400 hover:text-white">Masquer</button>
                   )}
                 </div>
                 <div>
@@ -133,14 +133,14 @@ export const LoginPanel: React.FC = () => {
               <div>
                 <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1.5">Email professionnel</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="prenom@arckaton.com"
-                    className="w-full bg-[#070c1e] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-600 outline-none transition-colors"
+                    className="w-full bg-[#070c1e] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -148,14 +148,14 @@ export const LoginPanel: React.FC = () => {
               <div>
                 <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1.5">Mot de passe</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-[#070c1e] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-600 outline-none transition-colors"
+                    className="w-full bg-[#070c1e] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -177,14 +177,14 @@ export const LoginPanel: React.FC = () => {
             </form>
             )}
 
-            <div className="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-500">
+            <div className="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-400">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Session sécurisée</span>
               </span>
               <div className="flex items-center gap-3">
                 {needsBoot === false && (
-                  <button type="button" onClick={() => setBootMode((b) => !b)} className="text-slate-500 hover:text-white transition-colors cursor-pointer">
+                  <button type="button" onClick={() => setBootMode((b) => !b)} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
                     Initialiser 1er admin
                   </button>
                 )}

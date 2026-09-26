@@ -5,12 +5,35 @@ import { X, Bell, Check, ArrowUpRight, User, AlertCircle, Sparkles } from 'lucid
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
-export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
+// Libellé lisible de la source, déduit du `link` ou du type
+const sourceLabel = (n: { link?: string; type?: string }): string => {
+  if (n.link === '/leads' || n.type === 'lead') return 'CRM & Devis';
+  if (n.link === '/tasks' || n.type === 'task') return 'Tâches & Kanban';
+  if (n.link === '/projects') return 'Projets & Production';
+  if (n.link === '/messaging' || n.type === 'message') return 'Messagerie interne';
+  if (n.link === '/members') return 'Membres & Habilitations';
+  if (n.link === '/crm') return 'CRM & Devis';
+  if (n.link === '/siteadmin') return 'Gestion du site';
+  return 'Vue d’ensemble';
+};
+
+export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNavigate }) => {
   const { notifications, markNotificationAsRead, clearNotifications } = useApp();
 
   if (!isOpen) return null;
+
+  // Clic = marquer comme lu + rediriger vers la source
+  const handleClick = (n: { id: string; link?: string }) => {
+    markNotificationAsRead(n.id);
+    const target = n.link;
+    if (target && target !== '/' && onNavigate) {
+      onNavigate(target.replace(/^\//, ''));
+    }
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fadeIn">
@@ -51,27 +74,28 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {notifications.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 space-y-3">
+            <div className="text-center py-16 text-slate-400 space-y-3">
               <Check className="w-8 h-8 mx-auto opacity-40 text-emerald-400" />
               <p className="text-xs">Toutes les alertes sont à jour. Aucun événement non traité.</p>
             </div>
           ) : (
             notifications.map((n) => (
-              <div
+              <button
                 key={n.id}
-                onClick={() => markNotificationAsRead(n.id)}
-                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                onClick={() => handleClick(n)}
+                title={`Ouvrir : ${sourceLabel(n)}`}
+                className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer group ${
                   n.read
-                    ? 'bg-[#070c1e]/60 border-white/5 opacity-70'
-                    : 'bg-[#0e163d] border-blue-500/30 shadow-sm'
+                    ? 'bg-[#070c1e]/60 border-white/5 opacity-70 hover:opacity-100'
+                    : 'bg-[#0e163d] border-blue-500/30 shadow-sm hover:border-blue-400/60'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-500' : 'bg-blue-400 animate-pulse'}`} />
                     <span className="text-xs font-semibold text-white">{n.title}</span>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">
+                  <span className="text-[11px] font-mono text-slate-400 flex-shrink-0">
                     {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -81,10 +105,13 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
                 </p>
 
                 <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-white/5">
-                  <span className="text-emerald-400">Pôle : {n.pole_target}</span>
-                  <span>Pour : {n.recipient}</span>
+                  <span className="text-emerald-400">Pôle : {n.pole_target || n.pole}</span>
+                  <span className="inline-flex items-center gap-1 text-blue-300 group-hover:text-blue-200 font-semibold">
+                    {sourceLabel(n)}
+                    <ArrowUpRight className="w-3 h-3" />
+                  </span>
                 </div>
-              </div>
+              </button>
             ))
           )}
         </div>

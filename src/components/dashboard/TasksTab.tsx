@@ -135,7 +135,7 @@ export const TasksTab: React.FC = () => {
       {/* Tasks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTasks.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-slate-500 bg-[#0a0f2e] rounded-2xl border border-white/5">
+          <div className="col-span-full text-center py-12 text-slate-400 bg-[#0a0f2e] rounded-2xl border border-white/5">
             Aucune tâche trouvée pour cette combinaison de filtres.
           </div>
         ) : (
@@ -156,11 +156,11 @@ export const TasksTab: React.FC = () => {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono uppercase bg-white/5 text-slate-300 px-2.5 py-0.5 rounded border border-white/5">
+                    <span className="text-[11px] font-mono uppercase bg-white/5 text-slate-300 px-2.5 py-0.5 rounded border border-white/5">
                       {t.pole}
                     </span>
 
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                       t.priority === 'urgente' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
                       t.priority === 'normale' ? 'bg-blue-500/20 text-blue-300' :
                       'bg-slate-700 text-slate-400'
@@ -291,7 +291,7 @@ export const TasksTab: React.FC = () => {
                   >
                     <option value="basse">Basse</option>
                     <option value="normale">Normale</option>
-                    <option value="urgente">Urgente 🔥</option>
+                    <option value="urgente">Urgente ðŸ”¥</option>
                   </select>
                 </div>
               </div>

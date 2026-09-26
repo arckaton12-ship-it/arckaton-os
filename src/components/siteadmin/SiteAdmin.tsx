@@ -662,7 +662,7 @@ export const SiteAdmin: React.FC = () => {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-mono text-emerald-400 uppercase font-bold">Forfait #{f.number}</span>
                       {f.recommended && (
-                        <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
+                        <span className="text-[11px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
                           Recommandé
                         </span>
                       )}
@@ -815,7 +815,7 @@ export const SiteAdmin: React.FC = () => {
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                      <span className="text-[11px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                         {post.category_label}
                       </span>
                       <span className="text-[11px] font-mono text-slate-400">{post.date}</span>
@@ -1017,10 +1017,10 @@ export const SiteAdmin: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-[11px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                       {r.categoryLabel}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-500">{r.forfait}</span>
+                    <span className="text-[11px] font-mono text-slate-400">{r.forfait}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{r.name}</h4>
                   <div className="text-xs text-slate-400 mt-1 font-mono">
@@ -1169,8 +1169,8 @@ export const SiteAdmin: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">5/5</span>
-                    <span className="text-[11px] font-mono text-slate-500">{t.metrics || '—'}</span>
+                    <span className="text-[11px] font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">5/5</span>
+                    <span className="text-[11px] font-mono text-slate-400">{t.metrics || '—'}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">
                     {t.author} <span className="text-emerald-400 font-normal">— {t.company}</span>

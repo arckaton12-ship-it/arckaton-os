@@ -47,7 +47,7 @@ export const Forfaits: React.FC = () => {
                 }`}
               >
                 <span>Engagement Annuel</span>
-                <span className="text-[10px] font-mono bg-emerald-400/20 px-1.5 py-0.2 rounded text-emerald-950 font-bold">
+                <span className="text-[11px] font-mono bg-emerald-400/20 px-1.5 py-0.2 rounded text-emerald-950 font-bold">
                   -15%
                 </span>
               </button>
@@ -187,7 +187,7 @@ export const Forfaits: React.FC = () => {
             </div>
             <span className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.08] self-start sm:self-auto">
               <Globe className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Livraison internationale 🌍</span>
+              <span>Livraison internationale ðŸŒ</span>
             </span>
           </div>
 

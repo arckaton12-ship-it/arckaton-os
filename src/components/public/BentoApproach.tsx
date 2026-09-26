@@ -196,7 +196,7 @@ export const BentoApproach: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0f1523]/80 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute bottom-2 left-2 text-[10px] font-mono text-blue-300 bg-[#0a0e17]/80 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1.5">
+                  <div className="absolute bottom-2 left-2 text-[11px] font-mono text-blue-300 bg-[#0a0e17]/80 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1.5">
                     <Film className="w-3 h-3 text-blue-400" />
                     <span>Caméra Cinéma & Éclairage Mobile</span>
                   </div>
@@ -281,7 +281,7 @@ export const BentoApproach: React.FC = () => {
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 right-3 bg-[#0a0e17]/85 backdrop-blur-md border border-white/[0.1] px-3 py-1.5 rounded-lg text-[10px] font-mono text-slate-300 flex items-center gap-2">
+              <div className="absolute bottom-3 right-3 bg-[#0a0e17]/85 backdrop-blur-md border border-white/[0.1] px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>Interconnexion Opérationnelle Active</span>
               </div>

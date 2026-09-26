@@ -100,10 +100,10 @@ export const FieldBlogSection: React.FC = () => {
 
                   {/* Top Badges */}
                   <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                    <span className="text-[10px] font-mono uppercase bg-black/60 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
+                    <span className="text-[11px] font-mono uppercase bg-black/60 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
                       {post.category_label}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
+                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
                       <Clock className="w-3 h-3 text-slate-400" />
                       <span>{post.read_time}</span>
                     </span>
@@ -132,7 +132,7 @@ export const FieldBlogSection: React.FC = () => {
                     <span>{post.date}</span>
                     <span>•</span>
                     <span className="text-emerald-400">{post.author_name}</span>
-                    <span className="text-slate-500">({post.author_role})</span>
+                    <span className="text-slate-400">({post.author_role})</span>
                   </div>
 
                   <h3 className="font-serif text-xl sm:text-2xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
@@ -153,7 +153,7 @@ export const FieldBlogSection: React.FC = () => {
                 </span>
                 <div className="flex items-center gap-1.5">
                   {post.tags.slice(0, 2).map((t, idx) => (
-                    <span key={idx} className="bg-white/[0.04] text-[10px] text-slate-400 px-2 py-0.5 rounded border border-white/[0.06]">
+                    <span key={idx} className="bg-white/[0.04] text-[11px] text-slate-400 px-2 py-0.5 rounded border border-white/[0.06]">
                       #{t}
                     </span>
                   ))}

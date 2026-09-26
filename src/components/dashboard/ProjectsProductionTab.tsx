@@ -153,7 +153,7 @@ export const ProjectsProductionTab: React.FC = () => {
             placeholder="Rechercher par client, code (ex: PRJ-KOTTO)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#070c1e] border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#070c1e] border border-white/10 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
           />
         </div>
 
@@ -229,10 +229,10 @@ export const ProjectsProductionTab: React.FC = () => {
                         <h3 className="font-serif text-lg font-bold text-white">
                           {project.client_name}
                         </h3>
-                        <span className="text-[10px] font-mono bg-white/5 text-slate-400 px-2 py-0.5 rounded-full border border-white/10">
+                        <span className="text-[11px] font-mono bg-white/5 text-slate-400 px-2 py-0.5 rounded-full border border-white/10">
                           {project.client_code || project.id}
                         </span>
-                        <span className="text-[10px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
+                        <span className="text-[11px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
                           Pôle {project.pole}
                         </span>
                       </div>
@@ -546,7 +546,7 @@ export const ProjectsProductionTab: React.FC = () => {
                               <span className="font-mono text-purple-400 font-bold">
                                 Session #{v.numero}
                               </span>
-                              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                              <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                                 v.statut === 'livree'
                                   ? 'bg-emerald-500/20 text-emerald-300'
                                   : v.statut === 'en_montage'
@@ -595,7 +595,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         value={editingNotes[project.id] !== undefined ? editingNotes[project.id] : (project.notes_internes || '')}
                         onChange={(e) => setEditingNotes({ ...editingNotes, [project.id]: e.target.value })}
                         placeholder="Consignes internes pour les designers, développeurs et chefs de projet..."
-                        className="w-full p-3 rounded-2xl bg-[#09122a] border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full p-3 rounded-2xl bg-[#09122a] border border-white/10 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
 

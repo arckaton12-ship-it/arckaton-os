@@ -37,7 +37,7 @@ export const CrmSection: React.FC = () => {
     contacte: { label: 'Contact Établi', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
     qualifie: { label: 'Besoins Qualifiés', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
     devis_envoye: { label: 'Devis Transmis', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' },
-    converti: { label: 'Client Signé 🎉', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
+    converti: { label: 'Client Signé ðŸŽ‰', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
     archive: { label: 'Archivé', color: 'bg-slate-700 text-slate-400 border-slate-600' },
     perdu: { label: 'Sans Suite', color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' }
   };
@@ -125,7 +125,7 @@ export const CrmSection: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {filteredLeads.length === 0 ? (
-          <div className="text-center py-12 text-slate-500 bg-[#0a122e] rounded-2xl border border-white/5">
+          <div className="text-center py-12 text-slate-400 bg-[#0a122e] rounded-2xl border border-white/5">
             Aucun prospect ne correspond à ces critères.
           </div>
         ) : (
@@ -152,16 +152,16 @@ export const CrmSection: React.FC = () => {
                       <div className="font-serif text-base font-bold text-white flex items-center gap-2">
                         <span>{l.name}</span>
                         {l.country && (
-                          <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.2 rounded">
+                          <span className="text-[11px] font-mono text-slate-400 bg-white/5 px-2 py-0.2 rounded">
                             {l.country}
                           </span>
                         )}
                       </div>
                       <div className="text-xs text-slate-400 font-mono flex items-center gap-2 mt-0.5">
-                        <Phone className="w-3 h-3 text-slate-500" />
+                        <Phone className="w-3 h-3 text-slate-400" />
                         <span>{l.phone}</span>
                         <span>•</span>
-                        <Clock className="w-3 h-3 text-slate-500" />
+                        <Clock className="w-3 h-3 text-slate-400" />
                         <span>{l.created_at}</span>
                       </div>
                     </div>
@@ -169,11 +169,11 @@ export const CrmSection: React.FC = () => {
 
                   {/* Status & Pole badges */}
                   <div className="flex items-center gap-2 self-start sm:self-auto">
-                    <span className={`text-[10px] font-mono px-2.5 py-1 rounded-full border ${stInfo.color}`}>
+                    <span className={`text-[11px] font-mono px-2.5 py-1 rounded-full border ${stInfo.color}`}>
                       {stInfo.label}
                     </span>
 
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}>
+                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}>
                       Pôle {l.pole_assigned}
                     </span>
                   </div>
@@ -182,7 +182,7 @@ export const CrmSection: React.FC = () => {
                 {/* Project details & Message */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                   <div className="md:col-span-2 space-y-1">
-                    <span className="text-[10px] font-mono uppercase text-slate-400">Projet demandé :</span>
+                    <span className="text-[11px] font-mono uppercase text-slate-400">Projet demandé :</span>
                     <div className="font-semibold text-white text-sm">{l.project_type}</div>
                     {l.message && (
                       <p className="text-slate-300 bg-[#070c1e] p-3 rounded-xl border border-white/5 leading-relaxed mt-1">
@@ -192,14 +192,14 @@ export const CrmSection: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase text-slate-400">Budget / Forfait envisagé :</span>
+                    <span className="text-[11px] font-mono uppercase text-slate-400">Budget / Forfait envisagé :</span>
                     <div className="font-serif text-sm font-bold text-emerald-400">
                       {l.budget || 'À cadrer lors du devis'}
                     </div>
 
                     {/* Status switcher */}
                     <div className="pt-2">
-                      <span className="text-[10px] font-mono text-slate-400 block mb-1">Changer l'état :</span>
+                      <span className="text-[11px] font-mono text-slate-400 block mb-1">Changer l'état :</span>
                       <select
                         value={l.statut}
                         onChange={(e) => updateLeadStatus(l.id, e.target.value as LeadStatus)}

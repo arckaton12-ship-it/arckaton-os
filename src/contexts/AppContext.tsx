@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   Lead,
   AgentReport,
@@ -934,6 +934,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         read: false,
         created_at: 'À l\'instant',
         pole: 'Client',
+        link: '/projects',
       };
       setNotifications((prev) => [notif, ...prev]);
     }
@@ -1008,6 +1009,86 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
   };
 
+  // ---- Journal automatique des échanges (fil d'activité) ----
+  // Chaque action impliquant 2 personnes (tâche, message, jalon, retour client)
+  // crée une entrée de flux consultable par la direction. Plus de bouton "injecter".
+  const memberDirectory = useRef<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null }>>([]);
+
+  useEffect(() => {
+    let stopped = false;
+    const load = async () => {
+      try {
+        const t = localStorage.getItem('arckaton_os_token');
+        if (!t) return;
+        const res = await fetch('/api/members', { headers: { Authorization: `Bearer ${t}` } });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list = Array.isArray(json.members) ? json.members : [];
+        if (!stopped) {
+          memberDirectory.current = list.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            role: m.role,
+            pole: m.pole,
+            poste_titre: m.poste_titre,
+          }));
+        }
+      } catch {
+        /* annuaire indisponible : les flux restent crées avec le nom de l'auteur */
+      }
+    };
+    load();
+    return () => {
+      stopped = true;
+    };
+  }, []);
+
+  // Cree une entree de flux a partir de l'auteur reel et d'un destinataire
+  const logExchange = (
+    toMember: { id?: string; name: string; role?: string; pole?: Pole } | undefined,
+    dataType: DataTransferEvent['data_type'],
+    summary: string
+  ): DataTransferEvent | null => {
+    if (purgeInProgress) return null;
+    const author = currentUser;
+    // Pas de fil si l'auteur se renvoie a lui-meme
+    if (toMember && toMember.id && toMember.id === author.id) return null;
+
+    const target = toMember || {
+      id: undefined,
+      name: 'Direction',
+      role: 'Direction',
+      pole: author.pole,
+    };
+
+    const entry: DataTransferEvent = {
+      id: `dt-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
+      from_member_id: author.id,
+      from_member_name: author.name,
+      from_role: author.poste_titre || author.role,
+      to_member_id: target.id || 'direction',
+      to_member_name: target.name,
+      to_role: target.role || 'Membre',
+      pole: target.pole || author.pole,
+      data_type: dataType,
+      payload_summary: summary,
+      timestamp: new Date().toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      status: 'livre',
+      clearance_level: 'ALPHA-1',
+      hash: `sha256:${Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+    };
+
+    setDataTransfers((prev) => {
+      const updated = [entry, ...prev].slice(0, 60);
+      localStorage.setItem('arckaton_data_transfers', JSON.stringify(updated));
+      return updated;
+    });
+    return entry;
+  };
+
+  const findMemberByName = (name: string) =>
+    memberDirectory.current.find((m) => m.name.toLowerCase().includes(name.toLowerCase().split(' ')[0]));
+
   // Task Handler
   const addTask = (taskData: Omit<Task, 'id' | 'created_at'>) => {
     const newTask: Task = {
@@ -1016,10 +1097,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       created_at: 'Aujourd\'hui',
     };
     setTasks((prev) => [newTask, ...prev]);
+
+    // Fil automatique : la tache est transmise au membre assigne
+    const assignee = (taskData as any).assigned_to || (taskData as any).assignee || (taskData as any).recipient;
+    if (assignee) {
+      const target = typeof assignee === 'string' ? findMemberByName(assignee) : assignee;
+      logExchange(
+        target ? { id: target.id, name: target.name, role: target.poste_titre || target.role, pole: target.pole } : { name: String(assignee) },
+        'specs_tech',
+        `Tâche transmise : « ${taskData.title} » → ${typeof assignee === 'string' ? assignee : target?.name}`
+      );
+    }
   };
 
   const updateTaskStatus = (id: string, status: TaskStatus) => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, statut: status } : t)));
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    // Fil automatique a chaque changement d'etat notable
+    if (status === 'termine') {
+      logExchange(undefined, 'rapport_perf', `Tâche achevée : « ${task.title} »`);
+    } else if (status === 'en_cours') {
+      logExchange(undefined, 'ordre_terrain', `Prise en charge : « ${task.title} »`);
+    }
   };
 
   // Message Handler
@@ -1034,6 +1134,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     setMessages((prev) => [...prev, newMsg]);
+
+    // Fil automatique : tout echange de message est trace
+    logExchange(undefined, 'securite', `Message (${channelId}) : « ${content.slice(0, 120)}${content.length > 120 ? '…' : ''} »`);
   };
 
   // Notification Handler

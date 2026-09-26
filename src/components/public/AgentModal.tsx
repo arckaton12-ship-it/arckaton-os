@@ -147,7 +147,7 @@ export const AgentModal: React.FC = () => {
                   <div>
                     <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
                       <span>Conseiller IA Arckaton</span>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                         Officiel 6 Pôles
                       </span>
                     </h3>
@@ -212,7 +212,7 @@ export const AgentModal: React.FC = () => {
                       }`}
                     >
                       {!isUser && (
-                        <div className="text-[10px] font-mono text-emerald-400 mb-1">
+                        <div className="text-[11px] font-mono text-emerald-400 mb-1">
                           Réponse Pôle {m.pole || 'Direction'}
                         </div>
                       )}

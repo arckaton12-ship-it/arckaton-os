@@ -109,7 +109,7 @@ export const ClientPortalModal: React.FC = () => {
                     <h3 className="font-serif text-lg font-bold text-white">
                       Espace Client & Suivi de Projet
                     </h3>
-                    <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <span className="text-[11px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
                       En Direct
                     </span>
                   </div>
@@ -144,7 +144,7 @@ export const ClientPortalModal: React.FC = () => {
                           : 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.06]'
                       }`}
                     >
-                      {p.client_name} <span className="font-mono opacity-75 text-[10px]">({code})</span>
+                      {p.client_name} <span className="font-mono opacity-75 text-[11px]">({code})</span>
                     </button>
                   );
                 })}
@@ -157,7 +157,7 @@ export const ClientPortalModal: React.FC = () => {
                   placeholder="Réf (ex: PRJ-KOTTO)..."
                   value={searchCode}
                   onChange={(e) => setSearchCode(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#0f1523] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 font-mono"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#0f1523] border border-white/[0.08] text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 font-mono"
                 />
               </form>
             </div>
@@ -311,7 +311,7 @@ export const ClientPortalModal: React.FC = () => {
                                     <h5 className="font-semibold text-white text-sm">
                                       {milestone.titre}
                                     </h5>
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                                       isDone
                                         ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                         : isCurrent
@@ -326,7 +326,7 @@ export const ClientPortalModal: React.FC = () => {
                                   </p>
                                   {milestone.echeance && (
                                     <div className="text-[11px] font-mono text-slate-400 mt-1 flex items-center gap-1">
-                                      <Clock className="w-3 h-3 text-slate-500" />
+                                      <Clock className="w-3 h-3 text-slate-400" />
                                       <span>Échéance visée : {milestone.echeance}</span>
                                     </div>
                                   )}
@@ -401,7 +401,7 @@ export const ClientPortalModal: React.FC = () => {
                           <span className="text-xs font-mono text-emerald-400 font-bold">
                             SESSION #{visit.numero}
                           </span>
-                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                          <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                             visit.statut === 'livree'
                               ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                               : visit.statut === 'en_montage'
@@ -465,7 +465,7 @@ export const ClientPortalModal: React.FC = () => {
                               <span className={`font-bold ${isClient ? 'text-emerald-400' : 'text-blue-400'}`}>
                                 {fb.auteur} {isClient ? '(Client)' : '(Équipe Arckaton)'}
                               </span>
-                              <span className="font-mono text-slate-500 text-[10px]">{fb.date}</span>
+                              <span className="font-mono text-slate-400 text-[11px]">{fb.date}</span>
                             </div>
                             <p className="text-slate-200 leading-relaxed font-light">
                               {fb.message}
@@ -524,7 +524,7 @@ export const ClientPortalModal: React.FC = () => {
                       value={feedbackText}
                       onChange={(e) => setFeedbackText(e.target.value)}
                       placeholder="Écrivez votre message ou vos ajustements souhaités ici..."
-                      className="w-full p-3 rounded-xl bg-[#0a0e17] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full p-3 rounded-xl bg-[#0a0e17] border border-white/[0.08] text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
                       required
                     />
 

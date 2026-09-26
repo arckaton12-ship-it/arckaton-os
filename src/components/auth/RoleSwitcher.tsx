@@ -37,10 +37,10 @@ export const RoleSwitcher: React.FC = () => {
         
         <div className="text-left hidden sm:block">
           <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
-          <div className="text-[10px] font-mono text-slate-400 mt-0.5">{user.poste_titre}</div>
+          <div className="text-[11px] font-mono text-slate-400 mt-0.5">{user.poste_titre}</div>
         </div>
 
-        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md border ${roleLabels[role]?.badgeColor || ''}`}>
+        <span className={`text-[11px] font-mono px-2 py-0.5 rounded-md border ${roleLabels[role]?.badgeColor || ''}`}>
           {roleLabels[role]?.label}
         </span>
 
@@ -56,7 +56,7 @@ export const RoleSwitcher: React.FC = () => {
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span className="font-serif text-sm font-bold text-white">Sélection du Profil & Rôle</span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                 RLS Actif
               </span>
             </div>
@@ -90,7 +90,7 @@ export const RoleSwitcher: React.FC = () => {
                           {p.role}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                         {p.poste_titre} • Pôle {p.pole}
                       </div>
                     </div>
@@ -101,7 +101,7 @@ export const RoleSwitcher: React.FC = () => {
               })}
             </div>
 
-            <div className="pt-2 border-t border-white/10 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+            <div className="pt-2 border-t border-white/10 text-[11px] font-mono text-slate-400 flex items-center justify-between">
               <span>Sécurité : Isolation Multi-rôles</span>
               <span className="text-emerald-400">Certifié Arckaton</span>
             </div>

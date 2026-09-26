@@ -188,7 +188,7 @@ export const LeadsTab: React.FC = () => {
                 </>
               ) : filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-slate-500">
+                  <td colSpan={6} className="text-center py-12 text-slate-400">
                     Aucun prospect ne correspond à ces critères de recherche.
                   </td>
                 </tr>
@@ -204,10 +204,10 @@ export const LeadsTab: React.FC = () => {
                       <td className="py-3.5 px-4">
                         <div className="font-semibold text-white">{l.name}</div>
                         <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                          <Globe className="w-3 h-3 text-slate-500" />
+                          <Globe className="w-3 h-3 text-slate-400" />
                           <span>{l.country || 'Cameroun'}</span>
                           <span>•</span>
-                          <span className="font-mono text-[10px]">{new Date(l.created_at).toLocaleDateString()}</span>
+                          <span className="font-mono text-[11px]">{new Date(l.created_at).toLocaleDateString()}</span>
                         </div>
                       </td>
 
@@ -306,19 +306,19 @@ export const LeadsTab: React.FC = () => {
             <div className="space-y-3 text-xs text-slate-300">
               <div className="grid grid-cols-2 gap-2 bg-[#070c1e] p-3 rounded-xl border border-white/5">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-400 block">Téléphone :</span>
+                  <span className="text-[11px] font-mono text-slate-400 block">Téléphone :</span>
                   <span className="text-white font-semibold">{activeLeadModal.phone}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono text-slate-400 block">Email :</span>
+                  <span className="text-[11px] font-mono text-slate-400 block">Email :</span>
                   <span className="text-white">{activeLeadModal.email || 'Non renseigné'}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono text-slate-400 block">Budget :</span>
+                  <span className="text-[11px] font-mono text-slate-400 block">Budget :</span>
                   <span className="text-emerald-400 font-mono font-semibold">{activeLeadModal.budget}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono text-slate-400 block">Pôle :</span>
+                  <span className="text-[11px] font-mono text-slate-400 block">Pôle :</span>
                   <span className="text-blue-400 font-mono">{activeLeadModal.pole_assigned}</span>
                 </div>
               </div>

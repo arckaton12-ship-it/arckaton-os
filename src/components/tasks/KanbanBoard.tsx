@@ -149,7 +149,7 @@ export const KanbanBoard: React.FC = () => {
               <div className={`p-3.5 border-b border-white/10 flex items-center justify-between border-t-2 ${col.color}`}>
                 <div className="flex items-center gap-2">
                   <h3 className="font-serif text-sm font-bold text-white">{col.title}</h3>
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${col.badge}`}>
+                  <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${col.badge}`}>
                     {colTasks.length}
                   </span>
                 </div>
@@ -158,7 +158,7 @@ export const KanbanBoard: React.FC = () => {
               {/* Column Content */}
               <div className="p-3 space-y-3 overflow-y-auto flex-1">
                 {colTasks.length === 0 ? (
-                  <div className="text-center py-8 text-slate-500 text-xs font-mono">
+                  <div className="text-center py-8 text-slate-400 text-xs font-mono">
                     Aucune tâche
                   </div>
                 ) : (
@@ -205,7 +205,7 @@ export const KanbanBoard: React.FC = () => {
                         </div>
 
                         {/* Assignee & Date */}
-                        <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                        <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
                           <div className="flex items-center gap-1.5 truncate max-w-[120px]">
                             <User className="w-3 h-3 text-slate-400" />
                             <span className="truncate">{t.assignee_name || t.assigned_to || 'Équipe'}</span>
@@ -224,7 +224,7 @@ export const KanbanBoard: React.FC = () => {
                           {prevSt ? (
                             <button
                               onClick={() => updateTaskStatus(t.id, prevSt)}
-                              className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-[10px] flex items-center gap-0.5 cursor-pointer"
+                              className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-[11px] flex items-center gap-0.5 cursor-pointer"
                               title="Déplacer vers l'étape précédente"
                             >
                               <ChevronLeft className="w-3 h-3" />
@@ -235,7 +235,7 @@ export const KanbanBoard: React.FC = () => {
                           {nextSt && (
                             <button
                               onClick={() => updateTaskStatus(t.id, nextSt)}
-                              className="p-1 rounded bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 text-[10px] flex items-center gap-0.5 cursor-pointer ml-auto"
+                              className="p-1 rounded bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 text-[11px] flex items-center gap-0.5 cursor-pointer ml-auto"
                               title="Avancer vers l'étape suivante"
                             >
                               <span className="hidden sm:inline">Suivant</span>
@@ -319,7 +319,7 @@ export const KanbanBoard: React.FC = () => {
                     <option value="basse">Basse</option>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
-                    <option value="urgente">Urgente 🔥</option>
+                    <option value="urgente">Urgente ðŸ”¥</option>
                   </select>
                 </div>
               </div>

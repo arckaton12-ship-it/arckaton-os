@@ -19,7 +19,7 @@ import { AgentReport } from '../../types';
 import { ReportPreviewSkeleton, ChatResponseSkeleton } from './DashboardSkeleton';
 
 export const CopilotTab: React.FC = () => {
-  const { leads, tasks, agentReports, addAgentReport } = useApp();
+  const { leads, tasks, agentReports, addAgentReport, currentUser } = useApp();
 
   const [generatingReport, setGeneratingReport] = useState(false);
   const [selectedReport, setSelectedReport] = useState<AgentReport | null>(agentReports[0] || null);
@@ -34,6 +34,7 @@ export const CopilotTab: React.FC = () => {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
 
   // 1-Click AI Strategic Report Generation
   const handleGenerateReport = async () => {
@@ -118,7 +119,11 @@ export const CopilotTab: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          query: text,
           message: text,
+          pole: currentUser?.pole || 'Direction',
+          role: currentUser?.poste_titre || currentUser?.role,
+          pathname: 'Copilote IA',
           leadsSummary: {
             total: leads.length,
             nouveaux: leads.filter(l => l.statut === 'nouveau').length,
@@ -132,7 +137,11 @@ export const CopilotTab: React.FC = () => {
       });
 
       const data = await res.json();
-      setChatMessages([...newMsgs, { role: 'assistant', text: data.reply }]);
+      // Le serveur peut renvoyer `reply` (IA) ou `advice` (base de connaissances)
+      const reply: string = data.reply || data.advice || '';
+      if (!reply) throw new Error('Réponse vide du copilote');
+      if (data.aiEnabled === false) setAiEnabled(false);
+      setChatMessages([...newMsgs, { role: 'assistant', text: reply }]);
     } catch (err) {
       setChatMessages([
         ...newMsgs,
@@ -283,7 +292,7 @@ export const CopilotTab: React.FC = () => {
 
                 <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
+                    <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
                       Synthèse Exécutive :
                     </span>
                     <p className="whitespace-pre-line bg-[#0a0f2e] p-3.5 rounded-xl border border-white/5">
@@ -292,7 +301,7 @@ export const CopilotTab: React.FC = () => {
                   </div>
 
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold">
+                    <span className="text-[11px] font-mono uppercase tracking-widest text-amber-300 font-bold">
                       Recommandations Prioritaires :
                     </span>
                     <ul className="space-y-2">
@@ -340,8 +349,19 @@ export const CopilotTab: React.FC = () => {
                   </div>
                 </div>
 
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className={`w-2.5 h-2.5 rounded-full ${aiEnabled === false ? 'bg-amber-400' : 'bg-emerald-400'} animate-pulse`} />
               </div>
+
+              {aiEnabled === false && (
+                <div className="flex items-start gap-2.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-[11px] text-amber-200">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="font-semibold">IA non configurée.</strong> Le copilote répond actuellement
+                    avec la base de connaissances interne. Ajoutez la variable <code className="font-mono">GEMINI_API_KEY</code>{' '}
+                    côté serveur pour activer les réponses générées.
+                  </span>
+                </div>
+              )}
 
               {/* Chat Message Scroll Area */}
               <div className="space-y-3 max-h-[380px] overflow-y-auto p-2 bg-[#070c1e] rounded-2xl border border-white/5">
@@ -372,7 +392,7 @@ export const CopilotTab: React.FC = () => {
 
               {/* Quick Prompts */}
               <div className="space-y-1.5 pt-1">
-                <span className="text-[10px] font-mono text-slate-400">Questions stratégiques rapides :</span>
+                <span className="text-[11px] font-mono text-slate-400">Questions stratégiques rapides :</span>
                 <div className="flex flex-wrap gap-1.5">
                   {quickCopilotPrompts.map((p, i) => (
                     <button

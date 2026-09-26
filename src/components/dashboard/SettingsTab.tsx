@@ -134,7 +134,7 @@ export const SettingsTab: React.FC = () => {
               <div className="font-semibold text-white">{f.name}</div>
               <div className="font-serif text-lg font-bold text-emerald-400">{f.creation_price}</div>
               <div className="text-slate-400 text-[11px]">Suivi : {f.monthly_price}</div>
-              <div className="text-[10px] font-mono text-slate-500">{f.delai} • {f.retouches}</div>
+              <div className="text-[11px] font-mono text-slate-400">{f.delai} • {f.retouches}</div>
             </div>
           ))}
         </div>
@@ -145,7 +145,7 @@ export const SettingsTab: React.FC = () => {
         <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
           <Database className="w-4 h-4 text-amber-400" />
           <span>Données de démonstration</span>
-          <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+          <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${
             isRealDataMode
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
               : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
@@ -188,7 +188,7 @@ export const SettingsTab: React.FC = () => {
               <span>Restaurer les données de démonstration</span>
             </button>
           )}
-          <span className="text-[11px] font-mono text-slate-500">
+          <span className="text-[11px] font-mono text-slate-400">
             {leads.length} lead(s) • {tasks.length} tâche(s) en cours d'affichage
           </span>
         </div>

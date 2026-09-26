@@ -212,6 +212,137 @@ html.theme-light ::-webkit-scrollbar-thumb,
 }
 
 /* Print Stylesheet for Blueprint Document */
+/* ============================================================
+   CONTRASTE & ACCESSIBILITÉ (RGAA / WCAG AA)
+   Les accents étaient calculés pour fond sombre : sur fond clair
+   ils deviennent illisibles. On les assombrit en mode Jour.
+   ============================================================ */
+
+/* Mode Jour : accents verts / bleus / ambre / violets / roses foncés */
+html.theme-light .text-emerald-200,
+html.theme-light .text-emerald-300,
+html.theme-light .text-emerald-400,
+.theme-light .text-emerald-200,
+.theme-light .text-emerald-300,
+.theme-light .text-emerald-400 {
+  color: #047857 !important;
+}
+
+html.theme-light .text-blue-200,
+html.theme-light .text-blue-300,
+html.theme-light .text-blue-400,
+.theme-light .text-blue-200,
+.theme-light .text-blue-300,
+.theme-light .text-blue-400 {
+  color: #1d4ed8 !important;
+}
+
+html.theme-light .text-sky-300,
+html.theme-light .text-sky-400,
+.theme-light .text-sky-300,
+.theme-light .text-sky-400 {
+  color: #0369a1 !important;
+}
+
+html.theme-light .text-amber-200,
+html.theme-light .text-amber-300,
+html.theme-light .text-amber-400,
+.theme-light .text-amber-200,
+.theme-light .text-amber-300,
+.theme-light .text-amber-400 {
+  color: #b45309 !important;
+}
+
+html.theme-light .text-orange-300,
+html.theme-light .text-orange-400,
+.theme-light .text-orange-300,
+.theme-light .text-orange-400 {
+  color: #c2410c !important;
+}
+
+html.theme-light .text-violet-200,
+html.theme-light .text-violet-300,
+html.theme-light .text-violet-400,
+.theme-light .text-violet-200,
+.theme-light .text-violet-300,
+.theme-light .text-violet-400 {
+  color: #6d28d9 !important;
+}
+
+html.theme-light .text-purple-300,
+html.theme-light .text-purple-400,
+.theme-light .text-purple-300,
+.theme-light .text-purple-400 {
+  color: #6d28d9 !important;
+}
+
+html.theme-light .text-rose-200,
+html.theme-light .text-rose-300,
+html.theme-light .text-rose-400,
+.theme-light .text-rose-200,
+.theme-light .text-rose-300,
+.theme-light .text-rose-400 {
+  color: #be123c !important;
+}
+
+html.theme-light .text-red-300,
+html.theme-light .text-red-400,
+.theme-light .text-red-300,
+.theme-light .text-red-400 {
+  color: #b91c1c !important;
+}
+
+html.theme-light .text-cyan-300,
+html.theme-light .text-cyan-400,
+.theme-light .text-cyan-300,
+.theme-light .text-cyan-400 {
+  color: #0e7490 !important;
+}
+
+html.theme-light .text-indigo-300,
+html.theme-light .text-indigo-400,
+.theme-light .text-indigo-300,
+.theme-light .text-indigo-400 {
+  color: #4338ca !important;
+}
+
+html.theme-light .text-teal-300,
+html.theme-light .text-teal-400,
+.theme-light .text-teal-300,
+.theme-light .text-teal-400 {
+  color: #0f766e !important;
+}
+
+html.theme-light .text-lime-300,
+html.theme-light .text-lime-400,
+.theme-light .text-lime-300,
+.theme-light .text-lime-400 {
+  color: #4d7c0f !important;
+}
+
+/* Mode Jour : gris de texte plus foncés (lisibilité des textes secondaires) */
+html.theme-light .text-slate-300,
+html.theme-light .text-slate-400,
+html.theme-light .text-slate-500,
+.theme-light .text-slate-300,
+.theme-light .text-slate-400,
+.theme-light .text-slate-500 {
+  color: #334155 !important;
+}
+
+/* Mode Jour : fonds de boutons clairs avec texte sombre lisible */
+html.theme-light .bg-emerald-500\/10,
+.theme-light .bg-emerald-500\/10 {
+  background-color: #d1fae5 !important;
+}
+
+/* Mode Nuit : plancher de contraste sur les gris */
+html.dark .text-slate-400,
+html.dark .text-slate-500 {
+  color: #b6c2d4 !important;
+}
+
+/* Impression : neutralise les fonds sombres non imprimables */
 @media print {
   header, footer, nav, .no-print, button {
     display: none !important;

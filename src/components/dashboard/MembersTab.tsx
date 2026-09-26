@@ -224,7 +224,7 @@ export const MembersTab: React.FC = () => {
       {message && <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs rounded-2xl px-4 py-3">{message}</div>}
 
       {loading ? (
-        <div className="text-center py-16 text-slate-500 flex items-center justify-center gap-2">
+        <div className="text-center py-16 text-slate-400 flex items-center justify-center gap-2">
           <Loader2 className="w-5 h-5 animate-spin" /> Chargement des membres…
         </div>
       ) : (
@@ -241,10 +241,10 @@ export const MembersTab: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-white text-sm">{m.name}</span>
-                        <span className="text-[10px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">
+                        <span className="text-[11px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">
                           {ROLE_LABELS[m.role] || m.role}
                         </span>
-                        <span className={`text-[10px] font-mono py-0.5 px-2 rounded border ${poleColor.bg} ${poleColor.border} ${poleColor.text}`}>
+                        <span className={`text-[11px] font-mono py-0.5 px-2 rounded border ${poleColor.bg} ${poleColor.border} ${poleColor.text}`}>
                           {POLES_INFO[m.pole]?.name || m.pole}
                         </span>
                       </div>
@@ -267,7 +267,7 @@ export const MembersTab: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2 self-end lg:self-auto">
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${m.active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded ${m.active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
                       {m.active ? 'ACTIF' : 'DÉSACTIVÉ'}
                     </span>
                     <button
@@ -318,9 +318,9 @@ export const MembersTab: React.FC = () => {
                   <span className="text-emerald-400 font-mono">{a.actor_name}</span>
                   <span> — </span>
                   <span className="text-white">{a.action}</span>
-                  <span className="text-slate-500"> ({a.kind}/{a.ref})</span>
+                  <span className="text-slate-400"> ({a.kind}/{a.ref})</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500 flex-shrink-0">{fmtDate(a.created_at)}</span>
+                <span className="text-[11px] font-mono text-slate-400 flex-shrink-0">{fmtDate(a.created_at)}</span>
               </div>
             ))}
           </div>

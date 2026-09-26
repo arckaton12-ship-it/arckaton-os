@@ -97,15 +97,15 @@ export const TrialModal: React.FC = () => {
                   <div className="grid grid-cols-3 gap-2 pb-2">
                     <div className="p-2.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] text-center">
                       <Clock className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
-                      <div className="text-[10px] font-mono text-white">Actif en 2h</div>
+                      <div className="text-[11px] font-mono text-white">Actif en 2h</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] text-center">
                       <WifiOff className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-                      <div className="text-[10px] font-mono text-white">100% Offline</div>
+                      <div className="text-[11px] font-mono text-white">100% Offline</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] text-center">
                       <Smartphone className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                      <div className="text-[10px] font-mono text-white">MoMo & Orange</div>
+                      <div className="text-[11px] font-mono text-white">MoMo & Orange</div>
                     </div>
                   </div>
 

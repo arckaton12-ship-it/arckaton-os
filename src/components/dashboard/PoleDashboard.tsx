@@ -63,7 +63,7 @@ export const PoleDashboard: React.FC = () => {
             <div className="font-serif font-bold text-white">
               Dashboard <span className="text-blue-400 font-mono text-xs">• {poleInfo.name}</span>
             </div>
-            <div className="text-[10px] font-mono text-emerald-400">
+            <div className="text-[11px] font-mono text-emerald-400">
               {user.poste_titre || member?.poste_titre || 'Membre'} — vue filtrée sur votre pôle
             </div>
           </div>
@@ -102,15 +102,15 @@ export const PoleDashboard: React.FC = () => {
             <div className="flex gap-3">
               <div className="bg-[#070c1e] border border-white/[0.06] rounded-2xl px-4 py-2.5 text-center">
                 <div className="text-xl font-bold text-emerald-400 font-serif">{poleProjets.length}</div>
-                <div className="text-[10px] font-mono text-slate-400">Projets</div>
+                <div className="text-[11px] font-mono text-slate-400">Projets</div>
               </div>
               <div className="bg-[#070c1e] border border-white/[0.06] rounded-2xl px-4 py-2.5 text-center">
                 <div className="text-xl font-bold text-amber-400 font-serif">{poleTasks.filter((t) => t.statut === 'en_cours').length}</div>
-                <div className="text-[10px] font-mono text-slate-400">En cours</div>
+                <div className="text-[11px] font-mono text-slate-400">En cours</div>
               </div>
               <div className="bg-[#070c1e] border border-white/[0.06] rounded-2xl px-4 py-2.5 text-center">
                 <div className="text-xl font-bold text-blue-400 font-serif">{poleLeads.length}</div>
-                <div className="text-[10px] font-mono text-slate-400">Leads pôle</div>
+                <div className="text-[11px] font-mono text-slate-400">Leads pôle</div>
               </div>
             </div>
           </div>
@@ -129,13 +129,13 @@ export const PoleDashboard: React.FC = () => {
             {poleProjets.map((p) => (
               <div key={p.id} className="bg-[#0b1329] border border-white/[0.08] rounded-2xl p-5 hover:border-white/[0.15] transition-all">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-emerald-400">{p.client_code || 'PRJ'}</span>
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${statusBadge(p.statut as any)}`}>{p.statut}</span>
+                  <span className="text-[11px] font-mono text-emerald-400">{p.client_code || 'PRJ'}</span>
+                  <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${statusBadge(p.statut as any)}`}>{p.statut}</span>
                 </div>
                 <h3 className="font-serif text-base font-bold text-white mt-2">{p.name}</h3>
                 <div className="text-[11px] text-slate-400 mt-0.5">{p.client_name} • {p.service}</div>
                 <div className="mt-3">
-                  <div className="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
+                  <div className="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
                     <span>Progression</span>
                     <span className="text-emerald-400">{p.progression ?? 0}%</span>
                   </div>
@@ -143,7 +143,7 @@ export const PoleDashboard: React.FC = () => {
                     <div className="h-full rounded-full bg-emerald-500" style={{ width: `${p.progression ?? 0}%` }} />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-500">
+                <div className="flex items-center gap-2 mt-3 text-[11px] font-mono text-slate-400">
                   <Clock className="w-3 h-3" />
                   <span>{p.deadline}</span>
                 </div>
@@ -183,7 +183,7 @@ export const PoleDashboard: React.FC = () => {
                       <select
                         value={t.statut}
                         onChange={(e) => updateTaskStatus(t.id, e.target.value as TaskStatus)}
-                        className={`text-[10px] font-mono px-2 py-1 rounded-lg bg-[#070c1e] border border-white/10 ${statusBadge(t.statut)}`}
+                        className={`text-[11px] font-mono px-2 py-1 rounded-lg bg-[#070c1e] border border-white/10 ${statusBadge(t.statut)}`}
                       >
                         <option value="a_faire">À faire</option>
                         <option value="en_cours">En cours</option>
@@ -192,7 +192,7 @@ export const PoleDashboard: React.FC = () => {
                       </select>
                       <button
                         onClick={() => setExpand({ ...expand, [t.id]: !expanded })}
-                        className="p-1 text-slate-500 hover:text-white cursor-pointer"
+                        className="p-1 text-slate-400 hover:text-white cursor-pointer"
                       >
                         {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
@@ -220,7 +220,7 @@ export const PoleDashboard: React.FC = () => {
                   <div className="text-sm font-medium text-white">{l.name} — <span className="text-emerald-400">{l.project_type}</span></div>
                   <div className="text-[11px] font-mono text-slate-400">{l.phone} • {l.budget || 'Sur devis'}</div>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 flex-shrink-0">{l.statut}</span>
+                <span className="text-[11px] font-mono px-2 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 flex-shrink-0">{l.statut}</span>
               </div>
             ))}
           </div>

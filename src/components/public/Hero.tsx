@@ -133,7 +133,7 @@ export const Hero: React.FC = () => {
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-3 right-3 bg-[#0a0e17]/80 backdrop-blur-md border border-white/[0.1] px-3 py-1 rounded-lg text-[10px] font-mono text-emerald-400">
+                <div className="absolute bottom-3 right-3 bg-[#0a0e17]/80 backdrop-blur-md border border-white/[0.1] px-3 py-1 rounded-lg text-[11px] font-mono text-emerald-400">
                   Système Central ARCKATON
                 </div>
               </div>
@@ -236,7 +236,7 @@ export const Hero: React.FC = () => {
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         <span>Mode caisse rapide actif : encaissement sans interruption même en coupure de réseau.</span>
                       </div>
-                      <span className="font-mono text-slate-500">v2.4.1</span>
+                      <span className="font-mono text-slate-400">v2.4.1</span>
                     </div>
                   </motion.div>
                 )}
@@ -275,7 +275,7 @@ export const Hero: React.FC = () => {
                         <Boxes className="w-4 h-4 text-amber-400" />
                         <span>Traçabilité complète des entrées et sorties pour stopper les disparitions de marchandises.</span>
                       </div>
-                      <span className="font-mono text-slate-500">Sécurisé</span>
+                      <span className="font-mono text-slate-400">Sécurisé</span>
                     </div>
                   </motion.div>
                 )}
@@ -314,7 +314,7 @@ export const Hero: React.FC = () => {
                         <Camera className="w-4 h-4 text-blue-400" />
                         <span>Créatifs et vidéastes sur place pour nourrir vos réseaux sociaux et vos campagnes pub.</span>
                       </div>
-                      <span className="font-mono text-slate-500">Pôle Créatif</span>
+                      <span className="font-mono text-slate-400">Pôle Créatif</span>
                     </div>
                   </motion.div>
                 )}

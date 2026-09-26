@@ -61,7 +61,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             <span className="text-xs font-mono text-emerald-400 uppercase tracking-widest">
               Arckaton Operating System v2.4 • Yaoundé Central
             </span>
-            <span className="text-slate-600">•</span>
+            <span className="text-slate-400">•</span>
             <span className="text-[11px] font-mono text-slate-400">
               Synchro : {lastSyncTime}
             </span>
@@ -129,7 +129,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               <div className="font-serif text-3xl font-bold text-white">{totalLeads} Prospects</div>
               <div className="flex items-center gap-2 mt-1 text-xs">
                 <span className="text-emerald-400 font-mono font-semibold">{newLeads} nouveaux</span>
-                <span className="text-slate-500">•</span>
+                <span className="text-slate-400">•</span>
                 <span className="text-amber-400 font-mono">{convertedLeads} convertis</span>
               </div>
             </div>
@@ -192,7 +192,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               <div className="flex items-center gap-2 mt-1 text-xs">
                 <span className="text-slate-300 font-mono">Tâches complétées</span>
                 {urgentTasks > 0 && (
-                  <span className="text-rose-400 font-mono text-[10px] bg-rose-500/15 px-1.5 py-0.5 rounded">
+                  <span className="text-rose-400 font-mono text-[11px] bg-rose-500/15 px-1.5 py-0.5 rounded">
                     {urgentTasks} urgentes
                   </span>
                 )}
@@ -302,10 +302,10 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white">{l.name}</span>
-                        <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                        <span className="text-[11px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
                           {l.country || 'Cameroun'}
                         </span>
-                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                        <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                           l.statut === 'nouveau' ? 'bg-emerald-500/20 text-emerald-300' :
                           l.statut === 'contacte' ? 'bg-blue-500/20 text-blue-300' :
                           l.statut === 'converti' ? 'bg-amber-500/20 text-amber-300' :
@@ -367,7 +367,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white">{info.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">({info.manager})</span>
+                          <span className="text-[11px] text-slate-400 font-mono">({info.manager})</span>
                         </div>
                         <span className="font-mono text-[11px] text-emerald-400">{percent}% tâches</span>
                       </div>

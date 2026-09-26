@@ -67,7 +67,7 @@ export const BlogReaderModal: React.FC = () => {
             <div>
               <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-400 mb-2">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   <span>{activeBlogPost.date}</span>
                 </span>
                 <span>•</span>
@@ -91,19 +91,19 @@ export const BlogReaderModal: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono pt-1">
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-slate-400 block text-[10px]">Zone de déploiement :</span>
+                    <span className="text-slate-400 block text-[11px]">Zone de déploiement :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.lieu}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-slate-400 block text-[10px]">Matériel déployé :</span>
+                    <span className="text-slate-400 block text-[11px]">Matériel déployé :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.materiel}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-slate-400 block text-[10px]">Agents mobilisés :</span>
+                    <span className="text-slate-400 block text-[11px]">Agents mobilisés :</span>
                     <span className="text-emerald-300 font-medium">{activeBlogPost.field_spec.agents_mobilises.join(' • ')}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-slate-400 block text-[10px]">Livrables générés :</span>
+                    <span className="text-slate-400 block text-[11px]">Livrables générés :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.livrables_generes}</span>
                   </div>
                 </div>

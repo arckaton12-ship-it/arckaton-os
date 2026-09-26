@@ -66,6 +66,10 @@ function getSupabase(): SupabaseClient | null {
 
 const BOSS_WHATSAPP = "+237681462982";
 
+// Modele Gemini utilise (modifiable via env). Les anciens noms type
+// "gemini-3.8-flash" n'existaient pas et faisaient echouer tous les appels IA.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
 interface OutboxEntry {
   client_ref: string;
   kind: 'lead' | 'report';
@@ -758,7 +762,7 @@ RÈGLES CAPITALES STRICTES :
    - Forfait Synergie (le plus choisi) : 750 000 FCFA création + 350 000 FCFA/mois (site 5-8 pages UX/UI, charte détaillée, 9 sorties terrain/mois + reporting mensuel, délai 3-4 semaines).
    - Forfait Architecture : 2 900 000 FCFA création + 580 000 FCFA/mois (e-commerce 50 produits, Mobile Money MTN/Orange, 3 vidéos/semaine, délai 6-10 semaines).
 4. ARKA-PME : Logiciel SaaS de gestion de stock, caisse, clients et Mobile Money, conçu pour fonctionner même avec une connexion internet faible ou intermittente. Essai GRATUIT de 30 jours disponible. Fait passer l'inventaire de 3h au cahier à ~12 minutes.
-5. LIVRAISON : Partout dans le monde 🌍 (le digital n'a pas de frontière). Travail 100% à distance avec support réactif.
+5. LIVRAISON : Partout dans le monde ðŸŒ (le digital n'a pas de frontière). Travail 100% à distance avec support réactif.
 6. PAIEMENT : FCFA, Mobile Money (MTN MoMo, Orange Money) ou virement bancaire. Acompte au démarrage + solde à la livraison. Le budget publicitaire est toujours séparé des honoraires.
 7. PREUVES & CONTACT : +337% de conversion chez Maison Kotto, 12 840 000 FCFA consolidés chez Districash Nord, note 4.9/5 sur Google. WhatsApp : +237 681 46 29 82, email : ARCKATON12@gmail.com, bureau Mimboman Yaoundé.
 8. INSTITUTIONNEL : Arckaton est la filiale technologique de SLOMAH SARL. Cette information peut être partagée de manière factuelle si le client l'évoque.
@@ -790,7 +794,7 @@ Vous bénéficiez d'un **essai gratuit de 30 jours sans engagement**. Souhaitez-
   }
 
   if (msg.includes('cameroun') || msg.includes('yaoundé') || msg.includes('france') || msg.includes('étranger') || msg.includes('monde') || msg.includes('diaspora') || msg.includes('livraison')) {
-    return `Absolument ! Bien que notre bureau principal soit situé à **Yaoundé (Mimboman, Cameroun)**, nous livrons nos systèmes digitaux **partout dans le monde 🌍**.
+    return `Absolument ! Bien que notre bureau principal soit situé à **Yaoundé (Mimboman, Cameroun)**, nous livrons nos systèmes digitaux **partout dans le monde ðŸŒ**.
 Le digital n'a pas de frontières : nous accompagnons les entrepreneurs locaux comme la diaspora (Afrique Centrale, Europe, Amérique du Nord) à 100% à distance avec des points réguliers par visioconférence et WhatsApp dédié.`;
   }
 
@@ -841,7 +845,7 @@ app.post("/api/ai/agent-chat", async (req, res) => {
       try {
         const fullPrompt = `${SYSTEM_PROMPT_AGENT}\n\nPôle sollicité: ${pole || 'Direction'}\nHistorique récent: ${JSON.stringify(history || [])}\n\nClient: ${message}\nConseiller Arckaton:`;
         const response = await ai.models.generateContent({
-          model: "gemini-3.8-flash",
+          model: GEMINI_MODEL,
           contents: fullPrompt,
         });
 
@@ -1015,24 +1019,33 @@ app.get("/api/reports", async (_req, res) => {
 // Copilot for Dashboard
 app.post("/api/ai/copilot", async (req, res) => {
   try {
-    const { pole, pathname, role, query } = req.body;
+    // Le client envoie `message`, l'ancien code attendait `query` : on accepte les deux
+    const { pole, pathname, role } = req.body;
+    const query: string = req.body.query || req.body.message || "";
+    if (!query) {
+      return res.status(400).json({ error: "Question requise" });
+    }
     const ai = getGeminiClient();
     
-    if (ai && query) {
+    if (ai) {
       try {
+        const cockpit = req.body.leadsSummary || req.body.tasksSummary
+          ? `\n\nContexte cockpit : ${JSON.stringify({ leads: req.body.leadsSummary, taches: req.body.tasksSummary })}`
+          : "";
         const prompt = `Tu es le Copilote Opérationnel Arckaton OS pour le pôle ${pole || 'Direction'}.
-L'utilisateur est ${role || 'membre'}, actuellement sur l'écran : ${pathname || 'Dashboard'}.
+L'utilisateur est ${role || 'membre'}, actuellement sur l'écran : ${pathname || 'Dashboard'}.${cockpit}
 Question de l'utilisateur : ${query}.
 Donne une recommandation concise, experte et orientée rentabilité/qualité en 100-150 mots maximum en français.`;
 
         const response = await ai.models.generateContent({
-          model: "gemini-3.8-flash",
+          model: GEMINI_MODEL,
           contents: prompt,
         });
 
-        return res.json({ advice: response.text || "Conseil Arckaton OS généré." });
+        const text = response.text || "Conseil Arckaton OS généré.";
+        return res.json({ reply: text, advice: text, source: 'gemini', aiEnabled: true });
       } catch (err) {
-        console.warn("Copilot API fallback:", err);
+        console.warn("Copilot Gemini indisponible:", err);
       }
     }
 
@@ -1045,7 +1058,9 @@ Donne une recommandation concise, experte et orientée rentabilité/qualité en 
       Client: "Contactez les prospects dès réception d'un lead sous 2h sur WhatsApp. Un temps de réponse rapide multiplie par 3 le taux de conversion en projet validé."
     };
 
-    res.json({ advice: defaults[pole] || "Recommandation Arckaton OS : continuez l'excellence opérationnelle et le respect des 24h de réponse client." });
+    const advice = defaults[pole] || "Recommandation Arckaton OS : continuez l'excellence opérationnelle et le respect des 24h de réponse client.";
+    // `aiEnabled` permet a l'UI d'afficher « IA non configuree » au lieu d'un silence
+    res.json({ reply: advice, advice, source: 'knowledge_base', aiEnabled: Boolean(ai) });
   } catch (err) {
     res.status(500).json({ error: "Erreur copilote" });
   }

@@ -87,10 +87,10 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
 
               {/* Client Box */}
               <div className="mt-4 p-3 bg-white/5 rounded-xl text-left border border-white/5">
-                <div className="text-[10px] font-mono uppercase text-slate-400">Client / Donneur d'Ordre :</div>
+                <div className="text-[11px] font-mono uppercase text-slate-400">Client / Donneur d'Ordre :</div>
                 <div className="text-xs font-bold text-white">{clientName}</div>
                 <div className="text-[11px] font-mono text-slate-300">{clientPhone}</div>
-                {lead?.country && <div className="text-[10px] font-mono text-slate-400">{lead.country}</div>}
+                {lead?.country && <div className="text-[11px] font-mono text-slate-400">{lead.country}</div>}
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
               <div className="text-[11px]">Modalités de règlement :</div>
               <div className="text-white">▪ 50% d'acompte au lancement : <span className="text-emerald-400 font-bold">{acompte.toLocaleString('fr-FR')} FCFA</span></div>
               <div className="text-white">▪ 50% de solde à la livraison finale : <span className="text-emerald-400 font-bold">{solde.toLocaleString('fr-FR')} FCFA</span></div>
-              <div className="text-[10px] text-slate-500 mt-1">Moyens acceptés : Mobile Money (MTN / Orange), Virement Bancaire CEMAC, Espèces contre reçu légal.</div>
+              <div className="text-[11px] text-slate-400 mt-1">Moyens acceptés : Mobile Money (MTN / Orange), Virement Bancaire CEMAC, Espèces contre reçu légal.</div>
             </div>
 
             <div className="bg-white/5 border border-white/10 p-4 rounded-xl space-y-1.5 w-full sm:w-64 text-right">
@@ -183,7 +183,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           </div>
 
           {/* Footer Seals */}
-          <div className="border-t border-white/10 pt-4 text-[10px] font-mono text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="border-t border-white/10 pt-4 text-[11px] font-mono text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Système Certifié Arckaton OS • Document conforme aux règles de facturation</span>
