@@ -303,7 +303,7 @@ export const SiteAdmin: React.FC = () => {
             initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
-            className="fixed top-6 right-6 z-50 bg-emerald-500 text-slate-950 px-5 py-3 rounded-2xl font-mono text-xs font-bold shadow-2xl flex items-center gap-2"
+            className="fixed top-4 left-4 right-4 sm:left-auto sm:top-6 sm:right-6 z-50 bg-emerald-500 text-slate-950 px-5 py-3 rounded-2xl font-mono text-xs font-bold shadow-2xl flex items-center justify-center gap-2"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{saveToast}</span>
@@ -328,7 +328,7 @@ export const SiteAdmin: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleImportSeeds}
               className="text-xs font-mono text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl hover:bg-amber-500/20 transition-colors flex items-center gap-1.5 cursor-pointer"
@@ -441,7 +441,7 @@ export const SiteAdmin: React.FC = () => {
           </div>
 
           <form onSubmit={handleSaveAnnouncement} className="space-y-4 max-w-3xl">
-            <div className="flex items-center gap-3 bg-[#070c1e] p-4 rounded-2xl border border-white/[0.06]">
+            <div className="flex flex-wrap items-center gap-3 bg-[#070c1e] p-4 rounded-2xl border border-white/[0.06]">
               <input
                 type="checkbox"
                 id="announcement-enabled"
