@@ -358,6 +358,24 @@ html.dark .text-slate-500 {
     box-shadow: none !important;
     border: 1px solid #ccc !important;
   }
+
+  /* Format et marges des devis / factures.
+     Marge basse plus genereuse que la normale : les mentions legales sont
+     fixes en bas de page et doivent donc etre reservees. */
+  @page {
+    size: A4;
+    margin: 12mm 12mm 26mm;
+  }
+
+  /* Les lignes de prestation ne doivent pas etre coupees en deux par un
+     saut de page, et le total reste avec la ligne qui le precede. */
+  tr, thead, .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
 }
 
 

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Lead, Projet } from '../../types';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { Printer, X, ShieldCheck, Save, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { DocumentLetterhead, DocumentLegalFooter } from './DocumentLetterhead';
 
 interface InvoiceModalProps {
   lead?: Lead | null;
@@ -214,6 +215,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
         {/* Document imprimable */}
         <div className="bg-[#070c1e] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 print:bg-white print:text-black">
 
+          {/* En-tête officiel de l'agence (papier à en-tête) */}
+          <DocumentLetterhead />
+
           {/* En-tête */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-white/10 pb-6 print:border-black/20">
             <div>
@@ -414,6 +418,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
               <span>Document généré par Arckaton OS</span>
             </div>
             <div>Signature & Cachet</div>
+          </div>
+
+          {/* Mentions légales officielles (pied de page du papier à en-tête).
+              En impression, le bloc est fixé en bas : il se répète donc sur
+              chaque page, comme sur un document papier. */}
+          <div className="print:fixed print:bottom-0 print:left-0 print:right-0 print:z-0">
+            <DocumentLegalFooter />
           </div>
 
         </div>

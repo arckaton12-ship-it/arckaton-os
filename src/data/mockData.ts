@@ -14,6 +14,37 @@ export const OFFICIAL_KNOWLEDGE = {
     paymentMethods: 'FCFA, Mobile Money (MTN Money / Orange Money) ou virement bancaire. Acompte au démarrage + solde à la livraison. Budget publicitaire toujours séparé des honoraires.',
     responseTime: 'Réponse humaine garantie sous 24h',
   },
+
+  // Mentions reprises du papier à en-tête officiel de l'agence
+  // (PAPIER ENTÊTE.docx). Elles font foi sur les documents commerciaux
+  // (devis, factures) : ne pas les modifier sans validation de la direction.
+  //
+  // Attention : le siège indiqué ici est celui du papier à en-tête
+  // (Douala). Il diffère de `agency.location` ci-dessus (Mimboman,
+  // Yaoundé), qui sert à l'affichage du site. Les deux sont conservés
+  // tels quels tant que la direction n'a pas tranché.
+  letterhead: {
+    agencyName: 'AGENCE ARCKATON',
+    taglineLine1: 'Développement logiciel',
+    taglineLine2: 'Services Digitaux & Graphiques',
+    email: 'arckaton12@gmail.com',
+    siegeSocial: 'DOUALA, CAMEROUN',
+    rc: 'CM /DLN/2020/B/968',
+    niu: 'M 0520145227521',
+    logo: '/brand/arckaton-logo.png',
+    // Couleurs relevées dans le document source, puis confrontees au logo.
+    //
+    // Le logo est un carre bleu nuit OPAQUE (1000x1000, sans canal alpha) :
+    // son fond est #171942. Le docx ombrage ses bandeaux en #0A0F2E, ce qui
+    // laisserait une couture visible autour du logo. On utilise donc la
+    // couleur reelle du logo pour que celui-ci se fonde dans le bandeau.
+    colors: {
+      green: '#00A562',
+      navy: '#0A0F2E',
+      logoBackground: '#171942',
+      logoMark: '#248067',
+    },
+  },
   stats: {
     conversionMaisonKotto: '+337%',
     consolidatedDistricash: '12 840 000 FCFA',
