@@ -453,11 +453,23 @@ function hasPerm(member: MemberRow, perm: string): boolean {
 type AuthReq = express.Request & { member?: MemberRow };
 
 async function requireAuth(req: AuthReq, res: any, next: any): Promise<void> {
-  const anon = getSupabaseAnon();
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-  if (!anon || !token) {
+  if (!token) {
     return res.status(401).json({ error: 'Authentification requise' });
+  }
+  // getSupabaseAnon() leve si l'URL est absente ou mal formee. L'appel etait
+  // fait hors du try : une configuration incomplete suffisait a faire tomber
+  // tout le process, coupant le site public y compris.
+  let anon: ReturnType<typeof getSupabaseAnon> | null = null;
+  try {
+    anon = getSupabaseAnon();
+  } catch (err) {
+    console.error('requireAuth: configuration Supabase indisponible:', err);
+    return res.status(503).json({ error: 'Service momentanément indisponible' });
+  }
+  if (!anon) {
+    return res.status(503).json({ error: 'Service momentanément indisponible' });
   }
   try {
     const { data, error } = await anon.auth.getUser(token);
@@ -468,10 +480,10 @@ async function requireAuth(req: AuthReq, res: any, next: any): Promise<void> {
     if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS' });
     if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction' });
     req.member = member;
-    next();
+    await next();
   } catch (err) {
     console.error('requireAuth error:', err);
-    res.status(500).json({ error: 'Erreur authentification' });
+    if (!res.headersSent) res.status(500).json({ error: 'Erreur authentification' });
   }
 }
 
@@ -1030,40 +1042,44 @@ app.get("/api/health", async (req: AuthReq, res) => {
   // Sonde publique : un tiers doit pouvoir vérifier que le service répond
   // (montée, sonde de disponibilité) sans obtenir la topologie interne.
   // Le diagnostic complet reste réservé aux membres authentifiés.
+  //
+  // La présence d'un en-tête ne suffisait pas : n'importe quelle chaîne
+  // renvoyait déjà l'état de Supabase et de l'IA. Il faut un jeton valide.
   if (!req.headers.authorization) {
     return res.json({ status: "ok", service: "Arckaton Express Backend" });
   }
-
-  // Diagnostic Supabase (aucun secret expose) : etat du client service +Volume de contenu
-  const supabase: { adminClient: boolean; anonClient: boolean; contentItems: number | null; error: string | null } = {
-    adminClient: false,
-    anonClient: false,
-    contentItems: null,
-    error: null,
-  };
-  try {
-    const sb = getSupabase();
-    supabase.adminClient = Boolean(sb);
-    supabase.anonClient = Boolean(getSupabaseAnon());
-    if (sb) {
-      const { count, error } = await sb.from('content_items').select('*', { count: 'exact', head: true });
-      if (error) supabase.error = error.message;
-      else supabase.contentItems = count ?? 0;
+  await requireAuth(req, res, async () => {
+    // Diagnostic Supabase (aucun secret expose) : etat du client service + volume de contenu
+    const supabase: { adminClient: boolean; anonClient: boolean; contentItems: number | null; error: string | null } = {
+      adminClient: false,
+      anonClient: false,
+      contentItems: null,
+      error: null,
+    };
+    try {
+      const sb = getSupabase();
+      supabase.adminClient = Boolean(sb);
+      supabase.anonClient = Boolean(getSupabaseAnon());
+      if (sb) {
+        const { count, error } = await sb.from('content_items').select('*', { count: 'exact', head: true });
+        if (error) supabase.error = error.message;
+        else supabase.contentItems = count ?? 0;
+      }
+    } catch (err: any) {
+      supabase.error = err?.message || 'exception inattendue';
     }
-  } catch (err: any) {
-    supabase.error = err?.message || 'exception inattendue';
-  }
-  res.json({
-    status: "ok",
-    service: "Arckaton Express Backend",
-    supabase,
-    // Etat reels, derives de la configuration du serveur. La cle n'est
-    // jamais renvoyee, seulement sa presence.
-    ai: {
-      provider: "gemini",
-      model: GEMINI_MODEL,
-      configured: Boolean(getGeminiClient()),
-    },
+    res.json({
+      status: "ok",
+      service: "Arckaton Express Backend",
+      supabase,
+      // Etat reels, derives de la configuration du serveur. La cle n'est
+      // jamais renvoyee, seulement sa presence.
+      ai: {
+        provider: "gemini",
+        model: GEMINI_MODEL,
+        configured: Boolean(getGeminiClient()),
+      },
+    });
   });
 });
 
