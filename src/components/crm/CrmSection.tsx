@@ -20,7 +20,7 @@ import { InvoiceModal } from './InvoiceModal';
 import { CrmSectionSkeleton } from '../dashboard/DashboardSkeleton';
 
 export const CrmSection: React.FC = () => {
-  const { leads, updateLeadStatus, updateLeadNotes, convertLeadToProject, addLead, isDataFetching } = useApp();
+  const { leads, updateLeadStatus, updateLeadNotes, convertLeadToProject, addLead, isDataFetching, refreshQuotes } = useApp();
 
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [search, setSearch] = useState('');
@@ -34,6 +34,10 @@ export const CrmSection: React.FC = () => {
   const handleQuoteSaved = (leadId: string, quoteRef: string) => {
     setSavedQuoteRef(quoteRef);
     setLastQuoteByLead((prev) => ({ ...prev, [leadId]: quoteRef }));
+    // Le volume facturé du tableau de bord est calculé à partir de cet
+    // état. Sans ce rafraîchissement, une facture saisie à l'instant n'apparaît
+    // qu'au rechargement complet de la page.
+    void refreshQuotes();
   };
 
   // Quick note edit

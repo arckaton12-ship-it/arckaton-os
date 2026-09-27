@@ -581,10 +581,48 @@ app.post('/api/auth/login', async (req, res) => {
     if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS. Contactez la direction.' });
     if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction.' });
     await logActivity(member, 'login', 'member', member.id, {});
-    res.json({ token: data.session.access_token, member });
+    // Le refresh token est renvoyé au navigateur : sans lui, la session
+    // expire au bout d'une heure et l'utilisateur reste affiche comme
+    // connecte alors que toutes les requetes renvoient 401.
+    res.json({
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      expiresIn: data.session.expires_in,
+      member,
+    });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Erreur de connexion' });
+  }
+});
+
+/**
+ * Renouvellement de session.
+ *
+ * Supabase expire les jetons d'accès au bout d'une heure environ. Sans cet
+ * appel, l'utilisateur reste connecté côté interface mais perd l'accès à
+ * toutes les données, et l'onglet Membres affiche "session invalide"
+ * suivi de "aucun membre trouvé", ce qui donne l'impression que l'annuaire
+ * est vide alors que c'est la session qui est périmée.
+ */
+app.post('/api/auth/refresh', async (req, res) => {
+  const { refreshToken } = req.body || {};
+  if (!refreshToken) return res.status(400).json({ error: 'Refresh token manquant' });
+  const anon = getSupabaseAnon();
+  if (!anon) return res.status(500).json({ error: 'Authentification non configurée' });
+  try {
+    const { data, error } = await anon.auth.refreshSession({ refresh_token: refreshToken });
+    if (error || !data.session) {
+      return res.status(401).json({ error: 'Session non renouvelable, reconnectez-vous' });
+    }
+    res.json({
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token || refreshToken,
+      expiresIn: data.session.expires_in,
+    });
+  } catch (err: any) {
+    console.error('Refresh error:', err);
+    res.status(500).json({ error: 'Erreur de renouvellement' });
   }
 });
 
@@ -1585,6 +1623,15 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'icons', req.params.file));
     });
 
+    // Une route /api/* inexistante doit répondre 404 en JSON. Sans cela, le
+    // repli SPA renvoie index.html avec un 200, et un appel client mal orthographié
+    // passe pour un succès : le frontend reçoit du HTML et affiche une page vide
+    // au lieu de signaler l'endpoint manquant.
+    app.all('/api/*', (_req, res) => {
+      res.status(404).json({ error: "Route d'API inconnue." });
+    });
+
+    // Repli SPA : uniquement pour les vrais chemins de pages.
     app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });

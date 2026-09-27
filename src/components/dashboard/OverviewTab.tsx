@@ -55,12 +55,26 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
 
   // Factures réellement enregistrées. Un devis est une proposition : il ne
   // compte pas dans le chiffre d'affaires.
+  //
+  // Répartition des montants, sans rien inventer :
+  // - facturé   : total des factures hors brouillon et hors refus ;
+  // - acomptes  : deposits réellement saisis sur les factures ;
+  // - restant   : balance des factures non payées ;
+  // - payé      : total des factures marquées payées.
+  // Un « encaissé » ne peut pas être déduit du seul couple deposit/balance :
+  // il n'existe pas de journal d'encaissement. Le solde restant est donc la
+  // seule grandeur vérifiable, et c'est elle qui est affichée comme telle.
   const factures = quotes.filter((q) => q.type === 'facture');
+  const facturesValides = factures.filter((q) => q.status !== 'brouillon' && q.status !== 'refuse');
   const devisEnCours = quotes.filter((q) => q.type === 'devis');
   const totalPaye = factures
-    .filter((q) => q.status === 'paye' || q.status === 'accepte')
+    .filter((q) => q.status === 'paye')
     .reduce((s, q) => s + (Number(q.total) || 0), 0);
-  const totalEncaisse = factures.reduce((s, q) => s + (Number(q.deposit) || 0) + (Number(q.balance) || 0), 0);
+  const totalValide = facturesValides.reduce((s, q) => s + (Number(q.total) || 0), 0);
+  const totalAcomptes = factures.reduce((s, q) => s + (Number(q.deposit) || 0), 0);
+  const totalRestant = factures
+    .filter((q) => q.status !== 'paye')
+    .reduce((s, q) => s + (Number(q.balance) || 0), 0);
 
   // Sorties terrain : données réelles des projets, pas un compteur fixe.
   const sortiesTotal = projets.reduce((s, p) => s + (p.sorties_terrain_total || 0), 0);
@@ -186,7 +200,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             <div className="pt-2 border-t border-white/5 text-[11px] font-mono text-slate-400">
               {factures.length === 0
                 ? 'Le total se calcule dès la première facture'
-                : `Encaissé : ${formatFcfa(totalEncaisse)} • Validé : ${formatFcfa(totalPaye)}`}
+                : `Facturé : ${formatFcfa(totalValide)} • Payé : ${formatFcfa(totalPaye)} • Acomptes : ${formatFcfa(totalAcomptes)} • Reste à encaisser : ${formatFcfa(totalRestant)}`}
             </div>
           </div>
 

@@ -15,11 +15,13 @@ const A = OFFICIAL_KNOWLEDGE.agency;
  * Répartition des identifiants, confirmée par la direction :
  *   - Arckaton est une FILIALE implantée à Yaoundé ;
  *   - SLOMAH SARL est la société mère, dont le siège est à Douala ;
- *   - le RC et le NIU publiés sont ceux de SLOMAH SARL.
+ *   - le RC et le NIU publiés sont ceux de SLOMAH SARL ;
+ *   - SLOMAH SARL est le responsable du traitement des données ;
+ *   - Red Parker est le directeur de publication ;
+ *   - l'hébergement (Supabase, Render) est situé en Europe.
  *
- * Les mentions baskets ci-dessous correspondent à l'état réel du service.
- * Les durées de conservation et le pays d'hébergement doivent être
- * confirmés avant publication : elles sont signalées comme à compléter.
+ * Les points qui n'ont pas été tranchés par la direction restent signalés
+ * comme tels plutôt qu'inventés : voir les sections marquées « à compléter ».
  */
 export const LegalModal: React.FC = () => {
   const { isLegalModalOpen, setIsLegalModalOpen } = useApp();
@@ -139,6 +141,14 @@ export const LegalModal: React.FC = () => {
                 </section>
 
                 <section className="space-y-2">
+                  <h3 className="font-semibold text-slate-900">Direction de la publication</h3>
+                  <p>
+                    Le directeur de la publication est <strong>Red Parker</strong>. Il peut être
+                    contacté à l'adresse <a href={`mailto:${A.email}`} className="underline">{A.email}</a>.
+                  </p>
+                </section>
+
+                <section className="space-y-2">
                   <h3 className="font-semibold text-slate-900">Propriété intellectuelle</h3>
                   <p>
                     L'ensemble des contenus de ce site (textes, visuels, identité graphique,
@@ -200,10 +210,10 @@ export const LegalModal: React.FC = () => {
                     </li>
                   </ul>
                   <p className="text-xs text-slate-500">
-                    Aucune donnée sensible (santé, beliefs, orientation) n'est collectée, et
-                    aucune donnée n'est vendue à des tiers.
-                  </p>
-                </section>
+                    Aucune donnée dite « sensible » (santé, opinions politiques ou religieuses,
+                    orientation sexuelle) n'est collectée, et aucune donnée n'est vendue à des
+                    tiers.
+                  </p>                </section>
 
                 <section className="space-y-2">
                   <h3 className="font-semibold text-slate-900">Finalités et bases légales</h3>
@@ -218,11 +228,15 @@ export const LegalModal: React.FC = () => {
                 <section className="space-y-2">
                   <h3 className="font-semibold text-slate-900">Partage et sous-traitants</h3>
                   <p>
-                    Les données sont hébergées sur une infrastructure cloud et stockées dans une
-                    base gérée par un fournisseur tiers. Un service d'intelligence artificielle
-                    peut être appelé pour produire des synthèses : seules les métriques
-                    agrégées lui sont transmises, jamais l'identité des clients. Vos données ne
-                    sont ni vendues, ni louées à des tiers.
+                    Les données sont hébergées en Europe : l'application est déployée chez{' '}
+                    <strong>Render</strong> et les bases de données sont gérées par{' '}
+                    <strong>Supabase</strong>. Ces deux prestataires agissent comme sous-traitants
+                    au sens de la réglementation applicable.
+                  </p>
+                  <p>
+                    Un service d'intelligence artificielle peut être appelé pour produire des
+                    synthèses : seules les métriques agrégées lui sont transmises, jamais
+                    l'identité des clients. Vos données ne sont ni vendues, ni louées à des tiers.
                   </p>
                 </section>
 
@@ -236,8 +250,8 @@ export const LegalModal: React.FC = () => {
                     conserve son journal d'activité pour traçabilité.
                   </p>
                   <p className="text-xs text-slate-500">
-                    Durée exacte du pays d'hébergement et des journaux de connexion : à confirmer
-                    avant publication.
+                    L'hébergement est situé en Europe. La durée exacte de conservation des
+                    journaux de connexion reste à préciser.
                   </p>
                 </section>
 

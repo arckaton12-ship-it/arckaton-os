@@ -173,29 +173,29 @@ export const FORFAITS_DATA: ForfaitData[] = [
 
 export const POSTES_DATA: Poste[] = [
   // Phase 1 : Fondation
-  { id: 'p1', titre: 'Chef d\'Agence', pole: 'Direction', phase: 1, ordre: 1, description: 'Pilotage stratégique, allocation des ressources et rentabilité des projets clients.', titulaire: '', charge_estimee: '92%', statut_recrutement: 'pourvu' },
-  { id: 'p2', titre: 'Responsable Technique', pole: 'Tech', phase: 1, ordre: 2, description: 'Supervision des architectures web, intégrations APIs Mobile Money et robustesse.', titulaire: '', charge_estimee: '85%', statut_recrutement: 'pourvu' },
-  { id: 'p3', titre: 'Développeur Web', pole: 'Tech', phase: 1, ordre: 3, description: 'Intégration frontend réactive, compatibilité connexion basse et CMS.', titulaire: '', charge_estimee: '78%', statut_recrutement: 'pourvu' },
-  { id: 'p4', titre: 'Graphiste / Motion Designer', pole: 'Creatif', phase: 1, ordre: 4, description: 'Création d\'identités visuelles, chartes, animations et visuels réseaux sociaux.', titulaire: '', charge_estimee: '88%', statut_recrutement: 'pourvu' },
-  { id: 'p5', titre: 'Chargé(e) de Compte', pole: 'Client', phase: 1, ordre: 5, description: 'Point de contact privilégié des PME clientes, suivi des validations et livrables.', titulaire: '', charge_estimee: '80%', statut_recrutement: 'pourvu' },
+  { id: 'p1', titre: 'Chef d\'Agence', pole: 'Direction', niveau: 0, parentId: null, phase: 1, ordre: 1, description: 'Pilotage stratégique, allocation des ressources et rentabilité des projets clients.', titulaire: '', charge_estimee: '92%', statut_recrutement: 'pourvu' },
+  { id: 'p2', titre: 'Responsable Technique', pole: 'Tech', niveau: 1, parentId: 'p1', phase: 3, ordre: 2, description: 'Supervision des architectures web, intégrations APIs Mobile Money et robustesse.', titulaire: '', charge_estimee: '85%', statut_recrutement: 'pourvu' },
+  { id: 'p3', titre: 'Développeur Web', pole: 'Tech', niveau: 2, parentId: 'p2', phase: 2, ordre: 3, description: 'Intégration frontend réactive, compatibilité connexion basse et CMS.', titulaire: '', charge_estimee: '78%', statut_recrutement: 'pourvu' },
+  { id: 'p4', titre: 'Graphiste / Motion Designer', pole: 'Creatif', niveau: 2, parentId: 'p6', phase: 1, ordre: 4, description: 'Création d\'identités visuelles, chartes, animations et visuels réseaux sociaux.', titulaire: '', charge_estimee: '88%', statut_recrutement: 'pourvu' },
+  { id: 'p5', titre: 'Chargé(e) de Compte', pole: 'Client', niveau: 2, parentId: 'p11', phase: 2, ordre: 5, description: 'Point de contact privilégié des PME clientes, suivi des validations et livrables.', titulaire: '', charge_estimee: '80%', statut_recrutement: 'pourvu' },
 
   // Phase 2 : Croissance
-  { id: 'p6', titre: 'Directeur Créatif', pole: 'Creatif', phase: 2, ordre: 6, description: 'Direction artistique globale, tonalité de marque et standing des productions.', titulaire: '', charge_estimee: '70%', statut_recrutement: 'pourvu' },
-  { id: 'p7', titre: 'Community Manager', pole: 'Digital', phase: 2, ordre: 7, description: 'Animation des communautés, modération et diffusion des contenus sur-mesure.', titulaire: '', charge_estimee: '75%', statut_recrutement: 'pourvu' },
-  { id: 'p8', titre: 'Dev Full-Stack / CTO', pole: 'Tech', phase: 2, ordre: 8, description: 'Évolution du SaaS ARKA-PME, bases de données et scalabilité.', titulaire: '', charge_estimee: '90%', statut_recrutement: 'pourvu' },
-  { id: 'p9', titre: 'Responsable Ads & SEO', pole: 'Digital', phase: 2, ordre: 9, description: 'Campagnes Google/Meta Ads, référencement naturel local et suivi des conversions.', titulaire: '', charge_estimee: '82%', statut_recrutement: 'pourvu' },
-  { id: 'p10', titre: 'Assistante Administrative', pole: 'Direction', phase: 2, ordre: 10, description: 'Facturation, conformité des devis, organisation interne et accueil.', titulaire: '', charge_estimee: '65%', statut_recrutement: 'pourvu' },
+  { id: 'p6', titre: 'Directeur Créatif', pole: 'Creatif', niveau: 1, parentId: 'p1', phase: 2, ordre: 6, description: 'Direction artistique globale, tonalité de marque et standing des productions.', titulaire: '', charge_estimee: '70%', statut_recrutement: 'pourvu' },
+  { id: 'p7', titre: 'Community Manager', pole: 'Digital', niveau: 2, parentId: 'p6', phase: 1, ordre: 7, description: 'Animation des communautés, modération et diffusion des contenus sur-mesure.', titulaire: '', charge_estimee: '75%', statut_recrutement: 'pourvu' },
+  { id: 'p8', titre: 'Dev Full-Stack / CTO', pole: 'Tech', niveau: 2, parentId: 'p2', phase: 4, ordre: 8, description: 'Évolution du SaaS ARKA-PME, bases de données et scalabilité.', titulaire: '', charge_estimee: '90%', statut_recrutement: 'pourvu' },
+  { id: 'p9', titre: 'Responsable Ads & SEO', pole: 'Digital', niveau: 2, parentId: 'p11', phase: 3, ordre: 9, description: 'Campagnes Google/Meta Ads, référencement naturel local et suivi des conversions.', titulaire: '', charge_estimee: '82%', statut_recrutement: 'pourvu' },
+  { id: 'p10', titre: 'Assistante Administrative', pole: 'Client', niveau: 2, parentId: 'p11', phase: 3, ordre: 10, description: 'Facturation, conformité des devis, organisation interne et accueil.', titulaire: '', charge_estimee: '65%', statut_recrutement: 'pourvu' },
 
   // Phase 3 : Expansion
-  { id: 'p11', titre: 'Directeur Commercial', pole: 'Client', phase: 3, ordre: 11, description: 'Acquisition de comptes grands comptes PME, partenariats et offres sur-mesure.', titulaire: '', charge_estimee: '0%', statut_recrutement: 'recrutement_ouvert' },
-  { id: 'p12', titre: 'Vidéaste / Photographe', pole: 'Creatif', phase: 3, ordre: 12, description: 'Captations terrain haute définition, interviews clients et capsules vidéos.', titulaire: '', charge_estimee: '84%', statut_recrutement: 'pourvu' },
-  { id: 'p13', titre: 'Rédacteur / Copywriter', pole: 'Digital', phase: 3, ordre: 13, description: 'Rédaction persuasive orientée conversion, articles de fond et scripts.', titulaire: '', charge_estimee: '60%', statut_recrutement: 'pourvu' },
-  { id: 'p14', titre: 'Comptable / Expert Fiscal', pole: 'Direction', phase: 3, ordre: 14, description: 'Gestion financière agence, trésorerie et conformité fiscale CEMAC.', titulaire: '', charge_estimee: '45%', statut_recrutement: 'pourvu' },
+  { id: 'p11', titre: 'Directeur Commercial', pole: 'Direction', niveau: 1, parentId: 'p1', phase: 3, ordre: 11, description: 'Acquisition de comptes grands comptes PME, partenariats et offres sur-mesure.', titulaire: '', charge_estimee: '0%', statut_recrutement: 'recrutement_ouvert' },
+  { id: 'p12', titre: 'Vidéaste / Photographe', pole: 'Creatif', niveau: 2, parentId: 'p6', phase: 2, ordre: 12, description: 'Captations terrain haute définition, interviews clients et capsules vidéos.', titulaire: '', charge_estimee: '84%', statut_recrutement: 'pourvu' },
+  { id: 'p13', titre: 'Rédacteur / Copywriter', pole: 'Digital', niveau: 3, parentId: null, phase: 2, ordre: 13, description: 'Rédaction persuasive orientée conversion, articles de fond et scripts.', titulaire: '', charge_estimee: '60%', statut_recrutement: 'pourvu' },
+  { id: 'p14', titre: 'Comptable / Expert Fiscal', pole: 'Direction', niveau: 3, parentId: null, phase: 3, ordre: 14, description: 'Gestion financière agence, trésorerie et conformité fiscale CEMAC.', titulaire: '', charge_estimee: '45%', statut_recrutement: 'pourvu' },
 
   // Phase 4 : Maturité
-  { id: 'p15', titre: 'Conseiller Juridique', pole: 'Externe', phase: 4, ordre: 15, description: 'Contrats de propriété intellectuelle, accords SaaS et protection de marque.', titulaire: '', charge_estimee: '30%', statut_recrutement: 'pourvu' },
-  { id: 'p16', titre: 'Influenceur / KOL', pole: 'Externe', phase: 4, ordre: 16, description: 'Réseau d\'ambassadeurs culturels et prescripteurs pour lancements de produits.', titulaire: '', charge_estimee: '40%', statut_recrutement: 'pourvu' },
-  { id: 'p17', titre: 'Photographe Freelance', pole: 'Creatif', phase: 4, ordre: 17, description: 'Renfort lors des pics d\'activations terrain et shootings e-commerce.', titulaire: '', charge_estimee: '50%', statut_recrutement: 'pourvu' },
+  { id: 'p15', titre: 'Conseiller Juridique', pole: 'Externe', niveau: 3, parentId: null, phase: 3, ordre: 15, description: 'Contrats de propriété intellectuelle, accords SaaS et protection de marque.', titulaire: '', charge_estimee: '30%', statut_recrutement: 'pourvu' },
+  { id: 'p16', titre: 'Influenceur / KOL', pole: 'Externe', niveau: 3, parentId: null, phase: 2, ordre: 16, description: 'Réseau d\'ambassadeurs culturels et prescripteurs pour lancements de produits.', titulaire: '', charge_estimee: '40%', statut_recrutement: 'pourvu' },
+  { id: 'p17', titre: 'Photographe Freelance', pole: 'Creatif', niveau: 3, parentId: null, phase: 1, ordre: 17, description: 'Renfort lors des pics d\'activations terrain et shootings e-commerce.', titulaire: '', charge_estimee: '50%', statut_recrutement: 'pourvu' },
 ];
 
 // Aucune tache de demonstration. Les taches visibles dans le Kanban sont

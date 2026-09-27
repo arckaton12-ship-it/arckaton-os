@@ -28,7 +28,6 @@ import {
   INITIAL_MESSAGES,
   INITIAL_NOTIFICATIONS,
   INITIAL_PROJETS,
-  CURRENT_PROFILES,
   FORFAITS_DATA,
   INITIAL_REALISATIONS,
   INITIAL_TEMOIGNAGES,
@@ -39,12 +38,9 @@ import {
   INITIAL_DATA_TRANSFERS,
 } from '../data/blogAndTelemetryData';
 import { useAuth } from './AuthContext';
+import { apiRequest } from '../utils/api';
 
 // Helpers de synchronisation serveur (persistance Supabase côté Express)
-const recipientPhonesForPole = (pole: Pole): string[] => {
-  const member = CURRENT_PROFILES.find((p) => p.pole === pole);
-  return member?.phone ? [member.phone] : [];
-};
 
 const mapServerLead = (row: any): Lead => ({
   id: row.id,
@@ -250,7 +246,6 @@ interface AppContextType {
 
   // Nodal Command Center & Telemetry Stream
   dataTransfers: DataTransferEvent[];
-  triggerDataTransfer: (fromMemberId: string, toMemberId: string, dataType: DataTransferEvent['data_type'], summary: string) => DataTransferEvent;
 
   // Blueprint & Méthode Modal
   isBlueprintModalOpen: boolean;
@@ -287,6 +282,27 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const REAL_DATA_KEY = 'arckaton_real_data';
 let purgeInProgress = false;
 
+/**
+ * Empreinte SHA-256 réelle d'un flux.
+ *
+ * L'interface annonçait « SHA-256 actif » alors que la valeur générée était
+ * une suite de caractères au hasard. Une empreinte calculée pour de vrai
+ * permet au moins de détecter qu'un enregistrement a été modifié ; ce
+ * n'est pas un chiffrement, et le libellé le dit désormais.
+ */
+const sha256Hex = async (valeur: string): Promise<string> => {
+  try {
+    const donnees = new TextEncoder().encode(valeur);
+    const empreinte = await crypto.subtle.digest('SHA-256', donnees);
+    return Array.from(new Uint8Array(empreinte))
+      .map((o) => o.toString(16).padStart(2, '0'))
+      .join('');
+  } catch {
+    // Contexte sans Web Crypto : on le signale plutôt que d'inventer.
+    return 'indisponible';
+  }
+};
+
 const isRealDataMode = (): boolean => localStorage.getItem(REAL_DATA_KEY) === '1';
 
 // Lecture d'un jeu de données : localStorage > (mode réel ? vide : seeds de démo)
@@ -313,20 +329,36 @@ const readSeeds = <T,>(storageKey: string, demoSeeds: T[]): T[] => {
 //                porte « t-<timestamp> » (avec tiret) → conservée ;
 //   - messages : fixtures « m1 », « m2 », « m3 » → retirées ;
 //   - notifs   : fixtures « n1 »…« n3 » → retirées.
-// Leads, projets et rapports ne sont pas touchés : ce sont des caches
-// alimentés par le serveur, qui les renverra à la prochaine synchronisation.
-const LEGACY_TEAM_CLEANUP_KEY = 'arckaton_legacy_team_cleanup_v1';
+// Identifiants des jeux de démonstration retirés du code. Ils sont
+// listés explicitement, et non effacés en bloc : un visiteur qui a
+// réellement créé un lead ou un projet après la démonstration conserve
+// ses données, seules les fixtures d'origine partent.
+const DEMO_SEED_IDS: Record<string, string[]> = {
+  arckaton_tasks: ['t1', 't2', 't3', 't4', 't5'],
+  arckaton_messages: ['m1', 'm2', 'm3'],
+  arckaton_notifications: ['n1', 'n2', 'n3'],
+  arckaton_leads: ['lead-101', 'lead-102', 'lead-103'],
+  arckaton_projets: ['prj-1', 'prj-2', 'prj-3'],
+  arckaton_reports: ['rep-01', 'rep-02'],
+};
+
+// v2 : la v1 ne nettoyait que les tâches, messages et notifications. Les
+// leads, projets et rapports de démonstration sont traités dans cette
+// version ; le numéro change pour que le nettoyage s'exécute une fois de
+// plus chez les visiteurs qui sont déjà passés par la v1.
+const LEGACY_TEAM_CLEANUP_KEY = 'arckaton_legacy_team_cleanup_v2';
 let legacyTeamCleanupDone = false;
 
-// Retire d'un tableau local tous les éléments dont l'identifiant est dans la
-// liste des fixtures. Renvoie le nombre d'éléments retirés.
-const stripSeedItems = (storageKey: string, seedIdRe: RegExp): number => {
+// Retire d'un tableau local tous les éléments dont l'identifiant figure dans
+// la liste des fixtures. Renvoie le nombre d'éléments retirés.
+const stripSeedItems = (storageKey: string, seedIds: string[]): number => {
   const raw = localStorage.getItem(storageKey);
   if (!raw) return 0;
+  const ids = new Set(seedIds);
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return 0;
-    const kept = parsed.filter((item) => !seedIdRe.test(String(item?.id ?? '')));
+    const kept = parsed.filter((item) => !ids.has(String(item?.id ?? '')));
     if (kept.length === parsed.length) return 0;
     localStorage.setItem(storageKey, JSON.stringify(kept));
     return parsed.length - kept.length;
@@ -341,9 +373,7 @@ const cleanupLegacyDemoTeam = () => {
   legacyTeamCleanupDone = true;
   try {
     if (localStorage.getItem(LEGACY_TEAM_CLEANUP_KEY) === '1') return;
-    stripSeedItems('arckaton_tasks', /^t\d+$/);
-    stripSeedItems('arckaton_messages', /^m\d+$/);
-    stripSeedItems('arckaton_notifications', /^n\d+$/);
+    Object.entries(DEMO_SEED_IDS).forEach(([key, ids]) => stripSeedItems(key, ids));
     localStorage.setItem(LEGACY_TEAM_CLEANUP_KEY, '1');
   } catch {
     /* stockage indisponible : l'application fonctionne sans ce nettoyage */
@@ -353,6 +383,20 @@ const cleanupLegacyDemoTeam = () => {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Doit s'exécuter avant les useState ci-dessous, qui lisent localStorage.
   cleanupLegacyDemoTeam();
+
+  // Annuaire réel, chargé depuis /api/members. Déclaré ici parce que les
+  // helpers plus bas (relais WhatsApp par pôle) en dépendent.
+  const memberDirectory = useRef<
+    Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null; phone?: string }>
+  >([]);
+
+  // Numéro WhatsApp du membre d'un pôle. Les profils de démonstration ayant
+  // été retirés, on interroge l'annuaire réel : sans membre trouvé, aucun
+  // numéro n'est envoyé, et l'appel WhatsApp est tout simplement ignoré.
+  const recipientPhonesForPole = useCallback((pole: Pole): string[] => {
+    const found = memberDirectory.current.find((p) => p.pole === pole && p.phone);
+    return found?.phone ? [found.phone] : [];
+  }, []);
 
   const [mode, setMode] = useState<'public' | 'dashboard'>('public');
   const [dashboardTab, setDashboardTab] = useState<string>('home');
@@ -646,43 +690,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [member]);
 
-  const triggerDataTransfer = (
-    fromMemberId: string,
-    toMemberId: string,
-    dataType: DataTransferEvent['data_type'],
-    summary: string
-  ): DataTransferEvent => {
-    const sender = CURRENT_PROFILES.find((p) => p.id === fromMemberId) || CURRENT_PROFILES[0];
-    const receiver = CURRENT_PROFILES.find((p) => p.id === toMemberId) || CURRENT_PROFILES[1];
-
-    const randomHash = Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-
-    const newEvent: DataTransferEvent = {
-      id: `dt-${Date.now()}`,
-      from_member_id: sender.id,
-      from_member_name: sender.name,
-      from_role: sender.poste_titre || sender.role,
-      to_member_id: receiver.id,
-      to_member_name: receiver.name,
-      to_role: receiver.poste_titre || receiver.role,
-      pole: receiver.pole,
-      data_type: dataType,
-      payload_summary: summary,
-      timestamp: "À l'instant",
-      status: 'verifie',
-      clearance_level: 'ALPHA-1',
-      hash: `sha256:${randomHash}...${randomHash.slice(0, 4)}`,
-    };
-
-    setDataTransfers((prev) => {
-      const updated = [newEvent, ...prev.slice(0, 19)];
-      localStorage.setItem('arckaton_data_transfers', JSON.stringify(updated));
-      return updated;
-    });
-
-    return newEvent;
-  };
-
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
@@ -711,16 +718,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshDashboardData = async () => {
     setIsDataFetching(true);
     try {
-      // /api/projects, /api/leads et /api/reports exigent une session valide
-      const authToken = localStorage.getItem('arckaton_os_token');
-      const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
-
-      // Synchronisation réelle avec le serveur (Supabase si configurée)
+      // Ces quatre routes exigent une session valide. Elles passent par
+      // apiRequest pour deux raisons : le jeton expiré est renouvelé
+      // automatiquement, et une 401 remonte une erreur explicite au lieu
+      // d'être avalée par un .catch(() => null). Avant, un jeton périmé
+      // laissait tous les tableaux vides, comme si l'entreprise n'avait
+      // plus aucune donnée.
       const [leadsRes, reportsRes, projectsRes, quotesRes] = await Promise.all([
-        fetch('/api/leads', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
-        fetch('/api/reports', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
-        fetch('/api/projects', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
-        fetch('/api/quotes', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
+        apiRequest<any>('/api/leads').catch(() => null),
+        apiRequest<any>('/api/reports').catch(() => null),
+        apiRequest<any>('/api/projects').catch(() => null),
+        apiRequest<any>('/api/quotes').catch(() => null),
       ]);
 
       // Devis et factures : le serveur fait foi, sans exception. C'est la
@@ -1292,7 +1300,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Chaque action impliquant 2 personnes (tâche, message, jalon, retour client)
   // crée une entrée de flux consultable par la direction. Plus de bouton "injecter".
   const [osMembers, setOsMembers] = useState<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null; email?: string; phone?: string }>>([]);
-  const memberDirectory = useRef<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null }>>([]);
 
   // Recharge l'annuaire réel. Appelé après chaque ajout, modification ou
   // suppression de membre pour que les listes de sélection (Kanban, projets,
@@ -1350,7 +1357,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       pole: author.pole,
     };
 
-    const entry: DataTransferEvent = {
+    const base = {
       id: `dt-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
       from_member_id: author.id,
       from_member_name: author.name,
@@ -1362,16 +1369,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       data_type: dataType,
       payload_summary: summary,
       timestamp: new Date().toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
-      status: 'livre',
-      clearance_level: 'ALPHA-1',
-      hash: `sha256:${Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+      status: 'livre' as const,
+      clearance_level: 'ALPHA-1' as const,
+      hash: '',
     };
 
-    setDataTransfers((prev) => {
-      const updated = [entry, ...prev].slice(0, 60);
-      localStorage.setItem('arckaton_data_transfers', JSON.stringify(updated));
-      return updated;
+    const entry: DataTransferEvent = { ...base };
+
+    const enregistrer = (flux: DataTransferEvent) => {
+      setDataTransfers((prev) => {
+        const dejaLa = prev.some((f) => f.id === flux.id);
+        const suivant = dejaLa ? prev.map((f) => (f.id === flux.id ? flux : f)) : [flux, ...prev];
+        const plafonne = suivant.slice(0, 60);
+        localStorage.setItem('arckaton_data_transfers', JSON.stringify(plafonne));
+        return plafonne;
+      });
+    };
+
+    enregistrer(entry);
+
+    // L'empreinte est calculée pour de vrai, puis réinjectée dans le flux.
+    void sha256Hex(
+      [base.from_member_id, base.to_member_id, base.data_type, base.payload_summary, base.timestamp].join('|')
+    ).then((empreinte) => {
+      enregistrer({ ...entry, hash: empreinte ? `sha256:${empreinte.slice(0, 16)}` : 'indisponible' });
     });
+
     return entry;
   };
 
@@ -1592,10 +1615,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Somme des factures réellement enregistrées. Un devis n'est pas une
   // facture : il n'entre pas dans le total. Tant qu'aucune facture n'existe,
   // le résultat vaut 0 — jamais un montant de démonstration.
+  //
+  // Un brouillon n'est pas encore une dette et une facture refusée ne doit
+  // jamais être comptée : les deux sont exclus. Sans cette exclusion, un
+  // devis en préparation gonflait le chiffre d'affaires affiché.
   const chiffreAffairesReel = useMemo(
     () =>
       quotes
-        .filter((q) => q.type === 'facture')
+        .filter(
+          (q) =>
+            q.type === 'facture' &&
+            q.status !== 'brouillon' &&
+            q.status !== 'refuse'
+        )
         .reduce((sum, q) => sum + (Number(q.total) || 0), 0),
     [quotes]
   );
@@ -1698,7 +1730,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activeBlogPost,
         setActiveBlogPost,
         dataTransfers,
-        triggerDataTransfer,
     isBlueprintModalOpen,
     setIsBlueprintModalOpen,
     isLegalModalOpen,

@@ -37,6 +37,70 @@ const DATA_TYPE_LABELS: Record<DataTransferEvent['data_type'], string> = {
   securite: 'Sécurité & audit',
 };
 
+// ── Éléments de lecture de l'organigramme ──────────────────────────────
+
+const NIVEAU_TONES = {
+  emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+  blue: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+  purple: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+  amber: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+} as const;
+
+const PhaseTag: React.FC<{ phase: number; compact?: boolean }> = ({ phase, compact }) => (
+  <span
+    className={`font-mono uppercase text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded shrink-0 ${
+      compact ? 'text-[9px] px-1.5 py-0.5' : 'text-[10px] px-2 py-0.5'
+    }`}
+  >
+    Phase {phase}
+  </span>
+);
+
+const NiveauBadge: React.FC<{
+  niveau: 0 | 1 | 2 | 3;
+  libelle: string;
+  detail: string;
+  tone: keyof typeof NIVEAU_TONES;
+}> = ({ niveau, libelle, detail, tone }) => (
+  <div className="text-center mb-6">
+    <span
+      className={`inline-block text-[11px] font-mono uppercase tracking-widest px-3 py-1 rounded-full border ${NIVEAU_TONES[tone]}`}
+    >
+      Niveau {niveau} • {libelle}
+    </span>
+    <p className="text-[11px] text-slate-400 mt-1.5">{detail}</p>
+  </div>
+);
+
+const Connecteur: React.FC = () => (
+  <div className="w-full flex justify-center my-6 relative z-0" aria-hidden="true">
+    <div className="w-0.5 h-12 bg-gradient-to-b from-emerald-400 via-blue-400 to-indigo-500 relative">
+      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-300 shadow-md shadow-emerald-400" />
+    </div>
+  </div>
+);
+
+const CompteurHud: React.FC<{
+  libelle: string;
+  valeur: string;
+  accent?: 'amber' | 'emerald' | 'blue';
+}> = ({ libelle, valeur, accent }) => {
+  const couleur =
+    accent === 'amber'
+      ? 'text-amber-600'
+      : accent === 'emerald'
+        ? 'text-emerald-600'
+        : accent === 'blue'
+          ? 'text-blue-600'
+          : 'text-slate-900';
+  return (
+    <div className="bg-white border border-slate-200 p-3.5 rounded-xl">
+      <div className="text-xs text-slate-500">{libelle}</div>
+      <div className={`text-xl font-semibold mt-1 ${couleur}`}>{valeur}</div>
+    </div>
+  );
+};
+
 export const OrgChart: React.FC = () => {
   const { dataTransfers, tasks, osMembers } = useApp();
 
@@ -49,7 +113,6 @@ export const OrgChart: React.FC = () => {
   const [isConsole, setIsConsole] = useState(false);
   const [consoleFilter, setConsoleFilter] = useState<string>('');
   const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
-  const [justTransferred, setJustTransferred] = useState<string | null>(null);
 
   const [postesState, setPostes] = useState<Poste[]>(POSTES_DATA);
 
@@ -67,10 +130,53 @@ export const OrgChart: React.FC = () => {
     [postesState, osMembers]
   );
 
-  // Grouping for Nodal Tree
-  const level0Postes = postes.filter(p => p.id === 'p1' || p.titre.includes('Chef d\'Agence') || p.id === 'p12'); // Direction générale et opérations terrain
-  const level1Postes = postes.filter(p => ['p2', 'p4', 'p6', 'p8', 'p9', 'p5'].includes(p.id)); // Responsables de pôle
-  const level2Postes = postes.filter(p => !level0Postes.some(x => x.id === p.id) && !level1Postes.some(x => x.id === p.id));
+  // ── Groupement hiérarchique ───────────────────────────────────────────
+  // Les niveaux viennent des données (champ `niveau`), pas d'une liste
+  // d'identifiants en dur. La liste précédente plaçait le Vidéaste au
+  // niveau 0 à côté du Chef d'Agence, le Graphiste au niveau 1 avec les
+  // directeurs, et faisait tomber le Directeur Commercial au niveau 2.
+  const parNiveau = (n: 0 | 1 | 2 | 3) => postes.filter((p) => p.niveau === n);
+  const directionPostes = parNiveau(0);
+  const directeursPostes = parNiveau(1);
+  const equipePostes = parNiveau(2);
+  const reseauPostes = parNiveau(3);
+
+  // L'équipe opérationnelle est présentée par pôle, comme dans le plan de
+  // croissance de l'agence. Le rattachement affiché est déduit de `parentId`
+  // poste par poste, et non du pôle : certains postes d'un même pôle relèvent
+  // de deux directeurs différents (le SEO et Ads dépend du commercial, pas du
+  // directeur créatif), et un en-tête de colonne unique aurait été faux.
+  const EQUIPE_COLONNES: Array<{ pole: Pole; libelle: string }> = [
+    { pole: 'Creatif', libelle: 'Pôle Créatif' },
+    { pole: 'Digital', libelle: 'Pôle Digital' },
+    { pole: 'Tech', libelle: 'Pôle Tech' },
+    { pole: 'Client', libelle: 'Pôle Client & Admin' },
+  ];
+
+  const colonnesEquipe = useMemo(
+    () =>
+      EQUIPE_COLONNES.map((col) => {
+        const postes = equipePostes
+          .filter((p) => p.pole === col.pole)
+          .sort((a, b) => a.ordre - b.ordre);
+        // Directeurs réellement cités par les postes de la colonne.
+        const directeurs = Array.from(
+          new Set(
+            postes
+              .map((p) => directeursPostes.find((d) => d.id === p.parentId)?.titre)
+              .filter(Boolean) as string[]
+          )
+        );
+        return { ...col, postes, directeurs };
+      }).filter((col) => col.postes.length > 0),
+    [equipePostes, directeursPostes]
+  );
+
+  // Un poste dont le pôle n'est pas encore cartographié reste visible plutôt
+  // que de disparaître de l'organigramme.
+  const orphelins = equipePostes.filter(
+    (p) => !colonnesEquipe.some((col) => col.postes.some((cp) => cp.id === p.id))
+  );
 
   const getPosteTasks = (titulaire?: string) => {
     if (!titulaire || titulaire === 'Vacant') return [];
@@ -100,17 +206,19 @@ export const OrgChart: React.FC = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500/[0.05] rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-3">
-              <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-              <span>Nodal Command Center • Arckaton OS v4.2 Souverain</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-medium mb-3">
+              <Network className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Structure de l'agence</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
-              Organigramme Opérationnel & Flux de Données
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Organigramme
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-2 max-w-3xl leading-relaxed">
-              Arborescence de gouvernance hiérarchisée reliant les 6 pôles stratégiques. Visualisez en temps réel les transmissions de paquets chiffrés, les ordres de mission terrain et les validations BAT.
+            <p className="text-sm text-slate-400 mt-2 max-w-2xl leading-relaxed">
+              Quatre niveaux : la direction générale, les directeurs de pôle, les équipes
+              opérationnelles et le réseau de freelances. Chaque poste affiche le membre
+              qui l'occupe, ou « Vacant » si personne ne le pourvoit encore.
             </p>
           </div>
 
@@ -119,57 +227,45 @@ export const OrgChart: React.FC = () => {
             <div className="bg-[#060a14] border border-white/10 p-1 rounded-xl flex items-center gap-1">
               <button
                 onClick={() => setViewMode('nodal')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
                   viewMode === 'nodal'
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-500 text-slate-950 font-semibold'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
-                <Network className="w-3.5 h-3.5" />
-                <span>Vue Nodal Futuriste</span>
+                <Network className="w-4 h-4" />
+                <span>Organigramme</span>
               </button>
               <button
                 onClick={() => setViewMode('matrix')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
                   viewMode === 'matrix'
-                    ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-blue-600 text-white font-semibold'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
-                <Layers className="w-3.5 h-3.5" />
-                <span>Matrice 17 Postes</span>
+                <Layers className="w-4 h-4" />
+                <span>Matrice des postes</span>
               </button>
             </div>
 
-            {/* Inject Packet Button */}
+            {/* Journal des échanges */}
             <button
               onClick={() => setIsConsole(true)}
-              className="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-mono text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+              className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Zap className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Injecter un Transfert</span>
+              <Terminal className="w-4 h-4" />
+              <span>Journal des échanges</span>
             </button>
           </div>
         </div>
 
-        {/* Live Network Counters Strip */}
+        {/* Compteurs : uniquement des valeurs réellement calculées */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/[0.08]">
-          <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[11px] font-mono text-slate-400 uppercase">Unités Opérationnelles</div>
-            <div className="text-lg font-serif font-bold text-white mt-0.5">{pourvusCount} Actifs / 17</div>
-          </div>
-          <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[11px] font-mono text-slate-400 uppercase">Recrutements en cours</div>
-            <div className="text-lg font-serif font-bold text-amber-400 mt-0.5">{ouvertsCount} Ouverts</div>
-          </div>
-          <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[11px] font-mono text-slate-400 uppercase">Flux Réseau Traités</div>
-            <div className="text-lg font-serif font-bold text-emerald-400 mt-0.5">{dataTransfers.length} Transmissions</div>
-          </div>
-          <div className="bg-[#070d1e]/80 border border-white/[0.06] p-3 rounded-xl">
-            <div className="text-[11px] font-mono text-slate-400 uppercase">Chiffrement Souverain</div>
-            <div className="text-lg font-serif font-bold text-blue-400 mt-0.5">SHA-256 Actif</div>
-          </div>
+          <CompteurHud libelle="Postes pourvus" valeur={`${pourvusCount} / ${postes.length}`} />
+          <CompteurHud libelle="Postes vacants" valeur={String(ouvertsCount)} accent="amber" />
+          <CompteurHud libelle="Échanges tracés" valeur={String(dataTransfers.length)} accent="emerald" />
+          <CompteurHud libelle="Membres à l'annuaire" valeur={String(osMembers.length)} accent="blue" />
         </div>
       </div>
 
@@ -182,95 +278,73 @@ export const OrgChart: React.FC = () => {
             {/* Background Grid Pattern */}
             <div className="absolute inset-0 bg-blueprint-grid opacity-20 pointer-events-none" />
 
-            {/* Notification alert if packet just transferred */}
-            {justTransferred && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mb-6 bg-emerald-500/20 border border-emerald-500/40 p-3 rounded-xl flex items-center justify-between text-xs text-emerald-300 font-mono"
-              >
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Paquet de données injecté et acheminé avec succès le long de l'arborescence !</span>
-                </div>
-                <span className="text-[11px] text-emerald-400/80">Vérifié SHA-256</span>
-              </motion.div>
-            )}
+            <NiveauBadge
+              niveau={0}
+              libelle="Direction générale"
+              detail="Pilotage stratégique, commercial et financier"
+              tone="emerald"
+            />
 
-            <div className="text-center mb-8">
-              <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                NIVEAU 0 • COMMANDEMENT STRATÉGIQUE & ARBITRAGE
-              </span>
-            </div>
-
-            {/* LEVEL 0 : COMMANDEMENT */}
+            {/* NIVEAU 0 — direction générale */}
             <div className="flex flex-wrap justify-center gap-6 relative z-10">
-              {level0Postes.map((p) => {
+              {directionPostes.map((p) => (
+                <motion.button
+                  key={p.id}
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setActivePoste(p)}
+                  className="w-full sm:w-80 text-left bg-[#0d1733] border-2 border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-5 cursor-pointer shadow-lg shadow-emerald-500/5 transition-all relative group"
+                >
+                  <div className="flex items-center justify-between mb-3 gap-3">
+                    <span className="text-[11px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-bold shrink-0">
+                      Direction
+                    </span>
+                    <PhaseTag phase={p.phase} />
+                  </div>
+
+                  <div className="text-xs font-mono text-slate-400">{p.titre}</div>
+                  <div className="text-lg font-serif font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    {p.titulaire}
+                  </div>
+                  <p className="text-xs text-slate-300 mt-2 font-light leading-relaxed">
+                    {p.description}
+                  </p>
+
+                  <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-slate-400">Charge : {p.charge_estimee}</span>
+                    <span className="text-emerald-400 flex items-center gap-1">
+                      Détails <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            <Connecteur />
+
+            <NiveauBadge
+              niveau={1}
+              libelle="Direction opérationnelle"
+              detail="Trois directrices, un par grande fonction"
+              tone="blue"
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+              {directeursPostes.map((p) => {
                 const colors = POLE_COLORS[p.pole];
                 return (
-                  <motion.div
+                  <motion.button
                     key={p.id}
+                    type="button"
                     whileHover={{ scale: 1.02 }}
                     onClick={() => setActivePoste(p)}
-                    className="w-full sm:w-80 bg-[#0d1733] border-2 border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-5 cursor-pointer shadow-lg shadow-emerald-500/5 transition-all relative group"
+                    className="text-left bg-[#0b1329] border border-white/15 hover:border-blue-400/60 rounded-2xl p-4 cursor-pointer transition-all relative group"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-bold">
-                        CLEARANCE ALPHA-1
-                      </span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                    </div>
-
-                    <div className="text-xs font-mono text-slate-400">{p.titre}</div>
-                    <div className="text-lg font-serif font-bold text-white group-hover:text-emerald-300 transition-colors">
-                      {p.titulaire}
-                    </div>
-                    <p className="text-xs text-slate-300 mt-2 font-light line-clamp-2">
-                      {p.description}
-                    </p>
-
-                    <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono">
-                      <span className="text-slate-400">Charge : {p.charge_estimee}</span>
-                      <span className="text-emerald-400 flex items-center gap-1">
-                        <span>Explorer</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </span>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Connecting Bus Line SVG */}
-            <div className="w-full flex justify-center my-6 relative z-0">
-              <div className="w-0.5 h-12 bg-gradient-to-b from-emerald-400 via-blue-400 to-indigo-500 relative">
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-300 shadow-md shadow-emerald-400 animate-pulse" />
-              </div>
-            </div>
-
-            {/* LEVEL 1 : CHEFS DE PÔLES & INGENIERIE */}
-            <div className="text-center mb-6">
-              <span className="text-[11px] font-mono text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                NIVEAU 1 • DIRECTEURS DE PÔLES & ARCHITECTURE TECHNIQUE
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
-              {level1Postes.map((p) => {
-                const colors = POLE_COLORS[p.pole];
-                return (
-                  <motion.div
-                    key={p.id}
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => setActivePoste(p)}
-                    className="bg-[#0b1329] border border-white/15 hover:border-blue-400/60 rounded-2xl p-4 cursor-pointer transition-all relative group"
-                  >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2 gap-2">
                       <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
                         {p.pole}
                       </span>
-                      <span className="text-[11px] font-mono text-slate-400">Phase {p.phase}</span>
+                      <PhaseTag phase={p.phase} />
                     </div>
 
                     <div className="text-xs font-mono text-slate-400">{p.titre}</div>
@@ -282,55 +356,110 @@ export const OrgChart: React.FC = () => {
                       <span>Charge : {p.charge_estimee}</span>
                       <span className="text-slate-300 group-hover:text-white">Détails →</span>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 );
               })}
             </div>
 
-            {/* Connecting Bus Line SVG */}
-            <div className="w-full flex justify-center my-6 relative z-0">
-              <div className="w-0.5 h-12 bg-gradient-to-b from-blue-400 via-purple-400 to-amber-500 relative">
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-300 shadow-md shadow-blue-400 animate-pulse" />
-              </div>
-            </div>
+            <Connecteur />
 
-            {/* LEVEL 2 : SPECIALISTES TERRAIN & DEVELOPPEURS */}
-            <div className="text-center mb-6">
-              <span className="text-[11px] font-mono text-purple-400 uppercase tracking-widest bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
-                NIVEAU 2 • OPÉRATIONNELS TERRAIN, INTÉGRATION & CONSEILS
-              </span>
-            </div>
+            <NiveauBadge
+              niveau={2}
+              libelle="Équipes opérationnelles"
+              detail="Les postes rattachés à chaque directeur de pôle"
+              tone="purple"
+            />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10">
-              {level2Postes.map((p) => {
-                const colors = POLE_COLORS[p.pole];
-                const isOpen = p.statut_recrutement === 'recrutement_ouvert';
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 relative z-10">
+              {colonnesEquipe.map((col) => {
+                const colors = POLE_COLORS[col.pole];
                 return (
-                  <motion.div
-                    key={p.id}
-                    whileHover={{ scale: 1.01 }}
-                    onClick={() => setActivePoste(p)}
-                    className={`rounded-xl p-3.5 border text-left cursor-pointer transition-all ${
-                      isOpen
-                        ? 'bg-amber-500/5 border-amber-500/30 hover:border-amber-400'
-                        : 'bg-[#080d1e] border-white/10 hover:border-white/20'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
-                        {p.pole}
+                  <div key={col.pole} className="flex flex-col gap-3">
+                    <div className="text-center">
+                      <span className={`inline-block text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${colors.bg} ${colors.border} ${colors.text}`}>
+                        {col.libelle}
                       </span>
-                      {isOpen && (
-                        <span className="text-[9px] font-mono bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">
-                          Recrutement
-                        </span>
+                      {col.directeurs.length > 0 && (
+                        <div className="text-[10px] text-slate-500 mt-1.5">
+                          Rattaché à {col.directeurs.join(' et ')}
+                        </div>
                       )}
                     </div>
-                    <div className="text-xs font-semibold text-white truncate">{p.titre}</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">{p.titulaire}</div>
-                  </motion.div>
+
+                    {col.postes.map((p) => {
+                      const isOpen = p.statut_recrutement === 'recrutement_ouvert';
+                      return (
+                        <motion.button
+                          key={p.id}
+                          type="button"
+                          whileHover={{ scale: 1.01 }}
+                          onClick={() => setActivePoste(p)}
+                          className={`text-left rounded-xl p-3.5 border cursor-pointer transition-all ${
+                            isOpen
+                              ? 'bg-amber-500/5 border-amber-500/30 hover:border-amber-400'
+                              : 'bg-[#080d1e] border-white/10 hover:border-white/20'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1.5 gap-2">
+                            <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
+                              {p.pole}
+                            </span>
+                            <PhaseTag phase={p.phase} compact />
+                          </div>
+                          <div className="text-xs font-semibold text-white">{p.titre}</div>
+                          <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                            {p.titulaire}
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
                 );
               })}
+            </div>
+
+            {/* Postes de niveau 2 dont le pôle n'est pas encore cartographié :
+                ils restent visibles plutôt que de disparaître. */}
+            {orphelins.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {orphelins.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setActivePoste(p)}
+                    className="text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-[#080d1e] border border-white/10 text-slate-300 hover:border-white/25"
+                  >
+                    {p.titre}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <Connecteur />
+
+            <NiveauBadge
+              niveau={3}
+              libelle="Réseau freelances et partenaires"
+              detail="Collaborateurs ponctuels, hors effectif interne"
+              tone="amber"
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 relative z-10">
+              {reseauPostes.map((p) => (
+                <motion.button
+                  key={p.id}
+                  type="button"
+                  whileHover={{ scale: 1.01 }}
+                  onClick={() => setActivePoste(p)}
+                  className="text-left rounded-xl p-3.5 border border-dashed border-white/20 bg-transparent hover:border-white/35 cursor-pointer transition-all"
+                >
+                  <div className="text-xs font-semibold text-white">{p.titre}</div>
+                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">{p.titulaire}</div>
+                  <p className="text-[10px] text-slate-400 mt-2 leading-relaxed line-clamp-3">
+                    {p.description}
+                  </p>
+                </motion.button>
+              ))}
             </div>
 
           </div>
@@ -383,7 +512,9 @@ export const OrgChart: React.FC = () => {
                         {dt.clearance_level}
                       </span>
                       <span className="text-slate-400">{dt.timestamp}</span>
-                      <span className="text-slate-400 hidden lg:inline">{dt.hash}</span>
+                      <span className="text-slate-400 hidden lg:inline" title="Empreinte de contrôle : permet de repérer une modification de l'entrée, ce n'est pas un chiffrement.">
+                        {dt.hash || 'empreinte en cours'}
+                      </span>
                     </div>
                   </div>
                 );
@@ -652,9 +783,11 @@ export const OrgChart: React.FC = () => {
                                     {f.payload_summary}
                                   </p>
                                 </div>
-                                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                                <div className="flex items-center justify-between gap-3 text-[11px] font-mono text-slate-400">
                                   <span>Pôle : {f.pole}</span>
-                                  <span>{f.hash}</span>
+                                  <span title="Empreinte de contrôle : permet de repérer une modification de l'entrée, ce n'est pas un chiffrement.">
+                                    {f.hash || 'empreinte en cours'}
+                                  </span>
                                 </div>
                               </div>
                             </motion.div>

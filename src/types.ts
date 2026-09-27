@@ -29,6 +29,14 @@ export interface Poste {
   pole: Pole;
   phase: 1 | 2 | 3 | 4;
   ordre: number;
+  /**
+   * Rang dans l'organigramme. La hiérarchie vient du plan de croissance de
+   * l'agence et non de l'ordre de saisie : 0 direction, 1 directeurs de
+   * pôles, 2 équipes opérationnelles, 3 réseau externe.
+   */
+  niveau: 0 | 1 | 2 | 3;
+  /** Poste immédiatement supérieur, `null` pour le sommet et l'external. */
+  parentId: string | null;
   description: string;
   titulaire?: string;
   titulaire_id?: string;

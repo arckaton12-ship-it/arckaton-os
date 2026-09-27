@@ -29,8 +29,119 @@ const DEFAULT_TIMEOUT = 20000;
 // un demarrage a froid qui peut depasser largement 20 s.
 const COLD_START_TIMEOUT = 90000;
 
+const TOKEN_KEY = 'arckaton_os_token';
+const REFRESH_KEY = 'arckaton_os_refresh';
+
+// ── Renouvellement de session ────────────────────────────────────────────
+//
+// Le jeton d'accès Supabase expire au bout d'environ une heure. Avant, la
+// seule chose stockée était ce jeton : au-delà, l'interface affichait
+// encore l'utilisateur connecté alors que chaque appel API répondait 401
+// "Session invalide ou expirée".
+
+/** Date d'expiration d'un JWT, en millisecondes, ou null si illisible. */
+function tokenExpiryMs(token: string): number | null {
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (typeof payload?.exp !== 'number') return null;
+    return payload.exp * 1000;
+  } catch {
+    return null;
+  }
+}
+
+let refreshInFlight: Promise<string | null> | null = null;
+
+function clearSession() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_KEY);
+  localStorage.removeItem('arckaton_os_member');
+  window.dispatchEvent(new CustomEvent('arckaton:session-expired'));
+}
+
+/** Renouvelle le jeton d'accès. Une seule requête à la fois. */
+export function refreshAccessToken(): Promise<string | null> {
+  if (refreshInFlight) return refreshInFlight;
+
+  const refreshToken = localStorage.getItem(REFRESH_KEY);
+  if (!refreshToken) {
+    // Session ouverte avant la mise en place du refresh token : elle ne peut
+    // pas être renouvelée. On la ferme proprement pour renvoyer vers l'écran
+    // de connexion, sinon l'utilisateur reste devant une interface qui ne
+    // charge plus rien.
+    if (localStorage.getItem(TOKEN_KEY)) clearSession();
+    return Promise.resolve(null);
+  }
+
+  refreshInFlight = (async () => {
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!res.ok) {
+        // Refresh token périmé : on efface la session pour que
+        // l'utilisateur se reconnecte au lieu de rester bloqué.
+        if (res.status === 401) clearSession();
+        return null;
+      }
+      const data = await res.json().catch(() => null);
+      if (!data?.token) return null;
+      localStorage.setItem(TOKEN_KEY, data.token);
+      if (data.refreshToken) localStorage.setItem(REFRESH_KEY, data.refreshToken);
+      return data.token as string;
+    } catch {
+      return null;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
+}
+
+let keepAliveStarted = false;
+
+/**
+ * Maintient la session en vie sans dépendre d'une action de l'utilisateur.
+ * Les appels API lisent le jeton depuis localStorage de façon synchrone :
+ * on renouvelle donc en amont, plutôt que d'intercepter chaque réponse.
+ */
+export function startSessionKeepAlive(): () => void {
+  if (keepAliveStarted) return () => {};
+  keepAliveStarted = true;
+
+  const renew = () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    const exp = tokenExpiryMs(token);
+    if (exp === null) return;
+    if (Date.now() >= exp - 300000) void refreshAccessToken();
+  };
+
+  const onVisible = () => {
+    if (document.visibilityState === 'visible') renew();
+  };
+
+  // Au chargement, au retour sur l'onglet, puis périodiquement.
+  renew();
+  document.addEventListener('visibilitychange', onVisible);
+  window.addEventListener('focus', renew);
+  const timer = window.setInterval(renew, 4 * 60 * 1000);
+
+  return () => {
+    document.removeEventListener('visibilitychange', onVisible);
+    window.removeEventListener('focus', renew);
+    window.clearInterval(timer);
+    keepAliveStarted = false;
+  };
+}
+
 function authHeaders(): Record<string, string> {
-  const t = localStorage.getItem('arckaton_os_token');
+  const t = localStorage.getItem(TOKEN_KEY);
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
@@ -113,6 +224,30 @@ export async function apiRequest<T = any>(path: string, options: RequestOptions 
     }
 
     if (!res.ok) {
+      // Session expirée : on tente un renouvellement puis un seul nouvel
+      // essai. Sans cela, l'onglet affiche une erreur et une liste vide,
+      // ce qui laisse croire que les données ont disparu.
+      if (res.status === 401 && options.auth !== false) {
+        const renewed = await refreshAccessToken();
+        if (renewed) {
+          try {
+            const retry = await once(path, { ...options, timeoutMs });
+            if (retry.status === 204) return undefined as T;
+            if (retry.ok) {
+              const retryRaw = await retry.text();
+              if (!retryRaw) return undefined as T;
+              try {
+                return JSON.parse(retryRaw) as T;
+              } catch {
+                // Réponse non JSON après renouvellement : on laisse remonter
+                // l'erreur d'origine plutôt que de masquer la panne.
+              }
+            }
+          } catch {
+            // le nouvel essai échoue : on remonte l'erreur d'origine
+          }
+        }
+      }
       throw new ApiError(
         payload?.error || `Erreur ${res.status}`,
         'http',

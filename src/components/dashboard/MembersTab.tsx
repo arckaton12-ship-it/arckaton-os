@@ -68,7 +68,21 @@ export const MembersTab: React.FC = () => {
       ]);
       const mj = await mRes.json().catch(() => ({ members: [] }));
       const aj = await aRes.json().catch(() => ({ activity: [] }));
-      if (!mRes.ok) setError(mj.error || 'Chargement impossible');
+      if (!mRes.ok) {
+        // Un 401 signifie session périmée, pas annuaire vide : le message
+        // doit le dire, sinon l'utilisateur conclude à une perte de données.
+        setError(
+          mRes.status === 401
+            ? 'Session expirée : le renouvellement a échoué. Reconnectez-vous pour retrouver vos membres et vos données.'
+            : mRes.status === 403
+              ? mj.error || 'Accès refusé par la direction.'
+              : mj.error || 'Chargement impossible'
+        );
+        setMembers([]);
+        setActivity([]);
+        return;
+      }
+      setError(null);
       setMembers(mj.members || []);
       setActivity(aj.activity || []);
     } catch (err) {
@@ -302,7 +316,10 @@ export const MembersTab: React.FC = () => {
                 </div>
               );
             })}
-            {members.length === 0 && (
+            {/* « Aucun membre trouvé » n'a de sens que si le chargement a
+                réussi. L'afficher après une erreur de session donnait
+                l'impression que l'annuaire était vide. */}
+            {members.length === 0 && !error && (
               <div className="p-10 text-center text-sm text-slate-400">
                 Aucun membre trouvé. Utilisez « Ajouter un membre » pour créer un compte avec son nom, son pôle et ses permissions.
               </div>

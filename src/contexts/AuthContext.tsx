@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { UserProfile, UserRole, MemberProfile, Pole } from '../types';
-import { apiRequest } from '../utils/api';
+import { apiRequest, startSessionKeepAlive } from '../utils/api';
 
 interface AuthContextType {
   user: UserProfile;
@@ -25,6 +25,7 @@ interface AuthContextType {
 
 const TOKEN_KEY = 'arckaton_os_token';
 const MEMBER_KEY = 'arckaton_os_member';
+const REFRESH_KEY = 'arckaton_os_refresh';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -65,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await apiRequest<any>('/api/auth/me', { timeoutMs: 60000 });
       if (!data?.member) {
         localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_KEY);
         localStorage.removeItem(MEMBER_KEY);
         setToken(null);
         setMember(null);
@@ -83,6 +85,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Maintien de session : le jeton d'accès expire au bout d'environ une
+  // heure. On le renouvelle en tâche de fond, au retour sur l'onglet, et
+  // à chaque passage au premier plan, pour ne jamais dépendre d'une action
+  // de l'utilisateur.
+  //
+  // L'effet dépend de `token` et pas seulement du montage : sans cela, une
+  // connexion réussie alors que le provider était déjà monté ne démarrait
+  // jamais le renouvellement, et l'utilisateur était déconnecté au bout
+  // d'une heure sans avoir rien fait.
+  useEffect(() => {
+    if (!token) return;
+
+    // Session non renouvelable : on repasse l'écran de connexion au lieu
+    // de laisser une interface affichée mais incapable de lire les données.
+    const onExpired = () => {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_KEY);
+      localStorage.removeItem(MEMBER_KEY);
+      setToken(null);
+      setMember(null);
+      setLoading(false);
+    };
+
+    const stop = startSessionKeepAlive();
+    window.addEventListener('arckaton:session-expired', onExpired);
+
+    return () => {
+      stop();
+      window.removeEventListener('arckaton:session-expired', onExpired);
+    };
+  }, [token]);
+
   const login = useCallback(async (email: string, password: string) => {
     // Délai long : sur le plan gratuit Render, la première requête après
     // une période d'inactivité paie un démarrage à froid qui dépasse
@@ -99,6 +133,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Réponse du serveur inattendue : aucun jeton de session reçu.');
     }
     localStorage.setItem(TOKEN_KEY, data.token);
+    // Le refresh token permet de renouveler la session sans redemander les
+    // identifiants. Sans lui, l'utilisateur est déconnecté au bout d'une
+    // heure alors que l'interface le laisse croire connecté.
+    if (data.refreshToken) localStorage.setItem(REFRESH_KEY, data.refreshToken);
     localStorage.setItem(MEMBER_KEY, JSON.stringify(data.member));
     setToken(data.token);
     setMember(data.member);
@@ -110,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${t}` } }).catch(() => {});
     }
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(MEMBER_KEY);
     setToken(null);
     setMember(null);
