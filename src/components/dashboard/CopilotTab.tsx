@@ -117,7 +117,12 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
     try {
       const res = await fetch('/api/ai/copilot', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('arckaton_os_token')
+            ? { Authorization: `Bearer ${localStorage.getItem('arckaton_os_token')}` }
+            : {}),
+        },
         body: JSON.stringify({
           query: text,
           message: text,

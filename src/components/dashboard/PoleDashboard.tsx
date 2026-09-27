@@ -23,13 +23,20 @@ export const PoleDashboard: React.FC = () => {
   const poleTasks = tasks.filter((t) => t.pole === pole);
   const poleLeads = leads.filter((l) => l.pole_assigned === pole);
   const poleNotifs = notifications.filter((n) => !n.read && (!n.pole || n.pole === pole));
+  // Les échanges sont cloisonnés par pôle : un membre ne voit pas la
+  // messagerie des autres pôles.
+  const poleMessages = messages.filter((m) => !m.pole || m.pole === pole);
 
   const askCopilot = async () => {
     setAdviceLoading(true);
     try {
+      const t = localStorage.getItem('arckaton_os_token');
       const res = await fetch('/api/ai/copilot', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(t ? { Authorization: `Bearer ${t}` } : {}),
+        },
         body: JSON.stringify({ pole, pathname: '/os/pole', role: member?.role || 'membre', query: 'donne-moi mes priorités' }),
       });
       const json = await res.json().catch(() => ({}));
@@ -249,7 +256,7 @@ export const PoleDashboard: React.FC = () => {
             </div>
             <div className="mt-4 bg-[#070c1e] border border-white/[0.05] rounded-xl px-4 py-3 text-xs text-slate-400">
               <span className="text-slate-200">Derniers échanges :</span>{' '}
-              {messages.slice(0, 3).map((m) => `[${m.sender_name}] ${m.content}`).join(' • ') || '—'}
+              {poleMessages.slice(0, 3).map((m) => `[${m.sender_name}] ${m.content}`).join(' • ') || '—'}
             </div>
           </section>
 

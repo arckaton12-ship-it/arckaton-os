@@ -470,6 +470,54 @@ async function requireAuth(req: AuthReq, res: any, next: any): Promise<void> {
   }
 }
 
+// ── Limitation de débit ────────────────────────────────────────────────
+// Les routes IA du site public (agent, génération de rapport) sont
+// volontairement ouvertes : elles sont utilisées par les visiteurs avant
+// toute authentification. Sans plafond, une seule personne peut épuiser le
+// quota Gemini et faire tomber le service pour tous les leads.
+//
+// Le compteur est en mémoire : il protège contre l'usage abusif courant
+// sans ajouter de dépendance ni de coût. Il repart au redémarrage, ce qui
+// est acceptable ici.
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function rateLimit(opts: { windowMs: number; max: number; message: string }) {
+  return (req: any, res: any, next: any) => {
+    // Render place tous les appels derrière un proxy : l'IP réelle est
+    // dans X-Forwarded-For, et req.ip sinon vaudrait toujours le proxy.
+    const fwd = req.headers['x-forwarded-for'];
+    const ip =
+      (typeof fwd === 'string' ? fwd.split(',')[0].trim() : fwd && fwd[0]) ||
+      req.ip ||
+      req.socket?.remoteAddress ||
+      'inconnu';
+
+    const now = Date.now();
+    const bucket = rateBuckets.get(ip);
+
+    if (!bucket || now > bucket.resetAt) {
+      rateBuckets.set(ip, { count: 1, resetAt: now + opts.windowMs });
+      return next();
+    }
+
+    bucket.count += 1;
+    if (bucket.count > opts.max) {
+      const wait = Math.ceil((bucket.resetAt - now) / 1000);
+      res.setHeader('Retry-After', String(wait));
+      return res.status(429).json({ error: opts.message });
+    }
+    next();
+  };
+}
+
+// Purge périodique pour éviter que la Map ne grossisse indéfiniment.
+setInterval(() => {
+  const now = Date.now();
+  rateBuckets.forEach((b, k) => {
+    if (now > b.resetAt) rateBuckets.delete(k);
+  });
+}, 60_000).unref?.();
+
 const requirePerm = (perm: string) => async (req: AuthReq, res: any, next: any) => {
   await requireAuth(req, res, () => {
     if (!req.member || !hasPerm(req.member, perm)) {
@@ -931,7 +979,14 @@ Quelle est votre activité et quel objectif souhaitez-vous atteindre en priorit�
 }
 
 // API Routes
-app.get("/api/health", async (_req, res) => {
+app.get("/api/health", async (req: AuthReq, res) => {
+  // Sonde publique : un tiers doit pouvoir vérifier que le service répond
+  // (montée, sonde de disponibilité) sans obtenir la topologie interne.
+  // Le diagnostic complet reste réservé aux membres authentifiés.
+  if (!req.headers.authorization) {
+    return res.json({ status: "ok", service: "Arckaton Express Backend" });
+  }
+
   // Diagnostic Supabase (aucun secret expose) : etat du client service +Volume de contenu
   const supabase: { adminClient: boolean; anonClient: boolean; contentItems: number | null; error: string | null } = {
     adminClient: false,
@@ -966,7 +1021,9 @@ app.get("/api/health", async (_req, res) => {
 });
 
 // Agent Chat endpoint
-app.post("/api/ai/agent-chat", async (req, res) => {
+// Ouverte au public (visiteurs du site) mais plafonnée : chaque appel
+// consomme du quota Gemini.
+app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, message: 'Trop de messages envoyés. Réessayez dans une minute.' }), async (req, res) => {
   try {
     const { pole, message, history } = req.body;
     if (!message) {
@@ -1000,7 +1057,9 @@ app.post("/api/ai/agent-chat", async (req, res) => {
 });
 
 // Generate conversation report for Arckaton OS Dashboard
-app.post("/api/ai/generate-report", async (req, res) => {
+// Génération de rapport : utilisée par le copilote OS (authentifié) ET par
+// l'agent public du site. Reste donc ouverte, mais plafonnée.
+app.post("/api/ai/generate-report", rateLimit({ windowMs: 60_000, max: 6, message: 'Trop de demandes de rapport. Réessayez dans une minute.' }), async (req, res) => {
   try {
     const { clientName, leadName, messages, pole, contactInfo, client_ref, summary: summaryOverride, recommendations, intention: intentionOverride, to_numbers } = req.body;
     
@@ -1450,7 +1509,8 @@ app.put("/api/settings", requirePerm('admin'), async (req: AuthReq, res) => {
 });
 
 // Copilot for Dashboard
-app.post("/api/ai/copilot", async (req, res) => {
+// Copilote stratégique : réservé aux membres connectés (OS).
+app.post("/api/ai/copilot", requireAuth, async (req, res) => {
   try {
     // Le client envoie `message`, l'ancien code attendait `query` : on accepte les deux
     const { pole, pathname, role } = req.body;

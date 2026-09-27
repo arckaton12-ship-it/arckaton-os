@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Settings, ShieldCheck, Database, Globe, RefreshCw, CheckCircle2, Loader2, AlertTriangle, WifiOff, Sparkles } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE, FORFAITS_DATA } from '../../data/mockData';
+import { apiRequest } from '../../utils/api';
 
 interface HealthState {
   supabase: { adminClient: boolean; anonClient: boolean; contentItems: number | null; error: string | null };
@@ -33,8 +34,9 @@ export const SettingsTab: React.FC = () => {
   // permanence, meme sans cle configuree.
   useEffect(() => {
     let stopped = false;
-    fetch('/api/health')
-      .then((r) => r.json())
+    // Passe par l'utilitaire réseau : il joint le jeton de session, sans
+    // quoi /api/health ne renvoie que la sonde publique (sans diagnostic).
+    apiRequest<any>('/api/health', { timeoutMs: 60000 })
       .then((json) => {
         if (!stopped) setHealth(json);
       })

@@ -1449,6 +1449,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsAgentModalOpen(true);
   };
 
+  // ── Cloisonnement par pôle ────────────────────────────────────────────
+  // La direction voit tout. Tout autre membre, y compris s'il peut éditer
+  // le site, ne voit que son pôle. Le filtrage est appliqué ici, à la
+  // source, et non dans chaque onglet : un nouvel écran ne peut pas
+  // l'oublier par inadvertance.
+  const isDirection = member?.role === 'admin';
+  const scopePole: Pole | null = isDirection ? null : member?.pole || null;
+
+  const scopeByPole = <T extends { pole: Pole }>(rows: T[]): T[] =>
+    scopePole ? rows.filter((r) => r.pole === scopePole) : rows;
+
+  const scopedProjets = scopeByPole(projets);
+  const scopedTasks = scopeByPole(tasks);
+  const scopedMessages = scopeByPole(messages);
+  // Les leads sont rangés par `pole_assigned` et non `pole`.
+  const scopedLeads = scopePole ? leads.filter((l) => l.pole_assigned === scopePole) : leads;
+  const scopedReports = scopePole ? reports.filter((r) => !r.pole || r.pole === scopePole) : reports;
+  const scopedNotifications = scopePole
+    ? notifications.filter((n) => !n.pole || n.pole === scopePole)
+    : notifications;
+
   return (
     <AppContext.Provider
       value={{
@@ -1459,30 +1480,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser,
         setCurrentUser,
         allProfiles: CURRENT_PROFILES,
-        leads,
+        leads: scopedLeads,
         addLead,
         updateLeadStatus,
         updateLeadNotes,
         convertLeadToProject,
-        reports,
-        agentReports: reports,
+        reports: scopedReports,
+        agentReports: scopedReports,
         addReport,
         addAgentReport,
         updateReportStatus,
-        tasks,
+        tasks: scopedTasks,
     addTask,
     updateTaskStatus,
     remindTask,
     osMembers,
     sendMessageAs,
     simulateExchange,
-        messages,
+        messages: scopedMessages,
         sendMessage,
-        notifications,
+        notifications: scopedNotifications,
         markNotificationRead,
         markNotificationAsRead: markNotificationRead,
         clearNotifications,
-        projets,
+        projets: scopedProjets,
         updateProjectProgression,
   createProject,
         updateProjectMilestone,
