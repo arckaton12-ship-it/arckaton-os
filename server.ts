@@ -636,7 +636,7 @@ app.get('/api/members/directory', requireAuth, async (req: AuthReq, res) => {
   if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
   const { data, error } = await sb
     .from('members')
-    .select('id, name, role, pole, poste_titre, email, phone, active, avatar_url')
+    .select('id, name, role, pole, poste_titre, email, phone')
     .eq('active', true)
     .order('name', { ascending: true });
   if (error) return res.status(500).json({ error: error.message });

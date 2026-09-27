@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { UserProfile, UserRole, MemberProfile, Pole } from '../types';
+import { apiRequest } from '../utils/api';
 
 interface AuthContextType {
   user: UserProfile;
@@ -61,15 +62,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     try {
-      const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${t}` } });
-      if (!res.ok) {
+      const data = await apiRequest<any>('/api/auth/me', { timeoutMs: 60000 });
+      if (!data?.member) {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(MEMBER_KEY);
         setToken(null);
         setMember(null);
         return;
       }
-      const data = await res.json();
       setMember(data.member);
     } catch (err) {
       // Hors-ligne / serveur indisponible : on conserve la session locale
@@ -84,14 +84,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await fetch('/api/auth/login', {
+    // Délai long : sur le plan gratuit Render, la première requête après
+    // une période d'inactivité paie un démarrage à froid qui dépasse
+    // souvent le délai par défaut du navigateur.
+    const data = await apiRequest<any>('/api/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: { email, password },
+      auth: false,
+      timeoutMs: 90000,
+      retries: 1,
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.error || 'Connexion impossible');
+
+    if (!data?.token) {
+      throw new Error('Réponse du serveur inattendue : aucun jeton de session reçu.');
     }
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(MEMBER_KEY, JSON.stringify(data.member));

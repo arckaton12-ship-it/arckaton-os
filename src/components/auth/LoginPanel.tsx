@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import { ArrowLeft, Lock, LogIn, Mail, ShieldCheck, Loader2, UserPlus } from 'lucide-react';
+import { apiRequest } from '../../utils/api';
 
 export const LoginPanel: React.FC = () => {
   const { login, completeSession } = useAuth();
@@ -12,24 +13,34 @@ export const LoginPanel: React.FC = () => {
   const [phone, setPhone] = useState('+237681462982');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // null tant que la question n'a pas ete posee au serveur. Le formulaire
+  // de creation du Directeur est une operation unique : il ne doit
+  // s'afficher que si aucun administrateur n'existe encore.
   const [needsBoot, setNeedsBoot] = useState<boolean | null>(null);
-  const [bootMode, setBootMode] = useState(false);
+  const [bootChecked, setBootChecked] = useState(false);
 
   useEffect(() => {
+    let stopped = false;
     const check = async () => {
       try {
-        const res = await fetch('/api/auth/bootstrap');
-        if (res.ok) {
-          const j = await res.json();
-          setNeedsBoot(Boolean(j.needs));
-        } else {
-          setNeedsBoot(false);
-        }
+        const j = await apiRequest<{ needs: boolean }>('/api/auth/bootstrap', {
+          auth: false,
+          timeoutMs: 60000,
+        });
+        if (!stopped) setNeedsBoot(Boolean(j?.needs));
       } catch {
-        setNeedsBoot(false);
+        // Impossible de vérifier : on ne montre surtout pas le formulaire de
+        // création d'un compte directeur, la route serveur refusera
+        // elle-même l'opération si un admin existe déjà.
+        if (!stopped) setNeedsBoot(false);
+      } finally {
+        if (!stopped) setBootChecked(true);
       }
     };
     check();
+    return () => {
+      stopped = true;
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,17 +61,14 @@ export const LoginPanel: React.FC = () => {
     setError(null);
     setBusy(true);
     try {
-      const res = await fetch('/api/auth/bootstrap', {
+      const j = await apiRequest<any>('/api/auth/bootstrap', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone }),
+        body: { name, email, password, phone },
+        auth: false,
+        timeoutMs: 90000,
+        retries: 0,
       });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(j.error || "Échec de l'initialisation");
-        return;
-      }
-      if (j.token && j.member) {
+      if (j?.token && j?.member) {
         completeSession(j.token, j.member);
         return;
       }
@@ -93,17 +101,12 @@ export const LoginPanel: React.FC = () => {
               </div>
             </div>
 
-            {(needsBoot === true || bootMode) && (
+            {needsBoot === true && (
               <form onSubmit={handleBootstrap} className="space-y-4 border border-emerald-500/30 bg-emerald-500/5 p-4 rounded-2xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-emerald-400 uppercase flex items-center gap-1.5">
-                    <UserPlus className="w-3.5 h-3.5" />
-                    Configuration initiale — Création du Directeur (admin)
-                  </span>
-                  {needsBoot === false && (
-                    <button type="button" onClick={() => setBootMode(false)} className="text-[11px] text-slate-400 hover:text-white">Masquer</button>
-                  )}
-                </div>
+                <span className="text-xs font-mono text-emerald-400 uppercase flex items-center gap-1.5">
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Configuration initiale — Création du Directeur (admin)
+                </span>
                 <div>
                   <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Nom complet</label>
                   <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-sm text-white" />
@@ -128,7 +131,7 @@ export const LoginPanel: React.FC = () => {
               </form>
             )}
 
-            {(needsBoot !== true && !bootMode) && (
+            {needsBoot !== true && (
               <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1.5">Email professionnel</label>
@@ -179,23 +182,25 @@ export const LoginPanel: React.FC = () => {
 
             <div className="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-400">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Session sécurisée</span>
-              </span>
-              <div className="flex items-center gap-3">
-                {needsBoot === false && (
-                  <button type="button" onClick={() => setBootMode((b) => !b)} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
-                    Initialiser 1er admin
-                  </button>
+                {bootChecked ? (
+                  <>
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Session sécurisée</span>
+                  </>
+                ) : (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Vérification du serveur…</span>
+                  </>
                 )}
-                <button
-                  onClick={() => setMode('public')}
-                  className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Retour au site public</span>
-                </button>
-              </div>
+              </span>
+              <button
+                onClick={() => setMode('public')}
+                className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Retour au site public</span>
+              </button>
             </div>
           </div>
         </div>
