@@ -66,14 +66,80 @@ function getSupabase(): SupabaseClient | null {
 
 const BOSS_WHATSAPP = "+237681462982";
 
-// Modele Gemini utilise (modifiable via env).
+// Modeles Gemini (modifiable via env, dans l'ordre de preference).
 //
 // "gemini-2.5-flash" etait le defaut, mais Google le refuse aux nouveaux
 // comptes : l'API repond 404 "no longer available to new users". Tous les
 // appels IA echouaient donc en silence et le service tombait sur la base de
 // connaissances, en renvoyant toujours source="knowledge_base".
-// "gemini-3.5-flash" verifie en reponse reelle le 2026-09-27.
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+//
+// Mesures relevees sur le tier gratuit (5 appels simultanes par modele,
+// 2026-09-27) :
+//
+//   modele                       200/5   latence   tokens   conformite
+//   gemini-flash-lite-latest      5/5     2,2 s     377      3/3 forfaits
+//   gemini-3.5-flash              5/5    14,8 s     ~900     3/3
+//   gemini-3-flash-preview        5/5    15,4 s     886      3/3
+//   gemini-flash-latest           4/5       -         -      surcharge
+//   gemini-pro-latest             0/5       -         -      quota epuise
+//   gemini-2.5-flash-lite         0/5       -         -      retire aux nouveaux comptes
+//
+// "flash-lite" est retenu en tete : 7x plus rapide, deux fois moins de tokens
+// pour une reponse plus complete, et il encaisse la rafale la ou les autres
+// renvoient 429. Les suivants servent de secours : quand un modele est
+// indisponible (quota, surcharge), le chatbot ne doit pas basculer sur la base
+// de connaissances, il doit essayer le suivant.
+const GEMINI_MODELS = (
+  process.env.GEMINI_MODELS || 'gemini-flash-lite-latest,gemini-3.5-flash,gemini-3-flash-preview'
+)
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+const GEMINI_MODEL = GEMINI_MODELS[0];
+
+// Un echec "modele indisponible" ne justifie pas de reessayer le meme modele,
+// mais un echec de cle ou de prompt, si.
+//
+// Le 404 compte volontairement : c'est la reponse de Google pour un modele
+// retire ("no longer available to new users"), ce qui est exactement ce que
+// renvoie "gemini-2.5-flash". Sans lui, une simple faute de frappe dans
+// GEMINI_MODELS suffisait a faire tomber le chatbot sur la base de
+// connaissances, alors qu'un modele valide attendait sur la ligne suivante.
+function estIndisponible(err: any): boolean {
+  const m = String(err?.message || err || '');
+  return /quota|rate.?limit|\b429\b|overload|high demand|capacity|UNAVAILABLE|RESOURCE_EXHAUSTED|NOT_FOUND|\b404\b|\b500\b|\b502\b|\b503\b|\b504\b|no longer available|not found|timeout|ECONNRESET|fetch failed|socket hang up/i.test(m);
+}
+
+/**
+ * Appelle Gemini en essayant les modeles de la chaine l'un apres l'autre.
+ * Renvoie le texte et le modele reellement utilise, afin que la reponse
+ * indique a l'appelant quel modele a repondu.
+ */
+async function generateWithFallback(
+  ai: GoogleGenAI,
+  request: Record<string, any>
+): Promise<{ texte: string; model: string }> {
+  let dernierErreur: any = null;
+  for (const model of GEMINI_MODELS) {
+    try {
+      const reponse: any = await ai.models.generateContent({
+        ...request,
+        model,
+      } as any);
+      const texte = (reponse?.text || '').toString().trim();
+      if (texte) return { texte, model };
+      dernierErreur = new Error(`Réponse vide du modèle ${model}`);
+      console.warn(`[Gemini] ${model} a renvoyé une réponse vide`);
+    } catch (err) {
+      dernierErreur = err;
+      if (!estIndisponible(err)) throw err;
+      console.warn(
+        `[Gemini] ${model} indisponible (${String(err?.message || err).slice(0, 120)}) → modèle suivant`
+      );
+    }
+  }
+  throw dernierErreur || new Error('Aucun modèle Gemini disponible');
+}
 
 // ============================================================
 // Projets clients : persistance Supabase (source de verite du
@@ -1077,6 +1143,7 @@ app.get("/api/health", async (req: AuthReq, res) => {
       ai: {
         provider: "gemini",
         model: GEMINI_MODEL,
+        fallbacks: GEMINI_MODELS.slice(1),
         configured: Boolean(getGeminiClient()),
       },
     });
@@ -1097,13 +1164,11 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, message: '
     if (ai) {
       try {
         const fullPrompt = `${SYSTEM_PROMPT_AGENT}\n\nPôle sollicité: ${pole || 'Direction'}\nHistorique récent: ${JSON.stringify(history || [])}\n\nClient: ${message}\nConseiller Arckaton:`;
-        const response = await ai.models.generateContent({
-          model: GEMINI_MODEL,
+        const { texte, model } = await generateWithFallback(ai, {
           contents: fullPrompt,
         });
 
-        const replyText = response.text || generateSmartFallbackResponse(pole, message);
-        return res.json({ reply: replyText, source: "gemini" });
+        return res.json({ reply: texte, source: "gemini", model });
       } catch (geminiError) {
         console.warn("Gemini API call fell back to knowledge base:", geminiError);
         const fallback = generateSmartFallbackResponse(pole, message);
@@ -1593,13 +1658,11 @@ L'utilisateur est ${role || 'membre'}, actuellement sur l'écran : ${pathname ||
 Question de l'utilisateur : ${query}.
 Donne une recommandation concise, experte et orientée rentabilité/qualité en 100-150 mots maximum en français.`;
 
-        const response = await ai.models.generateContent({
-          model: GEMINI_MODEL,
+        const { texte: text, model } = await generateWithFallback(ai, {
           contents: prompt,
         });
 
-        const text = response.text || "Conseil Arckaton OS généré.";
-        return res.json({ reply: text, advice: text, source: 'gemini', aiEnabled: true });
+        return res.json({ reply: text, advice: text, source: 'gemini', aiEnabled: true, model });
       } catch (err) {
         console.warn("Copilot Gemini indisponible:", err);
       }
