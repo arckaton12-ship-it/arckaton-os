@@ -66,9 +66,14 @@ function getSupabase(): SupabaseClient | null {
 
 const BOSS_WHATSAPP = "+237681462982";
 
-// Modele Gemini utilise (modifiable via env). Les anciens noms type
-// "gemini-3.8-flash" n'existaient pas et faisaient echouer tous les appels IA.
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+// Modele Gemini utilise (modifiable via env).
+//
+// "gemini-2.5-flash" etait le defaut, mais Google le refuse aux nouveaux
+// comptes : l'API repond 404 "no longer available to new users". Tous les
+// appels IA echouaient donc en silence et le service tombait sur la base de
+// connaissances, en renvoyant toujours source="knowledge_base".
+// "gemini-3.5-flash" verifie en reponse reelle le 2026-09-27.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 
 // ============================================================
 // Projets clients : persistance Supabase (source de verite du
@@ -942,8 +947,12 @@ app.delete('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthR
 let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI | null {
   if (aiClient) return aiClient;
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (apiKey && apiKey !== "MY_GEMINI_API_KEY") {
+  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+  // Une valeur de substitution ne doit pas passer pour une cle configuree :
+  // le client serait cree, l'appel echouerait, et l'ecran afficherait une IA
+  // "active" alors qu'elle repondrait par la base de connaissances.
+  const estPlaceholder = !apiKey || /^my[_-]|^your[_-]|^changeme|^xxx+$/i.test(apiKey);
+  if (!estPlaceholder) {
     aiClient = new GoogleGenAI({
       apiKey,
       httpOptions: {
@@ -1052,7 +1061,7 @@ app.get("/api/health", async (req: AuthReq, res) => {
     // jamais renvoyee, seulement sa presence.
     ai: {
       provider: "gemini",
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      model: GEMINI_MODEL,
       configured: Boolean(getGeminiClient()),
     },
   });
