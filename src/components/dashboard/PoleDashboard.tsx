@@ -10,7 +10,7 @@ import {
 
 export const PoleDashboard: React.FC = () => {
   const { member, logout, user } = useAuth();
-  const { setMode, projets, tasks, leads, messages, notifications, updateTaskStatus } = useApp();
+  const { setMode, projets, tasks, leads, messages, notifications, updateTaskStatus, osMembers } = useApp();
   const [advice, setAdvice] = useState<string | null>(null);
   const [adviceLoading, setAdviceLoading] = useState(false);
   const [expand, setExpand] = useState<Record<string, boolean>>({});
@@ -18,6 +18,9 @@ export const PoleDashboard: React.FC = () => {
   const pole = member?.pole || 'Direction';
   const poleInfo = POLES_INFO[pole] || { name: pole, manager: '', color: '#00c97a', desc: '' };
   const colors = POLE_COLORS[pole] || POLE_COLORS.Direction;
+  // Responsable du pôle déduit de l'annuaire réel, jamais d'une liste figée.
+  const responsablePole = osMembers.find((m) => m.pole === pole && m.role !== 'membre')?.name
+    || osMembers.find((m) => m.pole === pole)?.name;
 
   const poleProjets = projets.filter((p) => p.pole === pole);
   const poleTasks = tasks.filter((t) => t.pole === pole);
@@ -103,7 +106,8 @@ export const PoleDashboard: React.FC = () => {
                 Bienvenue, {member?.name?.split(' ')[0]} <span className="text-emerald-400">.</span>
               </h1>
               <p className="text-xs text-slate-400 mt-1 font-light max-w-xl">
-                {poleInfo.desc}. Responsable : {poleInfo.manager}. Votre espace affiche exclusivement les dossiers, tâches et leads de votre pôle.
+                {poleInfo.desc}
+                {responsablePole ? ` Responsable : ${responsablePole}.` : ''} Votre espace affiche exclusivement les dossiers, tâches et leads de votre pôle.
               </p>
             </div>
             <div className="flex gap-3">

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Lead,
   AgentReport,
@@ -106,6 +106,32 @@ const mapServerProject = (row: any): Projet => ({
   created_at: row.created_at || new Date().toISOString(),
 });
 
+// Un devis ou une facture tel qu'enregistré par le serveur. Le montant est
+// un entier en FCFA. `type` distingue une proposition d'une facture : seul
+// un document de type facture compte dans le chiffre d'affaires.
+interface QuoteRow {
+  id: string;
+  quote_ref: string;
+  type: 'devis' | 'facture';
+  client_name: string;
+  total: number;
+  deposit: number;
+  balance: number;
+  status: string;
+  created_at?: string;
+}
+
+// Profil utilisé tant que la session réelle n'est pas chargée. Il ne
+// représente personne : l'identité affichée provient de l'annuaire serveur
+// (membre connecté) ou de `osMembers`.
+const PLACEHOLDER_PROFILE: UserProfile = {
+  id: '',
+  name: 'Utilisateur',
+  email: '',
+  role: 'membre',
+  pole: 'Direction',
+};
+
 interface AppContextType {
   // Navigation Mode
   mode: 'public' | 'dashboard';
@@ -138,6 +164,8 @@ interface AppContextType {
   updateTaskStatus: (id: string, status: TaskStatus) => void;
   remindTask: (id: string) => void;
   osMembers: Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null; email?: string; phone?: string }>;
+  /** Recharge l'annuaire réel depuis le serveur. */
+  refreshOsMembers: () => Promise<void>;
   sendMessageAs: (
     author: { id?: string; name: string; role?: string; pole?: Pole },
     channelId: string,
@@ -161,6 +189,12 @@ interface AppContextType {
 
   // Projects
   projets: Projet[];
+
+  // Devis & factures enregistrés (source unique du chiffre d'affaires)
+  quotes: QuoteRow[];
+  /** Somme des factures reais, en FCFA. Vaut 0 tant qu'aucune facture n'existe. */
+  chiffreAffairesReel: number;
+  refreshQuotes: () => Promise<void>;
   updateProjectProgression: (id: string, progression: number) => void;
   createProject: (projectData: Omit<Projet, 'id' | 'created_at'>) => Projet;
   updateProjectMilestone: (projectId: string, milestoneId: string, status: ProjectMilestone['statut']) => void;
@@ -221,6 +255,8 @@ interface AppContextType {
   // Blueprint & Méthode Modal
   isBlueprintModalOpen: boolean;
   setIsBlueprintModalOpen: (open: boolean) => void;
+  isLegalModalOpen: boolean;
+  setIsLegalModalOpen: (open: boolean) => void;
 
   // Data Fetching & Sync State for Skeleton Loaders
   isDataFetching: boolean;
@@ -266,10 +302,61 @@ const readSeeds = <T,>(storageKey: string, demoSeeds: T[]): T[] => {
   return isRealDataMode() ? ([] as T[]) : demoSeeds;
 };
 
+// ---- Nettoyage unique des données d'équipe fictives ---------------------
+// Les versions précédentes embarquaient une équipe imaginaire (Patrice M.,
+// Arthur N., Boris W., ...) et leur attribuaient tâches, messages et
+// notifications. Tout cela est retiré du navigateur au premier chargement de
+// cette version.
+//
+// Règle : on ne supprime que les fixtures, jamais la saisie de l'utilisateur.
+//   - tâches   : fixtures « t1 »…« t5 » ; une tâche créée par l'utilisateur
+//                porte « t-<timestamp> » (avec tiret) → conservée ;
+//   - messages : fixtures « m1 », « m2 », « m3 » → retirées ;
+//   - notifs   : fixtures « n1 »…« n3 » → retirées.
+// Leads, projets et rapports ne sont pas touchés : ce sont des caches
+// alimentés par le serveur, qui les renverra à la prochaine synchronisation.
+const LEGACY_TEAM_CLEANUP_KEY = 'arckaton_legacy_team_cleanup_v1';
+let legacyTeamCleanupDone = false;
+
+// Retire d'un tableau local tous les éléments dont l'identifiant est dans la
+// liste des fixtures. Renvoie le nombre d'éléments retirés.
+const stripSeedItems = (storageKey: string, seedIdRe: RegExp): number => {
+  const raw = localStorage.getItem(storageKey);
+  if (!raw) return 0;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return 0;
+    const kept = parsed.filter((item) => !seedIdRe.test(String(item?.id ?? '')));
+    if (kept.length === parsed.length) return 0;
+    localStorage.setItem(storageKey, JSON.stringify(kept));
+    return parsed.length - kept.length;
+  } catch {
+    localStorage.removeItem(storageKey);
+    return 1;
+  }
+};
+
+const cleanupLegacyDemoTeam = () => {
+  if (legacyTeamCleanupDone) return;
+  legacyTeamCleanupDone = true;
+  try {
+    if (localStorage.getItem(LEGACY_TEAM_CLEANUP_KEY) === '1') return;
+    stripSeedItems('arckaton_tasks', /^t\d+$/);
+    stripSeedItems('arckaton_messages', /^m\d+$/);
+    stripSeedItems('arckaton_notifications', /^n\d+$/);
+    localStorage.setItem(LEGACY_TEAM_CLEANUP_KEY, '1');
+  } catch {
+    /* stockage indisponible : l'application fonctionne sans ce nettoyage */
+  }
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Doit s'exécuter avant les useState ci-dessous, qui lisent localStorage.
+  cleanupLegacyDemoTeam();
+
   const [mode, setMode] = useState<'public' | 'dashboard'>('public');
   const [dashboardTab, setDashboardTab] = useState<string>('home');
-  const [currentUser, setCurrentUser] = useState<UserProfile>(CURRENT_PROFILES[0]); // Patrice M. Admin
+  const [currentUser, setCurrentUser] = useState<UserProfile>(PLACEHOLDER_PROFILE);
 
   // Data states with localStorage persistence
   const [leads, setLeads] = useState<Lead[]>(() => readSeeds<Lead>('arckaton_leads', INITIAL_LEADS));
@@ -284,6 +371,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [projets, setProjets] = useState<Projet[]>(() => readSeeds<Projet>('arckaton_projets', INITIAL_PROJETS));
 
+  // Devis et factures enregistrés. Volontairement sans valeur de départ :
+  // un chiffre d'affaires ne doit jamais exister sans facture derrière lui.
+  const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   // Modals & Client Portal
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [activeClientProjectCode, setActiveClientProjectCode] = useState<string | null>(null);
@@ -292,11 +382,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
   const [activeAgentPole, setActiveAgentPole] = useState<Pole>('Direction');
   const [isBlueprintModalOpen, setIsBlueprintModalOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
 
   // Theme & Currency States
+  // Le mode jour est le thème principal. Le mode sombre n'est actif que si
+  // l'utilisateur l'a explicitement choisi et conservé.
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('arckaton_theme');
-    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+    return saved === 'dark' ? 'dark' : 'light';
   });
 
   const [currency, setCurrency] = useState<Currency>(() => {
@@ -623,11 +716,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
 
       // Synchronisation réelle avec le serveur (Supabase si configurée)
-      const [leadsRes, reportsRes, projectsRes] = await Promise.all([
+      const [leadsRes, reportsRes, projectsRes, quotesRes] = await Promise.all([
         fetch('/api/leads', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
         fetch('/api/reports', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
         fetch('/api/projects', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
+        fetch('/api/quotes', { headers: authHeaders }).then((r) => r.json()).catch(() => null),
       ]);
+
+      // Devis et factures : le serveur fait foi, sans exception. C'est la
+      // seule source du chiffre d'affaires affiche, pour ne jamais montrer
+      // un montant qui ne correspond a aucune facture reelle.
+      if (quotesRes && Array.isArray(quotesRes.quotes)) {
+        setQuotes(quotesRes.quotes);
+      }
 
       if (leadsRes && Array.isArray(leadsRes.leads)) {
         const serverLeads = leadsRes.leads.map(mapServerLead);
@@ -855,6 +956,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const clientCode = `PRJ-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Le chef de projet et les affectations utilisent l'équipe réellement
+    // enregistrée. Aucune personne fictive n'est inventée : tant qu'un pôle
+    // n'a pas de membre, la tâche est créée sans responsable.
+    const auteurReel =
+      memberDirectory.current.find((m) => m.name === currentUser?.name) ||
+      memberDirectory.current.find((m) => m.pole === 'Direction') ||
+      memberDirectory.current[0];
+    const nomAuteur = auteurReel?.name || 'À définir';
+    const posteAuteur = auteurReel?.poste_titre || undefined;
+    const membreDuPole = (p: Pole) => memberDirectory.current.find((m) => m.pole === p);
+
     const newProject: Projet = {
       id: `prj-${Date.now()}`,
       client_code: clientCode,
@@ -863,14 +975,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       client_phone: lead.phone,
       client_email: lead.email,
       service: lead.project_type,
-      forfait: lead.budget || 'Forfait Synergie (750 000 FCFA)',
+      forfait: lead.budget || 'À définir',
       pole,
-      budget_estime: lead.budget || '750 000 FCFA (Forfait Synergie)',
+      budget_estime: lead.budget || 'À définir',
       deadline: 'Sous 4 semaines',
       deliverables: ['Cadrage & Charte', 'Intégration Web & Mobile Money', 'Formation 2h', 'Support garanti'],
       score: 60,
       progression: 20,
-      chef_de_projet: 'Patrice M. (Chef d\'Agence)',
+      chef_de_projet: nomAuteur,
       sorties_terrain_total: pt.includes('architecture') ? 9 : 6,
       sorties_terrain_effectuees: 0,
       statut: 'en_cours',
@@ -882,17 +994,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         { id: `j-${Date.now()}-4`, titre: 'Formation des équipes (2h), Recette finale & Mise en ligne', statut: 'en_attente', echeance: 'Sous 28 jours', description: 'Déploiement sur domaine officiel et livraison finale' },
       ],
       sorties_terrain: [
-        { id: `st-${Date.now()}-1`, numero: 1, date: 'À planifier sous 7j', lieu: lead.country || 'Yaoundé / Douala', objectif: 'Prise de vue initiale et interview du dirigeant', intervenant: 'Boris W. (Vidéaste)', statut: 'planifiee' }
+        { id: `st-${Date.now()}-1`, numero: 1, date: 'À planifier sous 7j', lieu: lead.country || 'Yaoundé', objectif: 'Prise de vue initiale et interview du dirigeant', intervenant: 'À définir', statut: 'planifiee' }
       ],
       feedbacks: [
-        { id: `fb-${Date.now()}`, auteur: 'Système Arckaton', role: 'agence', message: `Bienvenue ! Le projet ${clientCode} a été initialisé avec succès. Votre Chef de Projet dédié est Patrice M.`, type: 'validation', date: 'Aujourd\'hui' }
+        { id: `fb-${Date.now()}`, auteur: 'Système Arckaton', role: 'agence', message: `Bienvenue ! Le projet ${clientCode} a été initialisé avec succès. Votre Chef de Projet dédié est ${nomAuteur}.`, type: 'validation', date: 'Aujourd\'hui' }
       ],
       created_at: 'Aujourd\'hui',
     };
 
     setProjets((prev) => [newProject, ...prev]);
 
-    // Automatically seed actionable tasks in Kanban for the team
+    // Automatically seed actionable tasks in Kanban for the team.
+    // Elles sont assignées à un membre réel du pôle concerné ; si le pôle
+    // n'a encore personne, la tâche reste « à affecter ».
+    const direction = membreDuPole('Direction') || auteurReel;
+    const creatif = membreDuPole('Creatif');
+    const tech = membreDuPole('Tech');
+    const assignation = (m?: { id: string; name: string; poste_titre?: string | null }) => ({
+      assignee_name: m?.name,
+      assignee_id: m?.id,
+      poste_titre: m?.poste_titre || undefined,
+    });
+
     const initialTasks: Task[] = [
       {
         id: `task-${Date.now()}-1`,
@@ -901,8 +1024,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         statut: 'en_cours',
         priorite: 'urgente',
         pole: 'Direction',
-        assignee_name: 'Patrice M.',
-        poste_titre: 'Chef d\'Agence',
+        ...assignation(direction),
         date_echeance: 'Sous 3 jours',
         created_at: 'Aujourd\'hui',
       },
@@ -913,8 +1035,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         statut: 'a_faire',
         priorite: 'haute',
         pole: 'Creatif',
-        assignee_name: 'Yannick B.',
-        poste_titre: 'Graphiste / Motion Designer',
+        ...assignation(creatif),
         date_echeance: 'Sous 10 jours',
         created_at: 'Aujourd\'hui',
       },
@@ -925,8 +1046,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         statut: 'a_faire',
         priorite: 'haute',
         pole: 'Tech',
-        assignee_name: 'Arthur N.',
-        poste_titre: 'Dev Full-Stack / CTO',
+        ...assignation(tech),
         date_echeance: 'Sous 15 jours',
         created_at: 'Aujourd\'hui',
       }
@@ -1174,45 +1294,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [osMembers, setOsMembers] = useState<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null; email?: string; phone?: string }>>([]);
   const memberDirectory = useRef<Array<{ id: string; name: string; role: string; pole: Pole; poste_titre?: string | null }>>([]);
 
-  useEffect(() => {
-    let stopped = false;
-    const load = async () => {
-      try {
-        const t = localStorage.getItem('arckaton_os_token');
-        if (!t) return;
-        const res = await fetch('/api/members/directory', { headers: { Authorization: `Bearer ${t}` } });
-        if (!res.ok) return;
-        const json = await res.json();
-        const list = Array.isArray(json.members) ? json.members : [];
-        if (!stopped) {
-          memberDirectory.current = list.map((m: any) => ({
-            id: m.id,
-            name: m.name,
-            role: m.role,
-            pole: m.pole,
-            poste_titre: m.poste_titre,
-          }));
-          setOsMembers(
-            list.map((m: any) => ({
-              id: m.id,
-              name: m.name,
-              role: m.role,
-              pole: m.pole,
-              poste_titre: m.poste_titre,
-              email: m.email,
-              phone: m.phone,
-            }))
-          );
-        }
-      } catch {
-        /* annuaire indisponible : les flux restent crées avec le nom de l'auteur */
-      }
-    };
-    load();
-    return () => {
-      stopped = true;
-    };
+  // Recharge l'annuaire réel. Appelé après chaque ajout, modification ou
+  // suppression de membre pour que les listes de sélection (Kanban, projets,
+  // messagerie) reflètent immédiatement l'équipe réelle.
+  const refreshOsMembers = useCallback(async () => {
+    const t = localStorage.getItem('arckaton_os_token');
+    if (!t) return;
+    try {
+      const res = await fetch('/api/members/directory', { headers: { Authorization: `Bearer ${t}` } });
+      if (!res.ok) return;
+      const json = await res.json();
+      const list = Array.isArray(json.members) ? json.members : [];
+      memberDirectory.current = list.map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        role: m.role,
+        pole: m.pole,
+        poste_titre: m.poste_titre,
+      }));
+      setOsMembers(
+        list.map((m: any) => ({
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          pole: m.pole,
+          poste_titre: m.poste_titre,
+          email: m.email,
+          phone: m.phone,
+        }))
+      );
+    } catch {
+      /* annuaire indisponible : les flux restent créés avec le nom de l'auteur */
+    }
   }, []);
+
+  useEffect(() => {
+    refreshOsMembers();
+  }, [refreshOsMembers]);
 
   // Cree une entree de flux a partir de l'auteur reel et d'un destinataire
   const logExchange = (
@@ -1470,6 +1588,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ? notifications.filter((n) => !n.pole || n.pole === scopePole)
     : notifications;
 
+  // ── Chiffre d'affaires ───────────────────────────────────────────────
+  // Somme des factures réellement enregistrées. Un devis n'est pas une
+  // facture : il n'entre pas dans le total. Tant qu'aucune facture n'existe,
+  // le résultat vaut 0 — jamais un montant de démonstration.
+  const chiffreAffairesReel = useMemo(
+    () =>
+      quotes
+        .filter((q) => q.type === 'facture')
+        .reduce((sum, q) => sum + (Number(q.total) || 0), 0),
+    [quotes]
+  );
+
+  const refreshQuotes = useCallback(async () => {
+    const authToken = localStorage.getItem('arckaton_os_token');
+    if (!authToken) return;
+    try {
+      const res = await fetch('/api/quotes', { headers: { Authorization: `Bearer ${authToken}` } });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (Array.isArray(json.quotes)) setQuotes(json.quotes);
+    } catch (err) {
+      console.warn('Lecture des devis impossible:', err);
+    }
+  }, []);
+
+  // Annuaire réel des membres. Un membre non-admin ne voit que son pôle,
+  // comme pour les autres collections.
+  const scopedOsMembers = isDirection ? osMembers : osMembers.filter((m) => m.pole === scopePole);
+
   return (
     <AppContext.Provider
       value={{
@@ -1479,7 +1626,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setDashboardTab,
         currentUser,
         setCurrentUser,
-        allProfiles: CURRENT_PROFILES,
+        allProfiles: scopedOsMembers,
         leads: scopedLeads,
         addLead,
         updateLeadStatus,
@@ -1494,7 +1641,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addTask,
     updateTaskStatus,
     remindTask,
-    osMembers,
+        osMembers: scopedOsMembers,
+        refreshOsMembers,
     sendMessageAs,
     simulateExchange,
         messages: scopedMessages,
@@ -1504,6 +1652,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         markNotificationAsRead: markNotificationRead,
         clearNotifications,
         projets: scopedProjets,
+        quotes,
+        chiffreAffairesReel,
+        refreshQuotes,
         updateProjectProgression,
   createProject,
         updateProjectMilestone,
@@ -1548,8 +1699,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveBlogPost,
         dataTransfers,
         triggerDataTransfer,
-        isBlueprintModalOpen,
-        setIsBlueprintModalOpen,
+    isBlueprintModalOpen,
+    setIsBlueprintModalOpen,
+    isLegalModalOpen,
+    setIsLegalModalOpen,
         isDataFetching,
         lastSyncTime,
         refreshDashboardData,

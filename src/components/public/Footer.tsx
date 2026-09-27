@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin, Globe, LayoutDashboard, ArrowUp } from 'lucide-rea
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 
 export const Footer: React.FC = () => {
-  const { setMode } = useApp();
+  const { setMode, setIsLegalModalOpen } = useApp();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -66,12 +66,12 @@ export const Footer: React.FC = () => {
           {/* Col 4: Contact & Direct OS Access */}
           <div className="space-y-4">
             <h4 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
-              Siège & Coordonnées
+              Agence & Coordonnées
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{OFFICIAL_KNOWLEDGE.agency.location}</span>
+                <span>{OFFICIAL_KNOWLEDGE.letterhead.agencyName} — {OFFICIAL_KNOWLEDGE.letterhead.agencyLocation}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-emerald-400" />
@@ -80,6 +80,12 @@ export const Footer: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{OFFICIAL_KNOWLEDGE.agency.email}</span>
+              </div>
+              {/* Rattachement à la société mère : le siège et les
+                  identifiants affichés sont ceux de SLOMAH SARL. */}
+              <div className="pt-1 text-[11px] text-slate-400 font-mono leading-relaxed">
+                {OFFICIAL_KNOWLEDGE.letterhead.agencyName} est {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}, siège social à {OFFICIAL_KNOWLEDGE.letterhead.parentLocation}.<br />
+                RC : {OFFICIAL_KNOWLEDGE.letterhead.rc} — NIU : {OFFICIAL_KNOWLEDGE.letterhead.niu}
               </div>
             </div>
 
@@ -99,8 +105,23 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-[11px] font-mono">
-          <div>
-            &copy; {new Date().getFullYear()} Arckaton Technologies — Filiale Technologique de <span className="text-slate-400">SLOMAH SARL</span>. Tous droits réservés. Mentions Légales & Confidentialité.
+          <div className="flex flex-wrap items-center gap-2">
+            <span>
+              &copy; {new Date().getFullYear()} {OFFICIAL_KNOWLEDGE.letterhead.agencyName}, {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}. Tous droits réservés.
+            </span>
+            <button
+              onClick={() => setIsLegalModalOpen(true)}
+              className="underline hover:text-emerald-400 transition-colors"
+            >
+              Mentions légales
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => setIsLegalModalOpen(true)}
+              className="underline hover:text-emerald-400 transition-colors"
+            >
+              Confidentialité
+            </button>
           </div>
           <div className="flex items-center gap-4">
             <span>Yaoundé • Cameroun</span>

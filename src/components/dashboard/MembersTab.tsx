@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MemberProfile, Pole, UserRole } from '../../types';
 import { POLES_INFO } from '../../data/mockData';
+import { useApp } from '../../contexts/AppContext';
 import { POLE_COLORS } from '../../types';
 import {
   Users, Plus, Pencil, Trash2, Power, ShieldCheck, Activity, X, Save, Loader2, UserPlus
@@ -42,6 +43,7 @@ export const MembersTab: React.FC = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const { refreshOsMembers } = useApp();
 
   const blank = {
     name: '',
@@ -138,6 +140,9 @@ export const MembersTab: React.FC = () => {
         setMessage(modal === 'add' ? 'Membre ajouté et compte activé.' : 'Profil membre mis à jour.');
         setModal(null);
         load();
+        // L'annuaire partagé alimente le Kanban, les projets et la messagerie :
+        // il doit refléter le changement sans recharger la page.
+        refreshOsMembers();
       }
     } catch (err: any) {
       setError(String(err?.message || err));
@@ -156,6 +161,7 @@ export const MembersTab: React.FC = () => {
       if (res.ok) {
         setMessage(m.active ? `Compte de ${m.name} désactivé (login refusé).` : `Compte de ${m.name} réactivé.`);
         load();
+        refreshOsMembers();
       } else {
         const j = await res.json().catch(() => ({}));
         setError(j.error || 'Erreur');
@@ -172,6 +178,7 @@ export const MembersTab: React.FC = () => {
       if (res.ok) {
         setMessage(`Compte de ${m.name} supprimé définitivement.`);
         load();
+        refreshOsMembers();
       } else {
         const j = await res.json().catch(() => ({}));
         setError(j.error || 'Erreur');
@@ -297,7 +304,7 @@ export const MembersTab: React.FC = () => {
             })}
             {members.length === 0 && (
               <div className="p-10 text-center text-sm text-slate-400">
-                Aucun membre trouvé. Utilisez « Ajouter un membre » pour créer le premier compte (ex : données de départ : Patrice M. admin).
+                Aucun membre trouvé. Utilisez « Ajouter un membre » pour créer un compte avec son nom, son pôle et ses permissions.
               </div>
             )}
           </div>

@@ -358,8 +358,8 @@ export const InternalChat: React.FC = () => {
                 </label>
                 {osMembers.length === 0 ? (
                   <p className="text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-                    Aucun membre chargé depuis l'annuaire Supabase. Connecte-toi en tant que Directeur
-                    pour charger les membres réels (déjà disponibles dans /api/members).
+                    Aucun membre enregistré pour le moment. Ajoutez votre équipe dans l'onglet Équipe : les participants
+                    apparaîtront ici automatiquement.
                   </p>
                 ) : (
                   <div className="flex flex-wrap gap-2">

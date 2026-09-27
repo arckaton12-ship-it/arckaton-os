@@ -38,7 +38,10 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
     openClientPortal,
     isDataFetching,
     lastSyncTime,
-    refreshDashboardData 
+    refreshDashboardData,
+    quotes,
+    chiffreAffairesReel,
+    osMembers
   } = useApp();
 
   const totalLeads = leads.length;
@@ -47,8 +50,28 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
   const convertedLeads = leads.filter(l => l.statut === 'converti').length;
 
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'termine').length;
-  const urgentTasks = tasks.filter(t => t.priority === 'urgente' && t.status !== 'termine').length;
+  const completedTasks = tasks.filter(t => (t.status || t.statut) === 'termine').length;
+  const urgentTasks = tasks.filter(t => (t.priority || t.priorite) === 'urgente' && (t.status || t.statut) !== 'termine').length;
+
+  // Factures réellement enregistrées. Un devis est une proposition : il ne
+  // compte pas dans le chiffre d'affaires.
+  const factures = quotes.filter((q) => q.type === 'facture');
+  const devisEnCours = quotes.filter((q) => q.type === 'devis');
+  const totalPaye = factures
+    .filter((q) => q.status === 'paye' || q.status === 'accepte')
+    .reduce((s, q) => s + (Number(q.total) || 0), 0);
+  const totalEncaisse = factures.reduce((s, q) => s + (Number(q.deposit) || 0) + (Number(q.balance) || 0), 0);
+
+  // Sorties terrain : données réelles des projets, pas un compteur fixe.
+  const sortiesTotal = projets.reduce((s, p) => s + (p.sorties_terrain_total || 0), 0);
+  const sortiesEffectuees = projets.reduce((s, p) => s + (p.sorties_terrain_effectuees || 0), 0);
+  const prochaineSortie = projets
+    .flatMap((p) => (p.sorties_terrain || []).map((v) => ({ ...v, projet: p.name })))
+    .filter((v) => (v as any).statut === 'planifiee')
+    .sort((a, b) => String((a as any).date || '').localeCompare(String((b as any).date || '')))[0];
+
+  const formatFcfa = (n: number) =>
+    n.toLocaleString('fr-FR').replace(/ | /g, ' ') + ' FCFA';
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -139,7 +162,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             </div>
           </div>
 
-          {/* Card 2: Flux Financier Consolidé */}
+          {/* Card 2: Chiffre d'affaires réel */}
           <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Volume Facturé Consolidé</span>
@@ -148,34 +171,50 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               </div>
             </div>
             <div>
-              <div className="font-serif text-3xl font-bold text-emerald-400">12.8M FCFA</div>
+              <div className="font-serif text-3xl font-bold text-emerald-400">
+                {chiffreAffairesReel > 0 ? formatFcfa(chiffreAffairesReel) : '0 FCFA'}
+              </div>
               <div className="flex items-center gap-2 mt-1 text-xs text-slate-300">
-                <Smartphone className="w-3.5 h-3.5 text-blue-400" />
-                <span>Mobile Money MTN & Orange (82%)</span>
+                <FileText className="w-3.5 h-3.5 text-blue-400" />
+                <span>
+                  {factures.length === 0
+                    ? 'Aucune facture enregistrée'
+                    : `${factures.length} facture${factures.length > 1 ? 's' : ''} • ${devisEnCours.length} devis`}
+                </span>
               </div>
             </div>
             <div className="pt-2 border-t border-white/5 text-[11px] font-mono text-slate-400">
-              Objectif mensuel atteint à 108%
+              {factures.length === 0
+                ? 'Le total se calcule dès la première facture'
+                : `Encaissé : ${formatFcfa(totalEncaisse)} • Validé : ${formatFcfa(totalPaye)}`}
             </div>
           </div>
 
-          {/* Card 3: Sorties Terrain Mensuelles */}
+          {/* Card 3: Sorties terrain réelles */}
           <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-400">Activations Terrain</span>
+              <span className="text-xs font-mono text-slate-400">Sorties Terrain</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
                 <Calendar className="w-4 h-4" />
               </div>
             </div>
             <div>
-              <div className="font-serif text-3xl font-bold text-amber-300">7 / 9 Sorties</div>
+              <div className="font-serif text-3xl font-bold text-amber-300">
+                {sortiesEffectuees} / {sortiesTotal}
+              </div>
               <div className="text-xs text-slate-300 mt-1">
-                Forfaits Synergie & Architecture
+                {sortiesTotal === 0 ? 'Aucune sortie planifiée' : 'Sorties réalisées'}
               </div>
             </div>
-            <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-emerald-400">
-              <span>Prochaine : Demain 10h (Maison Kotto)</span>
-              <button onClick={() => onSelectTab('projects')} className="text-amber-400 hover:underline">Voir &rarr;</button>
+            <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span className="truncate">
+                {prochaineSortie
+                  ? `Prochaine : ${(prochaineSortie as any).date || 'à planifier'}`
+                  : 'Rien de planifié'}
+              </span>
+              <button onClick={() => onSelectTab('projects')} className="text-amber-400 hover:underline shrink-0">
+                Voir &rarr;
+              </button>
             </div>
           </div>
 
@@ -199,7 +238,13 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               </div>
             </div>
             <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <span>Santé globale : Optimale</span>
+              <span>
+                {totalTasks === 0
+                  ? 'Aucune tâche'
+                  : urgentTasks > 0
+                  ? `Attention : ${urgentTasks} urgente${urgentTasks > 1 ? 's' : ''}`
+                  : 'Aucune tâche urgente'}
+              </span>
               <button onClick={() => onSelectTab('tasks')} className="text-purple-400 hover:underline">Gérer &rarr;</button>
             </div>
           </div>
@@ -357,6 +402,8 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               <div className="space-y-2.5">
                 {(['Direction', 'Tech', 'Creatif', 'Digital', 'Client', 'Externe'] as const).map((pole) => {
                   const info = POLES_INFO[pole];
+                  // Responsable issu de l'annuaire réel des membres.
+                  const responsable = osMembers.find((m) => m.pole === pole)?.name;
                   const poleTasks = tasks.filter(t => t.pole === pole);
                   const doneCount = poleTasks.filter(t => t.status === 'termine').length;
                   const total = poleTasks.length;
@@ -367,7 +414,9 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white">{info.name}</span>
-                          <span className="text-[11px] text-slate-400 font-mono">({info.manager})</span>
+                          {responsable && (
+                            <span className="text-[11px] text-slate-400 font-mono">({responsable})</span>
+                          )}
                         </div>
                         <span className="font-mono text-[11px] text-emerald-400">{percent}% tâches</span>
                       </div>

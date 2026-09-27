@@ -18,7 +18,7 @@ import {
 import { POLES_INFO } from '../../data/mockData';
 
 export const TasksTab: React.FC = () => {
-  const { tasks, addTask, updateTaskStatus, remindTask, projets } = useApp();
+  const { tasks, addTask, updateTaskStatus, remindTask, projets, osMembers } = useApp();
 
   const [selectedPole, setSelectedPole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -31,7 +31,7 @@ export const TasksTab: React.FC = () => {
   const [description, setDescription] = useState('');
   const [pole, setPole] = useState<Pole>('Tech');
   const [priority, setPriority] = useState<'basse' | 'normale' | 'urgente'>('normale');
-  const [assignedTo, setAssignedTo] = useState('Marc (Lead Dev)');
+  const [assignedTo, setAssignedTo] = useState('');
   const [dueDate, setDueDate] = useState('Vendredi 18h');
   const [taskProjectId, setTaskProjectId] = useState<string>('');
 
@@ -78,13 +78,15 @@ export const TasksTab: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  // Responsable de chaque pôle, déduit de l'annuaire réel des membres.
+  // Aucun nom n'est inventé : un pôle sans membre n'a pas de responsable.
   const poleManagers: Record<Pole, string> = {
-    Direction: 'Loïc (Dir Général)',
-    Tech: 'Marc (Lead Dev)',
-    Creatif: 'Sarah (Dir Artistique)',
-    Digital: 'Kevin (Growth & Terrain)',
-    Client: 'Patricia (Support & Onboarding)',
-    Externe: 'Freelance & Partenaires'
+    Direction: osMembers.find((m) => m.pole === 'Direction')?.name || '',
+    Tech: osMembers.find((m) => m.pole === 'Tech')?.name || '',
+    Creatif: osMembers.find((m) => m.pole === 'Creatif')?.name || '',
+    Digital: osMembers.find((m) => m.pole === 'Digital')?.name || '',
+    Client: osMembers.find((m) => m.pole === 'Client')?.name || '',
+    Externe: osMembers.find((m) => m.pole === 'Externe')?.name || ''
   };
 
   return (

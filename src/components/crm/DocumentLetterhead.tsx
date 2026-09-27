@@ -42,6 +42,10 @@ export const DocumentLetterhead: React.FC<{ compact?: boolean }> = ({ compact })
         <div className="text-[11px] font-mono mt-0.5" style={{ color: '#cbd5e1' }}>
           {L.email}
         </div>
+        {/* Rattachement à la société mère, visible dès l'en-tête. */}
+        <div className="text-[10px] font-mono mt-0.5" style={{ color: '#94a3b8' }}>
+          {L.relationship} de {L.parentName} · {L.agencyLocation}
+        </div>
       </div>
     </div>
   </div>
@@ -49,16 +53,24 @@ export const DocumentLetterhead: React.FC<{ compact?: boolean }> = ({ compact })
 
 /**
  * Mentions légales imprimées en bas des devis et factures.
- * Ces informations figurent sur le papier à en-tête officiel : elles sont
- * attendues sur les documents commerciaux de l'agence.
+ *
+ * Arckaton est une filiale de SLOMAH SARL : l'en-tête nomme l'agence et sa
+ * ville, le pied de page rappelle la société mère, son siège et ses
+ * identifiants. Les RC / NIU appartiennent à SLOMAH SARL, pas à Arckaton ;
+ * les présenter comme ceux d'Arckaton serait faux.
  */
 export const DocumentLegalFooter: React.FC = () => (
   <div
     className="rounded-xl px-4 py-3 text-[10px] font-mono leading-relaxed"
     style={{ backgroundColor: L.colors.logoBackground, color: '#fff' }}
   >
-    <div className="font-bold tracking-wide">{L.agencyName}</div>
-    <div>SIÈGE SOCIAL : {L.siegeSocial}</div>
+    <div className="font-bold tracking-wide">
+      {L.agencyName} — {L.relationship} de {L.parentName}
+    </div>
+    <div>Agence : {L.agencyLocation}</div>
+    <div>
+      {L.parentName} — Siège social : {L.parentLocation}
+    </div>
     <div>
       RC : {L.rc} <span className="mx-1">|</span> NIU : {L.niu}
     </div>

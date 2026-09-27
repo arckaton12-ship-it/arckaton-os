@@ -16,6 +16,7 @@ import { TrialModal } from './TrialModal';
 import { AgentModal } from './AgentModal';
 import { ClientPortalModal } from './ClientPortalModal';
 import { BlueprintModal } from './BlueprintModal';
+import { LegalModal } from './LegalModal';
 import { useApp } from '../../contexts/AppContext';
 
 export const PublicSite: React.FC = () => {
@@ -49,6 +50,7 @@ export const PublicSite: React.FC = () => {
       <AgentModal />
       <ClientPortalModal />
       <BlueprintModal />
+      <LegalModal />
     </div>
   );
 };

@@ -211,7 +211,7 @@ export const ClientPortalModal: React.FC = () => {
                       {currentProject.client_name}
                     </h2>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-1 font-light">
-                      <span>Chef de projet : <strong className="text-white font-medium">{currentProject.chef_de_projet || 'Patrice M.'}</strong></span>
+                      <span>Chef de projet : <strong className="text-white font-medium">{currentProject.chef_de_projet || 'À désigner'}</strong></span>
                       <span>•</span>
                       <span>Livraison cible : <strong className="text-white font-medium">{currentProject.deadline}</strong></span>
                       <span>•</span>
@@ -221,7 +221,7 @@ export const ClientPortalModal: React.FC = () => {
 
                   <a
                     href={`https://wa.me/237681462982?text=${encodeURIComponent(
-                      `Bonjour Patrice (Arckaton), je vous contacte au sujet de notre projet ${currentProject.client_name} (Réf: ${currentProject.client_code || currentProject.id}).`
+                      `Bonjour, ici l'agence Arckaton, je vous contacte au sujet de notre projet ${currentProject.client_name} (Réf: ${currentProject.client_code || currentProject.id}).`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -410,7 +410,7 @@ export const ClientPortalModal: React.FC = () => {
 
                     <a
                       href={`https://wa.me/237681462982?text=${encodeURIComponent(
-                        `Bonjour Patrice, je souhaite planifier notre prochaine sortie terrain captation photo/vidéo pour ${currentProject?.client_name}.`
+                        `Bonjour, je souhaite planifier notre prochaine sortie terrain captation photo/vidéo pour ${currentProject?.client_name}.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

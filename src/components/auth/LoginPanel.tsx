@@ -7,10 +7,12 @@ import { apiRequest } from '../../utils/api';
 export const LoginPanel: React.FC = () => {
   const { login, completeSession } = useAuth();
   const { setMode } = useApp();
-  const [email, setEmail] = useState('directeur@arckaton.com');
-  const [password, setPassword] = useState('Arckaton2026');
-  const [name, setName] = useState('Patrice M. NGONO');
-  const [phone, setPhone] = useState('+237681462982');
+  // Aucun identifiant pré-rempli : ni compte, ni mot de passe, ni identité
+  // réelle dans le bundle envoyé au navigateur.
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // null tant que la question n'a pas ete posee au serveur. Le formulaire

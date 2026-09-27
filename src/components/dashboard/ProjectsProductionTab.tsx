@@ -143,7 +143,7 @@ export const ProjectsProductionTab: React.FC = () => {
   const [newVisitLieu, setNewVisitLieu] = useState('');
   const [newVisitDate, setNewVisitDate] = useState('');
   const [newVisitObjectif, setNewVisitObjectif] = useState('');
-  const [newVisitIntervenant, setNewVisitIntervenant] = useState('Boris W. (Vidéaste)');
+  const [newVisitIntervenant, setNewVisitIntervenant] = useState('');
 
   // Internal notes editable state
   const [editingNotes, setEditingNotes] = useState<{ [id: string]: string }>({});
@@ -411,7 +411,7 @@ export const ProjectsProductionTab: React.FC = () => {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-1 font-mono">
-                        <span>Chef de Projet : <strong className="text-slate-200">{project.chef_de_projet || 'Patrice M.'}</strong></span>
+                        <span>Chef de Projet : <strong className="text-slate-200">{project.chef_de_projet || 'Non affecté'}</strong></span>
                         <span>•</span>
                         <span>Échéance : {project.deadline}</span>
                       </div>
@@ -463,7 +463,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         {project.client_phone && (
                           <a
                             href={`https://wa.me/${project.client_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                              `Bonjour ${project.client_name}, ici Patrice M. de l'agence Arckaton concernant l'avancement de votre projet (${project.client_code || project.id}).`
+                              `Bonjour ${project.client_name}, ici l'agence Arckaton concernant l'avancement de votre projet (${project.client_code || project.id}).`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"

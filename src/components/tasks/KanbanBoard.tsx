@@ -576,7 +576,7 @@ export const KanbanBoard: React.FC = () => {
                 <label className="block text-slate-300 font-mono mb-1">Assigné à</label>
                 {osMembers.length === 0 ? (
                   <p className="text-[11px] text-amber-300 bg-amber-500/5 border border-amber-500/20 rounded-xl px-3 py-2 font-mono">
-                    Annuaire indisponible pour l'instant : la tâche sera créée sans responsable.
+                    Aucun membre enregistré : ajoutez votre équipe dans l'onglet Équipe pour pouvoir assigner des tâches.
                   </p>
                 ) : (
                   <select

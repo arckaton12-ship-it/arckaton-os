@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export const LeadsTab: React.FC = () => {
-  const { leads, updateLeadStatus, addLead, addTask, isDataFetching } = useApp();
+  const { leads, updateLeadStatus, addLead, addTask, isDataFetching, osMembers } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -35,7 +35,7 @@ export const LeadsTab: React.FC = () => {
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newProjectType, setNewProjectType] = useState('Forfait Synergie (Site complet UX/UI)');
-  const [newBudget, setNewBudget] = useState('750 000 FCFA');
+  const [newBudget, setNewBudget] = useState('');
   const [newPole, setNewPole] = useState<Pole>('Direction');
   const [newNotes, setNewNotes] = useState('');
 
@@ -81,9 +81,11 @@ export const LeadsTab: React.FC = () => {
     addTask({
       title: `Onboarding & Cadrage : ${lead.name}`,
       description: `Prendre contact sur WhatsApp (${lead.phone}) pour formaliser le cahier des charges : ${lead.project_type}. Budget : ${lead.budget}`,
+      // Responsable réel du pôle : la tâche reste « à affecter » si le
+      // pôle n'a encore aucun membre enregistré.
       pole: lead.pole_assigned,
       priority: 'urgente',
-      assigned_to: lead.pole_assigned === 'Tech' ? 'Marc (Lead Dev)' : lead.pole_assigned === 'Creatif' ? 'Sarah (Dir Artistique)' : 'Loïc (Direction)',
+      assigned_to: osMembers.find((m) => m.pole === lead.pole_assigned)?.name,
       due_date: 'Sous 48h'
     });
     alert(`Tâche d'onboarding créée avec succès dans le Pôle ${lead.pole_assigned} !`);

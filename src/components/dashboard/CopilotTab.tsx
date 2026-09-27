@@ -19,7 +19,7 @@ import { AgentReport } from '../../types';
 import { ReportPreviewSkeleton, ChatResponseSkeleton } from './DashboardSkeleton';
 
 export const CopilotTab: React.FC = () => {
-  const { leads, tasks, agentReports, addAgentReport, currentUser } = useApp();
+  const { leads, tasks, agentReports, addAgentReport, currentUser, projets, chiffreAffairesReel } = useApp();
 
   const [generatingReport, setGeneratingReport] = useState(false);
   const [selectedReport, setSelectedReport] = useState<AgentReport | null>(agentReports[0] || null);
@@ -82,19 +82,29 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
       addAgentReport(newReport);
       setSelectedReport(newReport);
     } catch (err) {
-      // Fallback local report
+      // Repli local : on ne fabrique aucun chiffre. Le copilote IA est
+      // indisponible, le rapport ne contient que l'etat reel de l'OS et
+      // le dit explicitement.
+      const caReel = chiffreAffairesReel;
       const fallbackReport: AgentReport = {
         id: `report-${Date.now()}`,
-        title: `Rapport Stratégique d'Urgence — ${new Date().toLocaleDateString('fr-FR')}`,
+        title: `État des opérations — ${new Date().toLocaleDateString('fr-FR')}`,
         pole: 'Direction',
-        lead_name: 'Audit Global Pipeline & Opérations',
-        summary: `Le pipeline compte actuellement ${leads.length} prospects actifs. Le chiffre d'affaires potentiel sous devis s'élève à plus de 4,5M FCFA. Les tâches urgentes concernent principalement les passerelles de paiement MTN MoMo / Orange Money et la préparation des sorties terrain de la semaine.`,
+        lead_name: 'Synthèse automatique (IA indisponible)',
+        summary:
+          `Copilote IA indisponible : aucun rapport automatique n'a pu être produit. ` +
+          `État réel au moment de la demande : ${leads.length} prospect(s) au pipeline ` +
+          `(${leads.filter((l) => l.statut === 'nouveau').length} nouveau(s), ` +
+          `${leads.filter((l) => l.statut === 'converti').length} converti(s)), ` +
+          `${tasks.length} tâche(s) dont ${tasks.filter((t) => (t.status || t.statut) !== 'termine').length} non terminée(s), ` +
+          `${projets.length} projet(s). ` +
+          `Volume facturé : ${caReel > 0 ? caReel.toLocaleString('fr-FR') + ' FCFA' : '0 FCFA (aucune facture enregistrée)'}.`,
         recommendations: [
-          'Clôturer les 2 devis en attente sur le Forfait Synergie pour sécuriser 1,5M FCFA d\'acompte',
-          'Vérifier la bonne synchronisation hors-ligne d\'ARKA-PME chez Districash',
-          'Maintenir le rythme de 9 sorties terrain ce mois pour garantir le standing de la marque'
+          'Configurer la clé Gemini dans les variables du serveur pour réactiver le copilote (onglet Paramètres).',
+          'Renseigner vos factures dans CRM pour que le volume facturé reflète votre activité réelle.',
+          'Traiter les prospects au statut « nouveau » : ils ne sont encore jamais contactés.'
         ],
-        forfait_recommande: 'Synergie (750 000 FCFA)',
+        forfait_recommande: '—',
         created_at: new Date().toISOString()
       };
       addAgentReport(fallbackReport);
@@ -152,7 +162,12 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
         ...newMsgs,
         {
           role: 'assistant',
-          text: `Analyse interne Arckaton OS : D'après les métriques actuelles, le taux de conversion est optimal sur le Forfait Synergie (750 000 FCFA). Je vous recommande de programmer un appel de cadrage de 15 minutes sur WhatsApp avec les leads marqués 'Nouveau'. Souhaitez-vous que je génère un modèle de message de closing ?`
+          text:
+            `Le copilote IA est indisponible, je ne peux donc pas produire d'analyse chiffrée sans inventer de données. ` +
+            `Ce que je peux confirmer depuis l'OS : ${leads.length} prospect(s) au pipeline, ${tasks.length} tâche(s), ` +
+            `${projets.length} projet(s), et un volume facturé de ` +
+            `${chiffreAffairesReel > 0 ? chiffreAffairesReel.toLocaleString('fr-FR') + ' FCFA' : '0 FCFA'}. ` +
+            `Pour une analyse réelle, ajoutez la clé Gemini dans les paramètres du serveur.`
         }
       ]);
     } finally {

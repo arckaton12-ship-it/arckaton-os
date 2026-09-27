@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { POSTES_DATA, CURRENT_PROFILES } from '../../data/mockData';
+import { POSTES_DATA } from '../../data/mockData';
 import { Poste, Pole, POLE_COLORS, DataTransferEvent } from '../../types';
 import { 
   Users, 
@@ -38,7 +38,7 @@ const DATA_TYPE_LABELS: Record<DataTransferEvent['data_type'], string> = {
 };
 
 export const OrgChart: React.FC = () => {
-  const { dataTransfers, tasks } = useApp();
+  const { dataTransfers, tasks, osMembers } = useApp();
 
   const [viewMode, setViewMode] = useState<'nodal' | 'matrix'>('nodal');
   const [selectedPole, setSelectedPole] = useState<Pole | 'all'>('all');
@@ -51,20 +51,34 @@ export const OrgChart: React.FC = () => {
   const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
   const [justTransferred, setJustTransferred] = useState<string | null>(null);
 
-  const [postes, setPostes] = useState<Poste[]>(POSTES_DATA);
+  const [postesState, setPostes] = useState<Poste[]>(POSTES_DATA);
+
+  // Les postes décrivent des fonctions, pas des personnes. Le titulaire
+  // affiché est résolu depuis l'annuaire réel : un poste sans membre
+  // enregistré apparaît « Vacant », jamais avec un nom d'une autre équipe.
+  const postes = useMemo(
+    () =>
+      postesState.map((p) => {
+        const membre =
+          osMembers.find((m) => m.poste_titre && m.poste_titre === p.titre) ||
+          osMembers.find((m) => m.pole === p.pole);
+        return { ...p, titulaire: membre?.name || 'Vacant' };
+      }),
+    [postesState, osMembers]
+  );
 
   // Grouping for Nodal Tree
-  const level0Postes = postes.filter(p => p.id === 'p1' || p.titre.includes('Chef d\'Agence') || p.id === 'p12'); // Patrice (DG), Boris (Ops/Terrain)
-  const level1Postes = postes.filter(p => ['p2', 'p4', 'p6', 'p8', 'p9', 'p5'].includes(p.id)); // Tech lead, Art lead, Growth, Client lead
+  const level0Postes = postes.filter(p => p.id === 'p1' || p.titre.includes('Chef d\'Agence') || p.id === 'p12'); // Direction générale et opérations terrain
+  const level1Postes = postes.filter(p => ['p2', 'p4', 'p6', 'p8', 'p9', 'p5'].includes(p.id)); // Responsables de pôle
   const level2Postes = postes.filter(p => !level0Postes.some(x => x.id === p.id) && !level1Postes.some(x => x.id === p.id));
 
   const getPosteTasks = (titulaire?: string) => {
-    if (!titulaire) return [];
+    if (!titulaire || titulaire === 'Vacant') return [];
     return tasks.filter(t => t.assignee_name && (titulaire.includes(t.assignee_name) || t.assignee_name.includes(titulaire)));
   };
 
-  const pourvusCount = postes.filter(p => p.statut_recrutement === 'pourvu').length;
-  const ouvertsCount = postes.filter(p => p.statut_recrutement === 'recrutement_ouvert').length;
+  const pourvusCount = postes.filter(p => p.titulaire !== 'Vacant').length;
+  const ouvertsCount = postes.filter(p => p.titulaire === 'Vacant').length;
 
   // Filtres de la console : recherche sur emetteur, destinataire, type et contenu
   const filteredFlows = dataTransfers.filter((f) => {

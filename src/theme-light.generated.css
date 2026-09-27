@@ -1,0 +1,181 @@
+@media screen {
+/*
+   =========================================================
+   MODE JOUR — COUVERTURE COMPLETE
+
+   Ce fichier est genere a partir des classes reellement utilisees
+   dans src/ (voir Outillage). Il complete le moteur theme-light de
+   index.css, qui ne couvrait qu'une partie des fonds.
+
+   Regle : un fond bleu nuit devient une surface claire, et un texte
+   blanc ou gris clair devient fonce. Sans cette inversion, le texte
+   reste blanc sur fond blanc, donc illisible.
+   =========================================================
+*/
+
+.theme-light {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  min-height: 100vh;
+}
+
+/* Surfaces (cartes, panneaux, entetes de colonnes) */
+.theme-light .bg-\[\#070c1e\],
+.theme-light .bg-\[\#070c1e\]\/60,
+.theme-light .bg-\[\#070c1e\]\/80,
+.theme-light .bg-\[\#070d1e\],
+.theme-light .bg-\[\#070d1e\]\/80,
+.theme-light .bg-\[\#080d1e\],
+.theme-light .bg-\[\#090f21\],
+.theme-light .bg-\[\#09122a\],
+.theme-light .bg-\[\#09122a\]\/95,
+.theme-light .bg-\[\#0a0e17\],
+.theme-light .bg-\[\#0a0e17\]\/50,
+.theme-light .bg-\[\#0a0e17\]\/80,
+.theme-light .bg-\[\#0a0e17\]\/85,
+.theme-light .bg-\[\#0a0e17\]\/90,
+.theme-light .bg-\[\#0a0f2e\],
+.theme-light .bg-\[\#0a122e\],
+.theme-light .bg-\[\#0a1435\],
+.theme-light .bg-\[\#0b1120\],
+.theme-light .bg-\[\#0b122e\],
+.theme-light .bg-\[\#0b1329\],
+.theme-light .bg-\[\#0c1322\],
+.theme-light .bg-\[\#0d1322\],
+.theme-light .bg-\[\#0d1633\],
+.theme-light .bg-\[\#0d1733\],
+.theme-light .bg-\[\#0e163d\],
+.theme-light .bg-\[\#0e1a3d\],
+.theme-light .bg-\[\#0f1523\],
+.theme-light .bg-\[\#0f1523\]\/60,
+.theme-light .bg-\[\#0f1523\]\/95,
+.theme-light .bg-\[\#0f172e\],
+.theme-light .bg-\[\#111827\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Encarts (champs de saisie, zones creuses) */
+.theme-light .bg-\[\#050814\],
+.theme-light .bg-\[\#060a14\],
+.theme-light .bg-\[\#060a16\],
+.theme-light .bg-\[\#060a18\],
+.theme-light .bg-\[\#060b1b\]\/80,
+.theme-light .bg-\[\#070b14\],
+.theme-light .bg-\[\#080d1a\],
+.theme-light .bg-\[\#090d18\] {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Le <body> porte sa propre classe de fond : il faut la cibler */
+body.theme-light[class*="bg-["] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Degrades : les paliers sombre sont remplaces par une surface unie */
+.theme-light .bg-gradient-to-b,
+.theme-light .bg-gradient-to-br,
+.theme-light .bg-gradient-to-r,
+.theme-light .bg-gradient-to-t {
+  background-image: none !important;
+  background-color: #ffffff !important;
+}
+
+/* Les degrades decoratifs (motifs de grille) s inversent aussi */
+.theme-light .bg-\[\#070c1e\] {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px) !important;
+}
+
+/* Textes : blanc et grisclair -> fonces */
+.theme-light .text-white,
+.theme-light .text-white\/80,
+.theme-light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+.theme-light .text-slate-200 { color: #1e293b !important; }
+.theme-light .text-slate-300 { color: #334155 !important; }
+.theme-light .text-slate-400 { color: #475569 !important; }
+.theme-light .text-slate-500 { color: #64748b !important; }
+.theme-light .text-slate-600 { color: #475569 !important; }
+
+/* Textes d accent : les teintes claires deviennent des teintes 700,
+   sinon un vert ou un bleu pale sur fond blanc est illisible. */
+.theme-light .text-amber-200,
+.theme-light .text-amber-300,
+.theme-light .text-amber-400 {
+  color: #b45309 !important;
+}
+.theme-light .text-blue-200,
+.theme-light .text-blue-300,
+.theme-light .text-blue-400 {
+  color: #1d4ed8 !important;
+}
+.theme-light .text-emerald-200,
+.theme-light .text-emerald-300,
+.theme-light .text-emerald-400 {
+  color: #047857 !important;
+}
+.theme-light .text-indigo-200,
+.theme-light .text-indigo-300,
+.theme-light .text-indigo-400 {
+  color: #4338ca !important;
+}
+.theme-light .text-orange-200,
+.theme-light .text-orange-300,
+.theme-light .text-orange-400 {
+  color: #c2410c !important;
+}
+.theme-light .text-purple-200,
+.theme-light .text-purple-300,
+.theme-light .text-purple-400 {
+  color: #7e22ce !important;
+}
+.theme-light .text-red-200,
+.theme-light .text-red-300,
+.theme-light .text-red-400 {
+  color: #b91c1c !important;
+}
+.theme-light .text-rose-200,
+.theme-light .text-rose-300,
+.theme-light .text-rose-400 {
+  color: #be123c !important;
+}
+
+/* Bordures blanc translucide -> gris visible */
+.theme-light [class*="border-white/"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Separateurs de liste et texte indicatif des champs */
+.theme-light .divide-white\/5,
+.theme-light .divide-white\/10 {
+  border-color: #e2e8f0 !important;
+}
+
+.theme-light .placeholder\:text-slate-400::placeholder,
+.theme-light .placeholder\:text-slate-500::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Les voiles blanc semi-transparents (white/5, white/10) restent en place
+   sur une surface claire : ils y sont invisibles et ne nuit pas a la
+   lisibilite. Les modifier ternirait les boutons colores, qui en
+   dependent pour leur contraste. */
+
+/* Les boutons accents gardent un texte lisible */
+.theme-light .bg-emerald-500,
+.theme-light .bg-emerald-600 {
+  color: #ffffff !important;
+}
+
+/* Les controles natifs suivent le theme */
+.theme-light {
+  color-scheme: light;
+}
+
+}
