@@ -1493,7 +1493,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // personne d'autre ne verra.
   const [colisTaches, setColisTaches] = useState<Task[]>([]);
   const [colisMessages, setColisMessages] = useState<ChannelMessage[]>([]);
-  const [activeChannel, setActiveChannel] = useState<string>('general');
+  // Canal par defaut : MUST etre l'identifiant de l'interface (c-general).
+  // Avec "general", le serveur repondait 400 a chaque chargement de page
+  // connectee, avant que la messagerie ne signale le canal qu elle affiche.
+  const [activeChannel, setActiveChannel] = useState<string>('c-general');
 
   // Notification interne, sans passer par les appelants qui construisent
   // eux-mêmes l'objet complet.
