@@ -910,6 +910,262 @@ app.delete('/api/members/:id', requirePerm('admin'), async (req: AuthReq, res) =
   }
 });
 
+// ==============================================================
+// Devis : lecture restreinte
+//
+// Le serveur controle l'ecriture mais laissait la lecture ouverte a
+// tout membre connecte : un stagiaire lisait l'integralite des devis
+// commerciaux (clients, montants, marges). La lecture est desormais
+// limitee aux trois postes qui en ont besoin dans leur travail :
+//
+//   p1  Chef d'Agence            pilotage et rentabilite
+//   p11 Directeur Commercial     emission et suivi des devis
+//   p14 Comptable / Expert Fiscal facturation et TVA
+//
+// Le role admin passe toujours : c'est la direction.
+//
+// On separe `poste` et `pole` volontairement. Les trois postes sont
+// aujourd'hui tous en pole "Direction", mais ajouter un pole Direction
+// (un Responsable administratif, par exemple) ne doit pas ouvrir
+// l'acces aux devis par effets de bord.
+const POSTES_AUTORISES_DEVIS = ['p1', 'p11', 'p14'];
+
+function peutLireDevis(member: MemberRow): boolean {
+  if (!member || !member.active) return false;
+  if (member.role === 'admin') return true;
+  return !!member.poste_id && POSTES_AUTORISES_DEVIS.includes(String(member.poste_id));
+}
+
+const requireDevis = async (req: AuthReq, res: any, next: any) => {
+  await requireAuth(req, res, () => {
+    if (!peutLireDevis(req.member!)) {
+      return res.status(403).json({
+        error: 'Accès aux devis réservé au Chef d\'Agence, au Directeur Commercial et à la Comptabilité',
+      });
+    }
+    next();
+  });
+};
+
+// ==============================================================
+// Taches (tableau Kanban) et messagerie interne
+//
+// Ces deux fonctions vivaient uniquement dans le localStorage : une
+// tache ou un message n'existait que dans le navigateur de son auteur.
+// Le directeur ouvrait l'OS sur son telephone et trouvait un tableau
+// vide. Elles passent en base, avec reponse en cache local pour
+// continuer a fonctionner hors connexion.
+// ==============================================================
+
+interface TaskRow {
+  id: string;
+  titre: string;
+  description?: string;
+  statut: string;
+  priorite?: string;
+  pole?: string;
+  assigne_a?: string | null;
+  assigne_nom?: string | null;
+  cree_par?: string | null;
+  cree_par_nom?: string | null;
+  echeance?: string;
+  relances?: number;
+  dernier_relance_at?: string | null;
+  termine_at?: string | null;
+  cree_le?: string;
+}
+
+// La forme attendue par l'interface historique. `statut` et `status`
+// coexistent dans les filtres et les colonnes du Kanban : on renvoie les
+// deux, sinon une carte updatée disparait d'une colonne.
+function taskVersUi(row: TaskRow) {
+  return {
+    ...row,
+    title: row.titre,
+    status: row.statut,
+    assigne: row.assigne_nom || '',
+    due: row.echeance || '',
+    created_at: row.cree_le || null,
+  };
+}
+
+app.get('/api/tasks', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    // Le directeur voit tout. Les autres voient ce qu'elles ont cree,
+    // ce qui leur est assigne, et leur pole : c'est la lecture qui evite
+    // de noyer un stagiaire sous le backlog de l'agence.
+    const m = req.member!;
+    let q = sb.from('tasks').select('*').order('cree_le', { ascending: false });
+    if (m.role !== 'admin' && m.poste_id !== 'p1') {
+      q = q.or(`cree_par.eq.${m.id},assigne_a.eq.${m.id},pole.eq.${m.pole}`);
+    }
+    const { data, error } = await q;
+    if (error) throw error;
+    res.json((data || []).map(taskVersUi));
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.post('/api/tasks', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    const m = req.member!;
+    // L'interface envoie `title`/`status`, la colonne `titre`/`statut`.
+    const titre = String(req.body.titre || req.body.title || '').trim();
+    if (!titre) return res.status(400).json({ error: 'Titre de tâche requis' });
+    const statut = req.body.statut || req.body.status || 'a_faire';
+    if (!['a_faire', 'en_cours', 'en_attente', 'termine'].includes(statut)) {
+      return res.status(400).json({ error: 'Statut invalide' });
+    }
+    const ligne: any = {
+      id: `t-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
+      titre: titre.slice(0, 200),
+      description: String(req.body.description || '').slice(0, 2000),
+      statut,
+      priorite: req.body.priorite || req.body.priority || 'normale',
+      pole: req.body.pole || m.pole,
+      assigne_a: req.body.assigne_a || null,
+      assigne_nom: req.body.assigne_nom || req.body.assigne || null,
+      cree_par: m.id,
+      cree_par_nom: m.name,
+      echeance: String(req.body.echeance || req.body.due || ''),
+      termine_at: statut === 'termine' ? new Date().toISOString() : null,
+    };
+    const { data, error } = await sb.from('tasks').insert(ligne).select('*').single();
+    if (error) throw error;
+    await logActivity(m, 'create', 'task', ligne.id, { titre: ligne.titre });
+    res.status(201).json(taskVersUi(data as TaskRow));
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.patch('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    const { id } = req.params;
+    const { data: avant, error: findErr } = await sb.from('tasks').select('*').eq('id', id).maybeSingle();
+    if (findErr) throw findErr;
+    if (!avant) return res.status(404).json({ error: 'Tâche introuvable' });
+
+    // Meme regle de lecture que le GET : on ne modifie pas une tache
+    // d'un autre pole.
+    const m = req.member!;
+    const visible =
+      m.role === 'admin' ||
+      m.poste_id === 'p1' ||
+      avant.cree_par === m.id ||
+      avant.assigne_a === m.id ||
+      avant.pole === m.pole;
+    if (!visible) return res.status(403).json({ error: 'Tâche hors de votre périmètre' });
+
+    const patch: any = { modifie_le: new Date().toISOString() };
+    const statut = req.body.statut || req.body.status;
+    if (statut) {
+      if (!['a_faire', 'en_cours', 'en_attente', 'termine'].includes(statut)) {
+        return res.status(400).json({ error: 'Statut invalide' });
+      }
+      patch.statut = statut;
+      // `termine_at` ne se remet pas a zero si la tache revient en cours.
+      if (statut === 'termine') patch.termine_at = new Date().toISOString();
+      else if (avant.statut === 'termine') patch.termine_at = null;
+    }
+    if (req.body.titre || req.body.title) patch.titre = String(req.body.titre || req.body.title).slice(0, 200);
+    if (req.body.priorite || req.body.priority) patch.priorite = req.body.priorite || req.body.priority;
+    if (req.body.echeance !== undefined || req.body.due !== undefined) {
+      patch.echeance = String(req.body.echeance ?? req.body.due ?? '');
+    }
+    if (req.body.assigne_nom !== undefined || req.body.assigne !== undefined) {
+      patch.assigne_nom = req.body.assigne_nom ?? req.body.assigne ?? null;
+    }
+    // La relance compte est un compteur : on l'incremente cote serveur
+    // pour que deux navigateurs ne repartent pas de la meme valeur.
+    if (req.body.relancer || req.body.remind) {
+      patch.relances = Number(avant.relances || 0) + 1;
+      patch.dernier_relance_at = new Date().toISOString();
+    }
+
+    const { data, error } = await sb.from('tasks').update(patch).eq('id', id).select('*').single();
+    if (error) throw error;
+    res.json(taskVersUi(data as TaskRow));
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+// ---- Messagerie interne ----
+
+function messageVersUi(row: any) {
+  return {
+    ...row,
+    channel_id: row.canal,
+    content: row.contenu,
+    sender_name: row.expediteur_nom,
+    sender_role: row.expediteur_role,
+    sender_id: row.expediteur_id,
+    created_at: row.cree_le,
+  };
+}
+
+app.get('/api/messages', requireAuth, async (req, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    // Un canal = un pole. Le canal general est ouvert a tous.
+    const canal = String(req.query.canal || req.query.channel || 'general');
+    const m = (req as AuthReq).member!;
+    if (canal !== 'general' && m.role !== 'admin' && m.poste_id !== 'p1' && m.pole !== canal) {
+      return res.status(403).json({ error: `Le canal ${canal} est réservé à son pôle` });
+    }
+    const { data, error } = await sb
+      .from('messages')
+      .select('*')
+      .eq('canal', canal)
+      .order('cree_le', { ascending: true })
+      .limit(500);
+    if (error) throw error;
+    res.json((data || []).map(messageVersUi));
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.post('/api/messages', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    const m = req.member!;
+    const canal = String(req.body.canal || req.body.channel_id || 'general');
+    const contenu = String(req.body.contenu || req.body.content || '').trim();
+    if (!contenu) return res.status(400).json({ error: 'Message vide' });
+    if (contenu.length > 4000) return res.status(400).json({ error: 'Message trop long' });
+    if (canal !== 'general' && m.role !== 'admin' && m.poste_id !== 'p1' && m.pole !== canal) {
+      return res.status(403).json({ error: `Le canal ${canal} est réservé à son pôle` });
+    }
+    const ligne = {
+      id: `m-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
+      canal,
+      contenu,
+      expediteur_id: m.id,
+      expediteur_nom: m.name,
+      expediteur_role: m.poste_titre || m.role,
+      pole: m.pole,
+      simule: Boolean(req.body.simule),
+    };
+    const { data, error } = await sb.from('messages').insert(ligne).select('*').single();
+    if (error) throw error;
+    res.status(201).json(messageVersUi(data));
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+
 app.get('/api/activity', requirePerm('admin'), async (_req, res) => {
   const sb = getSupabase();
   if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
@@ -1439,7 +1695,7 @@ function nextQuoteRef(sb: any, type: string): Promise<string> {
     });
 }
 
-app.get("/api/quotes", requireAuth, async (_req, res) => {
+app.get("/api/quotes", requireDevis, async (_req, res) => {
   try {
     const sb = getSupabase();
     if (!sb) return res.json({ quotes: [] });
