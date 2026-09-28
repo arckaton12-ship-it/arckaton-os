@@ -119,13 +119,29 @@ async function generateWithFallback(
   ai: GoogleGenAI,
   request: Record<string, any>
 ): Promise<{ texte: string; model: string }> {
+  // Sans borne de temps, un modele qui ne repond jamais bloque la chaine
+  // entiere. Mesures en production : 2,2 s pour gemini-flash-lite-latest,
+  // mais jusqu a 160 s pour gemini-3.5-flash quand le premier modele a
+  // echoue. On borne donc chaque essai, et un depassement est traite comme
+  // une indisponibilite : on passe au modele suivant au lieu d immobiliser
+  // l'utilisateur.
+  const budget = Number(process.env.GEMINI_TIMEOUT_MS) > 0
+    ? Number(process.env.GEMINI_TIMEOUT_MS)
+    : 60000;
   let dernierErreur: any = null;
   for (const model of GEMINI_MODELS) {
     try {
-      const reponse: any = await ai.models.generateContent({
-        ...request,
-        model,
-      } as any);
+      const depart = Date.now();
+      const reponse: any = await Promise.race([
+        ai.models.generateContent({ ...request, model } as any),
+        new Promise((_, rejeter) =>
+          setTimeout(
+            () => rejeter(new Error(`Timeout : delai depasse (${budget} ms) sur le modele ${model}`)),
+            budget
+          )
+        ),
+      ]);
+      console.log(`[Gemini] ${model} a repondu en ${Date.now() - depart} ms`);
       const texte = (reponse?.text || '').toString().trim();
       if (texte) return { texte, model };
       dernierErreur = new Error(`Réponse vide du modèle ${model}`);
