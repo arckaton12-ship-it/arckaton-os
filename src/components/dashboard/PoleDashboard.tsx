@@ -26,9 +26,13 @@ export const PoleDashboard: React.FC = () => {
   const poleTasks = tasks.filter((t) => t.pole === pole);
   const poleLeads = leads.filter((l) => l.pole_assigned === pole);
   const poleNotifs = notifications.filter((n) => !n.read && (!n.pole || n.pole === pole));
-  // Les échanges sont cloisonnés par pôle : un membre ne voit pas la
-  // messagerie des autres pôles.
-  const poleMessages = messages.filter((m) => !m.pole || m.pole === pole);
+  // Les échanges ne sont PAS cloisonnés par pôle d'expéditeur. Le filtre
+  // d'origine (m.pole === pole) cachait le message d'un collegue a celui qui
+  // le lisait : ecrit par Tech, il disparaissait du resume du Createur, alors
+  // que le scenario de l OS est precisement "Tech transmet la maquette au
+  // Creatif puis au Client". Le serveur renvoie deja le contenu du canal
+  // demande, le resume se contente de l'afficher.
+  const poleMessages = messages;
 
   const askCopilot = async () => {
     setAdviceLoading(true);
