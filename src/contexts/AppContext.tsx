@@ -176,6 +176,7 @@ interface AppContextType {
   // Messages
   messages: ChannelMessage[];
   sendMessage: (channelId: string, content: string) => void;
+  deleteMessage: (id: string) => Promise<void>;
   // Canal affiché : la messagerie le signale pour que le rafraîchissement
   // automatique suive le canal que le membre regarde.
   activeChannel: string;
@@ -1521,6 +1522,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  // Retirer un message envoye par erreur. Le serveur refuse si l auteur
+  // n est pas le membre connecte et n est pas de la direction ; on retire
+  // donc localement d abord, et on restaure si le serveur dit non.
+  const deleteMessage = useCallback(async (id: string) => {
+    const avant = messages;
+    setMessages((prev) => prev.filter((m) => m.id !== id));
+    setColisMessages((prev) => prev.filter((m) => m.id !== id));
+    try {
+      await apiRequest(`/api/messages/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    } catch (err) {
+      setMessages(avant);
+      setColisMessages((prev) => [avant.find((m) => m.id === id) as ChannelMessage, ...prev].filter(Boolean));
+      pushNotification({
+        title: 'Message non supprimé',
+        message: 'Le serveur a refusé la suppression. Ce message ne vous appartient pas.',
+        type: 'message',
+        created_at: new Date().toISOString(),
+      });
+    }
+  }, [messages]);
+
   // Rafraîchissement périodique : c'est ce qui fait qu'une tâche posée par
   // un membre apparaît chez les autres sans recharger la page.
   useEffect(() => {
@@ -1878,6 +1900,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     simulateExchange,
         messages: scopedMessages,
         sendMessage,
+        deleteMessage,
         activeChannel,
         setActiveChannel,
         notifications: scopedNotifications,

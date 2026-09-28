@@ -10,8 +10,9 @@ import {
   Lock, 
   Smile, 
   Paperclip, 
-  Clock, 
+  Clock,
   ShieldCheck,
+  Trash2,
   X,
   Play
 } from 'lucide-react';
@@ -65,7 +66,7 @@ const SIM_SCENARIOS: Array<{ id: string; label: string; hint: string; steps: str
 ];
 
 export const InternalChat: React.FC = () => {
-  const { messages, sendMessage, osMembers, simulateExchange, setActiveChannel } = useApp();
+  const { messages, sendMessage, osMembers, simulateExchange, setActiveChannel, deleteMessage } = useApp();
   const { user } = useAuth();
 
   const [channel, setChannel] = useState<string>('c-general');
@@ -245,8 +246,12 @@ export const InternalChat: React.FC = () => {
             </div>
           ) : (
             channelMessages.map((m) => {
-              const isMe = m.sender_name === user.name;
+              // Compare les identifiants, pas les noms : deux collegues
+              // portant le meme nom ne doivent pas voir le message de l autre
+              // passer pour le leur.
+              const isMe = m.sender_id === user.id;
               const poleColor = POLE_COLORS[m.pole] || POLE_COLORS.Tech;
+              const parMoi = m.sender_id === user.id || user.role === 'admin' || user.poste_id === 'p1';
 
               return (
                 <div
@@ -268,12 +273,25 @@ export const InternalChat: React.FC = () => {
                       <span className="text-[11px] text-slate-400">{m.created_at}</span>
                     </div>
 
-                    <div className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                      isMe
-                        ? 'bg-blue-600 text-white rounded-tr-none'
-                        : 'bg-[#070c1e] text-slate-200 border border-white/10 rounded-tl-none'
-                    }`}>
-                      {m.content}
+                    <div className="group/bulle relative">
+                      <div className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                        isMe
+                          ? 'bg-blue-600 text-white rounded-tr-none'
+                          : 'bg-[#070c1e] text-slate-200 border border-white/10 rounded-tl-none'
+                      }`}>
+                        {m.content}
+                      </div>
+                      {parMoi && (
+                        <button
+                          type="button"
+                          onClick={() => deleteMessage(m.id)}
+                          title="Supprimer ce message"
+                          aria-label="Supprimer ce message"
+                          className="absolute -top-2 right-0 opacity-0 group-hover/bulle:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-md bg-[#070c1e] border border-white/10 text-slate-400 hover:text-red-400 hover:border-red-500/40"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

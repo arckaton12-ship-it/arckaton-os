@@ -1100,6 +1100,61 @@ app.patch('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
 
 // ---- Messagerie interne ----
 
+// Retirer un message envoye par erreur, ou une tache qui n'existait pas.
+// Sans cela le membre ne pouvait corriger ni l'un ni l'autre : un message
+// envoye dans le mauvais canal etait definitif.
+app.delete('/api/messages/:id', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    const m = req.member!;
+    const { data: ligne } = await sb
+      .from('messages')
+      .select('id, expediteur_id')
+      .eq('id', req.params.id)
+      .maybeSingle();
+    if (!ligne) return res.status(404).json({ error: 'Message introuvable' });
+    // Son auteur, ou la direction. Un message ecrit par quelqu un d'autre
+    // n est pas effacable par un simple membre.
+    if (ligne.expediteur_id !== m.id && m.role !== 'admin' && m.poste_id !== 'p1') {
+      return res.status(403).json({ error: 'Vous ne pouvez supprimer que vos propres messages' });
+    }
+    const { error } = await sb.from('messages').delete().eq('id', req.params.id);
+    if (error) throw error;
+    await logActivity(m, 'delete', 'message', req.params.id, {});
+    res.json({ deleted: true, id: req.params.id });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+app.delete('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  try {
+    const m = req.member!;
+    const { data: ligne } = await sb
+      .from('tasks')
+      .select('id, cree_par, assigne_a, pole')
+      .eq('id', req.params.id)
+      .maybeSingle();
+    if (!ligne) return res.status(404).json({ error: 'Tâche introuvable' });
+    // Meme perimetre que la modification : auteur, assignee, ou direction.
+    const autorise =
+      m.role === 'admin' ||
+      m.poste_id === 'p1' ||
+      ligne.cree_par === m.id ||
+      ligne.assigne_a === m.id;
+    if (!autorise) return res.status(403).json({ error: 'Vous ne pouvez supprimer que vos propres tâches' });
+    const { error } = await sb.from('tasks').delete().eq('id', req.params.id);
+    if (error) throw error;
+    await logActivity(m, 'delete', 'task', req.params.id, {});
+    res.json({ deleted: true, id: req.params.id });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
 function messageVersUi(row: any) {
   return {
     ...row,
