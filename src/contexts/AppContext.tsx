@@ -472,10 +472,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Nodal Command Center Data Transfers
   const [dataTransfers, setDataTransfers] = useState<DataTransferEvent[]>(() => readSeeds<DataTransferEvent>('arckaton_data_transfers', INITIAL_DATA_TRANSFERS));
 
+  // ---- Persistance serveur du CMS ----
+  // Ecrire dans localStorage ne partage rien : la modif faite par le
+  // responsable du site restait invisible pour les autres membres et pour les
+  // visiteurs. localStorage ne sert plus que de cache de lecture rapide ; la
+  // source de verite est la table content_items, via /api/content.
+  //
+  // Volontairement sans refreshContent() apres l'ecriture : le state vient
+  // d etre mis a jour localement, un rafraichissement le remplacerait sous
+  // les doigts de l utilisateur pendant qu il tape.
+  const writeContent = async (kind: string, slug: string, data: any, title?: string) => {
+    setContentStatus('saving');
+    try {
+      const res = await fetch(`/api/content/${kind}/${encodeURIComponent(slug)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...bearerHeaders() },
+        body: JSON.stringify({ data, title, published: true }),
+      });
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({} as any));
+        throw new Error(detail?.error || 'HTTP ' + res.status);
+      }
+      setContentStatus('live');
+      return true;
+    } catch (err) {
+      console.warn(`Contenu ${kind}/${slug} non enregistre sur le serveur:`, err);
+      setContentStatus('local');
+      return false;
+    }
+  };
+
+  const removeContent = async (kind: string, slug: string) => {
+    setContentStatus('saving');
+    try {
+      const res = await fetch(`/api/content/${kind}/${encodeURIComponent(slug)}`, {
+        method: 'DELETE',
+        headers: bearerHeaders(),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      setContentStatus('live');
+      return true;
+    } catch (err) {
+      console.warn(`Suppression ${kind}/${slug} non enregistree:`, err);
+      setContentStatus('local');
+      return false;
+    }
+  };
+
+  // La config du site est une ligne unique : kind "config", slug "site".
+  const saveSiteConfig = (updated: UniversalSiteConfig) => {
+    localStorage.setItem('arckaton_site_config', JSON.stringify(updated));
+    void writeContent('config', 'site', updated, 'Configuration du site');
+  };
+
   const updateSiteConfig = (newConfig: Partial<UniversalSiteConfig>) => {
     setSiteConfig((prev) => {
       const updated = { ...prev, ...newConfig };
-      localStorage.setItem('arckaton_site_config', JSON.stringify(updated));
+      saveSiteConfig(updated);
       return updated;
     });
   };
@@ -483,7 +536,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateHeroConfig = (hero: Partial<UniversalSiteConfig['hero']>) => {
     setSiteConfig((prev) => {
       const updated = { ...prev, hero: { ...prev.hero, ...hero } };
-      localStorage.setItem('arckaton_site_config', JSON.stringify(updated));
+      saveSiteConfig(updated);
       return updated;
     });
   };
@@ -491,7 +544,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateAnnouncementConfig = (announcement: Partial<UniversalSiteConfig['announcement']>) => {
     setSiteConfig((prev) => {
       const updated = { ...prev, announcement: { ...prev.announcement, ...announcement } };
-      localStorage.setItem('arckaton_site_config', JSON.stringify(updated));
+      saveSiteConfig(updated);
       return updated;
     });
   };
@@ -499,7 +552,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateContactConfig = (contact: Partial<UniversalSiteConfig['contact']>) => {
     setSiteConfig((prev) => {
       const updated = { ...prev, contact: { ...prev.contact, ...contact } };
-      localStorage.setItem('arckaton_site_config', JSON.stringify(updated));
+      saveSiteConfig(updated);
       return updated;
     });
   };
@@ -508,6 +561,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setForfaits((prev) => {
       const updated = prev.map((f) => (f.id === id ? { ...f, ...data } : f));
       localStorage.setItem('arckaton_cms_forfaits', JSON.stringify(updated));
+      const cible = updated.find((f) => f.id === id);
+      if (cible) void writeContent('forfait', cible.id, cible, cible.name);
       return updated;
     });
   };
@@ -521,6 +576,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setBlogPosts((prev) => {
       const updated = [newPost, ...prev];
       localStorage.setItem('arckaton_cms_blog_posts', JSON.stringify(updated));
+      void writeContent('blog', newPost.slug || newPost.id, newPost, newPost.title);
       return updated;
     });
   };
@@ -529,6 +585,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setBlogPosts((prev) => {
       const updated = prev.map((p) => (p.id === id ? { ...p, ...post } : p));
       localStorage.setItem('arckaton_cms_blog_posts', JSON.stringify(updated));
+      const cible = updated.find((p) => p.id === id);
+      if (cible) void writeContent('blog', cible.slug || cible.id, cible, cible.title);
       return updated;
     });
   };
@@ -537,6 +595,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setBlogPosts((prev) => {
       const updated = prev.filter((p) => p.id !== id);
       localStorage.setItem('arckaton_cms_blog_posts', JSON.stringify(updated));
+      const cible = prev.find((p) => p.id === id);
+      if (cible) void removeContent('blog', cible.slug || cible.id);
       return updated;
     });
   };
@@ -547,13 +607,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('arckaton_cms_realisations', JSON.stringify(next));
   };
   const updateRealisation = (id: string, data: Partial<Realisation>) => {
-    saveRealisations(realisations.map((r) => (r.id === id ? { ...r, ...data } : r)));
+    const cible = realisations.find((r) => r.id === id);
+    if (!cible) return;
+    const next = { ...cible, ...data };
+    saveRealisations(realisations.map((r) => (r.id === id ? next : r)));
+    void writeContent('realisation', next.id, next, next.name);
   };
   const addRealisation = (data: Omit<Realisation, 'id'>) => {
-    saveRealisations([{ ...data, id: `real-${Date.now()}` }, ...realisations]);
+    const created = { ...data, id: `real-${Date.now()}` };
+    saveRealisations([created, ...realisations]);
+    void writeContent('realisation', created.id, created, created.name);
   };
   const deleteRealisation = (id: string) => {
     saveRealisations(realisations.filter((r) => r.id !== id));
+    void removeContent('realisation', id);
   };
 
   const saveTemoignages = (next: Temoignage[]) => {
@@ -561,13 +628,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('arckaton_cms_temoignages', JSON.stringify(next));
   };
   const updateTemoignage = (id: string, data: Partial<Temoignage>) => {
-    saveTemoignages(temoignages.map((t) => (t.id === id ? { ...t, ...data } : t)));
+    const cible = temoignages.find((t) => t.id === id);
+    if (!cible) return;
+    const next = { ...cible, ...data };
+    saveTemoignages(temoignages.map((t) => (t.id === id ? next : t)));
+    void writeContent('temoignage', next.id, next, next.author);
   };
   const addTemoignage = (data: Omit<Temoignage, 'id'>) => {
-    saveTemoignages([{ ...data, id: `tem-${Date.now()}` }, ...temoignages]);
+    const created = { ...data, id: `tem-${Date.now()}` };
+    saveTemoignages([created, ...temoignages]);
+    void writeContent('temoignage', created.id, created, created.author);
   };
   const deleteTemoignage = (id: string) => {
     saveTemoignages(temoignages.filter((t) => t.id !== id));
+    void removeContent('temoignage', id);
   };
 
   const bearerHeaders = () => {
