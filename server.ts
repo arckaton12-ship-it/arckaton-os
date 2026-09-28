@@ -1231,7 +1231,26 @@ app.put('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthReq,
       position: position ?? 0,
       updated_at: new Date().toISOString(),
     };
-    if (data !== undefined) payload.data = data;
+    if (data !== undefined) {
+      if (kind === 'config' && data && typeof data === 'object' && !Array.isArray(data)) {
+        // La config du site tient sur UNE seule ligne. Un upsert remplacait
+        // donc tout le blob : corriger le hero supprimait contact, annonce
+        // et le reste du site pour tous les visiteurs. On fusionne a plat :
+        // la config est un objet de sections, chaque section est remplacee
+        // entierement, ce qui evite aussi de melanger un ancien et un
+        // nouveau hero.
+        const { data: existante } = await sb
+          .from('content_items')
+          .select('data')
+          .eq('kind', 'config')
+          .eq('slug', slug)
+          .maybeSingle();
+        const avant = existante && typeof existante.data === 'object' ? existante.data : {};
+        payload.data = { ...avant, ...data };
+      } else {
+        payload.data = data;
+      }
+    }
     const { data: row, error } = await sb
       .from('content_items')
       .upsert(payload, { onConflict: 'kind,slug' })
@@ -1251,14 +1270,38 @@ app.post('/api/content/bulk', requirePerm('content'), async (req: AuthReq, res) 
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Items requis' });
     const sb = getSupabase();
     if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
-    const rows = items.map((it: any, idx: number) => ({
-      kind: it.kind,
-      slug: it.slug,
-      title: it.title || null,
-      published: it.published !== false,
-      position: it.position ?? idx,
-      data: it.data || {},
-    }));
+
+    // Un item sans `data` ne doit pas vider la ligne : `data: it.data || {}`
+    // transformait un import incomplet en effacement du contenu existant.
+    // On relit d'abord, et on ne touche que les cles fournies.
+    const { data: existantes } = await sb
+      .from('content_items')
+      .select('kind,slug,data,title')
+      .in('slug', items.map((i: any) => i.slug));
+    const avantParCle = new Map<string, any>();
+    for (const ex of existantes || []) avantParCle.set(`${ex.kind}/${ex.slug}`, ex);
+
+    const rows = items.map((it: any, idx: number) => {
+      const cle = `${it.kind}/${it.slug}`;
+      const avant = avantParCle.get(cle);
+      const ancienData = avant && typeof avant.data === 'object' ? avant.data : undefined;
+      const data =
+        it.data !== undefined
+          ? it.kind === 'config' && ancienData
+            ? { ...ancienData, ...it.data }
+            : it.data
+          : ancienData !== undefined
+            ? ancienData
+            : {};
+      return {
+        kind: it.kind,
+        slug: it.slug,
+        title: it.title ?? (avant ? avant.title : null),
+        published: it.published !== false,
+        position: it.position ?? idx,
+        data,
+      };
+    });
     const { error } = await sb.from('content_items').upsert(rows, { onConflict: 'kind,slug' });
     if (error) return res.status(400).json({ error: error.message });
     await logActivity(req.member!, 'bulk_import', 'content', `${rows.length} items`, {
