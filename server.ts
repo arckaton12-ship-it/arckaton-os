@@ -1112,16 +1112,25 @@ function messageVersUi(row: any) {
   };
 }
 
+// Un canal est un regroupement, pas une cloture de securite. Restreindre
+// chaque pole a son propre canal empechait le scenario prevu par l'OS
+// ("Tech transmet la maquette au Creatif puis au Client") et interdisait au
+// Directeur Commercial de répondre sur un canal de production. Tout membre
+// connecte lit et ecrit dans tous les canaux ; la confidentialite reelle
+// (devis, releves) est traitee par requireDevis ailleurs.
+//
+// Les identifiants sont ceux de l'interface de messagerie (c-general,
+// c-tech, ...) : le serveur ne doit pas inventer un autre vocabulaire, sinon
+// un message ecrit depuis l'UI atterrit dans un canal que personne ne lit.
+const CANAUX = ['c-general', 'c-direction', 'c-tech', 'c-creatif', 'c-digital', 'c-client'];
+const canalConnu = (c: string) => CANAUX.includes(c);
+
 app.get('/api/messages', requireAuth, async (req, res) => {
   const sb = getSupabase();
   if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
   try {
-    // Un canal = un pole. Le canal general est ouvert a tous.
-    const canal = String(req.query.canal || req.query.channel || 'general');
-    const m = (req as AuthReq).member!;
-    if (canal !== 'general' && m.role !== 'admin' && m.poste_id !== 'p1' && m.pole !== canal) {
-      return res.status(403).json({ error: `Le canal ${canal} est réservé à son pôle` });
-    }
+    const canal = String(req.query.canal || req.query.channel || 'c-general');
+    if (!canalConnu(canal)) return res.status(400).json({ error: 'Canal inconnu' });
     const { data, error } = await sb
       .from('messages')
       .select('*')
@@ -1140,13 +1149,11 @@ app.post('/api/messages', requireAuth, async (req: AuthReq, res) => {
   if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
   try {
     const m = req.member!;
-    const canal = String(req.body.canal || req.body.channel_id || 'general');
+    const canal = String(req.body.canal || req.body.channel_id || 'c-general');
     const contenu = String(req.body.contenu || req.body.content || '').trim();
     if (!contenu) return res.status(400).json({ error: 'Message vide' });
     if (contenu.length > 4000) return res.status(400).json({ error: 'Message trop long' });
-    if (canal !== 'general' && m.role !== 'admin' && m.poste_id !== 'p1' && m.pole !== canal) {
-      return res.status(403).json({ error: `Le canal ${canal} est réservé à son pôle` });
-    }
+    if (!canalConnu(canal)) return res.status(400).json({ error: 'Canal inconnu' });
     const ligne = {
       id: `m-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
       canal,

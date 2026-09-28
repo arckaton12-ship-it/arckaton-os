@@ -176,12 +176,17 @@ interface AppContextType {
   // Messages
   messages: ChannelMessage[];
   sendMessage: (channelId: string, content: string) => void;
+  // Canal affiché : la messagerie le signale pour que le rafraîchissement
+  // automatique suive le canal que le membre regarde.
+  activeChannel: string;
+  setActiveChannel: (canal: string) => void;
 
   // Notifications
   notifications: AppNotification[];
   markNotificationRead: (id: string) => void;
   markNotificationAsRead: (id: string) => void;
   clearNotifications: () => void;
+  pushNotification: (n: Omit<AppNotification, 'id' | 'read'>) => void;
 
   // Projects
   projets: Projet[];
@@ -1401,6 +1406,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const findMemberByName = (name: string) =>
     memberDirectory.current.find((m) => m.name.toLowerCase().includes(name.toLowerCase().split(' ')[0]));
 
+  // ── Tâches et messagerie : partagées via l'API ────────────────
+  // Ces deux listes vivaient uniquement dans le localStorage : une tâche
+  // créée par un membre n'existait que dans son navigateur, le directeur
+  // trouvait un tableau vide sur son téléphone. Le serveur est désormais la
+  // source de vérité, le localStorage ne sert plus que de cache hors ligne.
+  //
+  // On applique d'abord l'état localement pour que l'interface reste
+  // instantanée, puis on renvoie au serveur. En cas d'échec on restaure
+  // l'état précédent : l'interface ne peut pas montrer une tâche que
+  // personne d'autre ne verra.
+  const [colisTaches, setColisTaches] = useState<Task[]>([]);
+  const [colisMessages, setColisMessages] = useState<ChannelMessage[]>([]);
+  const [activeChannel, setActiveChannel] = useState<string>('general');
+
+  // Notification interne, sans passer par les appelants qui construisent
+  // eux-mêmes l'objet complet.
+  const pushNotification = (n: Omit<AppNotification, 'id' | 'read'>) => {
+    setNotifications((prev) => [{ ...n, id: `notif-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`, read: false }, ...prev]);
+  };
+
+  const refreshTasks = useCallback(async () => {
+    try {
+      const data = await apiRequest<Task[]>('/api/tasks');
+      setTasks(data || []);
+      setColisTaches(data || []);
+    } catch (err) {
+      // Hors ligne : on garde le cache et on ne casse pas l'écran.
+      console.warn('Tâches non rafraîchies, cache local conservé:', err);
+    }
+  }, []);
+
+  const refreshMessages = useCallback(async (canal: string) => {
+    try {
+      const data = await apiRequest<ChannelMessage[]>(`/api/messages?canal=${encodeURIComponent(canal)}`);
+      setColisMessages(data || []);
+      setMessages(data || []);
+    } catch (err) {
+      console.warn('Messages non rafraîchis, cache local conservé:', err);
+    }
+  }, []);
+
+  // Rafraîchissement périodique : c'est ce qui fait qu'une tâche posée par
+  // un membre apparaît chez les autres sans recharger la page.
+  useEffect(() => {
+    if (!member) return;
+    refreshTasks();
+    const minuteur = setInterval(refreshTasks, 30_000);
+    return () => clearInterval(minuteur);
+  }, [member, refreshTasks]);
+
+  useEffect(() => {
+    if (!member || !activeChannel) return;
+    refreshMessages(activeChannel);
+    const minuteur = setInterval(() => refreshMessages(activeChannel), 20_000);
+    return () => clearInterval(minuteur);
+  }, [member, activeChannel, refreshMessages]);
+
   // Task Handler
   const addTask = (taskData: Omit<Task, 'id' | 'created_at'>) => {
     // Une tache creee est toujours "a faire" et le doit etre dans les deux
@@ -1416,6 +1478,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setTasks((prev) => [newTask, ...prev]);
 
+    // Envoi au serveur. En cas d'échec, la tâche locale est retirée :
+    // une tâche que personne d'autre ne voit vaut mieux pas exister.
+    apiRequest<Task>('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        titre: taskData.title || taskData.titre,
+        description: taskData.description || '',
+        statut: initialStatus,
+        priorite: taskData.priority || 'normale',
+        pole: taskData.pole || currentUser.pole,
+        assigne_nom: taskData.assigned_to || taskData.assignee_name || null,
+        echeance: taskData.due_date || '',
+      }),
+    })
+      .then((server) => {
+        setTasks((prev) => prev.map((t) => (t.id === newTask.id ? { ...t, ...server } : t)));
+      })
+      .catch((err) => {
+        console.error('Création de tâche refusée par le serveur:', err);
+        setTasks((prev) => prev.filter((t) => t.id !== newTask.id));
+        pushNotification({
+          title: 'Tâche non enregistrée',
+          message: 'Le serveur a refusé la création. Vérifiez votre connexion.',
+          type: 'task',
+          created_at: new Date().toISOString(),
+        });
+      });
+
     // Fil automatique : la tâche est transmise au membre assigné, rattachée au projet
     const assigneeName = taskData.assigned_to || taskData.assignee_name;
     const project = taskData.project_id ? projets.find((p) => p.id === taskData.project_id) : undefined;
@@ -1430,6 +1520,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateTaskStatus = (id: string, status: TaskStatus) => {
+    const avant = tasks;
     setTasks((prev) =>
       prev.map((t) =>
         t.id === id
@@ -1444,6 +1535,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           : t
       )
     );
+    apiRequest(`/api/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ statut: status }) })
+      .then((server) => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...server } : t))))
+      .catch((err) => {
+        console.error('Changement de statut refusé, retour à l\'état précédent:', err);
+        setTasks(avant);
+        pushNotification({
+          title: 'Statut non enregistré',
+          message: 'Le serveur a refusé la modification.',
+          type: 'task',
+          created_at: new Date().toISOString(),
+        });
+      });
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
     const label = task.title || task.titre || 'tâche';
@@ -1463,13 +1566,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
     const label = task.title || task.titre || 'tâche';
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? { ...t, relances: (t.relances || 0) + 1, last_reminder_at: new Date().toISOString() }
-          : t
-      )
-    );
+    // Le compteur de relances est incrémenté par le serveur, sinon deux
+    // navigateurs repartent de la même valeur et le total est faux.
+    apiRequest(`/api/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ relancer: true }) })
+      .then((server) => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...server } : t))))
+      .catch((err) => console.error('Relance refusée par le serveur:', err));
     setNotifications((prev) => [
       {
         id: `notif-relance-${Date.now()}`,
@@ -1512,6 +1613,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       created_at: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     setMessages((prev) => [...prev, newMsg]);
+
+    // Le message part au serveur, sinon il ne reste que dans ce navigateur.
+    // `simule` marque les scénarios de démonstration pour les distinguer
+    // d'un vrai message d'équipe.
+    const estSimulation = author.id !== currentUser.id;
+    apiRequest<ChannelMessage>('/api/messages', {
+      method: 'POST',
+      body: JSON.stringify({
+        canal: channelId,
+        contenu: content,
+        simule: estSimulation,
+      }),
+    })
+      .then((server) => setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, ...server } : m))))
+      .catch((err) => {
+        console.error('Message non envoyé au serveur, retrait local:', err);
+        setMessages((prev) => prev.filter((m) => m.id !== newMsg.id));
+      });
 
     // Fil automatique : tout échange de message est tracé
     logExchange(
@@ -1603,7 +1722,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const scopedProjets = scopeByPole(projets);
   const scopedTasks = scopeByPole(tasks);
-  const scopedMessages = scopeByPole(messages);
+  // La messagerie se scope sur le CANAL, pas sur le pole de l expediteur.
+  // Filtre par expediteur, le message ecrit par Tech disparaissait du canal
+  // vu par le Creatif, alors que le scenario prevu par l OS est justement
+  // "Tech transmet la maquette au Creatif puis au Client".
+  const scopedMessages = scopePole
+    ? messages.filter((m) => m.channel_id === scopePole)
+    : messages;
   // Les leads sont rangés par `pole_assigned` et non `pole`.
   const scopedLeads = scopePole ? leads.filter((l) => l.pole_assigned === scopePole) : leads;
   const scopedReports = scopePole ? reports.filter((r) => !r.pole || r.pole === scopePole) : reports;
@@ -1679,10 +1804,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     simulateExchange,
         messages: scopedMessages,
         sendMessage,
+        activeChannel,
+        setActiveChannel,
         notifications: scopedNotifications,
         markNotificationRead,
         markNotificationAsRead: markNotificationRead,
         clearNotifications,
+        pushNotification,
         projets: scopedProjets,
         quotes,
         chiffreAffairesReel,

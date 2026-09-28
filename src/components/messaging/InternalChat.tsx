@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Pole, POLE_COLORS, ChannelMessage } from '../../types';
@@ -65,11 +65,17 @@ const SIM_SCENARIOS: Array<{ id: string; label: string; hint: string; steps: str
 ];
 
 export const InternalChat: React.FC = () => {
-  const { messages, sendMessage, osMembers, simulateExchange } = useApp();
+  const { messages, sendMessage, osMembers, simulateExchange, setActiveChannel } = useApp();
   const { user } = useAuth();
 
-  const [activeChannel, setActiveChannel] = useState<string>('c-general');
+  const [channel, setChannel] = useState<string>('c-general');
   const [content, setContent] = useState('');
+
+  // Le contexte rafraîchit le canal affiché depuis la base. Sans ce signal,
+  // un message posté par un collègue n'apparaît qu'au rechargement de la page.
+  useEffect(() => {
+    setActiveChannel(channel);
+  }, [channel, setActiveChannel]);
 
   // Simulateur d'echanges multi-membres
   const [isSimOpen, setIsSimOpen] = useState(false);
@@ -85,15 +91,15 @@ export const InternalChat: React.FC = () => {
     { id: 'c-client', name: 'terrain-activations', pole: 'Client', desc: 'Coordination des 9 sorties terrain mensuelles' },
   ];
 
-  const currentChannelInfo = channels.find(c => c.id === activeChannel) || channels[0];
+  const currentChannelInfo = channels.find(c => c.id === channel) || channels[0];
 
-  const channelMessages = messages.filter(m => m.channel_id === activeChannel);
+  const channelMessages = messages.filter(m => m.channel_id === channel);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
 
-    sendMessage(activeChannel, content.trim());
+    sendMessage(channel, content.trim());
     setContent('');
   };
 
@@ -114,7 +120,7 @@ export const InternalChat: React.FC = () => {
 
     if (participants.length < 2) return;
 
-    const count = simulateExchange(participants, activeChannel, scenario.steps);
+    const count = simulateExchange(participants, channel, scenario.steps);
     if (count > 0) {
       setIsSimOpen(false);
       setSimParticipants([]);
@@ -141,13 +147,13 @@ export const InternalChat: React.FC = () => {
 
           <div className="space-y-1">
             {channels.map((ch) => {
-              const isActive = activeChannel === ch.id;
+              const isActive = channel === ch.id;
               const poleColor = ch.pole ? POLE_COLORS[ch.pole] : null;
 
               return (
                 <button
                   key={ch.id}
-                  onClick={() => setActiveChannel(ch.id)}
+                  onClick={() =>  setChannel( ch.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                     isActive
                       ? 'bg-blue-600/20 text-white border border-blue-500/40 font-bold'
@@ -322,8 +328,8 @@ export const InternalChat: React.FC = () => {
               <div>
                 <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">Canal de destination</label>
                 <select
-                  value={activeChannel}
-                  onChange={(e) => setActiveChannel(e.target.value)}
+                  value={channel}
+                  onChange={(e) =>  setChannel( e.target.value)}
                   className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
                 >
                   {channels.map((c) => (
