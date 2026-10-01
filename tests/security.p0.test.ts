@@ -839,3 +839,32 @@ describe('P0.7 - RATE_LIMIT_OFF ne agit que sur une base locale', () => {
     }
   });
 });
+
+// Les preuves de terrain (photos des sorties) sont des donnees clients :
+// aucun octet ne doit sortir sans session valide. En mode degrade (pas de
+// base), `requireAuth` repond 401 sans jeton et 503 quand la base manque —
+// jamais 200. Les binaires ne sont donc jamais servis anonymement.
+describe('Preuves de terrain — acces protege', () => {
+  it('refuse la liste sans jeton', async () => {
+    const res = await request(app).get('/api/media?project_ref=prj-x');
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse le depot sans jeton', async () => {
+    const res = await request(app)
+      .post('/api/media?project_ref=prj-x')
+      .set('Content-Type', 'image/png')
+      .send(Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse la lecture binaire sans jeton', async () => {
+    const res = await request(app).get('/api/media/med-quelconque');
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse la suppression sans jeton', async () => {
+    const res = await request(app).delete('/api/media/med-quelconque');
+    expect(res.status).toBe(401);
+  });
+});

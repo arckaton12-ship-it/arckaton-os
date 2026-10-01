@@ -2725,6 +2725,166 @@ app.delete("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res)
 });
 
 // ------------------------------------------------------------
+// Preuves de terrain : photos attachees a une sortie de captation.
+//
+// Stockage dans PostgreSQL (`project_media.data`, bytea), pas sur le
+// disque du conteneur : le plan Render gratuit ne conserve pas les
+// fichiers entre deux deploiements, alors que la base survit et se
+// sauvegarde avec le reste des donnees.
+//
+// Le corps de la requete est l'image brute, pas du JSON : on evite
+// ainsi l'encodage base64 (+33 %) et la limite de 256 Ko du parseur
+// JSON global. Les metadonnees voyagent dans la chaine de requete.
+// ------------------------------------------------------------
+const MEDIA_MIME_AUTORISES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MEDIA_TAILLE_MAX = 8 * 1024 * 1024; // 8 Mo
+
+function mediaId(): string {
+  return `med-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function nomFichierSur(valeur: unknown): string {
+  // Le nom vient du client : on retire tout chemin pour qu'il ne
+  // puisse pas suggerer un emplacement (le fichier n'est jamais ecrit
+  // sur disque, mais le nom est rejoue dans Content-Disposition).
+  const brut = cleanStr(valeur, 200);
+  const sansChemin = brut.split(/[\\/]/).pop() || '';
+  return sansChemin.replace(/[\r\n"]/g, '').slice(0, 160) || 'captation';
+}
+
+app.get('/api/media', requireAuth, async (req: AuthReq, res) => {
+  try {
+    const project_ref = cleanStr(req.query.project_ref, 120);
+    if (!project_ref) return res.status(400).json({ error: 'project_ref obligatoire' });
+    const visit_id = cleanStr(req.query.visit_id, 120);
+    const params: unknown[] = [project_ref];
+    let sql =
+      'SELECT id, project_ref, visit_id, filename, mime, size_bytes, kind, uploaded_by, created_at ' +
+      'FROM project_media WHERE project_ref = $1';
+    if (visit_id) {
+      params.push(visit_id);
+      sql += ' AND visit_id = $2';
+    }
+    sql += ' ORDER BY created_at DESC LIMIT 500';
+    const { data, error } = await dbQuery(sql, params);
+    if (error) throw error;
+    res.json({ media: data });
+  } catch (err: any) {
+    console.error('GET /api/media error:', err);
+    res.status(500).json({ error: 'Erreur lecture medias' });
+  }
+});
+
+app.post(
+  '/api/media',
+  requireAuth,
+  express.raw({ type: '*/*', limit: '8mb' }),
+  async (req: AuthReq, res) => {
+    try {
+      const project_ref = cleanStr(req.query.project_ref, 120);
+      if (!project_ref) return res.status(400).json({ error: 'project_ref obligatoire' });
+
+      const mime = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+      if (!MEDIA_MIME_AUTORISES.includes(mime)) {
+        return res.status(415).json({ error: 'Format non supporte (JPEG, PNG, WebP ou GIF)' });
+      }
+
+      const contenu = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
+      if (contenu.length === 0) return res.status(400).json({ error: 'Fichier vide' });
+      if (contenu.length > MEDIA_TAILLE_MAX) {
+        return res.status(413).json({ error: 'Fichier trop volumineux (8 Mo maximum)' });
+      }
+
+      const existant = await dbQuery('SELECT 1 FROM projects WHERE project_ref = $1', [project_ref]);
+      if (existant.error) throw existant.error;
+      if (!existant.data.length) return res.status(404).json({ error: 'Projet introuvable' });
+
+      const id = mediaId();
+      const visit_id = cleanStr(req.query.visit_id, 120) || null;
+      const inserted = await dbQuery(
+        `INSERT INTO project_media
+           (id, project_ref, visit_id, filename, mime, size_bytes, kind, data, uploaded_by)
+         VALUES ($1, $2, $3, $4, $5, $6, 'image', $7, $8)
+         RETURNING id, project_ref, visit_id, filename, mime, size_bytes, kind, uploaded_by, created_at`,
+        [
+          id,
+          project_ref,
+          visit_id,
+          nomFichierSur(req.query.filename),
+          mime,
+          contenu.length,
+          contenu,
+          req.member?.id || null,
+        ],
+      );
+      if (inserted.error) throw inserted.error;
+
+      if (req.member) {
+        await logActivity(req.member, 'upload_media', 'project', project_ref, {
+          media_id: id,
+          size: contenu.length,
+        });
+      }
+      res.status(201).json({ media: inserted.data[0] });
+    } catch (err: any) {
+      console.error('POST /api/media error:', err);
+      res.status(500).json({ error: 'Erreur enregistrement media' });
+    }
+  },
+);
+
+// Le binaire est servi a tout membre connecte : la galerie charge
+// chaque vignette via `fetch` avec le jeton, jamais par un `<img src>`
+// direct (qui n'enverrait pas l'en-tete Authorization).
+app.get('/api/media/:id', requireAuth, async (req: AuthReq, res) => {
+  try {
+    const { data, error } = await dbQuery(
+      'SELECT filename, mime, size_bytes, data FROM project_media WHERE id = $1',
+      [req.params.id],
+    );
+    if (error) throw error;
+    if (!data.length) return res.status(404).json({ error: 'Media introuvable' });
+    const m = data[0] as { filename: string; mime: string; size_bytes: number; data: Buffer };
+    res.setHeader('Content-Type', m.mime);
+    res.setHeader('Content-Length', String(m.size_bytes));
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(m.filename)}"`);
+    res.setHeader('Cache-Control', 'private, max-age=300');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.end(m.data);
+  } catch (err: any) {
+    console.error('GET /api/media/:id error:', err);
+    res.status(500).json({ error: 'Erreur lecture media' });
+  }
+});
+
+app.delete('/api/media/:id', requireAuth, async (req: AuthReq, res) => {
+  try {
+    const { data, error } = await dbQuery(
+      'SELECT project_ref, uploaded_by FROM project_media WHERE id = $1',
+      [req.params.id],
+    );
+    if (error) throw error;
+    if (!data.length) return res.status(404).json({ error: 'Media introuvable' });
+    const ligne = data[0] as { project_ref: string; uploaded_by: string | null };
+    const estAdmin = req.member?.role === 'admin';
+    if (!estAdmin && ligne.uploaded_by && ligne.uploaded_by !== req.member?.id) {
+      return res.status(403).json({ error: 'Suppression reservee au depot initial ou a la direction' });
+    }
+    const supprime = await dbQuery('DELETE FROM project_media WHERE id = $1', [req.params.id]);
+    if (supprime.error) throw supprime.error;
+    if (req.member) {
+      await logActivity(req.member, 'delete_media', 'project', ligne.project_ref, {
+        media_id: req.params.id,
+      });
+    }
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('DELETE /api/media/:id error:', err);
+    res.status(500).json({ error: 'Erreur suppression media' });
+  }
+});
+
+// ------------------------------------------------------------
 // Devis et factures
 // La reference est attribuee par le serveur (sequentielle et stable) :
 // elle ne peut pas etre regeneree a chaque affichage comme le faisait

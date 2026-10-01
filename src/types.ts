@@ -173,6 +173,21 @@ export interface ProjectMilestone {
   description?: string;
 }
 
+// Une preuve de terrain : une photo rattachee a une sortie de captation.
+// Les octets vivent dans la table `project_media` (PostgreSQL), pas dans
+// le JSONB du projet. `visit_id` relie la photo a la sortie concernee.
+export interface ProjectMedia {
+  id: string;
+  project_ref: string;
+  visit_id?: string | null;
+  filename: string;
+  mime: string;
+  size_bytes: number;
+  kind: 'image' | string;
+  uploaded_by?: string | null;
+  created_at?: string;
+}
+
 export interface FieldVisit {
   id: string;
   numero: number;

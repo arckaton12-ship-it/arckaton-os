@@ -157,11 +157,30 @@ describe.skipIf(!baseConfiguree)('contraintes du schema', () => {
     const connues = [
       'members', 'member_credentials', 'content_items', 'activity_log',
       'tasks', 'messages', 'leads', 'agent_reports', 'whatsapp_outbox',
-      'projects', 'quotes', 'app_settings',
+      'projects', 'quotes', 'app_settings', 'project_media',
     ];
     for (const t of accordees) {
       expect(connues).toContain(t);
     }
+  });
+
+  it('project_media stocke les photos en bytea et suit le projet', async () => {
+    // La galerie des preuves de terrain suppose deux choses : les octets
+    // sont dans une colonne `bytea` (pas un chemin de fichier, qui
+    // disparaitrait au redeploiement Render), et la suppression d'un
+    // projet emporte ses photos (ON DELETE CASCADE).
+    const { data } = await query(
+      `SELECT data_type FROM information_schema.columns
+       WHERE table_schema = 'public' AND table_name = 'project_media' AND column_name = 'data'`
+    );
+    expect(enLignes<{ data_type: string }>(data)[0]?.data_type).toBe('bytea');
+
+    const { data: fk } = await query(
+      `SELECT confdeltype FROM pg_constraint
+       WHERE conrelid = 'project_media'::regclass AND contype = 'f'`
+    );
+    // 'c' = CASCADE dans pg_constraint.
+    expect(enLignes<{ confdeltype: string }>(fk)[0]?.confdeltype).toBe('c');
   });
 
   // Ferme le pool pour ne pas laisser de connexion ouverte en fin de

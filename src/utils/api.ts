@@ -269,3 +269,66 @@ export async function apiWrite<T = any>(
 ): Promise<T> {
   return apiRequest<T>(path, { method, body, retries: 0 });
 }
+
+// ── Preuves de terrain (binaires) ────────────────────────────────────────
+//
+// `apiRequest` ne convient pas ici : il sérialise le corps en JSON, or
+// une photo se transmet telle quelle. Ces deux appels réutilisent la
+// même gestion de session (en-tête Authorization, renouvellement sur
+// 401) sans passer par JSON.
+
+function withQuery(path: string, query: Record<string, string>): string {
+  const qs = new URLSearchParams(query).toString();
+  return qs ? `${path}?${qs}` : path;
+}
+
+/** Envoie un fichier en corps brut. `mime` devient le Content-Type. */
+export async function apiUpload<T = any>(
+  path: string,
+  file: Blob,
+  query: Record<string, string>
+): Promise<T> {
+  const url = withQuery(path, query);
+  const doOnce = () =>
+    fetch(url, {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': file.type || 'application/octet-stream' },
+      body: file,
+    });
+
+  let res = await doOnce();
+  if (res.status === 401) {
+    const renewed = await refreshAccessToken();
+    if (renewed) res = await doOnce();
+  }
+
+  const raw = await res.text();
+  let payload: any = null;
+  if (raw) {
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      payload = null;
+    }
+  }
+  if (!res.ok) {
+    throw new ApiError(payload?.error || `Échec de l'envoi (${res.status})`, 'http', res.status);
+  }
+  return payload as T;
+}
+
+/** Récupère un binaire protégé et le rend sous forme d'URL locale. */
+export async function apiBlobUrl(path: string): Promise<string> {
+  const doOnce = () => fetch(path, { headers: authHeaders() });
+
+  let res = await doOnce();
+  if (res.status === 401) {
+    const renewed = await refreshAccessToken();
+    if (renewed) res = await doOnce();
+  }
+  if (!res.ok) {
+    throw new ApiError(`Média indisponible (${res.status})`, 'http', res.status);
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}

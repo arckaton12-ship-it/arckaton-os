@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import { Projet, ProjectMilestone, FieldVisit, Pole } from '../../types';
 import { POLES_INFO } from '../../data/mockData';
 import { ProductionTabSkeleton } from './DashboardSkeleton';
+import { MediaGallery } from './MediaGallery';
 import { 
   FolderKanban, 
   Search, 
@@ -750,31 +751,19 @@ export const ProjectsProductionTab: React.FC = () => {
                               <div>Intervenant : {v.intervenant || 'Non affecte'}</div>
                             </div>
 
-                            {/* Saisie des medias produits */}
-                            <div className="flex items-center justify-between gap-2 pt-1">
-                              <label className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
-                                Medias
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={v.medias_count ?? ''}
-                                  onChange={(e) =>
-                                    updateProjectFieldVisit(project.id, v.id, {
-                                      medias_count: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value) || 0),
-                                    })
-                                  }
-                                  placeholder="0"
-                                  className="w-16 bg-[#070c1e] border border-white/10 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none focus:border-emerald-500/50"
-                                />
-                              </label>
+                            {/* Preuves de terrain : photos uploadees (stockees en base) */}
+                            <div className="pt-1.5 border-t border-white/5 space-y-2">
+                              <MediaGallery projectRef={project.id} visitId={v.id} />
 
                               {nextStatut && (
-                                <button
-                                  onClick={() => updateProjectFieldVisit(project.id, v.id, { statut: nextStatut })}
-                                  className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer"
-                                >
-                                  {VISIT_STATUT_LABEL[nextStatut]}
-                                </button>
+                                <div className="flex justify-end">
+                                  <button
+                                    onClick={() => updateProjectFieldVisit(project.id, v.id, { statut: nextStatut })}
+                                    className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer"
+                                  >
+                                    {VISIT_STATUT_LABEL[nextStatut]}
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>
