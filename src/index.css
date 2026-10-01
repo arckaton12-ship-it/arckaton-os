@@ -351,12 +351,73 @@ html.dark .text-slate-500 {
     background: #ffffff !important;
     color: #000000 !important;
   }
-  .modal-content, [role="dialog"] {
+
+  /* Aucun encadre bleu (anneau de focus) ni ombre ne doit apparaitre
+     autour du document lors de Ctrl+P. */
+  * {
+    outline: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+  }
+  :focus,
+  :focus-visible {
+    outline: none !important;
+  }
+
+  /* La modale est un calque plein ecran : en impression, on supprime le
+     fond sombre et l'encadre colore, et on remet le flux normal pour
+     eviter les pages blanches causees par position:fixed. */
+  .modal-content,
+  .invoice-modal,
+  [role="dialog"] {
     position: static !important;
+    inset: auto !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
-    border: 1px solid #ccc !important;
+    border: none !important;
+    outline: none !important;
+    overflow: visible !important;
+  }
+
+  .invoice-shell {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Le document lui-meme : feuille blanche sans cadre. */
+  .invoice-document {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  /* Blocs qui ne doivent jamais etre coupes par un saut de page. */
+  .invoice-totals,
+  .invoice-signature,
+  .avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  h1, h2, h3, h4 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
   }
 
   /* Format et marges des devis / factures.
@@ -369,7 +430,7 @@ html.dark .text-slate-500 {
 
   /* Les lignes de prestation ne doivent pas etre coupees en deux par un
      saut de page, et le total reste avec la ligne qui le precede. */
-  tr, thead, .avoid-break {
+  tr, thead {
     break-inside: avoid;
     page-break-inside: avoid;
   }

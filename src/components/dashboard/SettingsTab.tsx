@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Settings, ShieldCheck, Database, Globe, RefreshCw, CheckCircle2, Loader2, AlertTriangle, WifiOff, Sparkles } from 'lucide-react';
+import { Settings, ShieldCheck, Database, Globe, RefreshCw, CheckCircle2, Loader2, AlertTriangle, WifiOff, Sparkles, Sun, Moon, Palette } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE, FORFAITS_DATA } from '../../data/mockData';
 import { apiRequest } from '../../utils/api';
 
@@ -10,7 +10,7 @@ interface HealthState {
 }
 
 export const SettingsTab: React.FC = () => {
-  const { leads, tasks, projets, isRealDataMode, purgeDemoData, restoreDemoData } = useApp();
+  const { leads, tasks, projets, isRealDataMode, purgeDemoData, restoreDemoData, theme, setTheme } = useApp();
 
   const [health, setHealth] = useState<HealthState | null>(null);
   const [healthError, setHealthError] = useState(false);
@@ -273,6 +273,60 @@ export const SettingsTab: React.FC = () => {
           )}
         </div>
 
+      </div>
+
+      {/* Apparence / Thème */}
+      <div className="bg-[#0a0f2e] border border-white/10 p-6 rounded-3xl space-y-4">
+        <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
+          <Palette className="w-4 h-4 text-emerald-400" />
+          <span>Apparence du tableau de bord</span>
+        </h3>
+        <p className="text-[11px] text-slate-400">
+          Choisissez le thème d'affichage. Le choix est conservé sur cet appareil et s'applique
+          immédiatement à tout le tableau de bord.
+        </p>
+
+        <div className="grid grid-cols-2 gap-3 max-w-md">
+          <button
+            type="button"
+            onClick={() => setTheme('light')}
+            aria-pressed={theme === 'light'}
+            className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-colors cursor-pointer ${
+              theme === 'light'
+                ? 'bg-emerald-500/10 border-emerald-500/40'
+                : 'bg-[#070c1e] border-white/10 hover:border-white/20'
+            }`}
+          >
+            <Sun className={`w-4 h-4 ${theme === 'light' ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <span className="text-xs font-semibold text-white">Mode jour</span>
+            <span className="text-[11px] text-slate-400">Fond clair, idéal en plein jour.</span>
+            {theme === 'light' && (
+              <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> actif
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme('dark')}
+            aria-pressed={theme === 'dark'}
+            className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-colors cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-emerald-500/10 border-emerald-500/40'
+                : 'bg-[#070c1e] border-white/10 hover:border-white/20'
+            }`}
+          >
+            <Moon className={`w-4 h-4 ${theme === 'dark' ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <span className="text-xs font-semibold text-white">Mode nuit</span>
+            <span className="text-[11px] text-slate-400">Fond sombre, plus reposant le soir.</span>
+            {theme === 'dark' && (
+              <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> actif
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Grille tarifaire */}

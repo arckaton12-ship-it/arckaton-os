@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Lead, Projet } from '../../types';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
-import { Printer, X, ShieldCheck, Save, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Printer, X, ShieldCheck, Save, Loader2, CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { DocumentLetterhead, DocumentLegalFooter } from './DocumentLetterhead';
 
 interface InvoiceModalProps {
@@ -152,8 +152,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn overflow-y-auto">
-      <div className="bg-[#0b122e] border border-white/20 rounded-3xl w-full max-w-3xl shadow-2xl p-6 sm:p-8 space-y-6 my-8 text-slate-100">
+    <div
+      className="invoice-modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-label={type === 'devis' ? 'Génération de devis' : 'Génération de facture proforma'}
+    >
+      <div className="invoice-shell bg-[#0b122e] border border-white/20 rounded-3xl w-full max-w-3xl shadow-2xl p-6 sm:p-8 space-y-6 my-8 text-slate-100">
 
         {/* Barre d'actions (non imprimable) */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4 flex-wrap gap-3 no-print">
@@ -172,6 +177,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Retour au CRM"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Retour</span>
+            </button>
             {!savedRef && (
               <button
                 onClick={handleSave}
@@ -213,7 +226,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
         )}
 
         {/* Document imprimable */}
-        <div className="bg-[#070c1e] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 print:bg-white print:text-black">
+        <div className="invoice-document bg-[#070c1e] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 print:bg-white print:text-black">
 
           {/* En-tête officiel de l'agence (papier à en-tête) */}
           <DocumentLetterhead />
@@ -358,7 +371,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
 
           {/* Totaux */}
           {lines.length > 0 && (
-            <div className="border-t border-white/10 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono print:border-black/20">
+            <div className="invoice-totals border-t border-white/10 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono print:border-black/20">
               <div className="space-y-1 text-slate-400 no-print">
                 <div className="text-[11px]">Modalités de règlement :</div>
                 <div className="text-white print:text-black">
@@ -412,7 +425,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           )}
 
           {/* Pied de page */}
-          <div className="border-t border-white/10 pt-4 text-[11px] font-mono text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 print:border-black/20 print:text-slate-600">
+          <div className="invoice-signature border-t border-white/10 pt-4 text-[11px] font-mono text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 print:border-black/20 print:text-slate-600">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Document généré par Arckaton OS</span>

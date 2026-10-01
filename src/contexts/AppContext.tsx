@@ -653,7 +653,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // ---- Synchronisation temps réel du contenu (supabase via serveur) ----
   const refreshContent = async () => {
     try {
-      const res = await fetch('/api/content');
+      // P0 — le jeton doit voyager avec la requete.
+      //
+      // `/api/content` sert deux publics : le site vitrine, qui ne doit voir
+      // que le publie, et le back-office du CMS, qui doit voir ses propres
+      // brouillons pour pouvoir les modifier. Le serveur distingue les deux
+      // sur la presence d'un jeton valide ET de la permission `content`.
+      //
+      // Sans en-tete d'autorisation, la reponse arrivait toujours en mode
+      // public : le CMS n'affichait plus que du contenu publie, et le
+      // « Journal de Bord » vidait ses brouillons a chaque relecture. Pire,
+      // `persistContent` appelle cette fonction juste apres avoir enregistre
+      // un brouillon : celui-ci etait ecrase dans le state et dans le
+      // localStorage, donc disparaissait de l'editeur.
+      const res = await fetch('/api/content', { headers: bearerHeaders() });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const hasLive =
@@ -774,17 +787,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  // Application unique et coherente du theme : les quatre classes attendues
+  // par la CSS (`light`/`theme-light` et `dark`/`theme-dark`) sont posees a la
+  // fois sur <html> et <body>. Auparavant deux effets differents (ici et dans
+  // App.tsx) posaient des classes divergentes, ce qui laissait des fonds
+  // incoherents selon le chemin de navigation.
   useEffect(() => {
     localStorage.setItem('arckaton_theme', theme);
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.add('theme-light');
-      document.documentElement.classList.remove('dark');
-    } else {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      document.documentElement.classList.remove('theme-light');
-    }
+    const isLight = theme === 'light';
+    const targets = [document.documentElement, document.body];
+    targets.forEach((el) => {
+      el.classList.toggle('light', isLight);
+      el.classList.toggle('theme-light', isLight);
+      el.classList.toggle('dark', !isLight);
+      el.classList.toggle('theme-dark', !isLight);
+    });
   }, [theme]);
 
   useEffect(() => {
