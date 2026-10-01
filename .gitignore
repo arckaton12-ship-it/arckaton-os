@@ -6,3 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+# Export de données Supabase (contient clients et hashes) : jamais commité.
+migration-dump/

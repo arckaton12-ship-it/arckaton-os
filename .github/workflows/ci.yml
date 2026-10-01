@@ -1,4 +1,4 @@
-name: CI — Lint & Build
+name: CI — Lint, Tests & Build
 
 on:
   push:
@@ -20,5 +20,17 @@ jobs:
         run: npm ci
       - name: Lint (tsc)
         run: npm run lint
+      # P0 : les tests n'etaient jamais joues en integration continue. Les
+      # tests de non-regression de securite (LFI, relais WhatsApp, quotas,
+      # verrouillage de compte) ne protects donc personne : ils ne verifiaient
+      # que le poste du developpeur.
+      #
+      # Le build DOIT preceder les tests : `tests/security.p0.test.ts`
+      # verifie la Content-Security-Policy en lisant `build/server.cjs`. Comme
+      # `build/` est dans .gitignore, le fichier n'existe pas sur une machine
+      # neuve, et le test sautait silencieusement en CI tout en passant au
+      # vert. Build d'abord, donc.
       - name: Build
         run: npm run build
+      - name: Tests
+        run: npm test

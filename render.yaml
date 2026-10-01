@@ -1,8 +1,8 @@
 # Render Blueprint — Arckaton OS (site public + dashboard + API Express)
 # Utilisation : Render Dashboard > New > Blueprint > coller ce fichier,
 # ou copier-coller le contenu dans "From existing repository".
-# Les variables SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY
-# et APP_URL sont demandées à la création (jamais commitées).
+# Les variables DATABASE_URL/JWT_SECRET et clés IA sont demandées à la création
+# (jamais commitées).
 services:
   - type: web
     name: arckaton-os
@@ -15,13 +15,19 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
-      - key: SUPABASE_URL
+      # P0 — NODE_ENV manquait. Sans lui, `npm start` ne passe pas en mode
+      # production : les erreurs révèlent leur pile d'appels, et la
+      # configuration "stricte" du serveur (mode production) n'est jamais
+      # activée.
+      - key: NODE_ENV
+        value: "production"
+      - key: DATABASE_URL
         sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: SUPABASE_ANON_KEY
+      - key: JWT_SECRET
         sync: false
       - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false
       - key: APP_URL
         sync: false

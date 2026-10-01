@@ -150,8 +150,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(MEMBER_KEY);
+
+    // P0 — purge des caches contenant des données clients.
+    //
+    // La déconnexion ne supprimait que les trois clés de session. Tout le
+    // reste restait sur le poste : leads (noms, téléphones, montants),
+    // rapports, messages, projets, notifications, transferts. Sur un poste
+    // partagé —epointage, salle de réunion,Direction en open space — la
+    // personne suivante pouvait ouvrir l'application et lire l'historique
+    // client complet, sans même être connectée.
+    //
+    // On supprime donc toute clé métier `arckaton_*`, en conservant les
+    // préférences purement visuelles (thème, devise) et le contenu public du
+    // site (config, forfaits), qui ne contient aucune donnée client.
+    const KEEP_ON_LOGOUT = new Set(['arckaton_theme', 'arckaton_currency', 'arckaton_site_config', 'arckaton_cms_forfaits']);
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith('arckaton_') && !KEEP_ON_LOGOUT.has(k))
+      .forEach((k) => localStorage.removeItem(k));
+
+    // Le cache en mémoire du provider doit suivre, sinon les données
+    // restent visibles jusqu'au rechargement de la page.
     setToken(null);
     setMember(null);
+    window.location.reload();
   }, []);
 
   const completeSession = useCallback((t: string, m: MemberProfile) => {

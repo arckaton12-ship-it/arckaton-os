@@ -1,16 +1,143 @@
-import express from "express";
+﻿import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-dotenv.config();
+// Acces aux donnees et authentification : PostgreSQL autonome.
+//
+// Le SDK Supabase a ete retire le <date>. L'inventaire de ce fichier
+// avait montre qu'il n'y servait QUE de client PostgREST generique
+// (11 tables, zero jointure) plus 6 appels d'identite. `src/db/adapter`
+// reproduit la surface PostgREST utilisee, au-dessus de `pg` et en SQL
+// parametre ; `src/db/auth` remplace GoTrue par des JWT maison.
+//
+// L'autorisation, elle, n'a pas bouge : `requirePerm`, `peutLireDevis`
+// et `contentVisibility` restent la seule source de verite. Voir
+// migrations/001_roles.sql pour pourquoi il n'y a pas de RLS.
+import { from as dbFrom, query as dbQuery, isUniqueViolation, violatedConstraint, enLignes, enLigne } from "./src/db/adapter";
+import {
+  emettreJetons,
+  verifierJetonAcces,
+  verifierJetonRefresh,
+  verifierMotDePasse,
+  definirIdentifiants,
+  supprimerIdentifiants,
+  nouvelIdentifiantMembre,
+  verifierIntegriteAuth,
+} from "./src/db/auth";
+
+// Chargement du .env.
+//
+// En test, on ne charge RIEN. Sans cette precaution, la suite de tests
+// heredite des secrets du poste de developpement (SUPABASE_SERVICE_ROLE_KEY,
+// GEMINI_API_KEY) et finit par appeler de vraies API : les tests deviennent
+// dependants du reseau, consomment du quota Gemini, ecrivent eventuellement
+// en base de production, et surtout passent au vert sur la machine du
+// developpeur alors qu'ils echoueraient en CI.
+//
+// `process.env.NODE_ENV === 'test'` est positionne par vitest.config.ts
+// avant tout import du module.
+if (process.env.NODE_ENV !== 'test') {
+  dotenv.config();
+}
 
 const app = express();
-const PORT = 3000;
 
-app.use(express.json());
+// Le port venait d'etre code en dur a 3000. Deux consequences :
+//   - sur Render, la plateforme attribue un port via la variable
+//     d'environnement `PORT` ; l'ignorer rend le deploiement dependant
+//     d'une coincidence ;
+//   - impossible de lancer une seconde instance locale (recette + appli
+//     principale) sans modifier le source.
+//
+// `Number(...)` sur une variable absente ou vide donne NaN, d'ou le repli
+// explicite : un `PORT` mal defini ne doit pas empecher le serveur de
+// demarrer sur une valeur connue.
+const PORT_PORT_ENV = Number(process.env.PORT);
+const PORT = Number.isInteger(PORT_PORT_ENV) && PORT_PORT_ENV > 0 && PORT_PORT_ENV < 65536
+  ? PORT_PORT_ENV
+  : 3000;
+
+// P0 — `trust proxy` manquant.
+//
+// Render place toutes les requetes derriere un proxy. Sans cette ligne,
+// Express considere que req.ip vaut l'IP du proxy et ignore
+// X-Forwarded-For. Le rateLimit ci-dessous se fie justement a
+// X-Forwarded-For, mais en se dispensant de `trust proxy` il ne pouvait pas
+// distinguer un vrai client d'un attaquant : la limitation etait contournable
+// en une requete.
+//
+// `1` signifie « faire confiance au premier saut ». C'est le reglage
+// correct pour un deploiement derriere un seul reverse proxy (Render). Ne pas
+// mettre `true` : cela ferait confiance a la totalite de la chaine.
+//
+// HYPOTHESE DE SECURITE A NE PAS OUBLIER : cette valeur n'est sure que si
+// le proxy de peripherie AJOUTE sa propre valeur a X-Forwarded-For
+// (comportement standard de Render et Nginx). Avec `1`, Express prend le
+// dernier segment ; si le proxy ne faisait que relayer l'en-tete tel quel
+// fourni par le client, ce dernier segment serait choisi par l'attaquant et
+// la limitation par IP serait contournable en changeant d'en-tete a chaque
+// requete — comportement observe en local sur cette application.
+//
+// C'est precisement pour cela que la connexion dispose en plus d'un plafond
+// par COMPTE (voir accountAttempts), qui ne depend d'aucune information
+// reseau fournie par le client.
+app.set('trust proxy', 1);
+
+// P0 — En-tetes de securite et CORS strict.
+//
+// helmet n'etait pas installe : la reponse ne comportait ni
+// X-Content-Type-Options, ni Referrer-Policy, ni protection contre le
+// clickjacking, et exposait le framework dans X-Powered-By.
+//
+// Plutot que d'ajouter une dependance, on pose les en-tetes explicitement.
+//
+// La CSP n'est posee qu'en PRODUCTION. En developpement, @vitejs/plugin-react
+// injecte un script inline dans index.html (le « preamble » de React
+// Refresh) ; avec `script-src 'self'`, ce script etait bloque et
+// `npm run dev` ne demarrait plus l'application. Les autres en-tetes
+// (nosniff, DENY, Referrer-Policy) restent poses partout : ils ne cassent
+// rien en developpement.
+//
+// Les origines listees sont celles reellement utilisees par le front,
+// verifiees dans index.html et les composants : aucune image hors
+// images.unsplash.com, aucun script inline, aucun eval, aucun iframe. Seul
+// pair est manquant, ce qui est volontaire.
+if (process.env.NODE_ENV === 'production') {
+  app.use((_req, res, next) => {
+    res.setHeader(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        // Vite compile les styles dans le bundle, mais Tailwind injecte
+        // aussi des styles inline au runtime : 'unsafe-inline' est requis
+        // pour style-src. Il ne l'est PAS pour script-src.
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' data: https://fonts.gstatic.com",
+        "img-src 'self' data: blob: https://images.unsplash.com",
+        "script-src 'self'",
+        // Le front n'appelle que des URL same-origin via le proxy /api.
+        "connect-src 'self'",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join('; ')
+    );
+    next();
+  });
+}
+
+app.disable('x-powered-by');
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
+app.use(express.json({ limit: '256kb' }));
 
 // In-memory store for real-time leads and reports
 interface StoredLead {
@@ -46,22 +173,31 @@ const leadsStore: StoredLead[] = [];
 const reportsStore: StoredReport[] = [];
 
 // ============================================================
-// Supabase persistence layer (server-side only).
-// Active si SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY sont définis
-// dans .env. Sinon, le serveur retombe sur les stores en mémoire
-// (comportement actuel de l'export AI Studio).
-// ============================================================
-let supabaseAdmin: SupabaseClient | null = null;
+// Couche de persistance — PostgreSQL
+//
+// Le contrat est volontairement identique a celui de l'ancien
+// `getSupabase()` : un objet null quand la base n'est pas configuree,
+// pour que les replis en memoire et le mode degrade des tests
+// continuent de fonctionner sans modification.
+//
+// Le `from` expose la meme surface que `.from(table)` du SDK
+// (`select`, `eq`, `order`, `upsert`, `maybeSingle`…). Voir
+// src/db/adapter.ts pour le detail, et la liste des methodes
+// reellement utilisees par ce fichier.
+let coucheDonnees: { from: typeof dbFrom; query: typeof dbQuery } | null = null;
 
-function getSupabase(): SupabaseClient | null {
-  if (supabaseAdmin) return supabaseAdmin;
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (url && key && key !== "MY_SUPABASE_SERVICE_ROLE_KEY") {
-    supabaseAdmin = createClient(url, key);
-    return supabaseAdmin;
-  }
-  return null;
+function getSupabase() {
+  if (coucheDonnees) return coucheDonnees;
+  // Sans configuration, `dbFrom` retourne quand meme un objet : les
+  // requetes echoueront avec une erreur explicite (« Base non
+  // configuree »), ce qui est plus clair qu'un `null` a propager dans
+  // 41 endpoints. On garde donc le test de configuration ici.
+  const configuree =
+    (process.env.DATABASE_URL && process.env.DATABASE_URL !== "MY_DATABASE_URL") ||
+    (process.env.PGUSER && process.env.PGPASSWORD && process.env.PGDATABASE);
+  if (!configuree) return null;
+  coucheDonnees = { from: dbFrom, query: dbQuery };
+  return coucheDonnees;
 }
 
 const BOSS_WHATSAPP = "+237681462982";
@@ -236,10 +372,10 @@ async function fetchProjectsServer(): Promise<any[] | null> {
     .order('updated_at', { ascending: false })
     .limit(200);
   if (error) {
-    console.warn("Supabase select projects:", error.message);
+    console.warn("Select projects:", error.message);
     return null;
   }
-  return data || [];
+  return enLignes(data);
 }
 
 async function persistProject(p: StoredProject): Promise<boolean> {
@@ -461,20 +597,18 @@ async function fetchReportsServer() {
 }
 
 // ============================================================
-// Supabase anon client — nécessaire au login membres (GoTrue).
-// Requis : SUPABASE_ANON_KEY dans .env / variables Render.
-// ============================================================
-let supabaseAnon: SupabaseClient | null = null;
-function getSupabaseAnon(): SupabaseClient | null {
-  if (supabaseAnon) return supabaseAnon;
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_ANON_KEY;
-  if (url && key && key !== "MY_SUPABASE_ANON_KEY") {
-    supabaseAnon = createClient(url, key);
-    return supabaseAnon;
-  }
-  return null;
-}
+// Client « anon » : disparu.
+//
+// Il n'existait que pour appeler GoTrue (`auth.signInWithPassword`,
+// `auth.getUser`, `auth.admin.*`). Ces six appels sont desormais
+// locaux : `verifierMotDePasse` et `verifierJetonAcces`
+// (src/db/auth.ts).
+//
+// Consequence searchingly utile : `requireAuth` ne fait plus un
+// aller-retour reseau par requete authentifiee pour valider le
+// jeton. La signature est verifiee en memoire, et le membre est
+// charge en une seule requete. Le chemin authentifie passe de deux
+// requetes reseau a une.
 
 // ============================================================
 // Auth membres, permissions & journal d'activité (Arckaton OS)
@@ -526,7 +660,21 @@ function normalizePermissions(p: any): string[] {
   return [];
 }
 
-function hasPerm(member: MemberRow, perm: string): boolean {
+// Forme minimale necessaire pour decider d'une permission. Volontairement
+// structurelle plutot que `MemberRow` : `id`, `name`, `email` et `pole` ne
+// jouent aucun role dans une decision d'autorisation, et les lister
+// obligerait les tests a fabriquer des enregistrements factices complets.
+type ContentVisibilityMember = {
+  active?: boolean;
+  role?: string;
+  permissions?: unknown;
+};
+
+// Accepte une forme structurelle plutot que `MemberRow` : seuls `active`,
+// `role` et `permissions` determinent une permission. Cela permet aux
+// regles metier derivees (comme `contentVisibility`) d'etre testees avec un
+// objet minimal, sans passer par un cast.
+function hasPerm(member: ContentVisibilityMember, perm: string): boolean {
   if (!member.active) return false;
   if (member.role === 'admin') return true;
   return normalizePermissions(member.permissions).includes(perm);
@@ -534,31 +682,85 @@ function hasPerm(member: MemberRow, perm: string): boolean {
 
 type AuthReq = express.Request & { member?: MemberRow };
 
+// Variante non bloquante de `requireAuth`, pour les routes qui servent le
+// MEME contenu a deux publics.
+//
+// `GET /api/content` alimente a la fois le site vitrine (public) et le
+// back-office du CMS (membres ayant la permission `content`). Or le filtre
+// anti-fuite de brouillons doit s'appliquer au public seulement : sinon
+// l'editeur ne voit plus ses propres brouillons et ne peut plus les
+// modifier.
+//
+// Cette fonction ne bloque jamais : en cas de jeton absent, invalide ou de
+// configuration Supabase absente, elle laisse simplement `req.member` non
+// defini, et la route sert alors la version publique.
+//
+// Court-circuit avant tout appel reseau : un jeton qui n'a pas la forme d'un
+// JWT est rejete sans joindre Supabase. `GET /api/content` est publique, donc
+// n'importe qui peut l'appeler ; sans ce filtre, une rafale de requetes
+// anonymes portant `Authorization: Bearer n'importe-quoi` transformait une
+// route de site vitrine en generateur d'appels sortants vers GoTrue, depuis
+// des IP non authentifiees, pour un resultat toujours identique. Le plafond
+// de 120/min par IP limite le debit mais n'empeche pas d'atteindre le quota
+// de session d'un tiers partageant la meme adresse.
+const JWT_RE = /^[\w-]+\.[\w-]+\.[\w-]+$/;
+const MAX_TOKEN_LENGTH = 4096;
+
+// `false` = jeton manifestement invalide, inutile d'aller le valider.
+// Exporte pour etre teste directement : `optionalAuth` ne bloque jamais, donc
+// le code HTTP de la reponse est identique (200) que le jeton ait ete
+// ecarte ou valide. Un test base sur le statut ne prouve donc RIEN — c'est
+// precisement pour ca que la regle est isolee ici.
+function looksLikeJwt(token: string): boolean {
+  return token.length <= MAX_TOKEN_LENGTH && JWT_RE.test(token);
+}
+
+async function optionalAuth(req: AuthReq, _res: any, next: any): Promise<void> {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  if (!token) return next();
+  // Un jeton valide est un JWT : trois segments base64url separes par des
+  // points. Un segment unique, ou un format inattendu, ne peut pas venir de
+  // l'emittrice, inutile donc de l'aller demonter.
+  //
+  // Ce filtre garde sa valeur meme si la verification est devenue locale :
+  // ecarter un `Authorization: Bearer <10 Ko de parasite>` sans meme
+  // hmac fait gagner un calcul cryptographique sur chaque appel.
+  if (!looksLikeJwt(token)) return next();
+  try {
+    // Verification locale : signature + expiration, sans appel reseau.
+    const memberId = verifierJetonAcces(token);
+    if (!memberId) return next();
+    const member = await getMemberByUserId(memberId);
+    if (member && member.active) req.member = member;
+  } catch (err) {
+    // Un jeton douteux ne doit jamais faire echouer la lecture publique.
+    console.warn('optionalAuth: jeton ignore:', err);
+  }
+  return next();
+}
+
 async function requireAuth(req: AuthReq, res: any, next: any): Promise<void> {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   if (!token) {
     return res.status(401).json({ error: 'Authentification requise' });
   }
-  // getSupabaseAnon() leve si l'URL est absente ou mal formee. L'appel etait
-  // fait hors du try : une configuration incomplete suffisait a faire tomber
-  // tout le process, coupant le site public y compris.
-  let anon: ReturnType<typeof getSupabaseAnon> | null = null;
-  try {
-    anon = getSupabaseAnon();
-  } catch (err) {
-    console.error('requireAuth: configuration Supabase indisponible:', err);
+
+  // Base configuree ? Sans elle, aucune session n'a pu etre emise, et
+  // repondre 503 distingue « service casse » de « jeton invalide ».
+  if (!getSupabase()) {
     return res.status(503).json({ error: 'Service momentanément indisponible' });
   }
-  if (!anon) {
-    return res.status(503).json({ error: 'Service momentanément indisponible' });
-  }
+
   try {
-    const { data, error } = await anon.auth.getUser(token);
-    if (error || !data.user) {
+    // Signature et expiration verifiees en memoire : c'etait un aller-retour
+    // vers GoTrue, donc la moitie des I/O du chemin authentifie.
+    const memberId = verifierJetonAcces(token);
+    if (!memberId) {
       return res.status(401).json({ error: 'Session invalide ou expirée' });
     }
-    const member = await getMemberByUserId(data.user.id);
+    const member = await getMemberByUserId(memberId);
     if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS' });
     if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction' });
     req.member = member;
@@ -578,24 +780,106 @@ async function requireAuth(req: AuthReq, res: any, next: any): Promise<void> {
 // Le compteur est en mémoire : il protège contre l'usage abusif courant
 // sans ajouter de dépendance ni de coût. Il repart au redémarrage, ce qui
 // est acceptable ici.
+//
+// P0 — le seau est identifie par (route, IP) et non par la seule IP.
+//
+// Le code precedent mutualisait un compteur unique pour toutes les routes
+// protegees, partage par IP. Consequence concrete : un seul compteur pour
+// `/api/leads` (5/min), `/api/ai/agent-chat` (10/min), `/api/auth/login`
+// (10/15min) et le bootstrap. Un attaquant pouvait donc epuiser le quota de
+// connexion en 10 requetes et, ce faisant, bloquer les depot de leads du
+// site public — une deni de service laterally, de la page de contact vers
+// l'authentification interne. Inversement, un attaquant pouvait siphonner le
+// quota de leads pour faire echouer les tests de connexion.
+//
+// Chaque route a donc son propre compteur : le plafond que l'on declare
+// est exactement celui qui s'applique a cette route.
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
-function rateLimit(opts: { windowMs: number; max: number; message: string }) {
+// La recette multi-comptes enchaine 8+ connexions depuis une seule IP, et
+// la limite de `/api/auth/login` est de 10 par quart d'heure. Deux consequences
+// en local : la recette se bloque elle-meme, et il faut redemarrer le serveur
+// pour vider les compteurs en memoire.
+//
+// `RATE_LIMIT_OFF=1` desactive ces plafonds, mais ONLY si la base visee est
+// locale. En production, meme avec la variable posee, la parade reste active :
+// un administrateur qui la poserait par megarde n'affaiblirait pas la
+// securite. C'est la meme logique de verrouillage que dans les scripts de recette.
+//
+// La detection de « local » ne se base plus sur SUPABASE_URL, qui n'existe
+// plus. Elle repose sur l'hote de la base, ce qui est la seule chose qui
+// decide reellement ou atterrissent les donnees.
+//
+// Les trois conditions sont cumulatives et toutes obligatoires :
+//   - `RATE_LIMIT_OFF=1` pose explicitement ;
+//   - un hote de boucle locale (127.0.0.1, ::1, localhost) ;
+//   - `NODE_ENV` different de `production`.
+//
+// La derniere est une ceinture sur une ceinture. Si la chaine de connexion
+// designe un tunnel SSH, un proxy local ou un alias d'hote, les deux premieres
+// conditions peuvent passer alors que la base est reellement distante. Comme
+// le desactivation ne renvoie aucun signal a l'appelant — la reponse est
+// identique — le seul remede serait de couper les plafonds sans le voir venir.
+const HOSTS_LOCAUX = new Set(['127.0.0.1', 'localhost', '::1', '[::1]']);
+
+function hoteBaseCible(): string {
+  // `DATABASE_URL` prime : c'est la forme utilisee en production, et elle
+  // peut designer un hote distant meme si PGHOST dit local.
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    try {
+      return new URL(url).hostname.toLowerCase();
+    } catch {
+      return '';
+    }
+  }
+  return (process.env.PGHOST || '').toLowerCase();
+}
+
+const BASE_LOCALE =
+  HOSTS_LOCAUX.has(hoteBaseCible()) && process.env.NODE_ENV !== 'production';
+
+const RATE_LIMIT_OFF = rateLimitsDesactives(process.env);
+
+if (process.env.RATE_LIMIT_OFF === '1' && !RATE_LIMIT_OFF) {
+  console.warn(
+    '[rate-limit] RATE_LIMIT_OFF=1 IGNORE. Base cible : ' +
+      (hoteBaseCible() || '(inconnue)') +
+      ', NODE_ENV=' +
+      (process.env.NODE_ENV || '(non defini)') +
+      '. Les plafonds restent actifs.'
+  );
+}
+
+function rateLimit(opts: { windowMs: number; max: number; message: string; scope: string }) {
   return (req: any, res: any, next: any) => {
+    if (RATE_LIMIT_OFF) return next();
     // Render place tous les appels derrière un proxy : l'IP réelle est
     // dans X-Forwarded-For, et req.ip sinon vaudrait toujours le proxy.
-    const fwd = req.headers['x-forwarded-for'];
-    const ip =
-      (typeof fwd === 'string' ? fwd.split(',')[0].trim() : fwd && fwd[0]) ||
-      req.ip ||
-      req.socket?.remoteAddress ||
-      'inconnu';
+    //
+    // P0 : on ne lit plus le premier X-Forwarded-For fourni par le client.
+    // Ce code en prenait la partie gauche, que l'attaquant controle
+    // entierement : `X-Forwarded-For: 1.2.3.4` suffisait a repartir d'un
+    // compteur neuf a chaque requete, ce qui neutralisait completement la
+    // limitation.
+    //
+    // On lit `req.ip`, resolu par Express via la chaine de confiance
+    // declaree par `app.set('trust proxy', 1)`. Avec la valeur 1, c'est le
+    // dernier segment de X-Forwarded-For que le proxy de peripherie a
+    // ajoute — donc l'IP reelle, et non une valeur choisie par le client.
+    //
+    // Attention : si le proxy de periphere ne fait qu'ecrire l'en-tete sans
+    // y ajouter sa propre valeur, `req.ip` redevient pilotable par le
+    // client. C'est pourquoi la connexion protege en plus les COMPTES
+    // (accountAttempts), qui ne s'appuient sur aucune donnee reseau.
+    const ip = req.ip || req.socket?.remoteAddress || 'inconnu';
+    const key = `${opts.scope}|${ip}`;
 
     const now = Date.now();
-    const bucket = rateBuckets.get(ip);
+    const bucket = rateBuckets.get(key);
 
     if (!bucket || now > bucket.resetAt) {
-      rateBuckets.set(ip, { count: 1, resetAt: now + opts.windowMs });
+      rateBuckets.set(key, { count: 1, resetAt: now + opts.windowMs });
       return next();
     }
 
@@ -609,13 +893,102 @@ function rateLimit(opts: { windowMs: number; max: number; message: string }) {
   };
 }
 
-// Purge périodique pour éviter que la Map ne grossisse indéfiniment.
+// P0 — plafond par COMPTE, en complément du plafond par IP.
+//
+// Le plafond par IP repose sur `req.ip`, donc sur l'en-tete
+// X-Forwarded-For. Or, avec `trust proxy = 1`, Express retient le dernier
+// segment de cet en-tete : un client peut en choisir la valeur et
+// repartager un compteur neuf a chaque tentative. Verifie sur cette
+// application : deux appels avec le meme numero mais des
+// X-Forwarded-For differents passent tous les deux.
+//
+// Consequence : le plafond par IP, seul, n'arrete PAS le bourrage
+// d'identifiants (credential stuffing), qui vise un compte precis depuis
+// un grand nombre d'adresses.
+//
+// On ajoute donc un second compteur indexe sur l'adresse email visee. Il
+// resiste a la rotation d'IP : au bout de N echecs sur le meme compte,
+// celui-ci est refuse quel que soit l'IP d'origine. C'est la parade
+// standard, et elle se combine avec le plafond par IP : le robot distribue
+// ses tentatives sur plusieurs IP (bloque par IP) et Concentre ensuite son
+// reste sur une cible (bloque par compte).
+const accountAttempts = new Map<string, { count: number; resetAt: number }>();
+
+// 8 echecs sur 15 minutes : au-dela, le compte est temporairement verrouille
+// pour cette fenetre. Assez tolerant pour un membre legitime qui se trompe
+// de mot de passe, assez strict pour que le bourrage d'un compte ne soit pas
+// rentable. Le compteur se remise a zero des la premiere reussite.
+const ACCOUNT_MAX_FAILURES = 8;
+const ACCOUNT_WINDOW_MS = 15 * 60_000;
+
+function accountLocked(email: string): { locked: boolean; retryAfter: number } {
+  // Meme condition que les plafonds par IP : local uniquement.
+  if (RATE_LIMIT_OFF) return { locked: false, retryAfter: 0 };
+  const entry = accountAttempts.get(email);
+  if (!entry) return { locked: false, retryAfter: 0 };
+  if (Date.now() > entry.resetAt) {
+    accountAttempts.delete(email);
+    return { locked: false, retryAfter: 0 };
+  }
+  if (entry.count >= ACCOUNT_MAX_FAILURES) {
+    return {
+      locked: true,
+      retryAfter: Math.ceil((entry.resetAt - Date.now()) / 1000),
+    };
+  }
+  return { locked: false, retryAfter: 0 };
+}
+
+function recordFailedAttempt(email: string) {
+  const entry = accountAttempts.get(email);
+  if (!entry || Date.now() > entry.resetAt) {
+    accountAttempts.set(email, { count: 1, resetAt: Date.now() + ACCOUNT_WINDOW_MS });
+    return;
+  }
+  entry.count += 1;
+}
+
+function clearFailedAttempts(email: string) {
+  accountAttempts.delete(email);
+}
+
+// Purge périodique des compteurs.
+//
+// `accountAttempts` doit etre purge ici, et pas seulement lors d'une
+// nouvelle tentative sur la meme adresse : sinon un attaquant qui envoie des
+// adresses email arbitraires (et invalides) fait croitre la Map sans
+// borne — une adresse n'est nettoyee que si on la re-teste apres expiration,
+// ce que personne ne fera pour une adresse fantome.
 setInterval(() => {
   const now = Date.now();
   rateBuckets.forEach((b, k) => {
     if (now > b.resetAt) rateBuckets.delete(k);
   });
+  accountAttempts.forEach((a, k) => {
+    if (now > a.resetAt) accountAttempts.delete(k);
+  });
 }, 60_000).unref?.();
+
+// Verrou de bootstrap : voir la route POST /api/auth/bootstrap. Empeche
+// deux creations d'administrateur concurrentes sur cette instance.
+let bootstrapInProgress = false;
+
+/**
+ * Nom de l'index unique partiel interdisant deux administrateurs.
+ *
+ * Centralise ici parce que le code doit le comparer a `error.constraint`
+ * pour distinguer « un admin existe deja » d'« email deja pris » : les
+ * deux sont des violations d'unicite (23505), et le message de
+ * PostgreSQL ne dit pas laquelle. Le nom du parametre `esbuild` etant
+ * minifie, la comparaison doit se faire AVANT.
+ *
+ * Le nom ci-dessous doit correspondre a celui pose dans
+ * migrations/002_schema.sql. Il est verifie par un test sur la base
+ * reelle (tests/schema.constraints.test.ts) : si la migration est
+ * renommee sans que le code soit suivi, le test echoue au lieu que
+ * la reponse HTTP bascule silencieusement sur le mauvais message.
+ */
+const CONTRAINTE_ADMIN_UNIQUE = 'members_un_seul_admin';
 
 const requirePerm = (perm: string) => async (req: AuthReq, res: any, next: any) => {
   await requireAuth(req, res, () => {
@@ -640,10 +1013,50 @@ async function logActivity(actor: MemberRow, action: string, kind: string, ref: 
   if (error) console.warn('activity_log insert:', error.message);
 }
 
-async function fetchContentItems(): Promise<ContentRow[]> {
+// `onlyPublished` existe parce que le client de lecture utilise le role
+// `service_role`, qui contourne les politiques RLS. La policy
+// « content_items public read » (published = true) ne protege donc que les
+// appels directs a Supabase depuis le navigateur : elle ne protegeait pas
+// cette API, qui renvoyait les brouillons a tout le monde.
+//
+//   - appel public  → onlyPublished: true  (filtre applique par le serveur)
+//   - appel admin   → onlyPublished: false (le back-office voit les brouillons)
+//
+// Le filtre est pose dans la CHAINE DE REQUETE, jamais en JavaScript ensuite :
+// c'est la seule facon de garantir que les brouillons ne sont jamais
+// transites, meme s'ils resident en memoire pendant le traitement.
+//
+// `fetchItems` est injectable pour que le test observe les contraintes
+// reellement posees sur la requete. Une double de jeu qui applique
+// elle-meme `filter(published)` resterait verte avec le `.eq` supprime — ce
+// qui est exactement le defaut d'origine.
+async function fetchContentItems(
+  options: { onlyPublished?: boolean } = {},
+  fetchItems: (sb: unknown, opts: { onlyPublished?: boolean }) => Promise<ContentRow[]> = queryContentItems
+): Promise<ContentRow[]> {
   const sb = getSupabase();
   if (!sb) return [];
-  const { data, error } = await sb.from('content_items').select('*').order('position', { ascending: true });
+  return fetchItems(sb, options);
+}
+
+// Requete reelle. Le `.eq('published', true)` est LA ligne qui empeche la
+// fuite : c'est elle que les tests doivent surveiller.
+async function queryContentItems(
+  sb: unknown,
+  options: { onlyPublished?: boolean }
+): Promise<ContentRow[]> {
+  const client = sb as { from: (table: string) => ChainableQuery };
+  let query = client.from('content_items').select('*').order('position', { ascending: true });
+  if (options.onlyPublished) {
+    query = query.eq('published', true);
+  }
+  // Le client Supabase reel est un thenable : `await` declenche `then`, qui
+  // resout la requete. Les tests fournissent une chaine non-thenable
+  // dotee de `execute()`, d'ou l'appel explicite ci-dessous.
+  const result = typeof query.execute === 'function'
+    ? await query.execute()
+    : await query;
+  const { data, error } = result as { data: unknown[] | null; error: { message: string } | null };
   if (error) {
     console.warn('content_items select:', error.message);
     return [];
@@ -651,12 +1064,54 @@ async function fetchContentItems(): Promise<ContentRow[]> {
   return (data || []) as ContentRow[];
 }
 
-function groupContent(items: ContentRow[]): Record<string, any[]> {
-  const grouped: Record<string, any[]> = {};
+// Sous-ensemble du client Supabase utilise par `queryContentItems`.
+//
+// `then` rend la chaine awaitable, comme le client reel. `execute` est un
+// point d'arret explicite, absent du client reel : il permet aux tests de
+// fournir une chaine non-thenable. Sans lui, `await` sur une telle chaine
+// ne declencherait aucune resolution et renverrait l'objet brut.
+interface ChainableQuery {
+  select: (columns: string) => ChainableQuery;
+  order: (column: string, options: { ascending: boolean }) => ChainableQuery;
+  eq: (column: string, value: boolean) => ChainableQuery;
+  execute?: () => Promise<{ data: unknown[] | null; error: { message: string } | null }>;
+  then: <T>(
+    onFulfilled: (value: { data: unknown[] | null; error: { message: string } | null }) => T
+  ) => Promise<T>;
+}
+
+// Repartit les elements par famille pour la reponse de `GET /api/content`.
+//
+// Deux precautions, toutes deux publiees par le reviewer :
+//
+// 1. Seules les familles DECLARES dans `KIND_TO_RESPONSE_KEY` sont retenues.
+//    Avant, un `kind` inconnu (ou introduit par erreur) créait une clé
+//    dynamique dans la reponse publique : un brouillon portant un `kind`
+//    hors liste se retrouvait donc exposé sous sa propre clé, meme avec le
+//    filtre `published` intact.
+//
+// 2. Le dictionnaire est cree avec `Object.create(null)`. Sur un objet
+//    litteral, un `kind` valant `__proto__` ou `constructor` faisait
+//    retourner `Object.prototype` a `grouped[key]` — truthy — et le
+//    `.push()` suivant polluait le prototype global du processus. Le risque
+//    suppose un acces direct a la table (le `service_role` ignore les
+//    policies RLS), mais la parade coute trois caracteres.
+function groupContent(items: ContentRow[]): Partial<Record<ContentResponseKey, unknown[]>> {
+  const grouped = Object.create(null) as Partial<Record<ContentResponseKey, unknown[]>>;
   for (const item of items) {
-    const key = KIND_TO_RESPONSE_KEY[item.kind] || item.kind;
+    // `hasOwnProperty` est indispensable : sur un objet litteral,
+    // `KIND_TO_RESPONSE_KEY['constructor']` renvoie la fonction `Object`, et
+    // `['toString']` la methode heritee — toutes deux truthy. Un simple test
+    // de presence laissait donc passer ces pseudo-familles, dont la cle
+    // convoluee devenait "[object Object]". Une ligne `kind: 'toString'`
+    // suffisait a creer une cle parasite dans la reponse publique.
+    const key = Object.prototype.hasOwnProperty.call(KIND_TO_RESPONSE_KEY, item.kind)
+      ? KIND_TO_RESPONSE_KEY[item.kind]
+      : undefined;
+    // Famille inconnue : ignoree volontairement (voir point 1).
+    if (!key) continue;
     if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(item.data);
+    grouped[key]!.push(item.data);
   }
   return grouped;
 }
@@ -664,36 +1119,98 @@ function groupContent(items: ContentRow[]): Record<string, any[]> {
 // ============================================================
 // API Auth (login membres Arckaton OS)
 // ============================================================
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email et mot de passe requis' });
-    const anon = getSupabaseAnon();
-    if (!anon) {
-      return res.status(500).json({ error: 'Authentification non configurée (SUPABASE_ANON_KEY manquante)' });
+// P0 — limitation de debit sur l'authentification.
+//
+// `/api/auth/login` n'etait pas plafonnee : la seule parade etait la
+// protection de Supabase Auth, elle-meme submetue a ses propres quotas.
+// Un attaquant pouvait donc tester des couples email/mot de passe sans
+// limite, ce qui est la premiere etape d'une prise de controle.
+//
+// 10 tentatives par quart d'heure et par IP : assez large pour qu'un membre
+// legitime se trompe de mot de passe plusieurs fois, assez serre pour
+// rendre le forcage_brut inefficace. La reponse d'echec reste identique
+// (401 "Identifiants invalides") quel que soit le motif, pour ne pas
+// reveler quelles adresses existent.
+app.post(
+  '/api/auth/login',
+  rateLimit({
+    windowMs: 15 * 60_000,
+    max: 10,
+    scope: 'auth:login',
+    message: 'Trop de tentatives de connexion. Reessayez dans quelques minutes.',
+  }),
+  async (req, res) => {
+    try {
+      const { email, password } = req.body || {};
+      if (!email || !password) return res.status(400).json({ error: 'Email et mot de passe requis' });
+      if (typeof email !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ error: 'Email et mot de passe requis' });
+      }
+
+      // Normalise l'identifiant avant tout comptage : `  Direction@Test.COM`
+      // et `direction@test.com` doivent peser sur le meme compteur, sinon la
+      // parade par compte se contourne en changeant la casse ou en ajoutant
+      // des espaces.
+      const normalizedEmail = email.trim().toLowerCase().slice(0, 200);
+
+      // Verrou par compte, valable quelle que soit l'IP d'origine. Ce
+      // controle est place AVANT la verification du backend : un compte
+      // verrouille doit rester verrouille meme si l'authentification est
+      // momentanement indisponible, et la parade ne peut pas dependre de la
+      // disponibilite d'un service tiers.
+      const lock = accountLocked(normalizedEmail);
+      if (lock.locked) {
+        res.setHeader('Retry-After', String(lock.retryAfter));
+        return res.status(429).json({
+          error: 'Compte temporairement verrouille apres trop de tentatives. Reessayez plus tard.',
+        });
+      }
+
+      if (!getSupabase()) {
+        // Erreur d'infrastructure : on ne compte PAS cet essai. Compter ici
+        // permettrait a quiconque de verrouiller un compte tiers en provoquant
+        // des pannes, ou en attaquant pendant que l'auth est indisponible.
+        return res.status(500).json({ error: 'Authentification non configurée (DATABASE_URL / PGUSER manquants)' });
+      }
+
+      // Verification locale du mot de passe (bcrypt) contre
+      // `member_credentials`. Remplace `auth.signInWithPassword`.
+      const memberId = await verifierMotDePasse(normalizedEmail, password.slice(0, 200));
+      if (!memberId) {
+        recordFailedAttempt(normalizedEmail);
+        return res.status(401).json({ error: 'Identifiants invalides' });
+      }
+      // Reussite : on rend le compteur au compte.
+      clearFailedAttempts(normalizedEmail);
+
+      const member = await getMemberByUserId(memberId);
+      if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS. Contactez la direction.' });
+      if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction.' });
+
+      const session = emettreJetons(member.id);
+      if (!session) {
+        // JWT_SECRET absent ou trop court : on ne peut pas emettre de jeton
+        // sur une cle devinee, donc pas de session.
+        console.error('Login: JWT_SECRET absent ou trop court.');
+        return res.status(500).json({ error: 'Authentification non configurée (JWT_SECRET manquant)' });
+      }
+
+      await logActivity(member, 'login', 'member', member.id, {});
+      // Le refresh token est renvoyé au navigateur : sans lui, la session
+      // expire au bout d'une heure et l'utilisateur reste affiche comme
+      // connecte alors que toutes les requetes renvoient 401.
+      res.json({
+        token: session.token,
+        refreshToken: session.refreshToken,
+        expiresIn: session.expiresIn,
+        member,
+      });
+    } catch (err: any) {
+      console.error('Login error:', err);
+      res.status(500).json({ error: 'Erreur de connexion' });
     }
-    const { data, error } = await anon.auth.signInWithPassword({ email, password });
-    if (error || !data.session) {
-      return res.status(401).json({ error: 'Identifiants invalides' });
-    }
-    const member = await getMemberByUserId(data.user.id);
-    if (!member) return res.status(403).json({ error: 'Compte non habilité Arckaton OS. Contactez la direction.' });
-    if (!member.active) return res.status(403).json({ error: 'Compte désactivé par la direction.' });
-    await logActivity(member, 'login', 'member', member.id, {});
-    // Le refresh token est renvoyé au navigateur : sans lui, la session
-    // expire au bout d'une heure et l'utilisateur reste affiche comme
-    // connecte alors que toutes les requetes renvoient 401.
-    res.json({
-      token: data.session.access_token,
-      refreshToken: data.session.refresh_token,
-      expiresIn: data.session.expires_in,
-      member,
-    });
-  } catch (err: any) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Erreur de connexion' });
   }
-});
+);
 
 /**
  * Renouvellement de session.
@@ -704,45 +1221,94 @@ app.post('/api/auth/login', async (req, res) => {
  * suivi de "aucun membre trouvé", ce qui donne l'impression que l'annuaire
  * est vide alors que c'est la session qui est périmée.
  */
-app.post('/api/auth/refresh', async (req, res) => {
-  const { refreshToken } = req.body || {};
-  if (!refreshToken) return res.status(400).json({ error: 'Refresh token manquant' });
-  const anon = getSupabaseAnon();
-  if (!anon) return res.status(500).json({ error: 'Authentification non configurée' });
-  try {
-    const { data, error } = await anon.auth.refreshSession({ refresh_token: refreshToken });
-    if (error || !data.session) {
-      return res.status(401).json({ error: 'Session non renouvelable, reconnectez-vous' });
+// P0 — plafond sur le renouvellement. Sans lui, un refresh token vole
+// pouvait etre rejoue indefiniment pour renouveler une session volee.
+app.post(
+  '/api/auth/refresh',
+  rateLimit({
+    windowMs: 15 * 60_000,
+    max: 30,
+    scope: 'auth:refresh',
+    message: 'Trop de renouvellements de session. Reessayez dans quelques minutes.',
+  }),
+  async (req, res) => {
+    const { refreshToken } = req.body || {};
+    if (!refreshToken || typeof refreshToken !== 'string') {
+      return res.status(400).json({ error: 'Refresh token manquant' });
     }
-    res.json({
-      token: data.session.access_token,
-      refreshToken: data.session.refresh_token || refreshToken,
-      expiresIn: data.session.expires_in,
-    });
-  } catch (err: any) {
-    console.error('Refresh error:', err);
-    res.status(500).json({ error: 'Erreur de renouvellement' });
+    if (!getSupabase()) return res.status(500).json({ error: 'Authentification non configurée' });
+    try {
+      // Remplace `auth.refreshSession`. Deux changements par rapport a
+      // GoTrue :
+      //
+      //  - le membre est re-verifie. GoTrue ne le faisait pas : un refresh
+      //    rejoue sur un compte desactivé rendait un access token valide,
+      //    rejete ensuite par requireAuth (403). Le comportement visible
+      //    est identique, mais on evite d'emettre un jeton pour un compte
+      //    qui n'a plus le droit d'en avoir un.
+      //
+      //  - un nouveau refresh token est emis. GoTrue rotait aussi, mais
+      //    ici c'est explicite : le client remplace son jeton, donc un
+      //    ancien reste valide jusqu'a expiration (comportement
+      //    identique a celui d'aujourd'hui, documente dans src/db/auth).
+      const memberId = verifierJetonRefresh(refreshToken);
+      if (!memberId) {
+        return res.status(401).json({ error: 'Session non renouvelable, reconnectez-vous' });
+      }
+
+      const member = await getMemberByUserId(memberId);
+      if (!member || !member.active) {
+        return res.status(401).json({ error: 'Session non renouvelable, reconnectez-vous' });
+      }
+
+      const session = emettreJetons(member.id);
+      if (!session) {
+        console.error('Refresh: JWT_SECRET absent ou trop court.');
+        return res.status(500).json({ error: 'Authentification non configurée' });
+      }
+
+      res.json({
+        token: session.token,
+        refreshToken: session.refreshToken,
+        expiresIn: session.expiresIn,
+      });
+    } catch (err: any) {
+      console.error('Refresh error:', err);
+      res.status(500).json({ error: 'Erreur de renouvellement' });
+    }
   }
-});
+);
 
 app.post('/api/auth/logout', requireAuth, async (req: AuthReq, res) => {
   res.json({ success: true });
 });
 
 // ---- Bootstrap du premier admin (création du compte Directeur) ----
-app.get('/api/auth/bootstrap', async (_req, res) => {
-  try {
-    const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configuré' });
-    const { data, error } = await sb.from('members').select('id').eq('role', 'admin').limit(1).maybeSingle();
-    if (error) return res.status(500).json({ error: 'Base inaccessible: ' + error.message });
-    res.json({ needs: !data });
-  } catch (err) {
-    res.status(500).json({ error: 'Erreur bootstrap' });
+//
+// P0 — plafond sur les deux routes. Le bootstrap cree un compte
+// administrateur depuis Internet : sans limite, un attaquant pouvait
+// inonder la route pendant la fenetre de premier demarrage. 5 tentatives
+// par heure suffisent largement a un directeur.
+app.get(
+  '/api/auth/bootstrap',
+  rateLimit({ windowMs: 60 * 60_000, max: 5, scope: 'auth:bootstrap:status', message: 'Trop de tentatives. Réessayez plus tard.' }),
+  async (_req, res) => {
+    try {
+      const sb = getSupabase();
+      if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
+      const { data, error } = await sb.from('members').select('id').eq('role', 'admin').limit(1).maybeSingle();
+      if (error) return res.status(500).json({ error: 'Base inaccessible: ' + error.message });
+      res.json({ needs: !data });
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur bootstrap' });
+    }
   }
-});
+);
 
-app.post('/api/auth/bootstrap', async (req, res) => {
+app.post(
+  '/api/auth/bootstrap',
+  rateLimit({ windowMs: 60 * 60_000, max: 5, scope: 'auth:bootstrap:create', message: 'Trop de tentatives. Réessayez plus tard.' }),
+  async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
     if (!name || !email || !password) {
@@ -752,59 +1318,147 @@ app.post('/api/auth/bootstrap', async (req, res) => {
       return res.status(400).json({ error: 'Mot de passe : 6 caractères minimum' });
     }
     const admin = getSupabase();
-    const anon = getSupabaseAnon();
-    if (!admin || !anon) return res.status(500).json({ error: 'Supabase non configuré' });
+    if (!admin) return res.status(500).json({ error: 'Base de données non configurée' });
 
     const { data: existing } = await admin.from('members').select('id').eq('role', 'admin').limit(1).maybeSingle();
     if (existing) return res.status(403).json({ error: 'Un administrateur existe déjà (bootstrap effectué)' });
 
-    const { data: userData, error: createErr } = await admin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { name },
-    });
-    if (createErr || !userData?.user) {
-      return res.status(400).json({ error: createErr?.message || 'Impossible de créer le compte' });
-    }
+    // P0 — course entre deux bootstraps concurrents.
+    //
+    // Le controle ci-dessus (SELECT) et l'INSERT sont deux requetes
+    // distinctes : deux requetes simultanees lisaient toutes deux
+    // « aucun admin », puis toutes deux creaient un compte. Resultat :
+    // plusieurs administrateurs, dont un cree par un tiers depuis
+    // Internet.
+    //
+    // Le verrou applicatif ci-dessous evite de faire deux hachages
+    // bcrypt (cout 12, ~200 ms chacun) sur une requete qui sera
+    // rejetee. Il ne suffit pas : il est local au process, donc sans
+    // effet sur une seconde instance. La garantie reelle est la
+    // contrainte `members_un_seul_admin` (UNIQUE partielle sur
+    // `role = 'admin'`) posee dans migrations/002_schema.sql. Deux
+    // instances concurrentes se disputent cette contrainte, et l'une
+    // recoit une violation d'unicite — traduite plus bas en 409.
+    const withBootstrapLock = async <T>(fn: () => Promise<T>): Promise<T | 'busy'> => {
+      if (bootstrapInProgress) return 'busy';
+      bootstrapInProgress = true;      try {
+        return await fn();
+      } finally {
+        bootstrapInProgress = false;
+      }
+    };
 
-    const { error: memberErr } = await admin.from('members').insert({
-      id: userData.user.id,
-      name,
-      email,
-      phone: phone || null,
-      role: 'admin',
-      pole: 'Direction',
-      poste_titre: 'Directeur Général',
-      permissions: [],
-      active: true,
-    });
-    if (memberErr) {
-      await admin.auth.admin.deleteUser(userData.user.id).catch(() => null);
-      return res.status(500).json({ error: 'Échec enregistrement du membre: ' + memberErr.message });
-    }
+    const result = await withBootstrapLock(async () => {
+      // Second controle, cette fois sous verrou : si un administrateur
+      // existe, on refuse sans bcrypt.
+      //
+      // ATTENTION — cette condition etait inversee. Le code d'origine
+      // portait `if (!stillNone) return 'busy'`, c'est-a-dire « s'il
+      // n'y a AUCUN administrateur, refuse ». Le bootstrap repondait
+      // donc toujours 409 « Initialisation deja en cours », y compris
+      // sur une base vide et au tout premier lancement. Personne ne
+      // pouvait donc creer le premier compte, et la seule facon de
+      // sortir de l'etat « pas d'admin » etait l'interface
+      // d'accueil, qui appelait une autre route.
+      //
+      // Le test de recette ne l'avait pas vu : il demarrait avec un
+      // admin deja en base, donc la branche n'etait jamais prise.
+      const { data: stillNone } = await admin.from('members').select('id').eq('role', 'admin').limit(1).maybeSingle();
+      if (stillNone) {
+        return { conflict: true, message: 'Un administrateur existe déjà (bootstrap effectué)' } as const;
+      }
 
-    const { data: session, error: signinErr } = await anon.auth.signInWithPassword({ email, password });
-    if (signinErr || !session?.session) {
-      return res.status(500).json({ error: 'Compte créé mais connexion impossible — réessayez.' });
+      // L'identifiant est genere ici : GoTrue le faisait, et
+      // `members.id` le recyclait tel quel. Format inchange (uuid).
+      const memberId = nouvelIdentifiantMembre();
+
+      // Le membre est insere AVANT les identifiants, pour que
+      // `member_credentials.member_id` (ON DELETE CASCADE) ait une
+      // cible. L'inverse laisserait des identifiants orphelins si
+      // l'INSERT membre echouait.
+      //
+      // Note : `isUniqueViolation` distingue le cas « un autre admin
+      // vient d'etre cree » (409, le client doit recharger) d'une
+      // erreur de saisie (400). Sans cette distinction, un email deja
+      // pris et un bootstrap rejoue renvoyaient la meme erreur, et le
+      // second cas ressemblerait a une panne alors que la base etait
+      // parfaitement saine.
+      const { data: memberRow, error: memberErr } = await admin
+        .from('members')
+        .insert({
+          id: memberId,
+          name,
+          email,
+          phone: phone || null,
+          role: 'admin',
+          pole: 'Direction',
+          poste_titre: 'Directeur Général',
+          permissions: [],
+          active: true,
+        })
+        .select('*')
+        .single();
+      if (memberErr) {
+        if (isUniqueViolation(memberErr)) {
+          return { conflict: true, message: 'Un administrateur existe déjà (bootstrap effectué)' } as const;
+        }
+        return { failure: 'Échec enregistrement du membre: ' + memberErr.message } as const;
+      }
+
+      // Remplace `auth.admin.createUser` : l'email vit desormais dans
+      // `member_credentials` (et dans `members` pour l'affichage), et
+      // le hash bcrypt ici. Le compte n'existe que si les deux INSERT
+      // reussissent.
+      const ok = await definirIdentifiants(memberId, String(email), String(password));
+      if (!ok) {
+        // Remise en etat : sans le membre, les identifiants n'ont plus
+        // de cible et le compte n'existe pas. Sans ce nettoyage, on
+        // laisserait un admin sans mot de passe — un compte que
+        // personne ne peut ouvrir, et que le bootstrap refuse ensuite
+        // de recreer (l'admin existe deja).
+        await admin.from('members').delete().eq('id', memberId);
+        return { failure: 'Compte créé mais connexion impossible — réessayez.' } as const;
+      }
+
+      // Emission directe plutot qu'un second appel `signInWithPassword`
+      // : le mot de passe vient d'etre verifie, le refaire serait un
+      // bcrypt de plus pour obtenir exactement le meme resultat.
+      const session = emettreJetons(memberId);
+      if (!session) {
+        await supprimerIdentifiants(memberId);
+        await admin.from('members').delete().eq('id', memberId);
+        return { failure: 'Authentification non configurée (JWT_SECRET manquant)' } as const;
+      }
+
+      await admin
+        .from('activity_log')
+        .insert({
+          actor_id: memberId,
+          actor_name: name,
+          action: 'bootstrap admin',
+          kind: 'member',
+          ref: memberId,
+          details: { note: 'Création du compte Directeur (premier admin)' },
+        });
+
+      return { token: session.token, member: memberRow } as const;
+    });
+    if (result === 'busy') {
+      return res.status(409).json({ error: 'Initialisation déjà en cours. Réessayez dans un instant.' });
     }
-    const { data: memberRow } = await admin.from('members').select('*').eq('id', userData.user.id).maybeSingle();
-    await admin
-      .from('activity_log')
-      .insert({
-        actor_id: userData.user.id,
-        actor_name: name,
-        action: 'bootstrap admin',
-        kind: 'member',
-        ref: userData.user.id,
-        details: { note: 'Création du compte Directeur (premier admin)' },
-      });
-    res.json({ token: session.session.access_token, member: memberRow });
+    if ('conflict' in result) {
+      return res.status(409).json({ error: result.message });
+    }
+    if ('failure' in result) {
+      return res.status(400).json({ error: result.failure });
+    }
+    res.json({ token: result.token, member: result.member });
   } catch (err: any) {
     console.error('Bootstrap error:', err);
     res.status(500).json({ error: 'Erreur initialisation' });
   }
-});
+  }
+);
 
 app.get('/api/auth/me', requireAuth, (req: AuthReq, res) => {
   res.json({ member: req.member });
@@ -818,7 +1472,7 @@ app.get('/api/auth/me', requireAuth, (req: AuthReq, res) => {
 // à /api/members qui reste réservé à la direction.
 app.get('/api/members/directory', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+  if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
   const { data, error } = await sb
     .from('members')
     .select('id, name, role, pole, poste_titre, email, phone')
@@ -830,7 +1484,7 @@ app.get('/api/members/directory', requireAuth, async (req: AuthReq, res) => {
 
 app.get('/api/members', requirePerm('admin'), async (_req, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+  if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
   const { data, error } = await sb.from('members').select('*').order('created_at', { ascending: true });
   if (error) return res.status(500).json({ error: error.message });
   res.json({ members: data });
@@ -841,21 +1495,20 @@ app.post('/api/members', requirePerm('admin'), async (req: AuthReq, res) => {
     const { name, email, password, role, pole, poste_id, poste_titre, phone, permissions } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: 'Nom, email et mot de passe requis' });
     const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
-    const { data: created, error: createErr } = await sb.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { name },
-    });
-    if (createErr || !created.user) {
-      return res.status(400).json({ error: createErr?.message || 'Échec création du compte' });
-    }
+    if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
+
     const perms = normalizePermissions(permissions);
+    // L'identifiant est genere ici (GoTrue le faisait puis le code
+    // recyclait comme `members.id`). Format inchange : uuid.
+    const memberId = nouvelIdentifiantMembre();
+
+    // Membre d'abord, identifiants ensuite : `member_credentials` est
+    // lie a `members` par ON DELETE CASCADE, donc les identifiants
+    // n'ont pas de cible si le membre n'existe pas.
     const { data: member, error: insErr } = await sb
       .from('members')
       .insert({
-        id: created.user.id,
+        id: memberId,
         name,
         email,
         phone: phone || null,
@@ -869,10 +1522,34 @@ app.post('/api/members', requirePerm('admin'), async (req: AuthReq, res) => {
       .select('*')
       .single();
     if (insErr) {
-      await sb.auth.admin.deleteUser(created.user.id).catch(() => {});
+      // Un email deja utilise, ou un second admin, echouent ici — la
+      // base tranche avant qu'on ne fasse un bcrypt inutile. La
+      // violation d'unicite est traduite en 409 pour qu'elle se
+      // distingue d'une erreur de saisie.
+      if (isUniqueViolation(insErr)) {
+        const contrainte = violatedConstraint(insErr);
+        return res.status(409).json({
+          error:
+            contrainte === CONTRAINTE_ADMIN_UNIQUE
+              ? 'Un administrateur existe déjà (bootstrap effectué)'
+              : 'Cette adresse email est déjà utilisée.',
+        });
+      }
       return res.status(400).json({ error: insErr.message });
     }
-    await logActivity(req.member!, 'create', 'member', member.id, { name, email, role, pole });
+
+    // Remplace `auth.admin.createUser` : bcrypt + INSERT dans
+    // `member_credentials`.
+    const ok = await definirIdentifiants(memberId, String(email), String(password));
+    if (!ok) {
+      // Remise en etat. Sans ce DELETE, le membre existerait sans
+      // identifiants : un compte que personne ne peut ouvrir, que
+      // l'admin devrait supprimer a la main.
+      await sb.from('members').delete().eq('id', memberId);
+      return res.status(400).json({ error: 'Échec création du compte' });
+    }
+
+    await logActivity(req.member!, 'create', 'member', enLigne(member)?.id, { name, email, role, pole });
     res.status(201).json({ member });
   } catch (err: any) {
     console.error('Create member error:', err);
@@ -888,8 +1565,8 @@ app.patch('/api/members/:id', requirePerm('admin'), async (req: AuthReq, res) =>
       return res.status(400).json({ error: 'Vous ne pouvez pas désactiver ou rétrograder votre propre compte administrateur.' });
     }
     const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
-    const patch: any = { updated_at: new Date().toISOString() };
+    if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
+    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (name !== undefined) patch.name = name;
     if (email !== undefined) patch.email = email;
     if (phone !== undefined) patch.phone = phone;
@@ -900,9 +1577,53 @@ app.patch('/api/members/:id', requirePerm('admin'), async (req: AuthReq, res) =>
     if (permissions !== undefined) patch.permissions = normalizePermissions(permissions);
     if (active !== undefined) patch.active = active;
     const { data: member, error } = await sb.from('members').update(patch).eq('id', id).select('*').single();
-    if (error) return res.status(400).json({ error: error.message });
-    if (password) await sb.auth.admin.updateUserById(id, { password }).catch(() => {});
-    if (email !== undefined) await sb.auth.admin.updateUserById(id, { email }).catch(() => {});
+    if (error) {
+      if (isUniqueViolation(error) && violatedConstraint(error) === CONTRAINTE_ADMIN_UNIQUE) {
+        return res.status(409).json({ error: 'Un administrateur existe déjà (bootstrap effectué)' });
+      }
+      return res.status(400).json({ error: error.message });
+    }
+
+    // Remplace `auth.admin.updateUserById`.
+    //
+    // ATTENTION — correction d'un bug de l'ancien code. Les deux
+    // appels `updateUserById` portaient un `.catch(() => {})` : leurs
+    // erreurs etaient avalees. Un changement d'email ou de mot de
+    // passe qui echouait (email deja pris chez GoTrue) laissait la
+    // reponse 200 : l'admin croyait avoir change le mot de passe,
+    // alors que l'ancien restait actif. C'est le genre d'echec qui se
+    // decouvre des la premiere connexion ratsee par l'utilisateur.
+    //
+    // On propage donc l'echec, en distinguant l'unicite (409) des
+    // autres cas. Le mot de passe est reecrit integralement, donc
+    // l'ancien est invalide immediatement.
+    if (password !== undefined && password !== null && password !== '') {
+      const cible = member as { email?: string } | null;
+      const emailCible = email !== undefined ? String(email) : cible?.email;
+      if (!emailCible) {
+        return res.status(400).json({ error: 'Email manquant : impossible de définir un mot de passe' });
+      }
+      const ok = await definirIdentifiants(id, emailCible, String(password));
+      if (!ok) {
+        return res.status(400).json({ error: 'Échec de la mise à jour du mot de passe' });
+      }
+    }
+    if (email !== undefined) {
+      // L'email est aussi la clef de connexion : sans cette mise a
+      // jour, `member_credentials` garderait l'ancien et le membre ne
+      // pourrait plus se connecter avec sa nouvelle adresse.
+      const { error: credErr } = await sb
+        .from('member_credentials')
+        .update({ email: String(email).toLowerCase() })
+        .eq('member_id', id);
+      if (credErr) {
+        if (isUniqueViolation(credErr)) {
+          return res.status(409).json({ error: 'Cette adresse email est déjà utilisée.' });
+        }
+        return res.status(400).json({ error: credErr.message });
+      }
+    }
+
     await logActivity(req.member!, 'update', 'member', id, { patch });
     res.json({ member });
   } catch (err: any) {
@@ -915,8 +1636,17 @@ app.delete('/api/members/:id', requirePerm('admin'), async (req: AuthReq, res) =
     const { id } = req.params;
     if (req.member!.id === id) return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte.' });
     const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
-    await sb.auth.admin.deleteUser(id).catch(() => {});
+    if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
+
+    // Remplace `auth.admin.deleteUser(id)` puis `members.delete()`.
+    //
+    // Deux requetes etaient necessaires parce que le compte vivait dans
+    // `auth.users` et le membre dans `members`, sans lien entre eux :
+    // si le second DELETE echouait, le compte d'authentification
+    // survivait sans profil. Ici, les identifiants sont lies a
+    // `members` par ON DELETE CASCADE : un seul DELETE suffit et il
+    // est atomique. Il n'y a plus d'etat intermediaire ou l'orphanelin
+    // est possible.
     const { error } = await sb.from('members').delete().eq('id', id);
     if (error) return res.status(400).json({ error: error.message });
     await logActivity(req.member!, 'delete', 'member', id, {});
@@ -1007,7 +1737,7 @@ function taskVersUi(row: TaskRow) {
 
 app.get('/api/tasks', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     // Le directeur voit tout. Les autres voient ce qu'elles ont cree,
     // ce qui leur est assigne, et leur pole : c'est la lecture qui evite
@@ -1015,7 +1745,25 @@ app.get('/api/tasks', requireAuth, async (req: AuthReq, res) => {
     const m = req.member!;
     let q = sb.from('tasks').select('*').order('cree_le', { ascending: false });
     if (m.role !== 'admin' && m.poste_id !== 'p1') {
-      q = q.or(`cree_par.eq.${m.id},assigne_a.eq.${m.id},pole.eq.${m.pole}`);
+      // Remplace `.or('cree_par.eq.X,assigne_a.eq.X,pole.eq.Y')`.
+      //
+      // La version chaine interpolait directement `m.id` et `m.pole`
+      // dans une chaine de langage PostgREST. Un pole contenant une
+      // virgule (« Tech, Digital ») aurait coupe la chaine en deux
+      // branches et produit `pole.eq.Tech` — donc elargi la lecture a
+      // TOUTES les taches du pole Tech, pour un membre du pole « Tech,
+      // Digital ». Le second defaut : ces valeurs ne sont pas
+      // echappees, donc un nom de pole contenant `)` suffisait a
+      // injecter une condition.
+      //
+      // La forme structuree passe les trois valeurs en parametres
+      // lies, donc l'injection est impossible par construction. See
+      // src/db/adapter.ts (`orChamps`).
+      q = q.orChamps([
+        { colonne: 'cree_par', valeur: m.id },
+        { colonne: 'assigne_a', valeur: m.id },
+        { colonne: 'pole', valeur: m.pole },
+      ]);
     }
     const { data, error } = await q;
     if (error) throw error;
@@ -1027,7 +1775,7 @@ app.get('/api/tasks', requireAuth, async (req: AuthReq, res) => {
 
 app.post('/api/tasks', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     const m = req.member!;
     // L'interface envoie `title`/`status`, la colonne `titre`/`statut`.
@@ -1043,7 +1791,19 @@ app.post('/api/tasks', requireAuth, async (req: AuthReq, res) => {
       description: String(req.body.description || '').slice(0, 2000),
       statut,
       priorite: req.body.priorite || req.body.priority || 'normale',
-      pole: req.body.pole || m.pole,
+      // P0 — `pole` ne vient plus du corps de requete.
+      //
+      // La lecture des taches (ligne 1370) filtre sur `pole.eq.<pole du
+      // membre>`. Un membre pouvait donc envoyer `pole: 'Tech'` et creer une
+      // tache dans un autre pole : elle echappait a sa propre vue et
+      // apparaisait dans celle d'un autre pole, ou elle n'a ni les
+      // informations ni la legitimite pour etre traitee.
+      //
+      // Seul un administrateur peut affecter une tache a un autre pole.
+      // Pour tout le monde, la tache appartient au pole de son auteur.
+      pole: m.role === 'admin' && typeof req.body.pole === 'string' && req.body.pole.trim()
+        ? req.body.pole.trim().slice(0, 60)
+        : m.pole,
       assigne_a: req.body.assigne_a || null,
       assigne_nom: req.body.assigne_nom || req.body.assigne || null,
       cree_par: m.id,
@@ -1062,11 +1822,12 @@ app.post('/api/tasks', requireAuth, async (req: AuthReq, res) => {
 
 app.patch('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     const { id } = req.params;
-    const { data: avant, error: findErr } = await sb.from('tasks').select('*').eq('id', id).maybeSingle();
+    const { data: avantBrut, error: findErr } = await sb.from('tasks').select('*').eq('id', id).maybeSingle();
     if (findErr) throw findErr;
+    const avant = enLigne(avantBrut);
     if (!avant) return res.status(404).json({ error: 'Tâche introuvable' });
 
     // Meme regle de lecture que le GET : on ne modifie pas une tache
@@ -1121,14 +1882,15 @@ app.patch('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
 // envoye dans le mauvais canal etait definitif.
 app.delete('/api/messages/:id', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     const m = req.member!;
-    const { data: ligne } = await sb
+    const { data: ligneBrute } = await sb
       .from('messages')
       .select('id, expediteur_id')
       .eq('id', req.params.id)
       .maybeSingle();
+    const ligne = enLigne(ligneBrute);
     if (!ligne) return res.status(404).json({ error: 'Message introuvable' });
     // Son auteur, ou la direction. Un message ecrit par quelqu un d'autre
     // n est pas effacable par un simple membre.
@@ -1146,14 +1908,15 @@ app.delete('/api/messages/:id', requireAuth, async (req: AuthReq, res) => {
 
 app.delete('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     const m = req.member!;
-    const { data: ligne } = await sb
+    const { data: ligneBrute } = await sb
       .from('tasks')
       .select('id, cree_par, assigne_a, pole')
       .eq('id', req.params.id)
       .maybeSingle();
+    const ligne = enLigne(ligneBrute);
     if (!ligne) return res.status(404).json({ error: 'Tâche introuvable' });
     // Meme perimetre que la modification : auteur, assignee, ou direction.
     const autorise =
@@ -1198,7 +1961,7 @@ const canalConnu = (c: string) => CANAUX.includes(c);
 
 app.get('/api/messages', requireAuth, async (req, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     const canal = String(req.query.canal || req.query.channel || 'c-general');
     if (!canalConnu(canal)) return res.status(400).json({ error: 'Canal inconnu' });
@@ -1217,7 +1980,7 @@ app.get('/api/messages', requireAuth, async (req, res) => {
 
 app.post('/api/messages', requireAuth, async (req: AuthReq, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(503).json({ error: 'Supabase non configuré' });
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
   try {
     const m = req.member!;
     const canal = String(req.body.canal || req.body.channel_id || 'c-general');
@@ -1246,7 +2009,7 @@ app.post('/api/messages', requireAuth, async (req: AuthReq, res) => {
 
 app.get('/api/activity', requirePerm('admin'), async (_req, res) => {
   const sb = getSupabase();
-  if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+  if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
   const { data, error } = await sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(50);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ activity: data });
@@ -1258,7 +2021,12 @@ app.get('/api/activity', requirePerm('admin'), async (_req, res) => {
 const CONTENT_KINDS = ['config', 'forfait', 'blog', 'realisation', 'temoignage'];
 
 // Les `kind` stockes en base sont au singulier, les cles de reponse au pluriel
-const KIND_TO_RESPONSE_KEY: Record<string, string> = {
+// Les seules familles de contenu exposees par `GET /api/content`.
+// `groupContent` ignore tout `kind` absent de cette table : une famille
+// inconnue ne doit jamais creee de cle dans la reponse publique.
+type ContentResponseKey = 'config' | 'forfaits' | 'blog' | 'realisations' | 'temoignages';
+
+const KIND_TO_RESPONSE_KEY: Record<string, ContentResponseKey> = {
   config: 'config',
   forfait: 'forfaits',
   blog: 'blog',
@@ -1266,25 +2034,60 @@ const KIND_TO_RESPONSE_KEY: Record<string, string> = {
   temoignage: 'temoignages',
 };
 
-app.get('/api/content', async (_req, res) => {
+// P0 — fuite de brouillons corrigee.
+//
+// Cette route est publique (elle alimente le site vitrine). Elle renvoyait
+// tous les enregistrements, brouillons compris : un article non publie, une
+// realisation en cours de redaction ou un temoignage en attente de
+// validation etaient lisibles par n'importe quel visiteur, et meme
+// indexables par un moteur de recherche.
+//
+// Le filtre est applique cote serveur, parce que l'acces est en
+// `service_role`/`arckaton_app` et n'est filtre par aucune politique SQL
+// (cf. fetchContentItems et migrations/001_roles.sql).
+//
+// Deux publics, une seule route :
+//   - visiteur sans jeton, ou membre SANS la permission `content`
+//         → uniquement le contenu publie ;
+//   - membre avec la permission `content`
+//         → tout le contenu, brouillons inclus, sinon l'editeur ne
+//           verrait plus ce qu'il est en train d'ecrire et ne pourrait
+//           plus le modifier.
+// P0 — plafond sur la lecture du contenu.
+//
+// Ce plafond etait pose parce que `optionalAuth` validait chaque jeton
+// aupres de GoTrue : une rafale de requetes anonymes portant un jeton
+// bidon transformait cette route publique en generateur d'appels
+// sortants, depuis une IP non authentifiee.
+//
+// La verification est devenue locale (HMAC, src/db/auth.ts), donc le
+// risque d'amplification a disparu. Le plafond est NEANMOINS conserve :
+// c'est une route publique dont le cout dominant reste la requete SQL.
+// Le retirer « parce que le probleme qu'il corrigeait n'existe plus »
+// serait imbrique.
+//
+// 120/min par IP : tres au-dessus de la navigation normale d'un visiteur
+// (une requete au chargement), et assez bas pour interdire l'amplification.
+// Note : ce plafond repose sur `req.ip`, donc sur X-Forwarded-For — voir
+// l'avertissement de securite pose sur `app.set('trust proxy', 1)`.
+app.get(
+  '/api/content',
+  rateLimit({ windowMs: 60_000, max: 120, scope: 'content:read', message: 'Trop de requetes. Reessayez dans un instant.' }),
+  optionalAuth,
+  async (req: AuthReq, res) => {
   try {
-    const items = await fetchContentItems();
-    if (items.length === 0) {
-      return res.json({ config: null, forfaits: [], blog: [], realisations: [], temoignages: [] });
-    }
-    const grouped = groupContent(items);
-    res.json({
-      config: grouped.config?.[0] || null,
-      forfaits: grouped.forfaits || [],
-      blog: grouped.blog || [],
-      realisations: grouped.realisations || [],
-      temoignages: grouped.temoignages || [],
-    });
+    // Toute la decision — quel filtre appliquer, quoi mettre dans la reponse —
+    // vit dans une seule fonction, `serveContentFor`. C'est ce qui rend le P0.6
+    // verifiable : tant que la route faisait elle-meme l'appel
+    // `fetchContentItems({ onlyPublished })`, un test ne pouvait qu'observer
+    // une reponse vide et passerait meme avec le filtre supprime.
+    res.json(await serveContentFor(req.member, fetchContentItems));
   } catch (err) {
     console.error('GET /api/content error:', err);
     res.status(500).json({ error: 'Erreur lecture du contenu' });
   }
-});
+  }
+);
 
 app.put('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthReq, res) => {
   try {
@@ -1293,7 +2096,7 @@ app.put('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthReq,
     const { data, title, published, position } = req.body;
     if (kind !== 'config' && data === undefined) return res.status(400).json({ error: 'Donnée manquante' });
     const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
     const payload: any = {
       kind,
       slug,
@@ -1316,7 +2119,9 @@ app.put('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthReq,
           .eq('kind', 'config')
           .eq('slug', slug)
           .maybeSingle();
-        const avant = existante && typeof existante.data === 'object' ? existante.data : {};
+        const avantBrute = enLigne(existante)?.data;
+        const avant =
+          avantBrute && typeof avantBrute === 'object' ? avantBrute : {};
         payload.data = { ...avant, ...data };
       } else {
         payload.data = data;
@@ -1340,7 +2145,7 @@ app.post('/api/content/bulk', requirePerm('content'), async (req: AuthReq, res) 
     const { items } = req.body;
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Items requis' });
     const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
 
     // Un item sans `data` ne doit pas vider la ligne : `data: it.data || {}`
     // transformait un import incomplet en effacement du contenu existant.
@@ -1350,7 +2155,7 @@ app.post('/api/content/bulk', requirePerm('content'), async (req: AuthReq, res) 
       .select('kind,slug,data,title')
       .in('slug', items.map((i: any) => i.slug));
     const avantParCle = new Map<string, any>();
-    for (const ex of existantes || []) avantParCle.set(`${ex.kind}/${ex.slug}`, ex);
+    for (const ex of enLignes(existantes)) avantParCle.set(`${ex.kind}/${ex.slug}`, ex);
 
     const rows = items.map((it: any, idx: number) => {
       const cle = `${it.kind}/${it.slug}`;
@@ -1388,7 +2193,7 @@ app.delete('/api/content/:kind/:slug', requirePerm('content'), async (req: AuthR
   try {
     const { kind, slug } = req.params;
     const sb = getSupabase();
-    if (!sb) return res.status(500).json({ error: 'Supabase non configurée' });
+    if (!sb) return res.status(500).json({ error: 'Base de données non configurée' });
     const { error } = await sb.from('content_items').delete().match({ kind, slug });
     if (error) return res.status(400).json({ error: error.message });
     await logActivity(req.member!, 'delete', 'content', `${kind}/${slug}`, {});
@@ -1436,8 +2241,8 @@ RÈGLES CAPITALES STRICTES :
 4. ARKA-PME : Logiciel SaaS de gestion de stock, caisse, clients et Mobile Money, conçu pour fonctionner même avec une connexion internet faible ou intermittente. Essai GRATUIT de 30 jours disponible. Fait passer l'inventaire de 3h au cahier à ~12 minutes.
 5. LIVRAISON : Partout dans le monde (le digital n'a pas de frontière). Travail 100% à distance avec support réactif.
 6. PAIEMENT : FCFA, Mobile Money (MTN MoMo, Orange Money) ou virement bancaire. Acompte au démarrage + solde à la livraison. Le budget publicitaire est toujours séparé des honoraires.
-7. PREUVES & CONTACT : +337% de conversion chez Maison Kotto, 12 840 000 FCFA consolidés chez Districash Nord, note 4.9/5 sur Google. WhatsApp : +237 681 46 29 82, email : ARCKATON12@gmail.com, bureau Mimboman Yaoundé.
-8. INSTITUTIONNEL : Arckaton est la filiale technologique de SLOMAH SARL. Cette information peut être partagée de manière factuelle si le client l'évoque.
+  7. PREUVES & CONTACT : +337% de conversion chez Maison Kotto, 12 840 000 FCFA consolidés chez Districash Nord, note 4.9/5 sur Google. WhatsApp : +237 681 46 29 82, email : ARCKATON12@gmail.com, bureau Mimboman Yaoundé.
+  8. INSTITUTIONNEL : Arckaton est la filiale technologique de SLOMAH HOLDING. Cette information peut être partagée de manière factuelle si le client l'évoque.
 
 Ton style : Professionnel, chaleureux, concis, orienté conseil et conversion. Réponds en français soigné.
 `;
@@ -1487,34 +2292,57 @@ app.get("/api/health", async (req: AuthReq, res) => {
   // Le diagnostic complet reste réservé aux membres authentifiés.
   //
   // La présence d'un en-tête ne suffisait pas : n'importe quelle chaîne
-  // renvoyait déjà l'état de Supabase et de l'IA. Il faut un jeton valide.
+  // renvoyait déjà l'état de la base et de l'IA. Il faut un jeton valide.
   if (!req.headers.authorization) {
     return res.json({ status: "ok", service: "Arckaton Express Backend" });
   }
   await requireAuth(req, res, async () => {
-    // Diagnostic Supabase (aucun secret expose) : etat du client service + volume de contenu
-    const supabase: { adminClient: boolean; anonClient: boolean; contentItems: number | null; error: string | null } = {
-      adminClient: false,
-      anonClient: false,
+    // Diagnostic base de donnees (aucun secret expose) : configuration,
+    // joignabilite reelle, et volume de contenu.
+    //
+    // `baseConfig` distingue « pas configure » de « configure et
+    // injoignable ». Les deux donnaient `adminClient: false` avant, donc
+    // une panne reseau et une variable d'environnement manquante
+    // etaient indiscernables dans la sonde — on ne pouvait pas dire
+    // laquelle des deux corriger. `baseJoignable` est mesure, pas
+    // deduit.
+    const base: {
+      configuree: boolean;
+      joignable: boolean;
+      authOperationnelle: boolean;
+      contentItems: number | null;
+      error: string | null;
+    } = {
+      configuree: false,
+      joignable: false,
+      authOperationnelle: false,
       contentItems: null,
       error: null,
     };
     try {
       const sb = getSupabase();
-      supabase.adminClient = Boolean(sb);
-      supabase.anonClient = Boolean(getSupabaseAnon());
+      base.configuree = Boolean(sb);
       if (sb) {
         const { count, error } = await sb.from('content_items').select('*', { count: 'exact', head: true });
-        if (error) supabase.error = error.message;
-        else supabase.contentItems = count ?? 0;
+        if (error) base.error = error.message;
+        else {
+          base.joignable = true;
+          base.contentItems = count ?? 0;
+        }
+        // Verifie que l'auth peut emettre ET lire. Un `JWT_SECRET` absent
+        // ne se voit pas sur `configuree` : la base repond, mais aucun
+        // login ne peut aboutir. La sonde doit le dire.
+        const integrite = await verifierIntegriteAuth();
+        base.authOperationnelle = integrite.ok;
+        if (!integrite.ok && !base.error) base.error = integrite.message;
       }
-    } catch (err: any) {
-      supabase.error = err?.message || 'exception inattendue';
+    } catch (err: unknown) {
+      base.error = err instanceof Error ? err.message : 'exception inattendue';
     }
     res.json({
       status: "ok",
       service: "Arckaton Express Backend",
-      supabase,
+      base,
       // Etat reels, derives de la configuration du serveur. La cle n'est
       // jamais renvoyee, seulement sa presence.
       ai: {
@@ -1527,21 +2355,98 @@ app.get("/api/health", async (req: AuthReq, res) => {
   });
 });
 
+// P0 — Relais WhatsApp arbitraire corrige.
+//
+// AVANT : `to_numbers` venait du corps de la requete. POST /api/leads etait
+// publique, donc n'importe qui pouvait envoyer un message arbitraire a
+// n'importe quel numero, depuis le numero Business de l'agence. Impact :
+// spam et hameconnage au nom d'Arckaton, blocage du numero par Meta,
+// facturation des envois.
+//
+// APRES : le client ne peut plus designer le destinataire ni le contenu.
+//   - le destinataire est le Boss (BOSS_WHATSAPP), donne par le serveur ;
+//   - le message est construit par le serveur a partir de champs dument
+//     valides, jamais d'un texte libre fourni par l'appelant ;
+//   - les longueurs sont bornees avant envoi.
+//
+// La liste blanche de destinations est centralisee dans `buildOutboxTargets`
+// pour que les deux routes (lead + rapport) partagent exactement la meme
+// logique. Ajouter un destinataire devient une decision serveur explicite.
+function buildOutboxTargets(): string[] {
+  const bossNumber = BOSS_WHATSAPP.replace(/\D/g, '');
+  return [bossNumber];
+}
+
+function truncate(s: string, n: number): string {
+  return String(s == null ? '' : s).slice(0, n);
+}
+
+// Champs texte acceptes depuis une requete publique, longueur bornee.
+// Sans cette normalisation, un nom de 10 Mo serait stocke puis renvoye
+// dans la file WhatsApp.
+function cleanStr(v: unknown, max: number): string {
+  if (typeof v !== 'string') return '';
+  // On retire les caracteres de controle et on borne. Le contenu reste du
+  // texte libre : c'est la nature du formulaire de contact.
+  return v.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
+}
+
 // Agent Chat endpoint
 // Ouverte au public (visiteurs du site) mais plafonnée : chaque appel
 // consomme du quota Gemini.
-app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, message: 'Trop de messages envoyés. Réessayez dans une minute.' }), async (req, res) => {
+//
+// P0 — injection de prompt corrigee. Le prompt etait construit par
+// concatenation : `message`, `history` et `pole` venaient du client et
+// pouvaient contenir n'importe quelles instructions, placées avant la
+// consigne systeme. Un visiteur pouvait donc faire ignorer les garde-fous
+// (« n'invente pas de prix », « reponds en francais »).
+//
+// Apres correction :
+//   - `message` et chaque element de `history` sont bornes et nettoyes ;
+//   - l'historique est limite a 10 messages, pour qu'un historique enorme
+//     ne consomme pas le quota de Gemini ;
+//   - `pole` est valide contre la liste fermee des poles ;
+//   - les consignes systeme passent par `systemInstruction`, que Gemini
+//     traite comme prioritaire, et non plus dans `contents`.
+app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, scope: 'ai:agent-chat', message: 'Trop de messages envoyés. Réessayez dans une minute.' }), async (req, res) => {
   try {
-    const { pole, message, history } = req.body;
+    const body = req.body || {};
+    const message = sanitizeForPrompt(body.message, 1000);
     if (!message) {
       return res.status(400).json({ error: "Message requis" });
     }
 
+    const requestedPole = typeof body.pole === 'string' ? body.pole : '';
+    const pole = KNOWN_POLES.includes(requestedPole) ? requestedPole : 'Direction';
+
+    const history = Array.isArray(body.history)
+      ? body.history
+          .slice(-10)
+          .map((m: any) => {
+            if (typeof m === 'string') return sanitizeForPrompt(m, 500);
+            const who = sanitizeForPrompt(m?.role || m?.from, 40);
+            const what = sanitizeForPrompt(m?.text || m?.content || m?.message, 500);
+            return what ? `${who || 'visiteur'}: ${what}` : '';
+          })
+          .filter(Boolean)
+          .join('\n')
+      : '';
+
     const ai = getGeminiClient();
     if (ai) {
       try {
-        const fullPrompt = `${SYSTEM_PROMPT_AGENT}\n\nPôle sollicité: ${pole || 'Direction'}\nHistorique récent: ${JSON.stringify(history || [])}\n\nClient: ${message}\nConseiller Arckaton:`;
+        const fullPrompt = [
+          history ? `Historique recent :\n${history}` : '',
+          `Pole sollicite : ${pole}`,
+          `Client : ${message}`,
+        ].filter(Boolean).join('\n\n');
+
+        // Les consignes systeme vont dans `systemInstruction`, que Gemini
+        // traite comme prioritaires et non comme du texte a discuter.
+        // Concatenes dans `contents`, elles perdaient face a une instruction
+        // du visiteur : c'est exactement le défaut que ce correctif supprime.
         const { texte, model } = await generateWithFallback(ai, {
+          systemInstruction: SYSTEM_PROMPT_AGENT,
           contents: fullPrompt,
         });
 
@@ -1563,13 +2468,20 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, message: '
 
 // Generate conversation report for Arckaton OS Dashboard
 // Génération de rapport : utilisée par le copilote OS (authentifié) ET par
-// l'agent public du site. Reste donc ouverte, mais plafonnée.
-app.post("/api/ai/generate-report", rateLimit({ windowMs: 60_000, max: 6, message: 'Trop de demandes de rapport. Réessayez dans une minute.' }), async (req, res) => {
+// l'agent public du site. Elle reste donc ouverte, mais :
+//   - plafonnée (rate limit ci-dessous) ;
+//   - `to_numbers` est IGNORE, destinataire impose par le serveur ;
+//   - les champs sont nettoyes et bornes avant stockage comme avant envoi.
+// L'exfiltration de donnees client vers Gemini est traitee separement
+// (voir /api/ai/copilot).
+app.post("/api/ai/generate-report", rateLimit({ windowMs: 60_000, max: 6, scope: 'ai:generate-report', message: 'Trop de demandes de rapport. Réessayez dans une minute.' }), async (req, res) => {
   try {
-    const { clientName, leadName, messages, pole, contactInfo, client_ref, summary: summaryOverride, recommendations, intention: intentionOverride, to_numbers } = req.body;
+    const { clientName, leadName, messages, pole, contactInfo, summary: summaryOverride, recommendations, intention: intentionOverride } = req.body || {};
+    // `to_numbers` et `client_ref` sont volontairement ignores (relais WhatsApp).
     
     // Determine intent
-    const textAll = (messages || []).map((m: any) => m.text || m.content || '').join(' ').toLowerCase();
+    const boundedMessages = Array.isArray(messages) ? messages.slice(0, 50) : [];
+    const textAll = boundedMessages.map((m: any) => m?.text || m?.content || '').join(' ').toLowerCase();
     let intention: 'devis' | 'essai' | 'information' = 'information';
     if (intentionOverride === 'devis' || intentionOverride === 'essai' || intentionOverride === 'information') {
       intention = intentionOverride;
@@ -1579,34 +2491,37 @@ app.post("/api/ai/generate-report", rateLimit({ windowMs: 60_000, max: 6, messag
       intention = 'devis';
     }
 
-    const summary = summaryOverride || `Échange avec ${clientName || 'visiteur'}. Le client s'est renseigné sur les solutions du pôle ${pole || 'Tech'}. Intention détectée : ${intention}. Recommandation : prise de contact par WhatsApp sous 24h.`;
+    const reportId = `rep-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const cleanClientName = cleanStr(clientName || leadName, 160) || 'Prospect Site Web';
+    const cleanPole = cleanStr(pole, 40) || 'Tech';
+    const cleanContact = cleanStr(contactInfo, 200) || 'À recueillir via WhatsApp';
+    const cleanSummary = cleanStr(summaryOverride, 1000) ||
+      `Échange avec ${cleanClientName}. Le client s'est renseigné sur les solutions du pôle ${cleanPole}. Intention détectée : ${intention}. Recommandation : prise de contact par WhatsApp sous 24h.`;
 
     const report: StoredReport = {
-      id: `rep-${Date.now()}`,
-      client_name: clientName || leadName || 'Prospect Site Web',
-      sujet: `Qualification ${intention.toUpperCase()} — Pôle ${pole || 'Direction'}`,
-      pole: pole || 'Tech',
-      resume: summary,
+      id: reportId,
+      client_name: cleanClientName,
+      sujet: `Qualification ${intention.toUpperCase()} — Pôle ${cleanPole}`,
+      pole: cleanPole,
+      resume: cleanSummary,
       intention,
-      contact_info: contactInfo || 'À recueillir via WhatsApp',
+      contact_info: cleanContact,
       created_at: 'À l\'instant',
       status: 'non_traite',
-      messages_count: Array.isArray(messages) ? messages.length : 1
+      messages_count: boundedMessages.length || 1
     };
 
-    const persisted = await persistReport({ ...report, client_ref: client_ref || report.id, recommendations: recommendations || [] });
+    const persisted = await persistReport({ ...report, client_ref: reportId, recommendations: (Array.isArray(recommendations) ? recommendations : []).slice(0, 10).map((r: any) => cleanStr(r, 300)) });
 
-    const bossNumber = BOSS_WHATSAPP.replace(/[^\d]/g, '');
-    const targets = Array.isArray(to_numbers) && to_numbers.length
-      ? to_numbers.map((n: string) => n.replace(/[^\d]/g, ''))
-      : [bossNumber];
-    if (!targets.includes(bossNumber)) targets.unshift(bossNumber);
-
+    // Destinataire impose par le serveur, message construit par le serveur.
     await persistOutbox({
-      client_ref: client_ref || report.id,
+      client_ref: reportId,
       kind: 'report',
-      to_numbers: targets,
-      message: `Rapport IA (${intention.toUpperCase()}) — Pôle ${report.pole} — ${report.client_name} : ${report.resume}`.slice(0, 600),
+      to_numbers: buildOutboxTargets(),
+      message: truncate(
+        `Rapport IA (${intention.toUpperCase()}) - Pôle ${report.pole} - ${report.client_name} : ${report.resume}`,
+        600
+      ),
     });
 
     reportsStore.unshift(report);
@@ -1619,15 +2534,37 @@ app.post("/api/ai/generate-report", rateLimit({ windowMs: 60_000, max: 6, messag
 });
 
 // Leads API
-app.post("/api/leads", async (req, res) => {
+//
+// P0 — route publique non plafonnee. Elle ecrit en base et insere dans
+// l'outbox WhatsApp : sans limite, un script pouvait noyer la table `leads`
+// et faire partir des milliers de messages vers le numero du Boss. 5 par
+// minute et par IP laisse largement la place a un formulaire reel.
+app.post(
+  "/api/leads",
+  rateLimit({ windowMs: 60_000, max: 5, scope: 'leads:create', message: 'Trop de demandes envoyees. Reessayez dans une minute.' }),
+  async (req, res) => {
   try {
-    const { name, email, phone, project_type, budget, message, source, country, statut, notes, pole_assigned, client_ref, to_numbers } = req.body;
-    if (!name || !phone) {
+    // `to_numbers` et `client_ref` sont volontairement IGNORES. Ils permettaient
+    // de designer le destinataire et de neutraliser l'idempotence de la file.
+    const { name, email, phone, project_type, budget, message, source, country } = req.body || {};
+
+    const cleanName = cleanStr(name, 120);
+    const cleanPhone = cleanStr(phone, 32);
+    if (!cleanName || !cleanPhone) {
       return res.status(400).json({ error: "Nom et téléphone obligatoires" });
     }
 
-    let poleAssigned = pole_assigned || 'Direction';
-    const pType = (project_type || '').toLowerCase();
+    const cleanProjectType = cleanStr(project_type, 200) || 'Systeme digital sur mesure';
+    const cleanMessage = cleanStr(message, 1000) || 'Demande transmise depuis le site public.';
+    const cleanSource = cleanStr(source, 60) || 'site_v2_devis';
+    const cleanEmail = cleanStr(email, 160);
+    const cleanBudget = cleanStr(budget, 120) || 'Sur devis';
+    const cleanCountry = cleanStr(country, 80) || 'Cameroun / International';
+
+    // Le pole est deduit du type de projet, jamais accepte tel quel : un
+    // visiteur public ne doit pas pouvoir router son lead vers un pole interne.
+    let poleAssigned = 'Direction';
+    const pType = cleanProjectType.toLowerCase();
     if (pType.includes('e-commerce') || pType.includes('arka') || pType.includes('mobile money') || pType.includes('tech')) {
       poleAssigned = 'Tech';
     } else if (pType.includes('logo') || pType.includes('identité') || pType.includes('créat') || pType.includes('visuel')) {
@@ -1638,45 +2575,46 @@ app.post("/api/leads", async (req, res) => {
       poleAssigned = 'Client';
     }
 
+    // Identifiant applicatif genere par le serveur : le client ne fournit plus
+    // client_ref, avec lequel il pouvait ecraser ou inhiber une ligne de la file.
+    const leadId = `lead-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
     const newLead: StoredLead = {
-      id: `lead-${Date.now()}`,
-      name,
-      email: email || '',
-      phone,
-      project_type: project_type || 'Système digital sur mesure',
-      budget: budget || 'Sur devis',
-      message: message || 'Demande transmise depuis le site public.',
-      source: source || 'site_v2_devis',
-      statut: statut || 'nouveau',
-      notes: notes || '',
+      id: leadId,
+      name: cleanName,
+      email: cleanEmail,
+      phone: cleanPhone,
+      project_type: cleanProjectType,
+      budget: cleanBudget,
+      message: cleanMessage,
+      source: cleanSource,
+      statut: 'nouveau',
+      notes: '',
       pole_assigned: poleAssigned,
-      country: country || 'Cameroun / International',
+      country: cleanCountry,
       created_at: 'À l\'instant'
     };
 
     // Persistance durable (Supabase si configuré, sinon mémoire)
-    const persisted = await persistLead({ ...newLead, client_ref: client_ref || newLead.id });
+    const persisted = await persistLead({ ...newLead, client_ref: leadId });
 
-    // File WhatsApp automatique (idempotente) : boss + pôle assigné
-    const bossNumber = BOSS_WHATSAPP.replace(/[^\d]/g, '');
-    const targets = Array.isArray(to_numbers) && to_numbers.length
-      ? to_numbers.map((n: string) => n.replace(/[^\d]/g, ''))
-      : [bossNumber];
-    if (!targets.includes(bossNumber)) targets.unshift(bossNumber);
-
+    // Destinataire impose par le serveur, message construit par le serveur.
     await persistOutbox({
-      client_ref: client_ref || newLead.id,
+      client_ref: leadId,
       kind: 'lead',
-      to_numbers: targets,
-      message: `Nouveau lead (${source || 'site_v2_devis'}) — ${name} — ${project_type || 'Projet digital'} — Tél: ${phone} — ${message || ''}`.slice(0, 600),
+      to_numbers: buildOutboxTargets(),
+      message: truncate(
+        `Nouveau lead (${cleanSource}) - ${cleanName} - ${cleanProjectType} - Tel: ${cleanPhone} - ${cleanMessage}`,
+        600
+      ),
     });
 
     leadsStore.unshift(newLead);
 
     const waText = encodeURIComponent(
-      `Bonjour Arckaton ! Je suis ${name}. J'ai configuré un projet de ${project_type || 'création digitale'}. Mon contact est le ${phone}. Merci de me recontacter.`
+      `Bonjour Arckaton ! Je suis ${cleanName}. J'ai configure un projet de ${cleanProjectType}. Mon contact est le ${cleanPhone}. Merci de me recontacter.`
     );
-    const waLink = `https://wa.me/237681462982?text=${waText}`;
+    const waLink = `https://wa.me/${BOSS_WHATSAPP.replace(/\D/g, '')}?text=${waText}`;
     res.json({
       success: true,
       lead: newLead,
@@ -1687,7 +2625,8 @@ app.post("/api/leads", async (req, res) => {
     console.error("Erreur enregistrement lead:", err);
     res.status(500).json({ error: "Erreur enregistrement lead" });
   }
-});
+  }
+);
 
 // La lecture des leads contient des noms, telephones et emails clients :
 // elle est reservee aux membres habilites. L'ecriture (POST) reste publique
@@ -1775,7 +2714,7 @@ app.put("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res) =>
 app.delete("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
-    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    if (!sb) return res.status(501).json({ error: 'Base de donnees non configuree' });
     const { error } = await sb.from('projects').delete().eq('project_ref', req.params.ref);
     if (error) throw error;
     res.json({ success: true });
@@ -1838,7 +2777,7 @@ app.get("/api/quotes", requireDevis, async (_req, res) => {
 app.get("/api/quotes/next-ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
-    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    if (!sb) return res.status(501).json({ error: 'Base de donnees non configuree' });
     const type = String(req.query.type || 'devis');
     res.json({ quote_ref: await nextQuoteRef(sb, QUOTE_TYPES.includes(type) ? type : 'devis') });
   } catch (err: any) {
@@ -1850,7 +2789,7 @@ app.get("/api/quotes/next-ref", requirePerm('admin'), async (req: AuthReq, res) 
 app.post("/api/quotes", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
-    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    if (!sb) return res.status(501).json({ error: 'Base de donnees non configuree' });
 
     const body = req.body || {};
     if (!body.client_name) {
@@ -1912,7 +2851,7 @@ app.post("/api/quotes", requirePerm('admin'), async (req: AuthReq, res) => {
 app.patch("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
-    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    if (!sb) return res.status(501).json({ error: 'Base de donnees non configuree' });
     const ref = req.params.ref;
     if (!ref) return res.status(400).json({ error: "Reference manquante" });
 
@@ -1947,7 +2886,7 @@ app.patch("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) =>
 app.delete("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
-    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    if (!sb) return res.status(501).json({ error: 'Base de donnees non configuree' });
     const { error } = await sb.from('quotes').delete().eq('quote_ref', req.params.ref);
     if (error) throw error;
     res.json({ success: true });
@@ -1985,7 +2924,7 @@ app.get("/api/settings", requireAuth, async (_req, res) => {
 app.put("/api/settings", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();
-    if (!sb) return res.status(501).json({ error: "Supabase non configure" });
+    if (!sb) return res.status(501).json({ error: 'Base de donnees non configuree' });
 
     const body = req.body || {};
     const rows = Object.entries(body)
@@ -2013,30 +2952,150 @@ app.put("/api/settings", requirePerm('admin'), async (req: AuthReq, res) => {
   }
 });
 
+// P0 — Exfiltration de donnees client vers Gemini corrigee.
+//
+// AVANT : le client envoyait `leadsSummary` et `tasksSummary`, et le serveur
+// les concaténait tels quels dans le prompt. Concretement, le portefeuille de
+// prospects (noms, telephones, montants) et le backlog de taches partaient
+// chez un tiers. De plus `pathname` et `role` venaient du client : un appel
+// direct pouvait injecter n'importe quelles instructions en amont du system
+// prompt.
+//
+// APRES :
+//   1. le serveur ne transmet plus de donnees client a Gemini. Il resume
+//      lui-meme en chiffres agreges et non identifiants, et la reponse est
+//      explicitement traitee comme non fiable (voir `sanitizeForPrompt`) ;
+//   2. plus aucun champ du client n'entre dans le prompt : `pole` est
+//      valide contre la liste des poles connus, `query` est borne ;
+//   3. le system prompt est place en `systemInstruction`, que Gemini traite
+//      comme prioritaire, au lieu d'etre concatene dans `contents`.
+//
+// Ce correctif ne rend pas l'IA "locale" : Groq ou Gemini restent cloud. Il
+// arrete d'envoyer des donnees clients identifiantes a un tiers sans
+// consentement, ce qui est la violation de donnees la plus grave du module.
+
+// Liste fermee des poles. Un `pole` hors liste devient 'Direction' au lieu
+// d'etre injecte tel quel dans le prompt.
+const KNOWN_POLES = ['Direction', 'Creatif', 'Tech', 'Digital', 'Client', 'Externe'];
+
+// Normalise une entree destinee a un prompt.
+//
+// Retire les caracteres de controle (NUL, retour chariot, tabulation,
+// DEL...), qui ne servent qu'a tronquer ou a desobfusquer l'analyse, puis
+// borne la longueur.
+//
+// Les echappements sont ecrits en `\uXXXX` et non en caracteres litteraux :
+// un NUL brut dans le source casse le grep, certains editeurs et les
+// diffs, et invite a une regression a la reecriture.
+//
+// A PRECISER : ce filtre n'est PAS une parade contre l'injection
+// d'instructions. « Ignorez les regles precedentes » s'ecrit en ASCII et
+// passe. La parade reelle est le placement des consignes dans
+// `systemInstruction`, que le modele traite comme prioritaire (voir
+// POST /api/ai/agent-chat).
+function sanitizeForPrompt(s: unknown, max: number): string {
+  if (typeof s !== 'string') return '';
+  return s
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .slice(0, max)
+    .trim();
+}
+
+// Construit le contexte cockpit transmis a l'IA.
+//
+// Regle de confidentialite : ce contexte ne contient QUE des compteurs
+// agreges. Aucun nom de client, aucun telephone, aucun email, aucun montant
+// individuel. Le but est de donner a l'IA de quoi repondre utilement sur la
+// charge et la conversion, sans lui transmettre le portefeuille de prospects.
+//
+// Si la base est injoignable, on renvoie un contexte neutre plutot que de
+// laisser passer une erreur : le copilote doit rester utilisable.
+async function buildCockpitContext(): Promise<string> {
+  try {
+    const sb = getSupabase();
+    if (!sb) {
+      return '\n\nContexte cockpit : donnees indisponibles.';
+    }
+
+    const now = new Date();
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+
+    // Compteurs uniquement. `count: 'exact', head: true` ne transporte
+    // aucune ligne, donc aucune donnee client ne transite.
+    const [leadsRes, tasksRes, lateRes, quotesRes] = await Promise.all([
+      sb.from('leads').select('*', { count: 'exact', head: true }),
+      sb.from('tasks').select('*', { count: 'exact', head: true }).neq('statut', 'termine'),
+      sb.from('tasks').select('*', { count: 'exact', head: true }).neq('statut', 'termine').lt('echeance', now.toISOString().slice(0, 10)),
+      sb.from('quotes').select('*', { count: 'exact', head: true }).in('status', ['envoye', 'accepte', 'paye']),
+    ]);
+
+    const leads = leadsRes.count ?? 0;
+    const openTasks = tasksRes.count ?? 0;
+    const lateTasks = lateRes.count ?? 0;
+    const activeQuotes = quotesRes.count ?? 0;
+
+    return (
+      '\n\nContexte cockpit (compteurs agreges, aucun nominatif) :' +
+      `\n- Leads au total : ${leads}` +
+      `\n- Taches ouvertes : ${openTasks}` +
+      `\n- Taches en retard : ${lateTasks}` +
+      `\n- Devis actifs (envoye/accepte/paye) : ${activeQuotes}`
+    );
+  } catch (err) {
+    console.warn('buildCockpitContext:', err);
+    return '\n\nContexte cockpit : donnees indisponibles.';
+  }
+}
+
 // Copilot for Dashboard
 // Copilote stratégique : réservé aux membres connectés (OS).
-app.post("/api/ai/copilot", requireAuth, async (req, res) => {
+// P0 — plafond ajoute. C'etait le seul appel Gemini sans limite : un membre
+// authentifie (ou un jeton vole) pouvait boucler sur la route et epuiser le
+// quota Gemini, qui est partage avec le site public.
+app.post(
+  "/api/ai/copilot",
+  requireAuth,
+  rateLimit({ windowMs: 60_000, max: 10, scope: 'ai:copilot', message: 'Trop de questions. Reessayez dans une minute.' }),
+  async (req: AuthReq, res) => {
   try {
-    // Le client envoie `message`, l'ancien code attendait `query` : on accepte les deux
-    const { pole, pathname, role } = req.body;
-    const query: string = req.body.query || req.body.message || "";
-    if (!query) {
+    const body = req.body || {};
+    const query: string = typeof body.query === 'string' ? body.query
+      : typeof body.message === 'string' ? body.message : "";
+    const cleanQuery = sanitizeForPrompt(query, 1000);
+    if (!cleanQuery) {
       return res.status(400).json({ error: "Question requise" });
     }
+
+    // `pole` valide contre la liste fermee. `role` vient de la session
+    // (requireAuth) uniquement, jamais du corps de requete.
+    const requestedPole = typeof body.pole === 'string' ? body.pole : '';
+    const pole = KNOWN_POLES.includes(requestedPole) ? requestedPole : 'Direction';
+    const role = req.member?.role || 'membre';
+
+    // Contexte cockpit : calcule par le serveur, agrege et non identifiant.
+    // On ne transmet a Gemini que des compteurs, jamais un nom, un telephone
+    // ni un montant de lead.
+    const cockpit = await buildCockpitContext();
+
     const ai = getGeminiClient();
     
     if (ai) {
       try {
-        const cockpit = req.body.leadsSummary || req.body.tasksSummary
-          ? `\n\nContexte cockpit : ${JSON.stringify({ leads: req.body.leadsSummary, taches: req.body.tasksSummary })}`
-          : "";
-        const prompt = `Tu es le Copilote Opérationnel Arckaton OS pour le pôle ${pole || 'Direction'}.
-L'utilisateur est ${role || 'membre'}, actuellement sur l'écran : ${pathname || 'Dashboard'}.${cockpit}
-Question de l'utilisateur : ${query}.
-Donne une recommandation concise, experte et orientée rentabilité/qualité en 100-150 mots maximum en français.`;
+        // Les consignes et le contexte cockpit forment l'instruction
+        // systeme : le modele ne peut pas les confondre avec la question.
+        // Le client ne fournit QUE `cleanQuery`, qui entre dans `contents`.
+        const systemInstruction = `Tu es le Copilote Operationnel Arckaton OS pour le pole ${pole}.
+L'utilisateur est ${role} (donnee de session, non modifiable par le client).${cockpit}
+
+Consignes strictes :
+- Reponds en francais, en 100 a 150 mots maximum.
+- Oriente la reponse vers la rentabilite et la qualite operationnelle.
+- N'invente aucun chiffre client : seuls les compteurs agreges du cockpit sont fiables.
+- Si la question exige une donnee que tu n'as pas, dis-le explicitement.`;
 
         const { texte: text, model } = await generateWithFallback(ai, {
-          contents: prompt,
+          systemInstruction,
+          contents: `Question de l'utilisateur : ${cleanQuery}\n\nConseiller Arckaton:`,
         });
 
         return res.json({ reply: text, advice: text, source: 'gemini', aiEnabled: true, model });
@@ -2060,7 +3119,8 @@ Donne une recommandation concise, experte et orientée rentabilité/qualité en 
   } catch (err) {
     res.status(500).json({ error: "Erreur copilote" });
   }
-});
+  }
+);
 
 // Vite middleware setup
 async function startServer() {
@@ -2084,16 +3144,38 @@ async function startServer() {
       res.setHeader('Content-Type', 'application/manifest+json');
       res.sendFile(path.join(distPath, 'manifest.webmanifest'));
     });
+    // P0 — LFI corrigee.
+    //
+    // La version precedente faisait :
+    //     res.sendFile(path.join(distPath, 'icons', req.params.file))
+    // Express decode le parametre, donc une requete comme
+    //     GET /icons/..%2f..%2f.env
+    // sortait du dossier dist/icons et envoyait le .env de la racine du
+    // projet, contenant SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY et
+    // WHATSAPP_TOKEN. Aucun auth requis : compromission totale.
+    //
+    // Deux verrous independants :
+    //   1. path.basename neutralise toute forme de traversee
+    //      (`../`, `..%2f`, `....//`, backslashes Windows) ;
+    //   2. une allowlist explicite refuse tout fichier non_ATTENDU.
+    // Le premier suffit a securiser, le second evite qu'un nouveau
+    // fichier deposé dans dist/icons ne soit servi par accident.
+    const ICONS_ALLOWLIST = new Set(['icon.svg']);
     app.get('/icons/:file', (req, res) => {
-      res.sendFile(path.join(distPath, 'icons', req.params.file));
-    });
-
-    // Une route /api/* inexistante doit répondre 404 en JSON. Sans cela, le
-    // repli SPA renvoie index.html avec un 200, et un appel client mal orthographié
-    // passe pour un succès : le frontend reçoit du HTML et affiche une page vide
-    // au lieu de signaler l'endpoint manquant.
-    app.all('/api/*', (_req, res) => {
-      res.status(404).json({ error: "Route d'API inconnue." });
+      const requested = String(req.params.file || '');
+      // path.basename suffit : sur toute entree, il ne renvoie que le
+      // dernier segment. `..` seul devient '.', qui ne passe pas l'allowlist.
+      const safeName = path.basename(requested);
+      if (safeName !== requested || !ICONS_ALLOWLIST.has(safeName)) {
+        return res.status(404).json({ error: 'Icone inconnue' });
+      }
+      const iconPath = path.join(distPath, 'icons', safeName);
+      // Deuxieme verrou : le chemin resolu doit rester dans dist/icons.
+      // Casse en dur meme si l'allowlist etait contournee un jour.
+      if (!iconPath.startsWith(path.join(distPath, 'icons') + path.sep)) {
+        return res.status(404).json({ error: 'Icone inconnue' });
+      }
+      res.sendFile(iconPath);
     });
 
     // Repli SPA : uniquement pour les vrais chemins de pages.
@@ -2108,4 +3190,176 @@ async function startServer() {
   });
 }
 
-startServer();
+// L'application est exportee pour les tests d'integration (Supertest), qui
+// ont besoin de l'objet Express sans ouvrir de port.
+export { app };
+
+// Le verrouillage par compte est exporte pour etre teste directement.
+//
+// Pourquoi ne suffit pas un test d'integration sur POST /api/auth/login ?
+// Parce que le compteur n'est alimente que sur un echec REEL d'authentification.
+// Sans Supabase configure (le cas de la CI et des tests locaux), la route
+// repond 500 avant d'atteindre le compteur, et le test passerait sans
+// jamais exercer la logique qu'il pretend valider. Tester la fonction
+// directement evite ce faux vert.
+export const __authThrottle = {
+  accountLocked,
+  recordFailedAttempt,
+  clearFailedAttempts,
+  // Reinitialise les compteurs entre deux tests.
+  reset: () => {
+    accountAttempts.clear();
+    rateBuckets.clear();
+  },
+  ACCOUNT_MAX_FAILURES,
+  ACCOUNT_WINDOW_MS,
+};
+
+// Exporte pour tester la normalisation des entrees destinees a un prompt.
+export const __sanitizeForPrompt = sanitizeForPrompt;
+
+/**
+ * Regle de desactivation des plafonds, extraite pour etre testee.
+ *
+ * Elle est exposee comme fonction, et non comme constante, parce que la
+ * constante est evaluee au chargement du module — donc figee avant que
+ * le test puisse poser des variables. La fonction est pure : elle lit
+ * l'environnement qu'on lui passe. C'est ce qui permet d'eprouver les
+ * quatre cas qui comptent (local, production, hote distant, hote
+ * inconnu) sans redemarrer un serveur.
+ *
+ * Le cas `NODE_ENV=production` est le plus important : c'est la seule
+ * condition qui ne depend pas d'un parametre de connexion et qui
+ * survit a une erreur de configuration.
+ */
+export function rateLimitsDesactives(env: NodeJS.ProcessEnv = process.env): boolean {
+  if (env.RATE_LIMIT_OFF !== '1') return false;
+  if (env.NODE_ENV === 'production') return false;
+
+  const url = env.DATABASE_URL;
+  if (url) {
+    try {
+      // Une URL malformee ne doit pas faire echouer le chargement du
+      // module : on la traite comme « hote inconnu », donc la parade
+      // reste active.
+      return HOSTS_LOCAUX.has(new URL(url).hostname.toLowerCase());
+    } catch {
+      return false;
+    }
+  }
+  return HOSTS_LOCAUX.has((env.PGHOST || '').toLowerCase());
+}
+
+// Regle de visibilite du CMS : faut-il ne charger que les lignes publiees ?
+//
+// Extraite de la route pour etre testable sans base. C'etait le piege du
+// P0.6 : la regle vivait dans le corps de la route, donc impossible a
+// verifier autrement qu'en observant le contenu d'une reponse reelle — et
+// sans donnees, n'importe quel filtre passe le test.
+//
+// Un membre sans la permission `content` reste limite au publie, meme
+// authentifie : `content` est une permission d'EDITION, pas de lecture.
+function contentVisibility(member: ContentVisibilityMember | null | undefined): boolean {
+  if (!member) return true; // public : publie uniquement
+  if (member.active === false) return true; // compte desactive : publie
+  return !hasPerm(member, 'content');
+}
+
+// Forme de la reponse de GET /api/content.
+//
+// Chaque element est le champ `data` JSONB de la ligne, PAS la ligne
+// complete. C'etait masque par `ContentRow.data: any` : la fonction
+// declarait `ContentRow[]` alors qu'elle renvoyait le `data`, et TypeScript
+// ne pouvait pas le signaler. Un consommateur de la reponse aurait donc cru
+// disposer de `id`, `slug`, `published`... qui n'y sont pas. On le declare
+// explicitement, conformement a l'interdit de `any` d'AGENTS.md.
+interface ContentPayload {
+  config: unknown | null;
+  forfaits: unknown[];
+  blog: unknown[];
+  realisations: unknown[];
+  temoignages: unknown[];
+}
+
+// Construit la reponse de GET /api/content.
+//
+// Egalement extraite : le filtrage `published` se fait dans la requete
+// (`fetchContentItems`), la mise en forme ici. Deux etapes distinctes, donc
+// deux fonctions distinctes — sinon le formatage pouvait « rattraper » une
+// regression du filtrage en renvoyant des brouillons dans un autre champ.
+function buildContentPayload(items: ContentRow[]): ContentPayload {
+  const grouped = groupContent(items);
+  return {
+    config: grouped.config?.[0] ?? null,
+    forfaits: grouped.forfaits || [],
+    blog: grouped.blog || [],
+    realisations: grouped.realisations || [],
+    temoignages: grouped.temoignages || [],
+  };
+}
+
+// Point d'entree unique de GET /api/content : decide du filtre, charge, met
+// en forme.
+//
+// Le second parametre est injectable pour une raison precise : sans lui, le
+// test ne peut passer qu'un `member` et observer la reponse, or sans base de
+// donnees la reponse est vide — et un test qui observe un tableau vide passe
+// que le filtre fonctionne ou non. Injecter la fonction de chargement permet
+// de fournir un jeu de donnees contenant un brouillon et de verifier
+// reellement qu'un visiteur anonyme ne le recoit pas.
+async function serveContentFor(
+  member: ContentVisibilityMember | null | undefined,
+  load: (options: { onlyPublished?: boolean }) => Promise<ContentRow[]>
+): Promise<ReturnType<typeof buildContentPayload>> {
+  const onlyPublished = contentVisibility(member);
+  const items = await load({ onlyPublished });
+  return buildContentPayload(items);
+}
+
+export { contentVisibility as __contentVisibilityForTest, buildContentPayload as __buildContentPayloadForTest, serveContentFor as __serveContentForTest, looksLikeJwt as __looksLikeJwtForTest, queryContentItems as __queryContentItemsForTest, groupContent as __groupContentForTest };
+
+// P0 — contrat 404 de l'API honore dans TOUS les modes.
+//
+// Ce gestionnaire etait enregistre a l'interieur du bloc `else` (mode
+// production uniquement). En developpement — et donc dans les tests — une
+// route `/api/*` inexistante tombait sur le 404 HTML par defaut d'Express,
+// ou, pire, sur le repli SPA de Vite qui renvoie index.html avec un 200.
+//
+// Consequence reelle : une faute de frappe dans une URL d'API renvoyait un
+// succes, et le frontend essayait de lire du JSON dans du HTML. L'erreur
+// n'apparait qu'en developpement, donc le developpeur la corrigeait sans
+// jamais voir que la production etait fausse.
+//
+// On l'enregistre au niveau du module, apres toutes les routes : il ne
+// s'active donc que si aucune route n'a repondu.
+app.all('/api/*', (_req, res) => {
+  res.status(404).json({ error: "Route d'API inconnue." });
+});
+
+// P0 — demarrage automatique neutralise POUR LES TESTS UNIQUEMENT.
+//
+// Avant, `startServer()` etait appele au chargement du module, donc importer
+// `server.ts` depuis un test demarrait un vrai serveur sur le port 3000 et
+// lancait le worker WhatsApp : deux imports entraient en collision, et aucun
+// test d'endpoint n'etait possible.
+//
+// Le premier correctif testait si `process.argv[1]` se terminait par
+// `server.ts` ou `server.js`. C'etait un piege : le build de production
+// produit `dist/server.cjs`, et `npm start` execute precisement ce fichier.
+// La condition était donc fausse en production, le serveur ne demarrait pas,
+// et le processus se terminait sans erreur visible — un deploiement muet.
+//
+// On inverse donc la logique : on demarre SAUF en contexte de test. Le
+// defaut est de fonctionner, et l'exception est explicite. Vitest positionne
+// `VITEST=true` et `VITEST_WORKER_ID` avant tout import, ce qui rend la
+// detection fiable, independamment du chemin d'entree.
+const isTestContext =
+  process.env.NODE_ENV === 'test' ||
+  process.env.VITEST === 'true' ||
+  process.env.VITEST_WORKER_ID !== undefined;
+
+if (!isTestContext) {
+  startServer();
+} else {
+  console.log('[server] Contexte de test : aucun ecoute sur le port.');
+}

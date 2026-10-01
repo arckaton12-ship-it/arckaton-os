@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": {
+    "planka": {
+      "repository": "plankanban/planka",
+      "branch": "master",
+      "description": "Référence Kanban (MIT) : architecture WebSocket, structure cards, API REST, temps réel. Volumineux — cibler server/models et client/src/components/Board plutôt que le dépôt entier."
+    },
+    "mattermost": {
+      "repository": "mattermost/mattermost",
+      "branch": "master",
+      "description": "Référence messagerie (MIT) : channels, DMs, API, intégrations. Monorepo énorme (1800+ branches) — modèle de données dans server/channels, server/public, pas de lecture globale."
+    },
+    "espocrm": {
+      "repository": "espocrm/espocrm",
+      "branch": "master",
+      "description": "Référence CRM (LGPL v3) : pipeline ventes, entités, ACL, API. PHP : s'inspirer du modèle de données et des règles de permission, ne pas copier de code LGPL dans un produit propriétaire."
+    },
+    "strapi": {
+      "repository": "strapi/strapi",
+      "branch": "develop",
+      "description": "Référence CMS (MIT) : collections, content-types, API, permissions. Volumineux — viser packages/core/content-manager et packages/core/content-type-builder."
+    },
+    "africastalking": {
+      "repository": "AfricasTalkingLtd/africastalking-node.js",
+      "branch": "master",
+      "description": "Référence paiements (MIT) : SDK Node officiel, webhooks, Mobile Money MTN/Airtel/Orange. Petit dépôt, référence la plus directement exploitable. Noter : le dépôt s'appelle « africastalking-node.js » avec un point, pas « africastalking-nodejs »."
+    }
+  }
+}

@@ -13,9 +13,22 @@
 import { DEFAULT_SITE_CONFIG, INITIAL_BLOG_POSTS } from '../src/data/blogAndTelemetryData';
 import { FORFAITS_DATA, INITIAL_REALISATIONS, INITIAL_TEMOIGNAGES } from '../src/data/mockData';
 
-const BASE = process.env.SEED_BASE_URL || 'https://arckaton-os.onrender.com';
+const BASE = process.env.SEED_BASE_URL || 'http://127.0.0.1:3100';
 const EMAIL = process.env.SEED_EMAIL || 'test.directeur@arckaton-os.test';
 const PASSWORD = process.env.SEED_PASSWORD || 'TestArckaton2026!';
+
+// Garde-fou : cet import ECRAIT le contenu du site. La cible par defaut a
+// ete changee de la production vers la pile locale, et l'ecriture sur une
+// cible distante demande une option explicite.
+const FORCE = process.argv.includes('--force-remote');
+if (!/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(BASE) && !FORCE) {
+  console.error(
+    '\n  REFUS : la cible ' + BASE + ' n\'est pas locale.\n' +
+    '  Cet import ecrase le contenu du site. Pour forcer :\n' +
+    '    SEED_BASE_URL=<url> npx tsx scripts/seed-content.ts --force-remote\n'
+  );
+  process.exit(1);
+}
 
 type Item = { kind: string; slug: string; title: string; data: any };
 
