@@ -11,6 +11,7 @@ import {
   __generateSmartFallbackResponse,
   __formaterContenuPublic,
   __construireInstructionAgentPublic,
+  __normaliserRequeteGemini,
 } from '../server';
 
 describe('IA publique — le conseiller parle au client', () => {
@@ -77,5 +78,31 @@ describe('Agent public — ancre sur le contenu publie', () => {
     expect(instr).toContain('indisponible');
     expect(instr).not.toContain('380 000');
     expect(instr).not.toContain('Mimboman');
+  });
+});
+
+// Le SDK `@google/genai` attend `systemInstruction` dans `config` : a la
+// racine, il l'ignore silencieusement. Les consignes ne parvenaient donc
+// jamais au modele.
+describe('Gemini — la consigne systeme va bien dans config', () => {
+  it('deplace systemInstruction dans config', () => {
+    const r = __normaliserRequeteGemini({ systemInstruction: 'REGLES', contents: 'Bonjour' });
+    expect(r.contents).toBe('Bonjour');
+    expect(r.config.systemInstruction).toBe('REGLES');
+    expect(r.systemInstruction).toBeUndefined();
+  });
+
+  it('preserve une config existante', () => {
+    const r = __normaliserRequeteGemini({
+      systemInstruction: 'R',
+      contents: 'x',
+      config: { temperature: 0.2 },
+    });
+    expect(r.config).toEqual({ temperature: 0.2, systemInstruction: 'R' });
+  });
+
+  it('ne cree pas de config quand il n y a pas de consigne', () => {
+    const r = __normaliserRequeteGemini({ contents: 'x' });
+    expect(r.config).toBeUndefined();
   });
 });

@@ -251,10 +251,23 @@ function estIndisponible(err: any): boolean {
  * Renvoie le texte et le modele reellement utilise, afin que la reponse
  * indique a l'appelant quel modele a repondu.
  */
+// `@google/genai` attend `systemInstruction` dans `config`, jamais a la racine
+// de la requete. Au niveau racine, le SDK l'ignore EN SILENCE : les consignes
+// systeme (regles de l'agent public, digest du copilote) ne parvenaient donc
+// jamais au modele, qui repondait de maniere generique et inventait. La
+// normalisation est faite une fois, ici, pour tous les appelants.
+function normaliserRequeteGemini(request: Record<string, any>): Record<string, any> {
+  const { systemInstruction, ...reste } = request;
+  if (systemInstruction === undefined) return reste;
+  const configOrigine = reste.config && typeof reste.config === 'object' ? reste.config : {};
+  return { ...reste, config: { ...configOrigine, systemInstruction } };
+}
+
 async function generateWithFallback(
   ai: GoogleGenAI,
   request: Record<string, any>
 ): Promise<{ texte: string; model: string }> {
+  const requete = normaliserRequeteGemini(request);
   // Sans borne de temps, un modele qui ne repond jamais bloque la chaine
   // entiere. Mesures en production : 2,2 s pour gemini-flash-lite-latest,
   // mais jusqu a 160 s pour gemini-3.5-flash quand le premier modele a
@@ -269,7 +282,7 @@ async function generateWithFallback(
     try {
       const depart = Date.now();
       const reponse: any = await Promise.race([
-        ai.models.generateContent({ ...request, model } as any),
+        ai.models.generateContent({ ...requete, model } as any),
         new Promise((_, rejeter) =>
           setTimeout(
             () => rejeter(new Error(`Timeout : delai depasse (${budget} ms) sur le modele ${model}`)),
@@ -3998,6 +4011,10 @@ export const __construireInstructionCopilote = construireInstructionCopilote;
 // Exporte pour tester la detection d'un contact laisse a l'agent public,
 // seule condition de persistance d'une demande issue du site.
 export const __extraireContact = extraireContact;
+
+// Exporte pour verifier que les consignes systeme sont bien placees dans
+// `config` (exigence du SDK) et ne sont plus ignorees silencieusement.
+export const __normaliserRequeteGemini = normaliserRequeteGemini;
 
 // Exporte pour verifier que le repli public parle bien au client (et non
 // comme un membre de l'equipe ou l'identite d'un pole interne).
