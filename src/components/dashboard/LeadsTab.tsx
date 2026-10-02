@@ -139,7 +139,7 @@ export const LeadsTab: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher par nom, téléphone, pays ou type de projet..."
-            className="w-full bg-[#0a0f2e] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+            className="w-full rk-input pl-10 pr-4 py-2.5 text-xs"
           />
         </div>
 
@@ -148,7 +148,7 @@ export const LeadsTab: React.FC = () => {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
+            className="w-full rk-input px-3 py-2.5 text-xs"
           >
             <option value="all">Tous les Statuts</option>
             <option value="nouveau">Nouveaux</option>
@@ -164,7 +164,7 @@ export const LeadsTab: React.FC = () => {
           <select
             value={selectedPole}
             onChange={(e) => setSelectedPole(e.target.value)}
-            className="w-full bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
+            className="w-full rk-input px-3 py-2.5 text-xs"
           >
             <option value="all">Tous les Pôles</option>
             <option value="Direction">Pôle Direction</option>
@@ -178,7 +178,7 @@ export const LeadsTab: React.FC = () => {
       </div>
 
       {/* Leads Table Card */}
-      <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="rk-panel overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[750px]">
             <thead>

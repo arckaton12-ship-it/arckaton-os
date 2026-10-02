@@ -137,7 +137,7 @@ export const ContactSection: React.FC = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex : M. Ebanda / Société X"
-                        className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full rk-input px-4 py-3 text-xs"
                       />
                     </div>
 
@@ -151,7 +151,7 @@ export const ContactSection: React.FC = () => {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+237 681 46 29 82"
-                        className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full rk-input px-4 py-3 text-xs"
                       />
                     </div>
                   </div>
@@ -166,7 +166,7 @@ export const ContactSection: React.FC = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="contact@entreprise.com"
-                        className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full rk-input px-4 py-3 text-xs"
                       />
                     </div>
 
@@ -179,7 +179,7 @@ export const ContactSection: React.FC = () => {
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
                         placeholder="Ex : Cameroun, Gabon, France..."
-                        className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full rk-input px-4 py-3 text-xs"
                       />
                     </div>
                   </div>
@@ -191,7 +191,7 @@ export const ContactSection: React.FC = () => {
                     <select
                       value={projectType}
                       onChange={(e) => setProjectType(e.target.value)}
-                      className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                      className="w-full rk-input px-4 py-3 text-xs"
                     >
                       <option value="Site web vitrine UX/UI (Forfait Synergie)">Site vitrine UX/UI (Forfait Synergie 750k FCFA)</option>
                       <option value="E-commerce & Mobile Money (Forfait Architecture)">E-commerce & Mobile Money MTN/Orange (2,9M FCFA)</option>
@@ -211,7 +211,7 @@ export const ContactSection: React.FC = () => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Décrivez brièvement vos objectifs, vos délais et vos attentes..."
-                      className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full rk-input px-4 py-3 text-xs"
                     />
                   </div>
 

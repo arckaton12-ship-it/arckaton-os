@@ -14,6 +14,17 @@
     --rk-border: rgba(255, 255, 255, 0.08);
     --rk-emerald: #10b981;
     --rk-gold: #d4af37;
+
+    /* Jetons semantiques : l'interface ne doit plus dependre d'une couleur
+       codee en dur. Le theme clair redefinit uniquement ces variables. */
+    --rk-bg: #070c1e;
+    --rk-chrome: #09122a;
+    --rk-surface-2: #0b1329;
+    --rk-panel: #0a0f2e;
+    --rk-line: rgba(255, 255, 255, 0.1);
+    --rk-text: #f1f5f9;
+    --rk-text-muted: #94a3b8;
+    --rk-accent: #10b981;
   }
 
   html {
@@ -108,6 +119,54 @@
 }
 
 /* =========================================================
+   PRIMITIVES DU DESIGN SYSTEM
+   Composants reutilisables adosses aux jetons semantiques.
+   A preferer aux couleurs codees en dur dans les nouveaux ecrans.
+   ========================================================= */
+.rk-card {
+  background-color: var(--rk-surface-2);
+  color: var(--rk-text);
+  border: 1px solid var(--rk-line);
+  border-radius: 1.5rem;
+}
+
+.rk-panel {
+  background-color: var(--rk-panel);
+  color: var(--rk-text);
+  border: 1px solid var(--rk-line);
+  border-radius: 1rem;
+}
+
+.rk-surface {
+  background-color: var(--rk-chrome);
+  color: var(--rk-text);
+  border: 1px solid var(--rk-line);
+}
+
+.rk-input {
+  background-color: var(--rk-chrome);
+  border: 1px solid var(--rk-line);
+  color: var(--rk-text);
+  border-radius: 0.75rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rk-input::placeholder {
+  color: var(--rk-text-muted);
+}
+
+.rk-input:focus,
+.rk-input:focus-visible {
+  outline: none;
+  border-color: var(--rk-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rk-accent) 22%, transparent);
+}
+
+.rk-text-muted {
+  color: var(--rk-text-muted);
+}
+
+/* =========================================================
    LIGHT THEME ARCHITECTURAL ENGINE (Mode Jour)
    Alabaster, Crisp White, Slate-900 & High-Contrast Emerald
    ========================================================= */
@@ -118,6 +177,16 @@ body.theme-light,
 .theme-light {
   background-color: #f8fafc !important;
   color: #0f172a !important;
+
+  /* Redefinition des jetons semantiques pour le Mode Jour. */
+  --rk-bg: #f8fafc;
+  --rk-chrome: #ffffff;
+  --rk-surface-2: #ffffff;
+  --rk-panel: #ffffff;
+  --rk-line: #e2e8f0;
+  --rk-text: #0f172a;
+  --rk-text-muted: #475569;
+  --rk-accent: #047857;
 }
 
 /* Canvas & Background Adaptations */
