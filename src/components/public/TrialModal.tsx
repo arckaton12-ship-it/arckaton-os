@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { X, Play, CheckCircle2, Clock, WifiOff, Smartphone, MessageSquare, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const TrialModal: React.FC = () => {
   const { isTrialModalOpen, setIsTrialModalOpen, addLead } = useApp();
@@ -49,6 +50,8 @@ export const TrialModal: React.FC = () => {
     setTimeout(() => setSubmitted(false), 300);
   };
 
+  const dialogRef = useDialogA11y<HTMLDivElement>(isTrialModalOpen, handleClose);
+
   return (
     <AnimatePresence>
       {isTrialModalOpen && (
@@ -60,11 +63,16 @@ export const TrialModal: React.FC = () => {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         >
           <motion.div 
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Démarrer l'essai ARKA-PME 30 jours"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden relative"
+            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Header */}
             <div className="bg-[#0a0e17] px-6 py-5 border-b border-white/[0.08] flex items-center justify-between">
@@ -84,9 +92,10 @@ export const TrialModal: React.FC = () => {
 
               <button
                 onClick={handleClose}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

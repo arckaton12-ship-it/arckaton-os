@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import { BlogPost, ForfaitData, Realisation, Temoignage } from '../../types';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 import { 
   Globe, 
   FileText, 
@@ -66,10 +67,18 @@ export const SiteAdmin: React.FC = () => {
 
   // Selected Forfait to edit
   const [editingForfait, setEditingForfait] = useState<ForfaitData | null>(null);
+  const forfaitDialogRef = useDialogA11y<HTMLDivElement>(
+    editingForfait !== null,
+    () => setEditingForfait(null)
+  );
 
   // New Blog Post Form Modal
   const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
+  const blogDialogRef = useDialogA11y<HTMLDivElement>(
+    isBlogModalOpen,
+    () => setIsBlogModalOpen(false)
+  );
   const [blogFormData, setBlogFormData] = useState<Omit<BlogPost, 'id' | 'date'>>({
     title: '',
     slug: '',
@@ -88,6 +97,10 @@ export const SiteAdmin: React.FC = () => {
   // Réalisations (étude de cas) : modals & forms
   const [isRealModalOpen, setIsRealModalOpen] = useState(false);
   const [editingRealisation, setEditingRealisation] = useState<Realisation | null>(null);
+  const realisationDialogRef = useDialogA11y<HTMLDivElement>(
+    isRealModalOpen,
+    () => setIsRealModalOpen(false)
+  );
   const [realForm, setRealForm] = useState<Omit<Realisation, 'id'>>({
     name: '',
     category: 'camac',
@@ -104,6 +117,10 @@ export const SiteAdmin: React.FC = () => {
   // Témoignages : modals & forms
   const [isTemModalOpen, setIsTemModalOpen] = useState(false);
   const [editingTemoignage, setEditingTemoignage] = useState<Temoignage | null>(null);
+  const temoignageDialogRef = useDialogA11y<HTMLDivElement>(
+    isTemModalOpen,
+    () => setIsTemModalOpen(false)
+  );
   const [temForm, setTemForm] = useState<Omit<Temoignage, 'id'>>({
     author: '',
     role: '',
@@ -701,7 +718,14 @@ export const SiteAdmin: React.FC = () => {
           {/* Edit Forfait Modal */}
           {editingForfait && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-              <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative">
+              <div
+                ref={forfaitDialogRef}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Édition du forfait"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative outline-none"
+              >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   Édition du Forfait {editingForfait.name}
                 </h3>
@@ -862,7 +886,14 @@ export const SiteAdmin: React.FC = () => {
           {/* Create/Edit Blog Modal */}
           {isBlogModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-              <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
+              <div
+                ref={blogDialogRef}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Édition d'article de blog"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none"
+              >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingBlogPost ? "Modifier le Récit Terrain" : "Publier un Nouveau Récit d'Action"}
                 </h3>
@@ -1060,7 +1091,14 @@ export const SiteAdmin: React.FC = () => {
           {/* Realisation Modal */}
           {isRealModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-              <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
+              <div
+                ref={realisationDialogRef}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Édition d'une réalisation"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none"
+              >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingRealisation ? 'Modifier la Réalisation' : 'Ajouter une Réalisation'}
                 </h3>
@@ -1210,7 +1248,14 @@ export const SiteAdmin: React.FC = () => {
           {/* Temoignage Modal */}
           {isTemModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-              <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
+              <div
+                ref={temoignageDialogRef}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Édition d'un témoignage"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none"
+              >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingTemoignage ? 'Modifier le Témoignage' : 'Ajouter un Témoignage'}
                 </h3>

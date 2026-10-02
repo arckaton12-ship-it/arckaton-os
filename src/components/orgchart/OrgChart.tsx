@@ -26,6 +26,7 @@ import {
   Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 const DATA_TYPE_LABELS: Record<DataTransferEvent['data_type'], string> = {
   specs_tech: 'Spécifications techniques',
@@ -108,9 +109,14 @@ export const OrgChart: React.FC = () => {
   const [selectedPole, setSelectedPole] = useState<Pole | 'all'>('all');
   const [selectedPhase, setSelectedPhase] = useState<number | 'all'>('all');
   const [activePoste, setActivePoste] = useState<Poste | null>(null);
+  const posteDialogRef = useDialogA11y<HTMLDivElement>(
+    activePoste !== null,
+    () => setActivePoste(null)
+  );
 
   // Console de consultation des echanges (lecture seule, alimentee automatiquement)
   const [isConsole, setIsConsole] = useState(false);
+  const consoleDialogRef = useDialogA11y<HTMLDivElement>(isConsole, () => setIsConsole(false));
   const [consoleFilter, setConsoleFilter] = useState<string>('');
   const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
 
@@ -593,16 +599,22 @@ export const OrgChart: React.FC = () => {
         {activePoste && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <motion.div
+              ref={posteDialogRef}
+              tabIndex={-1}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Détails du poste"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0d1633] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl overflow-y-auto max-h-[90vh]"
+              className="bg-[#0d1633] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl overflow-y-auto max-h-[90vh] outline-none"
             >
               <button
                 onClick={() => setActivePoste(null)}
+                aria-label="Fermer"
                 className="absolute top-5 right-5 text-slate-400 hover:text-white p-2"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
 
               <div className="flex items-center gap-2 mb-3">
@@ -664,10 +676,15 @@ export const OrgChart: React.FC = () => {
         {isConsole && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
             <motion.div
+              ref={consoleDialogRef}
+              tabIndex={-1}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Console de consultation des flux"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0b1329] border border-blue-500/30 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl"
+              className="bg-[#0b1329] border border-blue-500/30 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl outline-none"
             >
               <div className="flex items-start justify-between gap-4 p-6 border-b border-white/10">
                 <div>
@@ -686,9 +703,9 @@ export const OrgChart: React.FC = () => {
                 <button
                   onClick={() => setIsConsole(false)}
                   className="shrink-0 text-slate-300 hover:text-white p-2 rounded-lg hover:bg-white/10"
-                  aria-label="Fermer la console"
+                  aria-label="Fermer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
 

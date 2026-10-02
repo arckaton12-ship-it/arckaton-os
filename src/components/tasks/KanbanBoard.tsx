@@ -15,6 +15,7 @@ import {
   Users,
   FilterX
 } from 'lucide-react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 const COLUMNS: Array<{ id: TaskStatus; title: string; color: string; badge: string; dot: string }> = [
   { id: 'a_faire', title: 'À Faire', color: 'border-slate-600', badge: 'bg-slate-700 text-slate-300', dot: 'bg-slate-500' },
   { id: 'en_cours', title: 'En Cours', color: 'border-blue-500/50', badge: 'bg-blue-500/20 text-blue-300', dot: 'bg-blue-500' },
@@ -35,6 +36,7 @@ export const KanbanBoard: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const dialogRef = useDialogA11y<HTMLDivElement>(isModalOpen, () => setIsModalOpen(false));
   const [dragOver, setDragOver] = useState<TaskStatus | null>(null);
 
   // Formulaire de création
@@ -484,14 +486,22 @@ export const KanbanBoard: React.FC = () => {
       {/* Modale de création */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn overflow-y-auto">
-          <div className="bg-[#0a122e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4 my-8">
+          <div
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Créer une tâche Kanban"
+            className="bg-[#0a122e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4 my-8 outline-none"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-serif text-lg font-bold text-white">Créer une Tâche Kanban</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

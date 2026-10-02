@@ -5,6 +5,7 @@ import {
   Send, Search, Phone, Calendar, FolderKanban
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const ClientPortalModal: React.FC = () => {
   const { 
@@ -80,6 +81,8 @@ export const ClientPortalModal: React.FC = () => {
   const fieldVisits = currentProject?.sorties_terrain || [];
   const feedbacks = currentProject?.feedbacks || [];
 
+  const dialogRef = useDialogA11y<HTMLDivElement>(isClientPortalOpen, () => setIsClientPortalOpen(false));
+
   return (
     <AnimatePresence>
       {isClientPortalOpen && (
@@ -91,11 +94,16 @@ export const ClientPortalModal: React.FC = () => {
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md"
         >
           <motion.div 
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Espace client et suivi de projet"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative"
+            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Top Header Bar */}
             <div className="px-6 py-4 bg-[#0a0e17] border-b border-white/[0.08] flex items-center justify-between flex-shrink-0">
@@ -120,9 +128,10 @@ export const ClientPortalModal: React.FC = () => {
 
               <button
                 onClick={() => setIsClientPortalOpen(false)}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

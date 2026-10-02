@@ -18,6 +18,7 @@ import {
   FileText,
   X
 } from 'lucide-react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const LeadsTab: React.FC = () => {
   const { leads, updateLeadStatus, addLead, addTask, isDataFetching, osMembers } = useApp();
@@ -31,6 +32,14 @@ export const LeadsTab: React.FC = () => {
   
   // Modal for creating manual lead
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const leadModalDialogRef = useDialogA11y<HTMLDivElement>(
+    activeLeadModal !== null,
+    () => setActiveLeadModal(null)
+  );
+  const createLeadDialogRef = useDialogA11y<HTMLDivElement>(
+    isCreateModalOpen,
+    () => setIsCreateModalOpen(false)
+  );
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
@@ -291,7 +300,14 @@ export const LeadsTab: React.FC = () => {
       {/* Modal Details for Lead */}
       {activeLeadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-[#0a0f2e] border border-white/15 rounded-3xl w-full max-w-lg shadow-2xl p-6 space-y-5">
+          <div
+            ref={leadModalDialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Détails du prospect"
+            className="bg-[#0a0f2e] border border-white/15 rounded-3xl w-full max-w-lg shadow-2xl p-6 space-y-5 outline-none"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="font-serif text-lg font-bold text-white">{activeLeadModal.name}</h3>
@@ -299,9 +315,10 @@ export const LeadsTab: React.FC = () => {
               </div>
               <button
                 onClick={() => setActiveLeadModal(null)}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -357,14 +374,22 @@ export const LeadsTab: React.FC = () => {
       {/* Modal Create Manual Lead */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-[#0a0f2e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4">
+          <div
+            ref={createLeadDialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Ajouter un prospect manuel"
+            className="bg-[#0a0f2e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4 outline-none"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-serif text-lg font-bold text-white">Ajouter un Prospect Manuel</h3>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

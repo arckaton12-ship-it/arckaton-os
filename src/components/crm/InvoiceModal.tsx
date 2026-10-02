@@ -3,6 +3,7 @@ import { Lead, Projet } from '../../types';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { Printer, X, ShieldCheck, Save, Loader2, CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { DocumentLetterhead, DocumentLegalFooter } from './DocumentLetterhead';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 const NAVY = OFFICIAL_KNOWLEDGE.letterhead.colors.logoBackground;
 const GREEN = OFFICIAL_KNOWLEDGE.letterhead.colors.green;
@@ -50,6 +51,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
   const [saving, setSaving] = useState(false);
   const [savedRef, setSavedRef] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useDialogA11y<HTMLDivElement>(true, onClose);
 
   const token = () => localStorage.getItem('arckaton_os_token') || '';
   const authHeaders = () => {
@@ -169,13 +171,15 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
     'w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none print:hidden';
 
   return (
-    <div
-      className="invoice-modal fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-fadeIn overflow-y-auto"
-      role="dialog"
-      aria-modal="true"
-      aria-label={type === 'devis' ? 'Génération de devis' : 'Génération de facture proforma'}
-    >
-      <div className="invoice-shell w-full max-w-[860px] my-4 sm:my-8 space-y-3">
+    <div className="invoice-modal fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label={type === 'devis' ? 'Génération de devis' : 'Génération de facture proforma'}
+        className="invoice-shell w-full max-w-[860px] my-4 sm:my-8 space-y-3 outline-none"
+      >
 
         {/* Barre d'actions (non imprimable) */}
         <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-[#0f1523] border border-white/10 px-4 py-3 text-slate-100 shadow-xl">
@@ -231,8 +235,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
               onClick={onClose}
               className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
               title="Fermer"
+              aria-label="Fermer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>

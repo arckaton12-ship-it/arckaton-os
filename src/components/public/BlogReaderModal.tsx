@@ -14,9 +14,11 @@ import {
   Share2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const BlogReaderModal: React.FC = () => {
   const { activeBlogPost, setActiveBlogPost, setIsQuoteModalOpen } = useApp();
+  const dialogRef = useDialogA11y<HTMLDivElement>(!!activeBlogPost, () => setActiveBlogPost(null));
 
   if (!activeBlogPost) return null;
 
@@ -24,11 +26,16 @@ export const BlogReaderModal: React.FC = () => {
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
         <motion.div
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeBlogPost.title}
           initial={{ opacity: 0, y: 20, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.96 }}
           transition={{ duration: 0.25 }}
-          className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-3xl w-full relative shadow-2xl overflow-hidden my-8"
+          className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-3xl w-full relative shadow-2xl overflow-hidden my-8 outline-none"
         >
           {/* Close button */}
           <button
@@ -36,7 +43,7 @@ export const BlogReaderModal: React.FC = () => {
             className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white/80 hover:text-white p-2 rounded-full border border-white/20 transition-all cursor-pointer"
             aria-label="Fermer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
 
           {/* Hero Banner */}

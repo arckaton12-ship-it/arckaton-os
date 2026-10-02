@@ -6,6 +6,7 @@ import { POLE_COLORS } from '../../types';
 import {
   Users, Plus, Pencil, Trash2, Power, ShieldCheck, Activity, X, Save, Loader2, UserPlus
 } from 'lucide-react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrateur',
@@ -40,6 +41,10 @@ export const MembersTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<'add' | 'edit' | null>(null);
+  const dialogRef = useDialogA11y<HTMLDivElement>(
+    modal !== null,
+    () => setModal(null)
+  );
   const [editId, setEditId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -354,12 +359,20 @@ export const MembersTab: React.FC = () => {
       {/* Modals add / edit */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative my-8">
+          <div
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={modal === 'add' ? 'Ajouter un membre OS' : 'Modifier le membre'}
+            className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative my-8 outline-none"
+          >
             <button
               onClick={() => setModal(null)}
+              aria-label="Fermer"
               className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
             <h3 className="font-serif text-2xl font-bold text-white mb-1 flex items-center gap-2">
               <Users className="w-5 h-5 text-emerald-400" />

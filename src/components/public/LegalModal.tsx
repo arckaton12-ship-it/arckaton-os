@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { X, Scale, ShieldCheck, Mail, MapPin, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 type LegalTab = 'mentions' | 'confidentialite';
 
@@ -26,6 +27,7 @@ const A = OFFICIAL_KNOWLEDGE.agency;
 export const LegalModal: React.FC = () => {
   const { isLegalModalOpen, setIsLegalModalOpen } = useApp();
   const [tab, setTab] = React.useState<LegalTab>('mentions');
+  const dialogRef = useDialogA11y<HTMLDivElement>(isLegalModalOpen, () => setIsLegalModalOpen(false));
 
   if (!isLegalModalOpen) return null;
 
@@ -33,11 +35,13 @@ export const LegalModal: React.FC = () => {
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md">
         <motion.div
+          ref={dialogRef}
+          tabIndex={-1}
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 18 }}
           transition={{ duration: 0.22 }}
-          className="w-full max-w-3xl my-4 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden"
+          className="w-full max-w-3xl my-4 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden outline-none"
           role="dialog"
           aria-modal="true"
           aria-label="Mentions légales et politique de confidentialité"

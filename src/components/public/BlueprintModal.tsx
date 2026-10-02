@@ -3,10 +3,12 @@ import { useApp } from '../../contexts/AppContext';
 import { X, Printer, ShieldCheck, CheckCircle2, Download, Layers, Sparkles, Network, ArrowRight, Zap, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const BlueprintModal: React.FC = () => {
   const { isBlueprintModalOpen, setIsBlueprintModalOpen, setIsQuoteModalOpen } = useApp();
   const [activeTab, setActiveTab] = useState<'doctrine' | 'sla' | 'arka'>('doctrine');
+  const dialogRef = useDialogA11y<HTMLDivElement>(isBlueprintModalOpen, () => setIsBlueprintModalOpen(false));
 
   if (!isBlueprintModalOpen) return null;
 
@@ -18,11 +20,16 @@ export const BlueprintModal: React.FC = () => {
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-black/80 backdrop-blur-md">
         <motion.div
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Fiche cadre et méthode opérationnelle"
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25 }}
-          className="relative w-full max-w-4xl bg-[#0c1322] border border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-4xl bg-[#0c1322] border border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh] outline-none"
         >
           {/* Top Bar */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-[#090d18]">
@@ -51,14 +58,15 @@ export const BlueprintModal: React.FC = () => {
                 className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] px-3 py-1.5 rounded-xl border border-white/[0.08] transition-colors cursor-pointer"
                 title="Imprimer ou enregistrer en PDF"
               >
-                <Printer className="w-3.5 h-3.5 text-emerald-400" />
+                <Printer className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
                 <span>Imprimer / PDF</span>
               </button>
               <button
                 onClick={() => setIsBlueprintModalOpen(false)}
+                aria-label="Fermer"
                 className="p-2 rounded-xl text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
           </div>

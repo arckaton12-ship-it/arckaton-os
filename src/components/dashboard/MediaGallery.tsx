@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Trash2, Upload, Loader2, X, ImageIcon } from 'lucide-react';
 import { ProjectMedia } from '../../types';
 import { apiRequest, apiUpload, apiBlobUrl, apiWrite } from '../../utils/api';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 interface MediaGalleryProps {
   projectRef: string;
@@ -19,6 +20,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apercu, setApercu] = useState<string | null>(null);
+  const dialogRef = useDialogA11y<HTMLDivElement>(apercu !== null, () => setApercu(null));
 
   const inputRef = useRef<HTMLInputElement>(null);
   // `urls` dans une ref pour revoquer les object URLs au demontage sans
@@ -174,17 +176,25 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
         <div
           className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4"
           onClick={() => setApercu(null)}
-          role="dialog"
-          aria-modal="true"
         >
-          <button
-            type="button"
-            onClick={() => setApercu(null)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white cursor-pointer"
+          <div
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Aperçu de l'image"
+            className="relative w-full h-full flex items-center justify-center outline-none"
           >
-            <X className="w-5 h-5" />
-          </button>
-          <img src={apercu} alt="Preuve de terrain" className="max-h-[90vh] max-w-[90vw] rounded-lg" />
+            <button
+              type="button"
+              onClick={() => setApercu(null)}
+              aria-label="Fermer"
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white cursor-pointer"
+            >
+              <X className="w-5 h-5" aria-hidden="true" />
+            </button>
+            <img src={apercu} alt="Preuve de terrain" className="max-h-[90vh] max-w-[90vw] rounded-lg" />
+          </div>
         </div>
       )}
     </div>

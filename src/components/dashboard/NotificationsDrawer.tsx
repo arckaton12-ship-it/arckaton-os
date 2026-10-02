@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { X, Bell, Check, ArrowUpRight, User, AlertCircle, Sparkles } from 'lucide-react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 interface Props {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const sourceLabel = (n: { link?: string; type?: string }): string => {
 
 export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNavigate }) => {
   const { notifications, markNotificationAsRead, clearNotifications } = useApp();
+  const dialogRef = useDialogA11y<HTMLDivElement>(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -36,8 +38,19 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fadeIn">
-      <div className="w-full max-w-md bg-[#0a0f2e] border-l border-white/15 h-full flex flex-col shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Notifications Arckaton OS"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-[#0a0f2e] border-l border-white/15 h-full flex flex-col shadow-2xl outline-none"
+      >
         
         {/* Top Header */}
         <div className="p-5 border-b border-white/10 flex items-center justify-between bg-[#070c1e]">
@@ -64,9 +77,10 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
             )}
             <button
               onClick={onClose}
+              aria-label="Fermer les notifications"
               className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>

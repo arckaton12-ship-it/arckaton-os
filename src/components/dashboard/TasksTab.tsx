@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { POLES_INFO } from '../../data/mockData';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const TasksTab: React.FC = () => {
   const { tasks, addTask, updateTaskStatus, remindTask, projets, osMembers } = useApp();
@@ -27,6 +28,7 @@ export const TasksTab: React.FC = () => {
 
   // New task form state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const dialogRef = useDialogA11y<HTMLDivElement>(isModalOpen, () => setIsModalOpen(false));
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [pole, setPole] = useState<Pole>('Tech');
@@ -300,14 +302,22 @@ export const TasksTab: React.FC = () => {
       {/* Modal Add Task */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-[#0a0f2e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4">
+          <div
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Ajouter une tâche opérationnelle"
+            className="bg-[#0a0f2e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4 outline-none"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-serif text-lg font-bold text-white">Ajouter une Tâche Opérationnelle</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

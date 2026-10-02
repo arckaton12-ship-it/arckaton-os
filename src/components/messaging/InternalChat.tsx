@@ -16,6 +16,7 @@ import {
   X,
   Play
 } from 'lucide-react';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 // Scenarios de simulation : chaque etape est ecrite par le membre suivant
 const SIM_SCENARIOS: Array<{ id: string; label: string; hint: string; steps: string[] }> = [
@@ -80,6 +81,7 @@ export const InternalChat: React.FC = () => {
 
   // Simulateur d'echanges multi-membres
   const [isSimOpen, setIsSimOpen] = useState(false);
+  const dialogRef = useDialogA11y<HTMLDivElement>(isSimOpen, () => setIsSimOpen(false));
   const [simScenario, setSimScenario] = useState<string>(SIM_SCENARIOS[0].id);
   const [simParticipants, setSimParticipants] = useState<string[]>([]);
 
@@ -326,7 +328,14 @@ export const InternalChat: React.FC = () => {
       {/* Simulateur d'échange multi-membres */}
       {isSimOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#0a122e] border border-amber-500/25 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden">
+          <div
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Simulateur d'échange multi-membres"
+            className="bg-[#0a122e] border border-amber-500/25 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden outline-none"
+          >
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <div>
                 <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
@@ -337,8 +346,12 @@ export const InternalChat: React.FC = () => {
                   Vérifie la circulation des flux entre pôles (la console de l'organigramme recording automatiquement)
                 </p>
               </div>
-              <button onClick={() => setIsSimOpen(false)} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
-                <X className="w-4 h-4" />
+              <button
+                onClick={() => setIsSimOpen(false)}
+                aria-label="Fermer"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

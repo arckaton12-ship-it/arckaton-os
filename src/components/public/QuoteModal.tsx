@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import { X, ArrowRight, ArrowLeft, CheckCircle2, MessageSquare, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatCurrencyPrice } from '../../utils/currency';
+import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const QuoteModal: React.FC = () => {
   const { isQuoteModalOpen, setIsQuoteModalOpen, addLead, currency } = useApp();
@@ -31,6 +32,8 @@ export const QuoteModal: React.FC = () => {
     setIsQuoteModalOpen(false);
     setTimeout(() => setStep(1), 300);
   };
+
+  const dialogRef = useDialogA11y<HTMLDivElement>(isQuoteModalOpen, handleClose);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,11 +102,16 @@ export const QuoteModal: React.FC = () => {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         >
           <motion.div 
+            ref={dialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Configurateur de devis"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
+            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative outline-none"
           >
             {/* Modal Top Bar */}
             <div className="sticky top-0 bg-[#0f1523]/95 backdrop-blur-md px-6 py-5 border-b border-white/[0.08] flex items-center justify-between z-10">
@@ -126,6 +134,7 @@ export const QuoteModal: React.FC = () => {
 
               <button
                 onClick={handleClose}
+                aria-label="Fermer"
                 className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
