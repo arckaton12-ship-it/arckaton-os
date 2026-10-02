@@ -193,11 +193,21 @@ export const QuoteModal: React.FC = () => {
                     />
                   </div>
 
-                  <div className="pt-2 flex justify-end">
+                  <div className="pt-2 flex items-center justify-between gap-3">
+                    {/* Raccourci anti-abandon : saute la qualification pour ne
+                        demander que les coordonnees, avec des valeurs par defaut. */}
+                    <button
+                      type="button"
+                      onClick={() => setStep(3)}
+                      className="text-rk-muted hover:text-white text-xs flex items-center gap-1.5 py-2 cursor-pointer text-left"
+                    >
+                      <span>Je préfère être rappelé(e) directement</span>
+                      <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" />
+                    </button>
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-500/20"
+                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-500/20 flex-shrink-0"
                     >
                       <span>Continuer</span>
                       <ArrowRight className="w-4 h-4" />
@@ -302,6 +312,8 @@ export const QuoteModal: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoFocus
+                        autoComplete="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex : Jean-Paul Kamdem"
@@ -331,6 +343,8 @@ export const QuoteModal: React.FC = () => {
                       <input
                         type="tel"
                         required
+                        inputMode="tel"
+                        autoComplete="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="Ex : +237 681 46 29 82"
@@ -344,6 +358,7 @@ export const QuoteModal: React.FC = () => {
                       </label>
                       <input
                         type="email"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="contact@entreprise.cm"

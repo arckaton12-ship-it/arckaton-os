@@ -134,6 +134,7 @@ export const ContactSection: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoComplete="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex : M. Ebanda / Société X"
@@ -148,6 +149,8 @@ export const ContactSection: React.FC = () => {
                       <input
                         type="tel"
                         required
+                        inputMode="tel"
+                        autoComplete="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+237 681 46 29 82"
@@ -163,6 +166,7 @@ export const ContactSection: React.FC = () => {
                       </label>
                       <input
                         type="email"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="contact@entreprise.com"

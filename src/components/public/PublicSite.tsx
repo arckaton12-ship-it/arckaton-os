@@ -1,6 +1,8 @@
 import React from 'react';
 import { Header } from './Header';
 import { Hero } from './Hero';
+import { TrustStrip } from './TrustStrip';
+import { ConversionBar } from './ConversionBar';
 import { BentoApproach } from './BentoApproach';
 import { ProductArkaPme } from './ProductArkaPme';
 import { Realisations } from './Realisations';
@@ -28,8 +30,9 @@ export const PublicSite: React.FC = () => {
       <Header />
 
       {/* Main Public Content */}
-      <main className="flex-1">
+      <main className="flex-1 pb-20 lg:pb-0">
         <Hero />
+        <TrustStrip />
         <BentoApproach />
         <ProductArkaPme />
         <Realisations />
@@ -51,6 +54,9 @@ export const PublicSite: React.FC = () => {
       <ClientPortalModal />
       <BlueprintModal />
       <LegalModal />
+
+      {/* Points de conversion permanents (barre mobile, WhatsApp) */}
+      <ConversionBar />
     </div>
   );
 };
