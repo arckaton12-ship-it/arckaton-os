@@ -390,12 +390,14 @@ describe('P0.1 — injection de prompt', () => {
 // du cockpit.
 describe('Copilote — repli base de connaissances non repetitif', () => {
   const digestVide = {
-    counts: { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5 },
+    counts: { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5, projects: 0, members: 0 },
     caEncaisse: 1200000,
     leadsARelancer: [],
     tachesEnRetard: [],
     devisActifs: [],
     contactsSite: [],
+    projets: [],
+    membres: [],
   };
 
   it('repond differemment selon l\'intention de la question', () => {
@@ -412,7 +414,7 @@ describe('Copilote — repli base de connaissances non repetitif', () => {
   it('nomme les vrais prospects quand le contexte les fournit', () => {
     const digest = {
       ...digestVide,
-      counts: { leads: 1, openTasks: 0, lateTasks: 0, activeQuotes: 0 },
+      counts: { leads: 1, openTasks: 0, lateTasks: 0, activeQuotes: 0, projects: 0, members: 0 },
       leadsARelancer: [
         { nom: 'Maison Kotto', statut: 'devis_envoye', projet: 'Site', budget: '750k', pole: 'Digital', source: 'site', ageJours: 12 },
       ],
@@ -425,7 +427,7 @@ describe('Copilote — repli base de connaissances non repetitif', () => {
     const a = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', digestVide);
     const b = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', {
       ...digestVide,
-      counts: { leads: 1, openTasks: 2, lateTasks: 0, activeQuotes: 0 },
+      counts: { leads: 1, openTasks: 2, lateTasks: 0, activeQuotes: 0, projects: 0, members: 0 },
     });
     expect(a).not.toBe(b);
   });

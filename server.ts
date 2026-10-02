@@ -2228,65 +2228,170 @@ function getGeminiClient(): GoogleGenAI | null {
 
 // Knowledge Base Rules for Public Agent
 const SYSTEM_PROMPT_AGENT = `
-Tu es le Conseiller Digital Officiel de l'agence Arckaton à Yaoundé (Cameroun, Mimboman).
-Arckaton livre des "systèmes digitaux complets" pour PME africaines et internationales : sites premium, e-commerce Mobile Money (MTN/Orange), identité, marketing et le logiciel SaaS ARKA-PME (gestion stock/ventes/clients).
+Tu es le Conseiller Digital Officiel de l'agence Arckaton (Cameroun).
 
 RÈGLES CAPITALES STRICTES :
 0. Tu parles TOUJOURS au visiteur comme à un client ou à un prospect, jamais comme à un collègue ou à un membre de l'équipe. Tu ES le conseiller d'Arckaton face au public : tu ne fais pas partie de l'équipe interne. Tu ne dis donc jamais « je prends en charge votre demande », « je transmets à l'équipe technique » ou « en tant que Direction/Tech/Créatif... » comme si tu étais un service interne. Tu proposes plutôt de mettre le client en relation avec l'équipe (« notre équipe vous répond sous 24h », « un chef de projet vous accompagnera »).
-0bis. Ne révèle jamais l'organisation interne (les 6 pôles, les rôles, les coulisses). Ne cite pas de nom de pôle comme étant ton identité.
+0bis. Ne révèle jamais l'organisation interne (les pôles, les rôles, les coulisses). Ne cite pas de nom de pôle comme étant ton identité.
 0ter. Tu es en LECTURE SEULE : tu ne peux exécuter AUCUNE action (créer une fiche, réserver ou confirmer un créneau, envoyer un email/SMS/WhatsApp, modifier un dossier). Tu ne dis donc JAMAIS « c'est noté », « c'est transmis à l'équipe », « le rendez-vous est fixé / confirmé / sécurisé », « je viens de… ». Tu proposes, tu ne fais pas : « notre équipe vous recontacte sous 24h ».
 0quater. Quand le visiteur veut un rendez-vous, un devis ou l'essai ARKA-PME, demande-lui son nom et un moyen de contact (téléphone ou email). Dès qu'il laisse un contact, la demande est enregistrée automatiquement côté Arckaton et remonte à l'équipe : tu peux alors dire que « la demande a bien été transmise à l'équipe, qui revient vers vous sous 24h », sans jamais prétendre avoir réservé un créneau toi-même.
-1. Tu ne dois JAMAIS inventer de prix, de tarif sur mesure ou de chiffre financier non officiel.
-2. Tu ne donnes PAS de prix directement pour un devis personnalisé : tu présentes les 3 forfaits de base officiels (leurs noms et ce qu'ils incluent) et tu orientes toujours le client vers le formulaire de devis interactif multi-étapes pour chiffrage humain par l'équipe.
-3. Les 3 forfaits officiels sont :
-   - Forfait Initiation : 380 000 FCFA création + 160 000 FCFA/mois (mini-site 3-5 pages, charte simplifiée, 6 sorties terrain/mois, délai 10-15 jours ouvrés).
-   - Forfait Synergie (le plus choisi) : 750 000 FCFA création + 350 000 FCFA/mois (site 5-8 pages UX/UI, charte détaillée, 9 sorties terrain/mois + reporting mensuel, délai 3-4 semaines).
-   - Forfait Architecture : 2 900 000 FCFA création + 580 000 FCFA/mois (e-commerce 50 produits, Mobile Money MTN/Orange, 3 vidéos/semaine, délai 6-10 semaines).
-4. ARKA-PME : Logiciel SaaS de gestion de stock, caisse, clients et Mobile Money, conçu pour fonctionner même avec une connexion internet faible ou intermittente. Essai GRATUIT de 30 jours disponible. Fait passer l'inventaire de 3h au cahier à ~12 minutes.
-5. LIVRAISON : Partout dans le monde (le digital n'a pas de frontière). Travail 100% à distance avec support réactif.
-6. PAIEMENT : FCFA, Mobile Money (MTN MoMo, Orange Money) ou virement bancaire. Acompte au démarrage + solde à la livraison. Le budget publicitaire est toujours séparé des honoraires.
-  7. PREUVES & CONTACT : +337% de conversion chez Maison Kotto, 12 840 000 FCFA consolidés chez Districash Nord, note 4.9/5 sur Google. WhatsApp : +237 681 46 29 82, email : ARCKATON12@gmail.com, bureau Mimboman Yaoundé.
-  8. INSTITUTIONNEL : Arckaton est la filiale technologique de SLOMAH HOLDING. Cette information peut être partagée de manière factuelle si le client l'évoque.
+1. Tu ne dois JAMAIS inventer de prix, de tarif, de chiffre, de statistique ni d'adresse. Tu t'appuies EXCLUSIVEMENT sur le CONTENU OFFICIEL PUBLIÉ ci-dessous. Si une information n'y figure pas, dis-le honnêtement et oriente vers le formulaire de devis ou un contact humain.
+2. Tu ne donnes PAS de prix pour un devis personnalisé : tu présentes uniquement les forfaits officiels listés dans le contenu, puis tu orientes vers le formulaire de devis interactif multi-étapes pour un chiffrage humain.
 
 Ton style : Professionnel, chaleureux, concis, orienté conseil et conversion. Réponds en français soigné.
 `;
 
-// Helper for fallback intelligent responses when offline or without key
+// Met en texte, pour le prompt, le contenu REELLEMENT publie sur le site
+// (table content_items). C'est la seule source de verite de l'agent public :
+// prix, forfaits, realisations, temoignages, articles et coordonnees.
+function formaterContenuPublic(items: ContentRow[]): string | null {
+  if (!items.length) return null;
+  const lignes: string[] = [];
+  const parKind = (k: string): ContentRow[] => items.filter((i) => i.kind === k);
+  const commeObjet = (value: unknown): Record<string, unknown> =>
+    value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+  const texte = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
+  const liste = (v: unknown): string[] =>
+    Array.isArray(v) ? v.map((x) => (typeof x === 'string' ? x.trim() : '')).filter(Boolean) : [];
+
+  const config = parKind('config').map((i) => commeObjet(i.data))[0];
+  if (config) {
+    const hero = commeObjet(config.hero);
+    const contact = commeObjet(config.contact);
+    const annonce = commeObjet(config.announcement);
+    lignes.push('[Entreprise]');
+    if (texte(hero.subtitle)) lignes.push(`- Positionnement : ${texte(hero.subtitle)}`);
+    const stats = [
+      texte(hero.stat_1_val) && `${texte(hero.stat_1_val)} ${texte(hero.stat_1_label)}`,
+      texte(hero.stat_2_val) && `${texte(hero.stat_2_val)} ${texte(hero.stat_2_label)}`,
+      texte(hero.stat_3_val) && `${texte(hero.stat_3_val)} ${texte(hero.stat_3_label)}`,
+    ].filter(Boolean);
+    if (stats.length) lignes.push(`- Chiffres officiels : ${stats.join(' ; ')}`);
+    const coord: string[] = [];
+    if (texte(contact.whatsapp_display)) coord.push(`WhatsApp ${texte(contact.whatsapp_display)}`);
+    if (texte(contact.phone_call)) coord.push(`téléphone ${texte(contact.phone_call)}`);
+    if (texte(contact.email_contact)) coord.push(`email ${texte(contact.email_contact)}`);
+    if (texte(contact.address_yaounde)) coord.push(`bureau Yaoundé ${texte(contact.address_yaounde)}`);
+    if (texte(contact.address_douala)) coord.push(`bureau Douala ${texte(contact.address_douala)}`);
+    if (texte(contact.disponibilite)) coord.push(texte(contact.disponibilite));
+    if (coord.length) lignes.push(`- Coordonnées : ${coord.join(' | ')}`);
+    if (texte(annonce.text)) lignes.push(`- Annonce en cours : ${texte(annonce.text)}`);
+  }
+
+  const forfaits = parKind('forfait');
+  if (forfaits.length) {
+    lignes.push('\n[Forfaits officiels]');
+    for (const f of forfaits) {
+      const d = commeObjet(f.data);
+      const cFeatures = liste(d.creation_features);
+      const mFeatures = liste(d.monthly_features);
+      lignes.push(
+        `- ${texte(d.name) || texte(f.title)}${d.recommended ? ' (recommandé)' : ''}` +
+          (texte(d.tagline) ? ` : ${texte(d.tagline)}` : '') +
+          (texte(d.creation_price) ? ` | création ${texte(d.creation_price)}` : '') +
+          (texte(d.monthly_price) ? ` + ${texte(d.monthly_price)}/mois` : '') +
+          (texte(d.delai) ? ` | délai ${texte(d.delai)}` : '') +
+          (cFeatures.length ? ` | inclus création : ${cFeatures.join(', ')}` : '') +
+          (mFeatures.length ? ` | inclus abonnement : ${mFeatures.join(', ')}` : '')
+      );
+    }
+  }
+
+  const realisations = parKind('realisation');
+  if (realisations.length) {
+    lignes.push('\n[Réalisations clients]');
+    for (const r of realisations) {
+      const d = commeObjet(r.data);
+      const points = liste(d.points);
+      lignes.push(
+        `- ${texte(d.name) || texte(r.title)}${texte(d.categoryLabel) ? ` | ${texte(d.categoryLabel)}` : ''}${texte(d.forfait) ? ` | forfait ${texte(d.forfait)}` : ''}` +
+          (texte(d.description) ? ` | ${texte(d.description)}` : '') +
+          (texte(d.mainMetric) ? ` | résultat : ${texte(d.mainMetric)} ${texte(d.mainMetricLabel)}` : '') +
+          (points.length ? ` | points : ${points.join(', ')}` : '')
+      );
+    }
+  }
+
+  const temoignages = parKind('temoignage');
+  if (temoignages.length) {
+    lignes.push('\n[Témoignages clients]');
+    for (const t of temoignages) {
+      const d = commeObjet(t.data);
+      lignes.push(
+        `- ${texte(d.author)}${texte(d.role) || texte(d.company) ? ` (${[texte(d.role), texte(d.company)].filter(Boolean).join(', ')})` : ''} : « ${texte(d.text)} »${texte(d.metrics) ? ` | ${texte(d.metrics)}` : ''}`
+      );
+    }
+  }
+
+  const blog = parKind('blog');
+  if (blog.length) {
+    lignes.push('\n[Articles / actualités publiés]');
+    for (const b of blog.slice(0, 6)) {
+      const d = commeObjet(b.data);
+      lignes.push(
+        `- ${texte(d.title) || texte(b.title)}${texte(d.category_label) ? ` (${texte(d.category_label)})` : ''} : ${texte(d.excerpt)}`
+      );
+    }
+  }
+
+  return lignes.length ? lignes.join('\n') : null;
+}
+
+// Cache court du contenu public : une seule requete SQL par minute suffit,
+// meme si plusieurs visiteurs discutent avec le conseiller.
+let cacheContenuPublic: { texte: string | null; expire: number } | null = null;
+const CONTENU_PUBLIC_TTL_MS = 60_000;
+
+async function chargerContenuPublic(): Promise<string | null> {
+  if (cacheContenuPublic && Date.now() < cacheContenuPublic.expire) {
+    return cacheContenuPublic.texte;
+  }
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const items = await queryContentItems(sb, { onlyPublished: true });
+    const texte = formaterContenuPublic(items);
+    cacheContenuPublic = { texte, expire: Date.now() + CONTENU_PUBLIC_TTL_MS };
+    return texte;
+  } catch (err) {
+    console.warn('chargerContenuPublic:', err);
+    return null;
+  }
+}
+
+// Instruction systeme de l'agent public = regles + contenu publie reel.
+function construireInstructionAgentPublic(contenu: string | null): string {
+  const bloc = contenu
+    ? ['\n\n=== CONTENU OFFICIEL PUBLIÉ SUR LE SITE (à respecter tel quel) ===', contenu, '=== FIN DU CONTENU OFFICIEL ==='].join('\n')
+    : "\n\nÀ L'INSTANT, le contenu du site est indisponible : ne cite AUCUN prix, statistique ni adresse précis. Dis au visiteur que tu ne peux pas confirmer ces elements pour le moment et invite-le a laisser un nom et un contact (telephone ou email) pour que l'equipe revienne vers lui sous 24h.";
+  return `${SYSTEM_PROMPT_AGENT}${bloc}`;
+}
+
+// Helper for fallback intelligent responses when offline or without key.
+// Repli volontairement generique : aucune donnee chiffree codee en dur, la
+// source unique etant le contenu publie (voir `chargerContenuPublic`).
 function generateSmartFallbackResponse(pole: string, userMessage: string): string {
   const msg = userMessage.toLowerCase();
-  
-  if (msg.includes('prix') || msg.includes('combien') || msg.includes('tarif') || msg.includes('coût') || msg.includes('cout')) {
-    return `Chez Arckaton, nous fonctionnons avec 3 forfaits de référence clairs et transparents :
 
-1. **Initiation** (Création 380 000 FCFA + 160 000 FCFA/mois) : Idéal pour démarrer avec un mini-site pro, charte simplifiée et 6 sorties terrain/mois.
-2. **Synergie** (Création 750 000 FCFA + 350 000 FCFA/mois — *Le plus choisi*) : Système complet avec site UX/UI 5–8 pages, 9 sorties terrain, 2–3 infographies/semaine et reporting mensuel.
-3. **Architecture** (Création 2,9 M FCFA + 580 000 FCFA/mois) : Plateforme e-commerce sur-mesure avec paiement direct Mobile Money MTN & Orange, synchronisation ARKA-PME et 3 vidéos/semaine.
-
-Pour un chiffrage précis selon vos besoins spécifiques, je vous invite à cliquer sur **"Obtenir mon devis"** pour remplir notre formulaire interactif sans engagement. Notre équipe vous répond sous 24h !`;
+  if (msg.includes('prix') || msg.includes('combien') || msg.includes('tarif') || msg.includes('coût') || msg.includes('cout') || msg.includes('forfait')) {
+    return `Je suis le conseiller d'Arckaton. Les forfaits et tarifs officiels sont publiés sur la page « Forfaits » de notre site. Pour un chiffrage adapté à votre activité, je vous invite à remplir notre formulaire de devis interactif sans engagement : notre équipe vous répond sous 24h.`;
   }
 
   if (msg.includes('arka') || msg.includes('logiciel') || msg.includes('stock') || msg.includes('inventaire') || msg.includes('essai')) {
-    return `**ARKA-PME** est notre solution logicielle tout-en-un conçue pour les commerces et PME africaines.
-    
-Elle permet de gérer stocks, caisse, clients et encaissements Mobile Money (MTN et Orange) en un seul cockpit, avec un fonctionnement optimisé même sur **connexion faible ou intermittente**.
-Notre référence Districash Nord gère 12 000 références et a réduit le temps d'inventaire de 3 heures à **12 minutes seulement**.
-
-Vous bénéficiez d'un **essai gratuit de 30 jours sans engagement**. Souhaitez-vous que je vous ouvre le formulaire d'essai immédiat ?`;
+    return `ARKA-PME est notre logiciel de gestion (stocks, caisse, clients, encaissements Mobile Money) conçu pour fonctionner même avec une connexion faible ou intermittente. Un essai gratuit est disponible : souhaitez-vous que je vous oriente vers le formulaire d'essai ?`;
   }
 
   if (msg.includes('cameroun') || msg.includes('yaoundé') || msg.includes('france') || msg.includes('étranger') || msg.includes('monde') || msg.includes('diaspora') || msg.includes('livraison')) {
-    return `Absolument ! Bien que notre bureau principal soit situé à **Yaoundé (Mimboman, Cameroun)**, nous livrons nos systèmes digitaux **partout dans le monde.**.
-Le digital n'a pas de frontières : nous accompagnons les entrepreneurs locaux comme la diaspora (Afrique Centrale, Europe, Amérique du Nord) à 100% à distance avec des points réguliers par visioconférence et WhatsApp dédié.`;
+    return `Nous livrons nos systèmes digitaux partout dans le monde. Le digital n'a pas de frontières : nous accompagnons les entrepreneurs locaux comme la diaspora à 100% à distance, avec des points réguliers par visioconférence et WhatsApp. Les coordonnées de nos bureaux sont publiées sur le site.`;
   }
 
   if (msg.includes('mobile money') || msg.includes('orange') || msg.includes('mtn') || msg.includes('paiement') || msg.includes('acompte')) {
-    return `Nous acceptons les règlements en **FCFA**, par **Mobile Money (MTN MoMo, Orange Money)** et par virement bancaire. 
-Nos modalités standard prévoient un acompte au démarrage du projet et le solde à la livraison après validation. À noter : le budget publicitaire des campagnes reste toujours distinct de nos honoraires.`;
+    return `Nous acceptons les règlements en FCFA, par Mobile Money (MTN MoMo, Orange Money) et par virement bancaire. Les modalités exactes (acompte et solde) figurent sur le site ; notre équipe les précise avec vous lors du chiffrage.`;
   }
 
-  return `Bonjour ! Je suis le conseiller d'Arckaton, à votre écoute pour concevoir votre système digital complet (site vitrine UX/UI, e-commerce Mobile Money MTN/Orange, identité visuelle, ou le logiciel SaaS ARKA-PME).
+  return `Bonjour ! Je suis le conseiller d'Arckaton, à votre écoute pour concevoir votre système digital complet (site vitrine, e-commerce Mobile Money, identité visuelle, ou le logiciel ARKA-PME).
 
-Quelle est votre activité et quel objectif souhaitez-vous atteindre en priorité ? Vous pouvez également demander directement une simulation via notre formulaire de devis interactif.`;
+Quelle est votre activité et quel objectif souhaitez-vous atteindre en priorité ? Vous pouvez également demander une simulation via notre formulaire de devis interactif.`;
 }
 
 // API Routes
@@ -2524,6 +2629,8 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, scope: 'ai
           .join('\n')
       : '';
 
+    // Contenu REELLEMENT publie sur le site : source unique de verite.
+    const contenuPublic = await chargerContenuPublic();
     const ai = getGeminiClient();
     if (ai) {
       try {
@@ -2541,7 +2648,7 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, scope: 'ai
         // Concatenes dans `contents`, elles perdaient face a une instruction
         // du visiteur : c'est exactement le défaut que ce correctif supprime.
         const { texte, model } = await generateWithFallback(ai, {
-          systemInstruction: SYSTEM_PROMPT_AGENT,
+          systemInstruction: construireInstructionAgentPublic(contenuPublic),
           contents: fullPrompt,
         });
 
@@ -3373,19 +3480,25 @@ function sanitizeForPrompt(s: unknown, max: number): string {
 // membre (Direction voit tout, un membre voit son pole et ses taches), jamais
 // a partir de champs fournis par le client.
 //
-// Les coordonnees (telephone, email) restent hors du prompt : inutiles pour
-// conseiller, et le copilote renvoie vers la fiche CRM pour le contact.
+// Perimetre : la Direction (admin ou poste p1) voit tout le cockpit. Un autre
+// membre reste borne a son pole. Les coordonnees (telephone, email) ne sont
+// injectees que pour la Direction ; pour les autres membres, le copilote
+// renvoie vers la fiche CRM.
 interface CockpitCounts {
   leads: number;
   openTasks: number;
   lateTasks: number;
   activeQuotes: number;
+  projects: number;
+  members: number;
 }
 
-interface DigestLead { nom: string; statut: string; projet: string; budget: string; pole: string; source: string; ageJours: number; }
+interface DigestLead { nom: string; statut: string; projet: string; budget: string; pole: string; source: string; ageJours: number; contact?: string; }
 interface DigestTache { titre: string; pole: string; priorite: string; echeance: string; retardJours: number; assigne: string; }
 interface DigestDevis { ref: string; client: string; total: number; statut: string; ageJours: number; }
-interface DigestContact { client: string; sujet: string; intention: string; statut: string; ageJours: number; }
+interface DigestContact { client: string; sujet: string; intention: string; statut: string; ageJours: number; contact?: string; }
+interface DigestProjet { nom: string; client: string; pole: string; statut: string; forfait: string; progression: number; deadline: string; chef: string; }
+interface DigestMembre { nom: string; role: string; pole: string; poste: string; }
 
 interface CockpitDigest {
   counts: CockpitCounts;
@@ -3394,6 +3507,8 @@ interface CockpitDigest {
   tachesEnRetard: DigestTache[];
   devisActifs: DigestDevis[];
   contactsSite: DigestContact[];
+  projets: DigestProjet[];
+  membres: DigestMembre[];
 }
 
 const STATUTS_A_RELANCER = ['nouveau', 'contacte', 'qualifie', 'devis_envoye'];
@@ -3410,6 +3525,8 @@ async function buildCockpitDigest(member: MemberRow): Promise<CockpitDigest | nu
   try {
     const estDirection = member.role === 'admin' || member.poste_id === 'p1';
     const aujourdhui = new Date().toISOString().slice(0, 10);
+    // La Direction voit tout le cockpit ; un membre reste borne a son pole.
+    const limite = estDirection ? 12 : 6;
 
     let leadsQ = sb.from('leads').select('*').order('created_at', { ascending: true }).limit(500);
     if (!estDirection) leadsQ = leadsQ.eq('pole_assigned', member.pole);
@@ -3423,23 +3540,37 @@ async function buildCockpitDigest(member: MemberRow): Promise<CockpitDigest | nu
       ]);
     }
 
-    const [leadsRes, tasksRes] = await Promise.all([leadsQ, tasksQ]);
+    let projetsQ = sb.from('projects').select('*').order('created_at', { ascending: false }).limit(500);
+    if (!estDirection) projetsQ = projetsQ.eq('pole', member.pole);
+
+    let membresQ = sb.from('members').select('id,name,role,pole,poste_id,poste_titre,active').limit(200);
+    if (!estDirection) membresQ = membresQ.eq('pole', member.pole);
+
+    const [leadsRes, tasksRes, projetsRes, membresRes] = await Promise.all([leadsQ, tasksQ, projetsQ, membresQ]);
     const leads = enLignes<Record<string, unknown>>(leadsRes.data);
     const taches = enLignes<Record<string, unknown>>(tasksRes.data);
+    const projetsBruts = enLignes<Record<string, unknown>>(projetsRes.data);
+    const membresBruts = enLignes<Record<string, unknown>>(membresRes.data);
 
     const leadsARelancer: DigestLead[] = leads
       .filter((l) => STATUTS_A_RELANCER.includes(String(l.statut)))
-      .map((l) => ({
-        nom: String(l.name || 'Prospect'),
-        statut: String(l.statut || 'nouveau'),
-        projet: String(l.project_type || ''),
-        budget: String(l.budget || ''),
-        pole: String(l.pole_assigned || ''),
-        source: String(l.source || ''),
-        ageJours: ageEnJours(l.created_at),
-      }))
+      .map((l) => {
+        const contact = estDirection
+          ? [l.phone ? `tel ${String(l.phone)}` : '', l.email ? `email ${String(l.email)}` : ''].filter(Boolean).join(' / ')
+          : '';
+        return {
+          nom: String(l.name || 'Prospect'),
+          statut: String(l.statut || 'nouveau'),
+          projet: String(l.project_type || ''),
+          budget: String(l.budget || ''),
+          pole: String(l.pole_assigned || ''),
+          source: String(l.source || ''),
+          ageJours: ageEnJours(l.created_at),
+          contact: contact || undefined,
+        };
+      })
       .sort((a, b) => b.ageJours - a.ageJours)
-      .slice(0, 8);
+      .slice(0, limite);
 
     const tachesEnRetard: DigestTache[] = taches
       .filter((t) => t.echeance && String(t.echeance) < aujourdhui)
@@ -3452,7 +3583,7 @@ async function buildCockpitDigest(member: MemberRow): Promise<CockpitDigest | nu
         assigne: String(t.assigne_nom || ''),
       }))
       .sort((a, b) => b.retardJours - a.retardJours)
-      .slice(0, 8);
+      .slice(0, limite);
 
     let devisActifs: DigestDevis[] = [];
     let caEncaisse = 0;
@@ -3477,28 +3608,59 @@ async function buildCockpitDigest(member: MemberRow): Promise<CockpitDigest | nu
           ageJours: ageEnJours(q.created_at),
         }))
         .sort((a, b) => b.ageJours - a.ageJours)
-        .slice(0, 8);
+        .slice(0, limite);
     }
 
-    let contactsQ = sb.from('agent_reports').select('*').order('created_at', { ascending: false }).limit(8);
+    const projets: DigestProjet[] = projetsBruts
+      .filter((p) => !['livre', 'annule'].includes(String(p.statut)))
+      .map((p) => ({
+        nom: String(p.client_name || p.project_ref || 'Projet'),
+        client: String(p.client_code || ''),
+        pole: String(p.pole || ''),
+        statut: String(p.statut || ''),
+        forfait: String(p.forfait || ''),
+        progression: Number(p.progression || 0),
+        deadline: String(p.deadline || ''),
+        chef: String(p.chef_de_projet || ''),
+      }))
+      .sort((a, b) => a.progression - b.progression)
+      .slice(0, limite);
+
+    const membres: DigestMembre[] = membresBruts
+      .filter((m) => m.active !== false)
+      .map((m) => ({
+        nom: String(m.name || m.email || 'Membre'),
+        role: String(m.role || 'membre'),
+        pole: String(m.pole || ''),
+        poste: String(m.poste_titre || m.poste_id || ''),
+      }))
+      .slice(0, 60);
+
+    let contactsQ = sb.from('agent_reports').select('*').order('created_at', { ascending: false }).limit(limite);
     if (!estDirection) contactsQ = contactsQ.eq('pole', member.pole);
     const contactsRes = await contactsQ;
-    const contactsSite: DigestContact[] = enLignes<Record<string, unknown>>(contactsRes.data).map((r) => ({
-      client: String(r.client_name || r.lead_name || 'Prospect site'),
-      sujet: String(r.sujet || ''),
-      intention: String(r.intention || ''),
-      statut: String(r.status || ''),
-      ageJours: ageEnJours(r.created_at),
-    }));
+    const contactsSite: DigestContact[] = enLignes<Record<string, unknown>>(contactsRes.data).map((r) => {
+      const contact = estDirection ? String(r.contact_info || '').slice(0, 200) : '';
+      return {
+        client: String(r.client_name || r.lead_name || 'Prospect site'),
+        sujet: String(r.sujet || ''),
+        intention: String(r.intention || ''),
+        statut: String(r.status || ''),
+        ageJours: ageEnJours(r.created_at),
+        contact: contact || undefined,
+      };
+    });
 
     const counts: CockpitCounts = {
       leads: leads.length,
       openTasks: taches.length,
       lateTasks: tachesEnRetard.length,
       activeQuotes: devisActifs.length,
+      projects: projets.length,
+      members: membres.length,
     };
 
-    return { counts, caEncaisse, leadsARelancer, tachesEnRetard, devisActifs, contactsSite };
+    return { counts, caEncaisse, leadsARelancer, tachesEnRetard, devisActifs, contactsSite, projets, membres };
   } catch (err) {
     console.warn('buildCockpitDigest:', err);
     return null;
@@ -3512,13 +3674,13 @@ function formaterDigestCopilote(digest: CockpitDigest | null): string {
   }
   const l: string[] = ["\n\nContexte REEL de l'agence (donnees internes, session authentifiee) :"];
   l.push(
-    `\n[Compteurs] ${digest.counts.leads} prospect(s) au pipeline, ${digest.counts.openTasks} tache(s) ouverte(s) dont ${digest.counts.lateTasks} en retard, ${digest.counts.activeQuotes} devis actif(s), ${digest.caEncaisse.toLocaleString('fr-FR')} FCFA encaisses (devis payes).`
+    `\n[Compteurs] ${digest.counts.leads} prospect(s) au pipeline, ${digest.counts.openTasks} tache(s) ouverte(s) dont ${digest.counts.lateTasks} en retard, ${digest.counts.activeQuotes} devis actif(s), ${digest.counts.projects} projet(s) en production, ${digest.counts.members} membre(s), ${digest.caEncaisse.toLocaleString('fr-FR')} FCFA encaisses (devis payes).`
   );
 
   if (digest.leadsARelancer.length) {
     l.push('\n[Prospects a relancer, du plus ancien au plus recent]');
     for (const x of digest.leadsARelancer) {
-      l.push(`- ${x.nom} | statut ${x.statut} | projet ${x.projet || 'n/c'} | budget ${x.budget || 'n/c'} | pole ${x.pole || 'n/c'} | source ${x.source || 'n/c'} | depuis ${x.ageJours} j`);
+      l.push(`- ${x.nom} | statut ${x.statut} | projet ${x.projet || 'n/c'} | budget ${x.budget || 'n/c'} | pole ${x.pole || 'n/c'} | source ${x.source || 'n/c'} | depuis ${x.ageJours} j${x.contact ? ` | contact ${x.contact}` : ''}`);
     }
   } else {
     l.push('\n[Prospects a relancer] aucun prospect en attente dans le perimetre.');
@@ -3540,10 +3702,28 @@ function formaterDigestCopilote(digest: CockpitDigest | null): string {
     }
   }
 
+  if (digest.projets.length) {
+    l.push('\n[Projets en production, les moins avances en premier]');
+    for (const p of digest.projets) {
+      l.push(`- ${p.nom}${p.client ? ` (${p.client})` : ''} | pole ${p.pole || 'n/c'} | statut ${p.statut} | forfait ${p.forfait || 'n/c'} | avancement ${p.progression}% | echeance ${p.deadline || 'n/c'} | chef ${p.chef || 'non assigne'}`);
+    }
+  } else {
+    l.push('\n[Projets en production] aucun projet actif dans le perimetre.');
+  }
+
+  if (digest.membres.length) {
+    l.push('\n[Equipe (membres et postes)]');
+    for (const m of digest.membres) {
+      l.push(`- ${m.nom} | role ${m.role} | pole ${m.pole || 'n/c'}${m.poste ? ` | poste ${m.poste}` : ''}`);
+    }
+  } else {
+    l.push('\n[Equipe] aucun membre dans le perimetre.');
+  }
+
   if (digest.contactsSite.length) {
     l.push("\n[Derniers contacts arrives par le conseiller IA du site]");
     for (const c of digest.contactsSite) {
-      l.push(`- ${c.client} | sujet ${c.sujet || 'n/c'} | intention ${c.intention || 'n/c'} | statut ${c.statut || 'n/c'} | il y a ${c.ageJours} j`);
+      l.push(`- ${c.client} | sujet ${c.sujet || 'n/c'} | intention ${c.intention || 'n/c'} | statut ${c.statut || 'n/c'} | il y a ${c.ageJours} j${c.contact ? ` | contact ${c.contact}` : ''}`);
     }
   }
 
@@ -3559,6 +3739,7 @@ Regles absolues :
 - Tu es en LECTURE SEULE. Tu ne peux executer AUCUNE action : tu ne crees, ne modifies ni ne supprimes aucun lead, tache, devis, projet, message ou rendez-vous ; tu n'assignes personne ; tu n'envoies aucun email, SMS ni WhatsApp ; tu ne consultes aucune conversation absente du contexte ci-dessus.
 - Ne dis JAMAIS avoir fait quelque chose (« je l'ai marque », « j'ai cree la fiche », « j'ai bloque le creneau », « j'ai envoye une alerte », « c'est note », « c'est transmis »). Tu peux seulement CONSEILLER l'action et dire ou l'executer dans l'OS.
 - N'invente aucun nom, telephone, email, montant, date ni statut. Utilise uniquement le contexte ci-dessus. Si une donnee manque, dis-le et indique l'onglet a ouvrir (CRM, Taches, Messagerie).
+- Tu as acces a tout ton perimetre : prospects, taches, devis, projets en production et equipe. Quand une coordonnee (telephone/email) figure dans le contexte, tu peux la communiquer ; sinon, renvoie vers la fiche CRM.
 - Si la question porte sur un rendez-vous demande via le site, regarde « Derniers contacts arrives par le conseiller IA du site » ; si le contact n'y figure pas, dis que la demande n'est pas enregistree et propose de la saisir.
 - Reponds en francais, 100 a 150 mots, tourne vers la rentabilite et la qualite operationnelle.`;
 }
@@ -3821,6 +4002,11 @@ export const __extraireContact = extraireContact;
 // Exporte pour verifier que le repli public parle bien au client (et non
 // comme un membre de l'equipe ou l'identite d'un pole interne).
 export const __generateSmartFallbackResponse = generateSmartFallbackResponse;
+
+// Exportes pour verifier que l'agent public s'ancre sur le contenu publie
+// (source unique) et n'affiche plus de prix/adresse codes en dur.
+export const __formaterContenuPublic = formaterContenuPublic;
+export const __construireInstructionAgentPublic = construireInstructionAgentPublic;
 
 /**
  * Regle de desactivation des plafonds, extraite pour etre testee.

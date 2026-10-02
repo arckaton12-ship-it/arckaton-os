@@ -6,7 +6,12 @@
 // interne `pole` servait d'identite au modele.
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { app, __generateSmartFallbackResponse } from '../server';
+import {
+  app,
+  __generateSmartFallbackResponse,
+  __formaterContenuPublic,
+  __construireInstructionAgentPublic,
+} from '../server';
 
 describe('IA publique — le conseiller parle au client', () => {
   it('le repli ne se presente jamais comme un pole ni comme l equipe interne', () => {
@@ -27,5 +32,50 @@ describe('IA publique — le conseiller parle au client', () => {
     expect(reply).not.toMatch(/en tant que\s+\*{0,2}(direction|tech|cr[eé]atif)/i);
     expect(reply).not.toMatch(/conseiller du p[oô]le/i);
     expect(reply.toLowerCase()).not.toContain('je prends en charge');
+  });
+});
+
+// L'agent public ne doit plus reciter de prix/stats/adresse codes en dur :
+// sa source unique est le contenu REELLEMENT publie sur le site.
+describe('Agent public — ancre sur le contenu publie', () => {
+  const items = [
+    {
+      id: 'cfg', kind: 'config', slug: 'site', published: true, position: 0,
+      data: {
+        hero: { subtitle: 'Systemes digitaux complets', stat_1_val: '+337%', stat_1_label: 'de conversion' },
+        contact: { whatsapp_display: '+237 6 99 00 00 00', address_yaounde: 'Mimboman' },
+      },
+      created_at: '', updated_at: '',
+    },
+    {
+      id: 'frf', kind: 'forfait', slug: 'synergie', title: 'Synergie', published: true, position: 1,
+      data: {
+        name: 'Synergie', tagline: 'Le plus choisi',
+        creation_price: '750 000 FCFA', monthly_price: '350 000 FCFA',
+        creation_features: ['Site 5-8 pages'], monthly_features: ['Reporting mensuel'],
+      },
+      created_at: '', updated_at: '',
+    },
+  ];
+
+  it('met le contenu publie en texte (forfaits, chiffres, coordonnees)', () => {
+    const texte = __formaterContenuPublic(items) || '';
+    expect(texte).toContain('Synergie');
+    expect(texte).toContain('750 000 FCFA');
+    expect(texte).toContain('+337%');
+    expect(texte).toContain('+237 6 99 00 00 00');
+  });
+
+  it('injecte le contenu dans l instruction systeme', () => {
+    const instr = __construireInstructionAgentPublic('MARQUEUR-CONTENU-XYZ');
+    expect(instr).toContain('MARQUEUR-CONTENU-XYZ');
+    expect(instr).toContain('CONTENU OFFICIEL');
+  });
+
+  it('sans contenu, interdit de citer un prix ou une adresse', () => {
+    const instr = __construireInstructionAgentPublic(null);
+    expect(instr).toContain('indisponible');
+    expect(instr).not.toContain('380 000');
+    expect(instr).not.toContain('Mimboman');
   });
 });

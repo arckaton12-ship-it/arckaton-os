@@ -10,10 +10,10 @@ import {
 // interdire toute affirmation d'action.
 describe('Copilote — contexte reel et lecture seule', () => {
   const digest = {
-    counts: { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5 },
+    counts: { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5, projects: 2, members: 3 },
     caEncaisse: 3_800_000,
     leadsARelancer: [
-      { nom: 'Maison Kotto', statut: 'devis_envoye', projet: 'Site', budget: '750k', pole: 'Digital', source: 'site', ageJours: 12 },
+      { nom: 'Maison Kotto', statut: 'devis_envoye', projet: 'Site', budget: '750k', pole: 'Digital', source: 'site', ageJours: 12, contact: 'tel 699000000' },
     ],
     tachesEnRetard: [
       { titre: 'Livrer maquette GESCAFE', pole: 'Creatif', priorite: 'haute', echeance: '2026-09-01', retardJours: 4, assigne: 'Awa' },
@@ -22,7 +22,13 @@ describe('Copilote — contexte reel et lecture seule', () => {
       { ref: 'DEV-2026-014', client: 'Districash', total: 2_900_000, statut: 'envoye', ageJours: 20 },
     ],
     contactsSite: [
-      { client: 'Visiteur Site Web', sujet: 'Demande de RDV', intention: 'devis', statut: 'nouveau', ageJours: 0 },
+      { client: 'Visiteur Site Web', sujet: 'Demande de RDV', intention: 'devis', statut: 'nouveau', ageJours: 0, contact: 'email visiteur@exemple.cm' },
+    ],
+    projets: [
+      { nom: 'Refonte Kotto', client: 'PRJ-KOTTO', pole: 'Digital', statut: 'en_cours', forfait: 'Synergie', progression: 40, deadline: '2026-10-20', chef: 'Awa' },
+    ],
+    membres: [
+      { nom: 'Awa', role: 'admin', pole: 'Direction', poste: 'Chef d Agence' },
     ],
   };
 
@@ -40,6 +46,15 @@ describe('Copilote — contexte reel et lecture seule', () => {
     expect(texte).toContain('DEV-2026-014');
     expect(texte).toContain('22');
     expect(texte).toContain('4');
+  });
+
+  it('couvre tout le cockpit : projets, equipe et coordonnees', () => {
+    const texte = __formaterDigestCopilote(digest);
+    expect(texte).toContain('Refonte Kotto');
+    expect(texte).toContain('projet(s) en production');
+    expect(texte).toContain('membre(s)');
+    expect(texte).toContain('tel 699000000');
+    expect(texte).toContain('visiteur@exemple.cm');
   });
 
   it('declare le contexte indisponible quand la base ne repond pas', () => {
