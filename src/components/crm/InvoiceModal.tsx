@@ -4,6 +4,9 @@ import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { Printer, X, ShieldCheck, Save, Loader2, CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { DocumentLetterhead, DocumentLegalFooter } from './DocumentLetterhead';
 
+const NAVY = OFFICIAL_KNOWLEDGE.letterhead.colors.logoBackground;
+const GREEN = OFFICIAL_KNOWLEDGE.letterhead.colors.green;
+
 interface InvoiceModalProps {
   lead?: Lead | null;
   projet?: Projet | null;
@@ -34,6 +37,7 @@ function formatFcfa(value: number) {
 export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, onClose, onSaved }) => {
   const clientName = lead?.name || projet?.client_name || '';
   const clientPhone = lead?.phone || projet?.client_phone || '';
+  const clientEmail = lead?.email || projet?.client_email || '';
   const projectType = lead?.project_type || projet?.service || '';
   const [dateStr] = useState(() =>
     new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -52,6 +56,16 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
     const t = token();
     return t ? { Authorization: `Bearer ${t}` } : undefined;
   };
+
+  // Fermer au clavier : réflexe attendu d'une fenêtre modale. Le bouton
+  // « Retour » reste la sortie visible ; Échap est son raccourci.
+  useEffect(() => {
+    const surTouche = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', surTouche);
+    return () => window.removeEventListener('keydown', surTouche);
+  }, [onClose]);
 
   // Le lead n'a pas de budget : la prestation est saisie a la main plutot
   // qu'inventee a partir d'une comparaison de chaines de caracteres.
@@ -121,7 +135,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           type,
           client_name: clientName,
           client_phone: clientPhone,
-          client_email: lead?.email || projet?.client_email || '',
+          client_email: clientEmail,
           project_ref: projet?.id || null,
           project_name: projet?.client_name || null,
           pole: projet?.pole || 'Direction',
@@ -151,22 +165,33 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
     }
   };
 
+  const inputClass =
+    'w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none print:hidden';
+
   return (
     <div
-      className="invoice-modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn overflow-y-auto"
+      className="invoice-modal fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-fadeIn overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-label={type === 'devis' ? 'Génération de devis' : 'Génération de facture proforma'}
     >
-      <div className="invoice-shell bg-[#0b122e] border border-white/20 rounded-3xl w-full max-w-3xl shadow-2xl p-6 sm:p-8 space-y-6 my-8 text-slate-100">
+      <div className="invoice-shell w-full max-w-[860px] my-4 sm:my-8 space-y-3">
 
         {/* Barre d'actions (non imprimable) */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-4 flex-wrap gap-3 no-print">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30">
-              {type === 'devis' ? 'Proposition Commerciale / Devis' : 'Facture Proforma'}
+        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-[#0f1523] border border-white/10 px-4 py-3 text-slate-100 shadow-xl">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={onClose}
+              className="bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Retour au CRM (Échap)"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Retour</span>
+            </button>
+            <span className="text-[11px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30">
+              {type === 'devis' ? 'Devis' : 'Facture proforma'}
             </span>
-            <span className="text-xs font-mono text-slate-400">
+            <span className="text-[11px] font-mono text-slate-400">
               Réf : {savedRef || quoteRef || '—'}
             </span>
             {savedRef && (
@@ -177,14 +202,6 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={onClose}
-              className="bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
-              title="Retour au CRM"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Retour</span>
-            </button>
             {!savedRef && (
               <button
                 onClick={handleSave}
@@ -213,6 +230,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+              title="Fermer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -220,95 +238,114 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-[11px] font-mono text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2 no-print">
+          <div className="no-print flex items-center gap-2 text-[11px] font-mono text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2">
             <AlertTriangle className="w-3.5 h-3.5" /> {error}
           </div>
         )}
 
-        {/* Document imprimable */}
-        <div className="invoice-document bg-[#070c1e] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 print:bg-white print:text-black">
-
-          {/* En-tête officiel de l'agence (papier à en-tête) */}
+        {/* Feuille A4 : blanche à l'écran comme au papier, pour un vrai
+            aperçu sans double style à maintenir. */}
+        <div className="invoice-document bg-white text-slate-900 rounded-2xl shadow-2xl px-6 py-7 sm:px-10 sm:py-10">
           <DocumentLetterhead />
 
-          {/* En-tête */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-white/10 pb-6 print:border-black/20">
+          {/* Titre + méta */}
+          <div className="mt-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-              <div className="font-serif text-2xl font-bold text-white tracking-tight print:text-black">
-                arckaton <span className="text-xs font-mono text-blue-400 print:text-black">SYSTEMS</span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs font-serif italic print:text-slate-600">
-                « On ne livre pas un site. On livre un système digital complet. »
-              </p>
-              <div className="text-[11px] font-mono text-slate-400 mt-2 space-y-0.5 print:text-slate-600">
-                {OFFICIAL_KNOWLEDGE.agency.location && <div>{OFFICIAL_KNOWLEDGE.agency.location}</div>}
-                {OFFICIAL_KNOWLEDGE.agency.phone && (
-                  <div>WhatsApp / Tel : {OFFICIAL_KNOWLEDGE.agency.phone}</div>
-                )}
-                {OFFICIAL_KNOWLEDGE.agency.email && <div>Email : {OFFICIAL_KNOWLEDGE.agency.email}</div>}
+              <h1
+                className="font-display text-2xl sm:text-[26px] font-extrabold tracking-tight leading-none"
+                style={{ color: NAVY }}
+              >
+                {type === 'devis' ? 'DEVIS' : 'FACTURE PROFORMA'}
+              </h1>
+              <div className="mt-1.5 text-[11px] font-mono text-slate-500">
+                Référence : <span className="font-semibold text-slate-700">{savedRef || quoteRef || '—'}</span>
               </div>
             </div>
+            <div className="text-[11px] text-slate-600 sm:text-right leading-relaxed">
+              <div>Date d'émission : <span className="font-semibold text-slate-800">{dateStr}</span></div>
+              <div>Validité de l'offre : <span className="font-semibold text-slate-800">30 jours</span></div>
+              <div>Statut : <span className="font-semibold text-slate-800">{STATUS_LABELS[status] || status}</span></div>
+            </div>
+          </div>
 
-            <div className="text-left sm:text-right space-y-1">
-              <div className="text-lg font-serif font-bold text-emerald-400 print:text-black">
-                {type === 'devis' ? 'DEVIS CHIFFRÉ' : 'FACTURE PROFORMA'}
+          {/* Client + détails */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+                Client / Donneur d'ordre
               </div>
-              <div className="text-xs font-mono text-slate-300 print:text-slate-700">Date : {dateStr}</div>
-              <div className="text-xs font-mono text-slate-400 print:text-slate-600">Validité : 30 jours</div>
+              <div className="mt-1 text-[13px] font-bold text-slate-900">
+                {clientName || 'Client à renseigner'}
+              </div>
+              {clientPhone && <div className="text-[11px] text-slate-600 mt-0.5">{clientPhone}</div>}
+              {clientEmail && <div className="text-[11px] text-slate-600">{clientEmail}</div>}
+              {lead?.country && <div className="text-[11px] text-slate-600">{lead.country}</div>}
+            </div>
 
-              <div className="mt-4 p-3 bg-white/5 rounded-xl text-left border border-white/5 print:border-black/20">
-                <div className="text-[11px] font-mono uppercase text-slate-400 print:text-slate-600">
-                  Client / Donneur d'Ordre :
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+                Détails de la prestation
+              </div>
+              <div className="mt-1 text-[11px] text-slate-600 space-y-0.5">
+                <div>
+                  Projet : <span className="font-semibold text-slate-800">{projet?.client_name || clientName || '—'}</span>
                 </div>
-                <div className="text-xs font-bold text-white print:text-black">
-                  {clientName || 'Client à renseigner'}
+                {projectType && (
+                  <div>
+                    Prestation : <span className="font-semibold text-slate-800">{projectType}</span>
+                  </div>
+                )}
+                <div>
+                  Pôle : <span className="font-semibold text-slate-800">{projet?.pole || 'Direction'}</span>
                 </div>
-                {clientPhone && <div className="text-[11px] font-mono text-slate-300 print:text-slate-700">{clientPhone}</div>}
-                {lead?.country && <div className="text-[11px] font-mono text-slate-400 print:text-slate-600">{lead.country}</div>}
               </div>
             </div>
           </div>
 
           {/* Prestations */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between no-print">
-              <h4 className="font-serif text-sm font-bold text-white print:hidden">Prestations</h4>
+          <div className="mt-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider" style={{ color: NAVY }}>
+                Prestations
+              </h2>
               <button
                 onClick={addLine}
-                className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-200 border border-blue-500/30 cursor-pointer print:hidden"
+                className="no-print text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 cursor-pointer"
               >
                 + Ajouter une ligne
               </button>
             </div>
 
             {lines.length === 0 ? (
-              <div className="py-5 px-4 rounded-2xl border border-dashed border-white/15 bg-white/5 text-center print:hidden">
-                <p className="text-xs font-mono text-slate-400">Aucune prestation saisie.</p>
-                <p className="text-[11px] text-slate-500 mt-1">
+              <div className="no-print mt-2 py-6 px-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                <p className="text-xs font-mono text-slate-500">Aucune prestation saisie.</p>
+                <p className="text-[11px] text-slate-400 mt-1">
                   Ajoutez les lignes avec leur montant : rien n'est estimé automatiquement.
                 </p>
               </div>
             ) : (
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="mt-2 w-full text-left text-[12px] border-collapse">
                 <thead>
-                  <tr className="border-b border-white/10 font-mono text-slate-400 text-[11px] print:border-black/20">
-                    <th className="py-2.5">Désignation de la Prestation</th>
-                    <th className="py-2.5 text-center">Pôle</th>
-                    <th className="py-2.5 text-right">Montant (FCFA)</th>
+                  <tr className="bg-slate-100" style={{ color: NAVY }}>
+                    <th className="w-[7%] py-2 pl-2 font-semibold text-[10px] uppercase tracking-wide">#</th>
+                    <th className="py-2 font-semibold text-[10px] uppercase tracking-wide">Désignation de la prestation</th>
+                    <th className="w-[16%] py-2 text-center font-semibold text-[10px] uppercase tracking-wide">Pôle</th>
+                    <th className="w-[22%] py-2 pr-2 text-right font-semibold text-[10px] uppercase tracking-wide">Montant (FCFA)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 print:divide-black/10">
+                <tbody>
                   {lines.map((l, i) => (
-                    <tr key={i}>
-                      <td className="py-3 pr-4 space-y-1.5">
+                    <tr key={i} className="align-top border-b border-slate-100">
+                      <td className="py-2.5 pl-2 text-[11px] font-mono text-slate-400">{i + 1}</td>
+                      <td className="py-2.5 pr-3 space-y-1">
                         <input
                           type="text"
                           value={l.designation}
                           onChange={(e) => updateLine(i, { designation: e.target.value })}
                           placeholder="Intégration passerelle Mobile Money"
-                          className="w-full px-2 py-1.5 rounded-lg bg-[#070c1e] border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500/50 print:hidden"
+                          className={`${inputClass} font-medium`}
                         />
-                        <div className={`font-bold text-white print:text-black ${l.designation ? 'hidden print:block' : 'hidden'}`}>
+                        <div className={`font-semibold text-slate-900 ${l.designation ? 'hidden print:block' : 'hidden'}`}>
                           {l.designation}
                         </div>
                         <input
@@ -316,17 +353,17 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                           value={l.detail}
                           onChange={(e) => updateLine(i, { detail: e.target.value })}
                           placeholder="Détail de la prestation"
-                          className="w-full px-2 py-1.5 rounded-lg bg-[#070c1e] border border-white/10 text-[11px] text-slate-300 focus:outline-none focus:border-blue-500/50 print:hidden"
+                          className={`${inputClass} text-slate-600`}
                         />
                         {l.detail && (
-                          <div className="text-[11px] text-slate-400 print:text-slate-600">{l.detail}</div>
+                          <div className="text-[11px] text-slate-500">{l.detail}</div>
                         )}
                       </td>
-                      <td className="py-3 text-center">
+                      <td className="py-2.5 text-center">
                         <select
                           value={l.pole}
                           onChange={(e) => updateLine(i, { pole: e.target.value })}
-                          className="text-[11px] font-mono px-1.5 py-1 rounded-lg bg-[#070c1e] border border-white/10 text-white print:hidden"
+                          className="text-[11px] font-mono px-1.5 py-1 rounded-md border border-slate-200 bg-white text-slate-900 print:hidden"
                         >
                           <option value="Direction">Direction</option>
                           <option value="Tech">Tech</option>
@@ -334,9 +371,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                           <option value="Digital">Digital</option>
                           <option value="Client">Client</option>
                         </select>
-                        <div className="hidden print:block font-mono text-blue-400 print:text-black">{l.pole}</div>
+                        <div className="hidden print:block font-mono text-[11px] text-slate-700">{l.pole}</div>
                       </td>
-                      <td className="py-3 text-right">
+                      <td className="py-2.5 pr-2 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <input
                             type="number"
@@ -348,17 +385,17 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                               updateLine(i, { montant: raw === '' ? 0 : Number(raw) });
                             }}
                             placeholder="Inclus"
-                            className="w-28 text-right px-2 py-1.5 rounded-lg bg-[#070c1e] border border-white/10 text-[11px] font-mono text-white focus:outline-none focus:border-blue-500/50 print:hidden"
+                            className={`${inputClass} w-28 text-right font-mono`}
                           />
                           <button
                             onClick={() => removeLine(i)}
-                            className="text-slate-500 hover:text-red-400 px-1 cursor-pointer print:hidden"
+                            className="no-print text-slate-400 hover:text-red-500 px-1 cursor-pointer"
                             title="Retirer la ligne"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <div className="hidden print:block font-mono font-bold text-white print:text-black">
+                        <div className="hidden print:block font-mono font-semibold text-slate-900">
                           {Number(l.montant) > 0 ? formatFcfa(l.montant) : 'Inclus'}
                         </div>
                       </td>
@@ -369,77 +406,102 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
             )}
           </div>
 
-          {/* Totaux */}
+          {/* Modalités + totaux */}
           {lines.length > 0 && (
-            <div className="invoice-totals border-t border-white/10 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono print:border-black/20">
-              <div className="space-y-1 text-slate-400 no-print">
-                <div className="text-[11px]">Modalités de règlement :</div>
-                <div className="text-white print:text-black">
-                  ▪ 50% d'acompte au lancement :{' '}
-                  <span className="text-emerald-400 font-bold print:text-black">{formatFcfa(deposit)}</span>
+            <div className="invoice-totals mt-5 flex flex-col sm:flex-row justify-between items-start gap-5">
+              <div className="flex-1 space-y-1 text-[11px] text-slate-600">
+                <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+                  Modalités de règlement
                 </div>
-                <div className="text-white print:text-black">
-                  ▪ 50% de solde à la livraison finale :{' '}
-                  <span className="text-emerald-400 font-bold print:text-black">{formatFcfa(balance)}</span>
+                <div>
+                  • 50% d'acompte au lancement :{' '}
+                  <span className="font-semibold text-slate-800">{formatFcfa(deposit)}</span>
                 </div>
-                <div className="text-[11px] text-slate-400 print:text-slate-600 mt-1">
+                <div>
+                  • 50% de solde à la livraison finale :{' '}
+                  <span className="font-semibold text-slate-800">{formatFcfa(balance)}</span>
+                </div>
+                <div className="text-slate-500">
                   Moyens acceptés : Mobile Money (MTN / Orange), virement bancaire, espèces contre reçu.
                 </div>
 
-                <div className="pt-2 space-y-1 no-print">
-                  <label className="block text-[11px] uppercase text-slate-400">Statut de suivi</label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    disabled={!!savedRef}
-                    className="w-full text-xs font-mono px-2 py-1.5 rounded-lg bg-[#070c1e] border border-white/10 text-white disabled:opacity-60"
-                  >
-                    {Object.entries(STATUS_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
-                    ))}
-                  </select>
+                {notes.trim() && (
+                  <div className="pt-1.5">
+                    <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+                      Notes / conditions
+                    </div>
+                    <div className="whitespace-pre-wrap text-slate-700">{notes}</div>
+                  </div>
+                )}
 
-                  <label className="block text-[11px] uppercase text-slate-400 pt-2">Conditions / notes</label>
-                  <textarea
-                    rows={2}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    disabled={!!savedRef}
-                    placeholder="Délai de livraison, conditions de révision, acompte..."
-                    className="w-full px-2 py-1.5 rounded-lg bg-[#070c1e] border border-white/10 text-[11px] text-white resize-none disabled:opacity-60"
-                  />
+                {/* Édition (jamais imprimée) */}
+                <div className="no-print pt-3 space-y-2">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wide text-slate-500">Statut de suivi</label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      disabled={!!savedRef}
+                      className="mt-0.5 w-full text-xs font-mono px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-900 disabled:opacity-60"
+                    >
+                      {Object.entries(STATUS_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>{v}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wide text-slate-500">Conditions / notes</label>
+                    <textarea
+                      rows={2}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      disabled={!!savedRef}
+                      placeholder="Délai de livraison, conditions de révision, acompte..."
+                      className="mt-0.5 w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-900 resize-none disabled:opacity-60 focus:border-slate-400 focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-white/5 border border-white/10 p-4 rounded-xl space-y-1.5 w-full sm:w-64 text-right print:border-black/20">
-                <div className="flex justify-between text-slate-400 print:text-slate-700">
-                  <span>Total Prestation :</span>
-                  <span>{formatFcfa(total)}</span>
+              <div className="w-full sm:w-[260px] rounded-xl border border-slate-200 overflow-hidden shrink-0">
+                <div className="flex justify-between px-4 py-2 text-[11px] text-slate-600 bg-slate-50">
+                  <span>Total prestations</span>
+                  <span className="font-mono">{formatFcfa(total)}</span>
                 </div>
-                <div className="flex justify-between text-sm font-bold text-emerald-400 border-t border-white/10 pt-1.5 print:text-black print:border-black/20">
-                  <span>Net à Payer :</span>
-                  <span>{formatFcfa(total)}</span>
+                <div className="flex justify-between px-4 py-2 text-[11px] text-slate-600 border-t border-slate-100">
+                  <span>Acompte (50%)</span>
+                  <span className="font-mono">{formatFcfa(deposit)}</span>
+                </div>
+                <div className="flex justify-between items-center px-4 py-3 border-t-2" style={{ borderColor: GREEN }}>
+                  <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: NAVY }}>
+                    Net à payer
+                  </span>
+                  <span className="font-mono text-base font-extrabold text-slate-900">
+                    {formatFcfa(total)}
+                  </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Pied de page */}
-          <div className="invoice-signature border-t border-white/10 pt-4 text-[11px] font-mono text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 print:border-black/20 print:text-slate-600">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Document généré par Arckaton OS</span>
+          {/* Signatures */}
+          <div className="invoice-signature mt-8 flex flex-col sm:flex-row justify-between gap-6 text-[11px] text-slate-500">
+            <div className="w-full sm:w-[45%]">
+              <div className="font-semibold text-slate-700">Le client (bon pour accord)</div>
+              <div className="mt-8 border-t border-dashed border-slate-300 pt-1">Nom, date et signature</div>
             </div>
-            <div>Signature & Cachet</div>
+            <div className="w-full sm:w-[45%]">
+              <div className="font-semibold text-slate-700">Pour {OFFICIAL_KNOWLEDGE.letterhead.agencyName}</div>
+              <div className="mt-8 border-t border-dashed border-slate-300 pt-1">Signature & cachet</div>
+            </div>
           </div>
 
-          {/* Mentions légales officielles (pied de page du papier à en-tête).
-              En impression, le bloc est fixé en bas : il se répète donc sur
-              chaque page, comme sur un document papier. */}
-          <div className="print:fixed print:bottom-0 print:left-0 print:right-0 print:z-0">
-            <DocumentLegalFooter />
+          <div className="mt-5 flex items-center gap-1.5 text-[9px] text-slate-400">
+            <ShieldCheck className="w-3 h-3 text-emerald-600" />
+            <span>Document généré par Arckaton OS</span>
           </div>
 
+          <DocumentLegalFooter />
         </div>
       </div>
     </div>

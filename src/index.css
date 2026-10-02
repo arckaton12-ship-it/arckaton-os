@@ -344,7 +344,14 @@ html.dark .text-slate-500 {
 
 /* Impression : neutralise les fonds sombres non imprimables */
 @media print {
-  header, footer, nav, .no-print, button {
+  /* On masque le chrome de l'application (en-tete, pied, navigation,
+     boutons) mais PAS l'en-tete ni le pied du document : ceux-ci portent
+     des classes dediees et doivent s'imprimer. */
+  header:not(.invoice-letterhead),
+  footer:not(.invoice-legal),
+  nav,
+  .no-print,
+  button {
     display: none !important;
   }
   body, html {
@@ -397,19 +404,34 @@ html.dark .text-slate-500 {
     max-width: 100% !important;
   }
 
-  /* Le document lui-meme : feuille blanche sans cadre. */
+  /* Le document lui-meme : feuille blanche sans cadre. On force les
+     couleurs de la charte (filet navy/vert, en-tete de tableau, montant
+     net) a s'imprimer, sans dependre d'une case « graphiques de fond » :
+     le texte reste de toute facon sombre sur blanc. */
   .invoice-document {
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #111827 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    font-family: var(--font-sans) !important;
+    font-size: 10.5pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .invoice-document * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Blocs qui ne doivent jamais etre coupes par un saut de page. */
   .invoice-totals,
   .invoice-signature,
+  .invoice-legal,
   .avoid-break {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
@@ -425,7 +447,7 @@ html.dark .text-slate-500 {
      fixes en bas de page et doivent donc etre reservees. */
   @page {
     size: A4;
-    margin: 12mm 12mm 26mm;
+    margin: 14mm;
   }
 
   /* Les lignes de prestation ne doivent pas etre coupees en deux par un
