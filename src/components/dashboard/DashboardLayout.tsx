@@ -102,6 +102,32 @@ export const DashboardLayout: React.FC = () => {
     { id: 'settings' as const, label: "Paramètres & Grille", icon: Settings, badge: null, adminOnly: false },
   ].filter((item) => !item.adminOnly || isAdmin);
 
+  const currentLabel = navItems.find((item) => item.id === activeTab)?.label ?? "Vue d'ensemble";
+
+  const breadcrumb = (
+    <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-xs font-mono">
+      <button
+        type="button"
+        onClick={() => goToTab('overview')}
+        className={
+          activeTab === 'overview'
+            ? 'text-slate-300 cursor-default'
+            : 'text-slate-400 hover:text-white transition-colors cursor-pointer'
+        }
+      >
+        Cockpit
+      </button>
+      {activeTab !== 'overview' && (
+        <>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
+          <span className="text-white font-semibold truncate max-w-[220px]" aria-current="page">
+            {currentLabel}
+          </span>
+        </>
+      )}
+    </nav>
+  );
+
   return (
     <div className="min-h-screen bg-[#070c1e] text-slate-100 flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
       
@@ -276,8 +302,9 @@ export const DashboardLayout: React.FC = () => {
         {/* Desktop Top Header Bar */}
         <header className="hidden md:flex items-center justify-between px-8 py-3.5 bg-[#09122a]/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-slate-400">
-              Système de pilotage interne • Yaoundé & Rayonnement Mondial
+            {breadcrumb}
+            <span className="hidden lg:inline text-xs font-mono text-slate-500">
+              • Yaoundé & Rayonnement Mondial
             </span>
           </div>
 
@@ -325,6 +352,7 @@ export const DashboardLayout: React.FC = () => {
 
         {/* Tab Content Rendering */}
         <div className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+          <div className="md:hidden mb-4">{breadcrumb}</div>
           {activeTab === 'overview' && (
             <OverviewTab onSelectTab={(t) => goToTab(t)} />
           )}
