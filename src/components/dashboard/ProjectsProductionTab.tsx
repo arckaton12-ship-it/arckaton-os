@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Save
 } from 'lucide-react';
+import { EmptyState } from '../ui/EmptyState';
 
 const DEFAULT_JALONS: Array<Pick<ProjectMilestone, 'titre' | 'description'>> = [
   { titre: 'Cadrage & cahier des charges', description: 'Validation du périmètre, des objectifs et des livrables attendus.' },
@@ -368,11 +369,13 @@ export const ProjectsProductionTab: React.FC = () => {
       {isDataFetching ? (
         <ProductionTabSkeleton />
       ) : (
-        <div className="space-y-4">
+        <div className="animate-rise-in space-y-4">
           {filteredProjects.length === 0 ? (
-            <div className="text-center py-12 bg-rk-chrome rounded-3xl border border-rk-line text-rk-muted text-xs">
-              Aucun projet ne correspond à vos filtres.
-            </div>
+            <EmptyState
+              icone={FolderKanban}
+              titre="Aucun projet ne correspond à vos filtres"
+              description="Ajustez le pôle, le statut ou la recherche pour élargir les résultats."
+            />
           ) : (
             filteredProjects.map((project) => {
             const isExpanded = expandedProjectId === project.id;

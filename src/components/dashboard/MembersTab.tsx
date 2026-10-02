@@ -7,6 +7,7 @@ import {
   Users, Plus, Pencil, Trash2, Power, ShieldCheck, Activity, X, Save, Loader2, UserPlus
 } from 'lucide-react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
+import { EmptyState } from '../ui/EmptyState';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrateur',
@@ -325,9 +326,12 @@ export const MembersTab: React.FC = () => {
                 réussi. L'afficher après une erreur de session donnait
                 l'impression que l'annuaire était vide. */}
             {members.length === 0 && !error && (
-              <div className="p-10 text-center text-sm text-rk-muted">
-                Aucun membre trouvé. Utilisez « Ajouter un membre » pour créer un compte avec son nom, son pôle et ses permissions.
-              </div>
+              <EmptyState
+                icone={UserPlus}
+                titre="Aucun membre trouvé"
+                description="Utilisez « Ajouter un membre » pour créer un compte avec son nom, son pôle et ses permissions."
+                panneau={false}
+              />
             )}
           </div>
         </div>

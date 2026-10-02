@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { POLES_INFO } from '../../data/mockData';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
+import { EmptyState } from '../ui/EmptyState';
 
 export const TasksTab: React.FC = () => {
   const { tasks, addTask, updateTaskStatus, remindTask, projets, osMembers } = useApp();
@@ -188,11 +189,14 @@ export const TasksTab: React.FC = () => {
       </div>
 
       {/* Tasks Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="animate-rise-in grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTasks.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-rk-muted bg-rk-panel rounded-2xl border border-rk-line-soft">
-            Aucune tâche trouvée pour cette combinaison de filtres.
-          </div>
+          <EmptyState
+            icone={CheckSquare}
+            titre="Aucune tâche pour cette combinaison"
+            description="Ajustez les filtres de pôle, de statut, de projet ou de responsable."
+            className="col-span-full"
+          />
         ) : (
           filteredTasks.map((t) => {
             const isUrgent = t.priority === 'urgente';

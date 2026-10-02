@@ -23,6 +23,7 @@ import { InvoiceModal } from './InvoiceModal';
 import { CrmTable } from './CrmTable';
 import { STATUTS } from './leadStatus';
 import { CrmSectionSkeleton } from '../dashboard/DashboardSkeleton';
+import { EmptyState } from '../ui/EmptyState';
 
 export const CrmSection: React.FC = () => {
   const { leads, updateLeadStatus, updateLeadNotes, convertLeadToProject, addLead, isDataFetching, refreshQuotes } = useApp();
@@ -173,26 +174,26 @@ export const CrmSection: React.FC = () => {
       {isDataFetching ? (
         <CrmSectionSkeleton />
       ) : leads.length === 0 ? (
-        <div className="text-center py-16 px-6 bg-rk-panel rounded-2xl border border-rk-line-soft">
-          <UserX className="w-8 h-8 text-rk-muted mx-auto mb-3" aria-hidden="true" />
-          <p className="text-white font-semibold">Aucun prospect pour l'instant</p>
-          <p className="text-xs text-rk-muted mt-1">
-            Les demandes du site public et du conseiller IA apparaîtront ici automatiquement.
-          </p>
-        </div>
+        <EmptyState
+          icone={UserX}
+          titre="Aucun prospect pour l'instant"
+          description="Les demandes du site public et du conseiller IA apparaîtront ici automatiquement."
+        />
       ) : filteredLeads.length === 0 ? (
-        <div className="text-center py-16 px-6 bg-rk-panel rounded-2xl border border-rk-line-soft">
-          <Search className="w-8 h-8 text-rk-muted mx-auto mb-3" aria-hidden="true" />
-          <p className="text-white font-semibold">Aucun résultat pour ces filtres</p>
-          <p className="text-xs text-rk-muted mt-1">Élargissez la recherche ou réinitialisez les filtres.</p>
-          <button
-            type="button"
-            onClick={() => { setSearch(''); setSelectedStatus('all'); }}
-            className="mt-4 bg-white/5 hover:bg-white/10 text-rk-text border border-rk-line px-3.5 py-1.5 rounded-xl text-xs cursor-pointer"
-          >
-            Réinitialiser les filtres
-          </button>
-        </div>
+        <EmptyState
+          icone={Search}
+          titre="Aucun résultat pour ces filtres"
+          description="Élargissez la recherche ou réinitialisez les filtres."
+          action={
+            <button
+              type="button"
+              onClick={() => { setSearch(''); setSelectedStatus('all'); }}
+              className="rk-press bg-white/5 hover:bg-white/10 text-rk-text border border-rk-line px-3.5 py-1.5 rounded-xl text-xs cursor-pointer"
+            >
+              Réinitialiser les filtres
+            </button>
+          }
+        />
       ) : vue === 'tableau' ? (
         <CrmTable
           leads={filteredLeads}
@@ -201,7 +202,7 @@ export const CrmSection: React.FC = () => {
           onBulkStatus={handleBulkStatus}
         />
       ) : (
-        <div className="space-y-3">
+        <div className="animate-rise-in space-y-3">
           {filteredLeads.map((l) => {
             const stInfo = statusLabels[l.statut] || statusLabels.nouveau;
             const poleColor = POLE_COLORS[l.pole_assigned] || POLE_COLORS.Tech;

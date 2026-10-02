@@ -155,7 +155,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Pipeline Leads */}
-          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Pipeline Commercial</span>
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
@@ -177,7 +177,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 2: Chiffre d'affaires réel */}
-          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Volume Facturé Consolidé</span>
               <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
@@ -205,7 +205,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 3: Sorties terrain réelles */}
-          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Sorties Terrain</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
@@ -233,7 +233,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 4: Tâches & Santé Pôles */}
-          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Tâches & Pôles</span>
               <div className="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">

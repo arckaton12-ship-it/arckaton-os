@@ -7,6 +7,7 @@ import {
   FolderKanban, CheckSquare, Users, LogOut, Globe, Sparkles, ChevronUp, ChevronDown,
   CheckCircle2, Clock, TriangleAlert, Loader2
 } from 'lucide-react';
+import { EmptyState } from '../ui/EmptyState';
 
 export const PoleDashboard: React.FC = () => {
   const { member, logout, user } = useAuth();
@@ -151,7 +152,13 @@ export const PoleDashboard: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {poleProjets.length === 0 && (
-              <div className="bg-rk-panel border border-rk-line-soft rounded-2xl p-6 text-sm text-rk-muted">Aucun projet actif sur votre pôle actuellement.</div>
+              <EmptyState
+                icone={FolderKanban}
+                titre="Aucun projet actif sur votre pôle"
+                description="Les projets affectés à votre pôle apparaîtront ici."
+                taille="compact"
+                className="md:col-span-3"
+              />
             )}
             {poleProjets.map((p) => (
               <div key={p.id} className="bg-rk-panel border border-rk-line rounded-2xl p-5 hover:border-rk-line-strong transition-all">
@@ -187,7 +194,13 @@ export const PoleDashboard: React.FC = () => {
           </div>
           <div className="bg-rk-panel border border-rk-line rounded-2xl divide-y divide-rk-line-soft">
             {poleTasks.length === 0 && (
-              <div className="p-6 text-sm text-rk-muted">Aucune tâche assignée.</div>
+              <EmptyState
+                icone={CheckSquare}
+                titre="Aucune tâche assignée"
+                description="Les tâches confiées à votre pôle apparaîtront ici."
+                taille="compact"
+                panneau={false}
+              />
             )}
             {poleTasks.map((t) => {
               const expanded = expand[t.id];
@@ -239,7 +252,13 @@ export const PoleDashboard: React.FC = () => {
           </div>
           <div className="bg-rk-panel border border-rk-line rounded-2xl divide-y divide-rk-line-soft">
             {poleLeads.length === 0 && (
-              <div className="p-6 text-sm text-rk-muted">Aucun lead reçu récemment en attente de traitement.</div>
+              <EmptyState
+                icone={Users}
+                titre="Aucun lead en attente"
+                description="Les demandes récentes adressées à votre pôle apparaîtront ici."
+                taille="compact"
+                panneau={false}
+              />
             )}
             {poleLeads.slice(0, 6).map((l) => (
               <div key={l.id} className="p-4 flex items-center justify-between gap-3">
@@ -262,7 +281,13 @@ export const PoleDashboard: React.FC = () => {
             </h2>
             <div className="space-y-2 max-h-56 overflow-y-auto">
               {poleNotifs.length === 0 && (
-                <div className="text-sm text-rk-muted">Aucune alerte non lue. Tout est au vert.</div>
+                <EmptyState
+                  icone={TriangleAlert}
+                  titre="Aucune alerte"
+                  description="Tout est au vert pour votre pôle."
+                  taille="compact"
+                  panneau={false}
+                />
               )}
               {poleNotifs.slice(0, 8).map((n) => (
                 <div key={n.id} className="bg-rk-bg border border-rk-line-soft rounded-xl px-4 py-2.5 text-xs">

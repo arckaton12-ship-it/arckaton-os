@@ -167,6 +167,53 @@
   animation: rk-drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* =========================================================
+   MICRO-INTERACTIONS
+   Retour tactile discret : une carte se souleve au survol, un bouton
+   s'enfonce a l'appui, une liste apparait en douceur. Purement decoratif
+   (aucun changement de mise en page) et neutralise pour les personnes
+   sensibles au mouvement via `prefers-reduced-motion` plus haut.
+   ========================================================= */
+.rk-interactive {
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.rk-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px -22px rgba(0, 0, 0, 0.7);
+}
+
+.rk-interactive:active {
+  transform: translateY(0);
+}
+
+.rk-press {
+  transition: transform 0.12s ease;
+}
+
+.rk-press:active {
+  transform: scale(0.97);
+}
+
+@keyframes rk-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise-in {
+  animation: rk-rise-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Subtle Architectural Blueprint Grid Pattern */
 .bg-blueprint-grid {
   background-size: 40px 40px;

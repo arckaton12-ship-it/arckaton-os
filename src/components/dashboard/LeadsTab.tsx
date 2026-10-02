@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
+import { EmptyState } from '../ui/EmptyState';
 
 export const LeadsTab: React.FC = () => {
   const { leads, updateLeadStatus, addLead, addTask, isDataFetching, osMembers } = useApp();
@@ -202,8 +203,13 @@ export const LeadsTab: React.FC = () => {
                 </>
               ) : filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-rk-muted">
-                    Aucun prospect ne correspond à ces critères de recherche.
+                  <td colSpan={6}>
+                    <EmptyState
+                      icone={Search}
+                      titre="Aucun prospect ne correspond à ces critères"
+                      description="Élargissez la recherche ou réinitialisez les filtres."
+                      panneau={false}
+                    />
                   </td>
                 </tr>
               ) : (
