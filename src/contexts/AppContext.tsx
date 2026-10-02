@@ -9,6 +9,7 @@ import {
   Projet,
   Pole,
   TaskStatus,
+  TaskPriority,
   ProjectMilestone,
   FieldVisit,
   ClientFeedback,
@@ -39,6 +40,7 @@ import {
 } from '../data/blogAndTelemetryData';
 import { useAuth } from './AuthContext';
 import { apiRequest } from '../utils/api';
+import { normaliserTache, TacheServeur } from '../utils/tasks';
 
 // Helpers de synchronisation serveur (persistance Supabase côté Express)
 
@@ -1093,6 +1095,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const nomAuteur = auteurReel?.name || 'À définir';
     const posteAuteur = auteurReel?.poste_titre || undefined;
     const membreDuPole = (p: Pole) => memberDirectory.current.find((m) => m.pole === p);
+    // La première sortie terrain est confiée au pôle créatif s'il a un
+    // membre enregistré ; sinon elle reste « à définir » plutôt que
+    // d'inventer un intervenant.
+    const intervenantTerrain = membreDuPole('Creatif')?.name || 'À définir';
 
     const newProject: Projet = {
       id: `prj-${Date.now()}`,
@@ -1121,7 +1127,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         { id: `j-${Date.now()}-4`, titre: 'Formation des équipes (2h), Recette finale & Mise en ligne', statut: 'en_attente', echeance: 'Sous 28 jours', description: 'Déploiement sur domaine officiel et livraison finale' },
       ],
       sorties_terrain: [
-        { id: `st-${Date.now()}-1`, numero: 1, date: 'À planifier sous 7j', lieu: lead.country || 'Yaoundé', objectif: 'Prise de vue initiale et interview du dirigeant', intervenant: 'À définir', statut: 'planifiee' }
+        { id: `st-${Date.now()}-1`, numero: 1, date: 'À planifier sous 7j', lieu: lead.country || 'Yaoundé', objectif: 'Prise de vue initiale et interview du dirigeant', intervenant: intervenantTerrain, statut: 'planifiee' }
       ],
       feedbacks: [
         { id: `fb-${Date.now()}`, auteur: 'Système Arckaton', role: 'agence', message: `Bienvenue ! Le projet ${clientCode} a été initialisé avec succès. Votre Chef de Projet dédié est ${nomAuteur}.`, type: 'validation', date: 'Aujourd\'hui' }
@@ -1564,8 +1570,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshTasks = useCallback(async () => {
     try {
       const data = await apiRequest<Task[]>('/api/tasks');
-      setTasks(data || []);
-      setColisTaches(data || []);
+      const taches = (data || []).map((t) => normaliserTache(t as TacheServeur));
+      setTasks(taches);
+      setColisTaches(taches);
     } catch (err) {
       // Hors ligne : on garde le cache et on ne casse pas l'écran.
       console.warn('Tâches non rafraîchies, cache local conservé:', err);
@@ -1636,10 +1643,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Une tache creee est toujours "a faire" et le doit etre dans les deux
     // champs, sinon elle n'apparait dans aucune colonne du Kanban.
     const initialStatus: TaskStatus = taskData.status || taskData.statut || 'a_faire';
+    // Priorite et echeance existent en double (FR/EN) dans l'interface : on
+    // lit les deux ecritures et on les renseigne toutes les deux. Sans cela,
+    // une tache issue de la conversion d'un lead (qui fournit
+    // `priorite`/`date_echeance`) partait au serveur sans urgence ni deadline.
+    const priorite: TaskPriority = taskData.priority || taskData.priorite || 'normale';
+    const echeance = taskData.due_date || taskData.date_echeance || '';
     const newTask: Task = {
       ...taskData,
       statut: initialStatus,
       status: initialStatus,
+      priorite,
+      priority: priorite,
+      date_echeance: echeance,
+      due_date: echeance,
       // Suffixe aleatoire : plusieurs taches creees dans la meme
       // milliseconde (conversion d'un lead) doivent avoir des identifiants
       // distincts, sinon elles se confondent au retour du serveur.
@@ -1657,14 +1674,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         titre: taskData.title || taskData.titre,
         description: taskData.description || '',
         statut: initialStatus,
-        priorite: taskData.priority || 'normale',
+        priorite,
         pole: taskData.pole || currentUser.pole,
         assigne_nom: taskData.assigned_to || taskData.assignee_name || null,
-        echeance: taskData.due_date || '',
+        echeance,
       }),
     })
       .then((server) => {
-        setTasks((prev) => prev.map((t) => (t.id === newTask.id ? { ...t, ...server } : t)));
+        const normalisee = normaliserTache(server as TacheServeur);
+        setTasks((prev) => prev.map((t) => (t.id === newTask.id ? { ...t, ...normalisee } : t)));
       })
       .catch((err) => {
         console.error('Création de tâche refusée par le serveur:', err);
@@ -1707,7 +1725,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       )
     );
     apiRequest(`/api/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ statut: status }) })
-      .then((server) => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...server } : t))))
+      .then((server) => {
+        const normalisee = normaliserTache(server as TacheServeur);
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...normalisee } : t)));
+      })
       .catch((err) => {
         console.error('Changement de statut refusé, retour à l\'état précédent:', err);
         setTasks(avant);
@@ -1740,7 +1761,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Le compteur de relances est incrémenté par le serveur, sinon deux
     // navigateurs repartent de la même valeur et le total est faux.
     apiRequest(`/api/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ relancer: true }) })
-      .then((server) => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...server } : t))))
+      .then((server) => {
+        const normalisee = normaliserTache(server as TacheServeur);
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...normalisee } : t)));
+      })
       .catch((err) => console.error('Relance refusée par le serveur:', err));
     setNotifications((prev) => [
       {
