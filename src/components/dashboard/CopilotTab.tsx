@@ -139,6 +139,9 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
           pole: currentUser?.pole || 'Direction',
           role: currentUser?.poste_titre || currentUser?.role,
           pathname: 'Copilote IA',
+          // Les tours precedents evitent que le modele resserve la meme
+          // reponse : sans historique, chaque question repartait de zero.
+          history: chatMessages.slice(-6).map((m) => ({ role: m.role, text: m.text })),
           leadsSummary: {
             total: leads.length,
             nouveaux: leads.filter(l => l.statut === 'nouveau').length,

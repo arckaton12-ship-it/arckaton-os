@@ -44,7 +44,19 @@ export const PoleDashboard: React.FC = () => {
           'Content-Type': 'application/json',
           ...(t ? { Authorization: `Bearer ${t}` } : {}),
         },
-        body: JSON.stringify({ pole, pathname: '/os/pole', role: member?.role || 'membre', query: 'donne-moi mes priorités' }),
+        // La question inclut l'etat REEL du pole : la version precedente
+        // envoyait une chaine figee (« donne-moi mes priorites »), donc le
+        // copilote renvoyait la meme reponse a chaque clic. Les compteurs
+        // varient avec l'activite, ce qui rend la reponse pertinente.
+        body: JSON.stringify({
+          pole,
+          pathname: '/os/pole',
+          role: member?.role || 'membre',
+          query:
+            `Priorités du pôle ${pole}. État réel : ${poleProjets.length} projet(s), ` +
+            `${poleTasks.filter((t) => t.statut !== 'termine').length} tâche(s) ouverte(s) sur ${poleTasks.length}, ` +
+            `${poleLeads.length} lead(s) assigné(s). Donne-moi 3 actions concrètes et priorisées pour cette semaine.`,
+        }),
       });
       const json = await res.json().catch(() => ({}));
       setAdvice(json.advice || 'Conseil Arckaton OS généré.');

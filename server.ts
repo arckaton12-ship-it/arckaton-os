@@ -3216,15 +3216,21 @@ function sanitizeForPrompt(s: unknown, max: number): string {
 //
 // Si la base est injoignable, on renvoie un contexte neutre plutot que de
 // laisser passer une erreur : le copilote doit rester utilisable.
-async function buildCockpitContext(): Promise<string> {
+interface CockpitCounts {
+  leads: number;
+  openTasks: number;
+  lateTasks: number;
+  activeQuotes: number;
+}
+
+async function buildCockpitContext(): Promise<{ text: string; counts: CockpitCounts | null }> {
   try {
     const sb = getSupabase();
     if (!sb) {
-      return '\n\nContexte cockpit : donnees indisponibles.';
+      return { text: '\n\nContexte cockpit : donnees indisponibles.', counts: null };
     }
 
     const now = new Date();
-    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 
     // Compteurs uniquement. `count: 'exact', head: true` ne transporte
     // aucune ligne, donc aucune donnee client ne transite.
@@ -3235,22 +3241,73 @@ async function buildCockpitContext(): Promise<string> {
       sb.from('quotes').select('*', { count: 'exact', head: true }).in('status', ['envoye', 'accepte', 'paye']),
     ]);
 
-    const leads = leadsRes.count ?? 0;
-    const openTasks = tasksRes.count ?? 0;
-    const lateTasks = lateRes.count ?? 0;
-    const activeQuotes = quotesRes.count ?? 0;
+    const counts: CockpitCounts = {
+      leads: leadsRes.count ?? 0,
+      openTasks: tasksRes.count ?? 0,
+      lateTasks: lateRes.count ?? 0,
+      activeQuotes: quotesRes.count ?? 0,
+    };
 
-    return (
-      '\n\nContexte cockpit (compteurs agreges, aucun nominatif) :' +
-      `\n- Leads au total : ${leads}` +
-      `\n- Taches ouvertes : ${openTasks}` +
-      `\n- Taches en retard : ${lateTasks}` +
-      `\n- Devis actifs (envoye/accepte/paye) : ${activeQuotes}`
-    );
+    return {
+      text:
+        '\n\nContexte cockpit (compteurs agreges, aucun nominatif) :' +
+        `\n- Leads au total : ${counts.leads}` +
+        `\n- Taches ouvertes : ${counts.openTasks}` +
+        `\n- Taches en retard : ${counts.lateTasks}` +
+        `\n- Devis actifs (envoye/accepte/paye) : ${counts.activeQuotes}`,
+      counts,
+    };
   } catch (err) {
     console.warn('buildCockpitContext:', err);
-    return '\n\nContexte cockpit : donnees indisponibles.';
+    return { text: '\n\nContexte cockpit : donnees indisponibles.', counts: null };
   }
+}
+
+// Repli « base de connaissances » quand Gemini est indisponible.
+//
+// Avant, il renvoyait UNE phrase figee par pole, identique quelle que soit la
+// question : c'est ce qui donnait l'impression que le copilote « repete la
+// meme reponse ». On tient desormais compte de l'intention detectee dans la
+// question ET des compteurs reels du cockpit, de sorte que deux questions
+// differentes (ou deux etats differents de l'OS) produisent deux reponses
+// differentes. Aucune donnee nominative n'est utilisee.
+function reponseBaseConnaissances(
+  cleanQuery: string,
+  pole: string,
+  counts: CockpitCounts | null
+): string {
+  const q = cleanQuery.toLowerCase();
+  const etat = counts
+    ? `${counts.leads} prospect(s) au pipeline, ${counts.openTasks} tâche(s) ouverte(s) dont ${counts.lateTasks} en retard, et ${counts.activeQuotes} devis actif(s)`
+    : 'les compteurs temps réel sont momentanément indisponibles';
+
+  if (/relanc|prospect|lead|closing|converti|pipeline|whatsapp/.test(q)) {
+    return counts
+      ? `Relance : sur ${counts.leads} prospect(s) au pipeline, traitez d'abord les plus anciens sans réponse puis les devis envoyés non signés (${counts.activeQuotes} devis actifs). Objectif : un premier contact WhatsApp sous 2 h, car un temps de réponse court multiplie par 3 la conversion. Terminez chaque échange par une date de décision explicite plutôt qu'un « je vous recontacte ».`
+      : `Relance : priorisez les prospects sans réponse depuis le plus longtemps et les devis envoyés non signés. Contactez chaque prospect sous 2 h sur WhatsApp et fixez une date de décision explicite. (Compteurs temps réel indisponibles à l'instant.)`;
+  }
+
+  if (/t[aâ]che|retard|priorit|charge|planning|organisation|rendement/.test(q)) {
+    return counts
+      ? `Priorisation : ${counts.openTasks} tâche(s) sont ouvertes, dont ${counts.lateTasks} en retard. Commencez par les retards (impact direct sur la satisfaction), puis les tâches du pôle ${pole} à échéance la plus proche. Regroupez les tâches similaires pour limiter les changements de contexte, et déléguez tout ce qui n'exige pas votre validation personnelle.`
+      : `Priorisation : commencez par les tâches en retard, puis celles à échéance la plus proche, et déléguez ce qui n'exige pas votre validation. (Compteurs temps réel indisponibles à l'instant.)`;
+  }
+
+  if (/devis|factur|rentab|marge|paiement|encaiss|chiffre|budget/.test(q)) {
+    return counts
+      ? `Rentabilité : ${counts.activeQuotes} devis sont actifs (envoyé/accepté/payé). Visez une marge brute > 65 % et transformez en priorité les devis acceptés en factures encaissées. Sur un devis immobile, proposez une variante d'accompagnement (maintenance, formation) plutôt qu'une remise : elle protège la marge et augmente le panier moyen.`
+      : `Rentabilité : visez une marge brute > 65 %, transformez les devis acceptés en factures encaissées et proposez une variante d'accompagnement plutôt qu'une remise. (Compteurs temps réel indisponibles à l'instant.)`;
+  }
+
+  const defaults: Record<string, string> = {
+    Direction: `Direction : l'état actuel est ${etat}. Concentrez la semaine sur la clôture des devis Synergie, la tenue du taux de marge brute (> 65 %) et le suivi des responsables des 6 pôles.`,
+    Tech: `Tech : l'état actuel est ${etat}. Maintenez le protocole de synchronisation hors-ligne d'ARKA-PME (inventaire fiable en 12 min) et validez les clés d'API Mobile Money MTN/Orange.`,
+    Creatif: `Créatif : l'état actuel est ${etat}. Préparez les 2 à 3 infographies hebdomadaires des clients Synergie et organisez le matériel photo avant la prochaine sortie terrain.`,
+    Digital: `Digital : l'état actuel est ${etat}. Surveillez les requêtes SEO locales à Yaoundé et Douala et maintenez le coût par lead qualifié sous 3 500 FCFA.`,
+    Client: `Client : l'état actuel est ${etat}. Contactez chaque prospect sous 2 h sur WhatsApp et vérifiez que chaque lead assigné a bien un responsable et une prochaine action datée.`,
+  };
+
+  return defaults[pole] || `Recommandation Arckaton OS : l'état actuel est ${etat}. Continuez l'excellence opérationnelle et le respect des 24 h de réponse client.`;
 }
 
 // Copilot for Dashboard
@@ -3281,7 +3338,28 @@ app.post(
     // Contexte cockpit : calcule par le serveur, agrege et non identifiant.
     // On ne transmet a Gemini que des compteurs, jamais un nom, un telephone
     // ni un montant de lead.
-    const cockpit = await buildCockpitContext();
+    const { text: cockpit, counts: cockpitCounts } = await buildCockpitContext();
+
+    // Historique de conversation (facultatif) : sans lui, le modele ne voyait
+    // que la question courante et pouvait resservir mot pour mot la meme
+    // reponse. Chaque entree est nettoyee et bornee ; seuls les roles
+    // user/assistant sont acceptes, "model" ne peut donc pas etre force.
+    const historyBrute: unknown[] = Array.isArray(body.history) ? body.history : [];
+    const history = historyBrute
+      .slice(-8)
+      .map((h) => {
+        const o = (h && typeof h === 'object') ? (h as Record<string, unknown>) : {};
+        return {
+          role: o.role === 'assistant' ? 'model' : 'user',
+          text: sanitizeForPrompt(o.text, 800),
+        };
+      })
+      .filter((h) => h.text);
+
+    const contents = [
+      ...history.map((h: { role: string; text: string }) => ({ role: h.role, parts: [{ text: h.text }] })),
+      { role: 'user', parts: [{ text: `Question de l'utilisateur : ${cleanQuery}\n\nConseiller Arckaton:` }] },
+    ];
 
     const ai = getGeminiClient();
     
@@ -3301,7 +3379,7 @@ Consignes strictes :
 
         const { texte: text, model } = await generateWithFallback(ai, {
           systemInstruction,
-          contents: `Question de l'utilisateur : ${cleanQuery}\n\nConseiller Arckaton:`,
+          contents,
         });
 
         return res.json({ reply: text, advice: text, source: 'gemini', aiEnabled: true, model });
@@ -3310,16 +3388,10 @@ Consignes strictes :
       }
     }
 
-    // Default quick advice per pole
-    const defaults: Record<string, string> = {
-      Direction: "Priorisez la clôture des devis Synergie en cours et assurez le suivi du taux de marge brute (cible > 65%). Vérifiez l'avancement des 17 postes de l'organigramme.",
-      Tech: "Pour ARKA-PME, maintenez le protocole de synchronisation hors-ligne pour garantir l'inventaire en 12 minutes. Validez les clés d'API Mobile Money MTN/Orange.",
-      Creatif: "Préparez les 2 à 3 infographies hebdomadaires pour les clients Synergie et organisez le matériel photo pour la prochaine sortie terrain.",
-      Digital: "Surveillez les requêtes locales SEO sur Yaoundé et Douala. Ajustez les audiences des campagnes d'acquisition pour maintenir le coût par lead qualifié sous 3 500 FCFA.",
-      Client: "Contactez les prospects dès réception d'un lead sous 2h sur WhatsApp. Un temps de réponse rapide multiplie par 3 le taux de conversion en projet validé."
-    };
-
-    const advice = defaults[pole] || "Recommandation Arckaton OS : continuez l'excellence opérationnelle et le respect des 24h de réponse client.";
+    // Repli base de connaissances : reponse construite a partir de la question
+    // et des compteurs reels (jamais un texte fige), afin de ne pas repeter
+    // une meme phrase a chaque question.
+    const advice = reponseBaseConnaissances(cleanQuery, pole, cockpitCounts);
     // `aiEnabled` permet a l'UI d'afficher « IA non configuree » au lieu d'un silence
     res.json({ reply: advice, advice, source: 'knowledge_base', aiEnabled: Boolean(ai) });
   } catch (err) {
@@ -3423,6 +3495,10 @@ export const __authThrottle = {
 
 // Exporte pour tester la normalisation des entrees destinees a un prompt.
 export const __sanitizeForPrompt = sanitizeForPrompt;
+
+// Exporte pour tester que le repli « base de connaissances » varie selon la
+// question et l'etat du cockpit (correctif du copilote qui repetait).
+export const __reponseBaseConnaissances = reponseBaseConnaissances;
 
 /**
  * Regle de desactivation des plafonds, extraite pour etre testee.

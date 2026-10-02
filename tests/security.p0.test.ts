@@ -13,7 +13,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 
 // `app` est exporte par server.ts ; l'import ne demarre aucun serveur.
-import { app, __authThrottle, __sanitizeForPrompt, rateLimitsDesactives } from '../server';
+import { app, __authThrottle, __sanitizeForPrompt, __reponseBaseConnaissances, rateLimitsDesactives } from '../server';
 
 describe('P0.2 — LFI sur /icons/:file', () => {
   // La route n'est installee qu'en mode production (hors Vite dev), donc elle
@@ -382,6 +382,35 @@ describe('P0.1 — injection de prompt', () => {
     // donc bien traverse la validation d'entree.
     expect(res.status).toBe(200);
     expect(res.body.source).toBe('knowledge_base');
+  });
+});
+
+// Le copilote renvoyait la meme phrase figee par pole, d'ou l'impression de
+// « repetition ». Le repli doit desormais refleter la question ET l'etat reel
+// du cockpit.
+describe('Copilote — repli base de connaissances non repetitif', () => {
+  const compteurs = { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5 };
+
+  it('repond differemment selon l\'intention de la question', () => {
+    const relance = __reponseBaseConnaissances('Quels prospects relancer ?', 'Direction', compteurs);
+    const taches = __reponseBaseConnaissances('Quelles taches sont en retard ?', 'Direction', compteurs);
+    const argent = __reponseBaseConnaissances('Comment ameliorer la marge et les devis ?', 'Direction', compteurs);
+    expect(relance).not.toBe(taches);
+    expect(taches).not.toBe(argent);
+    expect(relance).toContain('22');
+    expect(taches).toContain('17');
+    expect(argent).toContain('5');
+  });
+
+  it('repond differemment quand les compteurs changent', () => {
+    const a = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', compteurs);
+    const b = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', { leads: 1, openTasks: 2, lateTasks: 0, activeQuotes: 0 });
+    expect(a).not.toBe(b);
+  });
+
+  it('reste utilisable sans compteurs disponibles', () => {
+    const texte = __reponseBaseConnaissances('analyse la rentabilite', 'Direction', null);
+    expect(texte.length).toBeGreaterThan(40);
   });
 });
 
