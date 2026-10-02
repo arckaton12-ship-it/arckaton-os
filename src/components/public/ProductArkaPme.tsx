@@ -27,7 +27,7 @@ export const ProductArkaPme: React.FC = () => {
             ARKA-PME : Le cockpit de gestion taillé pour les réalités africaines
           </h2>
 
-          <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-rk-muted text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
             Fini les cahiers de compte perdus et les inventaires interminables de 3 heures. Caisse tactile, stocks en temps réel, créances clients et paiements Mobile Money consolidés dans un outil qui fonctionne même hors connexion.
           </p>
         </div>
@@ -51,7 +51,7 @@ export const ProductArkaPme: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg font-bold text-white">Inventaire complet en 12 minutes</h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed font-light">
+                  <p className="text-xs text-rk-text-secondary mt-1 leading-relaxed font-light">
                     Testé et validé chez Districash Nord sur 12 000 références. Rapprochement automatique des écarts de caisse en fin de vacation.
                   </p>
                 </div>
@@ -69,7 +69,7 @@ export const ProductArkaPme: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg font-bold text-white">Résistant aux coupures de réseau</h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed font-light">
+                  <p className="text-xs text-rk-text-secondary mt-1 leading-relaxed font-light">
                     Mode hybride intelligent : encaissez et vendez en continu sans internet. Vos données se synchronisent automatiquement dès le retour du signal.
                   </p>
                 </div>
@@ -87,7 +87,7 @@ export const ProductArkaPme: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg font-bold text-white">Mobile Money MTN & Orange direct</h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed font-light">
+                  <p className="text-xs text-rk-text-secondary mt-1 leading-relaxed font-light">
                     Encaissement direct en caisse. Chaque transaction par MoMo ou Orange Money est validée immédiatement et imprimée sur ticket de caisse.
                   </p>
                 </div>
@@ -106,14 +106,14 @@ export const ProductArkaPme: React.FC = () => {
 
               <button
                 onClick={() => setIsQuoteModalOpen(true)}
-                className="w-full sm:w-auto bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-rk-line px-5 py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full sm:w-auto bg-white/[0.06] hover:bg-white/[0.1] text-rk-text border border-rk-line px-5 py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Intégrer à un site web</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="text-xs text-slate-400 font-mono flex items-center gap-2 pt-1">
+            <div className="text-xs text-rk-muted font-mono flex items-center gap-2 pt-1">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
               <span>Sans engagement • Configuration en 2h • Support WhatsApp dédié</span>
             </div>
@@ -144,10 +144,10 @@ export const ProductArkaPme: React.FC = () => {
                     <Zap className="w-3.5 h-3.5 text-amber-400" />
                     <span className="text-xs font-mono text-white font-semibold">Zéro matériel imposé</span>
                   </div>
-                  <p className="text-xs text-slate-300 font-light leading-relaxed">
+                  <p className="text-xs text-rk-text-secondary font-light leading-relaxed">
                     Déployable sur vos tablettes Android, iPad, ordinateurs de caisse ou smartphones déjà en place dans votre commerce. Compatible avec imprimantes thermiques Bluetooth et tiroirs-caisses standard.
                   </p>
-                  <div className="flex items-center gap-3 pt-1 text-[11px] font-mono text-slate-400">
+                  <div className="flex items-center gap-3 pt-1 text-[11px] font-mono text-rk-muted">
                     <span className="text-emerald-400">✓ Ticket MoMo instantané</span>
                     <span>•</span>
                     <span>100% Hors-Ligne</span>

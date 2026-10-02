@@ -160,14 +160,14 @@ export const InternalChat: React.FC = () => {
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                     isActive
                       ? 'bg-blue-600/20 text-white border border-blue-500/40 font-bold'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                      : 'text-rk-muted hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
                     {ch.isPrivate ? (
                       <Lock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                     ) : (
-                      <Hash className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <Hash className="w-3.5 h-3.5 text-rk-muted flex-shrink-0" />
                     )}
                     <span className="truncate">{ch.name}</span>
                   </div>
@@ -215,7 +215,7 @@ export const InternalChat: React.FC = () => {
                   </span>
                 )}
               </h4>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-[11px] text-rk-muted font-mono">
                 {currentChannelInfo.desc}
               </p>
             </div>
@@ -231,7 +231,7 @@ export const InternalChat: React.FC = () => {
               <span className="hidden sm:inline">Simuler un échange multi-membres</span>
               <span className="sm:hidden">Simuler</span>
             </button>
-            <div className="text-[11px] font-mono text-slate-400 hidden md:flex items-center gap-2">
+            <div className="text-[11px] font-mono text-rk-muted hidden md:flex items-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Chiffrement Interne Arckaton OS</span>
             </div>
@@ -241,10 +241,10 @@ export const InternalChat: React.FC = () => {
         {/* Message Feed */}
         <div className="flex-1 p-4 overflow-y-auto space-y-4">
           {channelMessages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 space-y-2">
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-rk-muted space-y-2">
               <MessageSquare className="w-8 h-8 opacity-40 text-blue-400" />
               <p className="text-xs font-mono">Aucun message dans ce canal pour l'instant.</p>
-              <p className="text-[11px] text-slate-400">Soyez le premier à poster une note de service ou une mise à jour d'équipe.</p>
+              <p className="text-[11px] text-rk-muted">Soyez le premier à poster une note de service ou une mise à jour d'équipe.</p>
             </div>
           ) : (
             channelMessages.map((m) => {
@@ -271,15 +271,15 @@ export const InternalChat: React.FC = () => {
                   <div className={`space-y-1 max-w-[80%] ${isMe ? 'text-right' : 'text-left'}`}>
                     <div className="flex items-center gap-2 text-[11px] font-mono">
                       <span className="font-bold text-white">{m.sender_name}</span>
-                      <span className="text-[11px] text-slate-400">({m.sender_role})</span>
-                      <span className="text-[11px] text-slate-400">{m.created_at}</span>
+                      <span className="text-[11px] text-rk-muted">({m.sender_role})</span>
+                      <span className="text-[11px] text-rk-muted">{m.created_at}</span>
                     </div>
 
                     <div className="group/bulle relative">
                       <div className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                         isMe
                           ? 'bg-blue-600 text-white rounded-tr-none'
-                          : 'bg-rk-bg text-slate-200 border border-rk-line rounded-tl-none'
+                          : 'bg-rk-bg text-rk-text border border-rk-line rounded-tl-none'
                       }`}>
                         {m.content}
                       </div>
@@ -291,7 +291,7 @@ export const InternalChat: React.FC = () => {
                           }}
                           title="Supprimer ce message"
                           aria-label="Supprimer ce message"
-                          className="absolute -top-2 right-0 opacity-0 group-hover/bulle:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-md bg-rk-bg border border-rk-line text-slate-400 hover:text-red-400 hover:border-red-500/40"
+                          className="absolute -top-2 right-0 opacity-0 group-hover/bulle:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-md bg-rk-bg border border-rk-line text-rk-muted hover:text-red-400 hover:border-red-500/40"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -344,14 +344,14 @@ export const InternalChat: React.FC = () => {
                   <Users className="w-4 h-4 text-amber-400" />
                   Simuler un échange multi-membres
                 </h3>
-                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                <p className="text-[11px] text-rk-muted font-mono mt-0.5">
                   Vérifie la circulation des flux entre pôles (la console de l'organigramme recording automatiquement)
                 </p>
               </div>
               <button
                 onClick={() => setIsSimOpen(false)}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -359,7 +359,7 @@ export const InternalChat: React.FC = () => {
 
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">Canal de destination</label>
+                <label className="block text-[11px] font-mono text-rk-text-secondary uppercase mb-2">Canal de destination</label>
                 <select
                   value={channel}
                   onChange={(e) =>  setChannel( e.target.value)}
@@ -372,7 +372,7 @@ export const InternalChat: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">Scénario</label>
+                <label className="block text-[11px] font-mono text-rk-text-secondary uppercase mb-2">Scénario</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SIM_SCENARIOS.map((s) => (
                     <button
@@ -385,14 +385,14 @@ export const InternalChat: React.FC = () => {
                       }`}
                     >
                       <div className="text-xs font-semibold text-white">{s.label}</div>
-                      <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">{s.hint}</div>
+                      <div className="text-[11px] text-rk-muted mt-0.5 leading-snug">{s.hint}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2">
+                <label className="block text-[11px] font-mono text-rk-text-secondary uppercase mb-2">
                   Membres participants ({simParticipants.length} sélectionné(s))
                 </label>
                 {osMembers.length === 0 ? (
@@ -415,7 +415,7 @@ export const InternalChat: React.FC = () => {
                           className={`px-2.5 py-1.5 rounded-lg text-[11px] font-mono border transition-colors cursor-pointer ${
                             active
                               ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
-                              : 'bg-rk-bg border-rk-line text-slate-300 hover:border-rk-line-bold'
+                              : 'bg-rk-bg border-rk-line text-rk-text-secondary hover:border-rk-line-bold'
                           }`}
                         >
                           {m.name} · {m.pole}
@@ -427,13 +427,13 @@ export const InternalChat: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-mono text-slate-400">
+                <span className="text-[11px] font-mono text-rk-muted">
                   {previewSteps.length} message(s) seront générés en alternance
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsSimOpen(false)}
-                    className="px-4 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                    className="px-4 py-2 text-xs text-rk-muted hover:text-white cursor-pointer"
                   >
                     Annuler
                   </button>

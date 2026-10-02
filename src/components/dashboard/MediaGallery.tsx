@@ -114,7 +114,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
+        <span className="text-[11px] font-mono text-rk-muted flex items-center gap-1.5">
           <ImageIcon className="w-3.5 h-3.5 text-purple-300" />
           Preuves terrain ({medias.length})
         </span>
@@ -140,9 +140,9 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
       {error && <p className="text-[11px] text-rose-300">{error}</p>}
 
       {loading && medias.length === 0 ? (
-        <p className="text-[11px] text-slate-500 font-mono">Chargement de la galerie…</p>
+        <p className="text-[11px] text-rk-muted font-mono">Chargement de la galerie…</p>
       ) : medias.length === 0 ? (
-        <p className="text-[11px] text-slate-500 font-mono">Aucune preuve pour cette sortie.</p>
+        <p className="text-[11px] text-rk-muted font-mono">Aucune preuve pour cette sortie.</p>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
           {medias.map((m) => (
@@ -155,7 +155,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
                   onClick={() => setApercu(urls[m.id])}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-600">
+                <div className="w-full h-full flex items-center justify-center text-rk-muted">
                   <Loader2 className="w-4 h-4 animate-spin" />
                 </div>
               )}

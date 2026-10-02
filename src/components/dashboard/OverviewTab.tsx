@@ -98,15 +98,15 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             <span className="text-xs font-mono text-emerald-400 uppercase tracking-widest">
               Arckaton Operating System v2.4 • Yaoundé Central
             </span>
-            <span className="text-slate-400">•</span>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-rk-muted">•</span>
+            <span className="text-[11px] font-mono text-rk-muted">
               Synchro : {lastSyncTime}
             </span>
           </div>
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
             Cockpit Opérationnel & Stratégique
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
+          <p className="text-rk-text-secondary text-xs sm:text-sm max-w-2xl">
             Gestion unifiée des 6 pôles, pilotage du pipeline commercial, suivi terrain et copilote d'intelligence artificielle Gemini.
           </p>
         </div>
@@ -116,7 +116,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           <button
             onClick={() => refreshDashboardData()}
             disabled={isDataFetching}
-            className="bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-rk-line px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+            className="bg-white/5 hover:bg-white/10 text-rk-text-secondary hover:text-white border border-rk-line px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
             title="Rafraîchir les flux de données (visualiser le skeleton loader)"
           >
             <span className={`w-2 h-2 rounded-full ${isDataFetching ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
@@ -157,7 +157,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {/* Card 1: Pipeline Leads */}
           <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-400">Pipeline Commercial</span>
+              <span className="text-xs font-mono text-rk-muted">Pipeline Commercial</span>
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
                 <Users className="w-4 h-4" />
               </div>
@@ -166,11 +166,11 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               <div className="font-serif text-3xl font-bold text-white">{totalLeads} Prospects</div>
               <div className="flex items-center gap-2 mt-1 text-xs">
                 <span className="text-emerald-400 font-mono font-semibold">{newLeads} nouveaux</span>
-                <span className="text-slate-400">•</span>
+                <span className="text-rk-muted">•</span>
                 <span className="text-amber-400 font-mono">{convertedLeads} convertis</span>
               </div>
             </div>
-            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-rk-muted">
               <span>Taux de conversion : {totalLeads ? Math.round((convertedLeads / totalLeads) * 100) : 0}%</span>
               <button onClick={() => onSelectTab('leads')} className="text-blue-400 hover:underline">Voir &rarr;</button>
             </div>
@@ -179,7 +179,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {/* Card 2: Chiffre d'affaires réel */}
           <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-400">Volume Facturé Consolidé</span>
+              <span className="text-xs font-mono text-rk-muted">Volume Facturé Consolidé</span>
               <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
@@ -188,7 +188,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               <div className="font-serif text-3xl font-bold text-emerald-400">
                 {chiffreAffairesReel > 0 ? formatFcfa(chiffreAffairesReel) : '0 FCFA'}
               </div>
-              <div className="flex items-center gap-2 mt-1 text-xs text-slate-300">
+              <div className="flex items-center gap-2 mt-1 text-xs text-rk-text-secondary">
                 <FileText className="w-3.5 h-3.5 text-blue-400" />
                 <span>
                   {factures.length === 0
@@ -197,7 +197,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 </span>
               </div>
             </div>
-            <div className="pt-2 border-t border-rk-line-soft text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft text-[11px] font-mono text-rk-muted">
               {factures.length === 0
                 ? 'Le total se calcule dès la première facture'
                 : `Facturé : ${formatFcfa(totalValide)} • Payé : ${formatFcfa(totalPaye)} • Acomptes : ${formatFcfa(totalAcomptes)} • Reste à encaisser : ${formatFcfa(totalRestant)}`}
@@ -207,7 +207,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {/* Card 3: Sorties terrain réelles */}
           <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-400">Sorties Terrain</span>
+              <span className="text-xs font-mono text-rk-muted">Sorties Terrain</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
                 <Calendar className="w-4 h-4" />
               </div>
@@ -216,11 +216,11 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
               <div className="font-serif text-3xl font-bold text-amber-300">
                 {sortiesEffectuees} / {sortiesTotal}
               </div>
-              <div className="text-xs text-slate-300 mt-1">
+              <div className="text-xs text-rk-text-secondary mt-1">
                 {sortiesTotal === 0 ? 'Aucune sortie planifiée' : 'Sorties réalisées'}
               </div>
             </div>
-            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-rk-muted">
               <span className="truncate">
                 {prochaineSortie
                   ? `Prochaine : ${(prochaineSortie as any).date || 'à planifier'}`
@@ -235,7 +235,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {/* Card 4: Tâches & Santé Pôles */}
           <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-400">Tâches & Pôles</span>
+              <span className="text-xs font-mono text-rk-muted">Tâches & Pôles</span>
               <div className="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
@@ -243,7 +243,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             <div>
               <div className="font-serif text-3xl font-bold text-white">{completedTasks} / {totalTasks}</div>
               <div className="flex items-center gap-2 mt-1 text-xs">
-                <span className="text-slate-300 font-mono">Tâches complétées</span>
+                <span className="text-rk-text-secondary font-mono">Tâches complétées</span>
                 {urgentTasks > 0 && (
                   <span className="text-rose-400 font-mono text-[11px] bg-rose-500/15 px-1.5 py-0.5 rounded">
                     {urgentTasks} urgentes
@@ -251,7 +251,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 )}
               </div>
             </div>
-            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-rk-muted">
               <span>
                 {totalTasks === 0
                   ? 'Aucune tâche'
@@ -298,7 +298,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="font-semibold text-white text-xs sm:text-sm">{prj.client_name}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">{prj.client_code || prj.id} • Pôle {prj.pole}</div>
+                      <div className="text-[11px] text-rk-muted font-mono">{prj.client_code || prj.id} • Pôle {prj.pole}</div>
                     </div>
                     <span className="text-xs font-bold text-emerald-400 font-mono">{pct}%</span>
                   </div>
@@ -310,7 +310,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1">
+                  <div className="flex items-center justify-between text-[11px] text-rk-muted font-mono pt-1">
                     <span>{prj.jalons?.length || 0} jalons contractuels</span>
                     <button 
                       onClick={(e) => {
@@ -361,22 +361,22 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white">{l.name}</span>
-                        <span className="text-[11px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                        <span className="text-[11px] font-mono text-rk-muted bg-white/5 px-2 py-0.5 rounded">
                           {l.country || 'Cameroun'}
                         </span>
                         <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                           l.statut === 'nouveau' ? 'bg-emerald-500/20 text-emerald-300' :
                           l.statut === 'contacte' ? 'bg-blue-500/20 text-blue-300' :
                           l.statut === 'converti' ? 'bg-amber-500/20 text-amber-300' :
-                          'bg-slate-700 text-slate-300'
+                          'bg-slate-700 text-rk-text-secondary'
                         }`}>
                           {l.statut.toUpperCase()}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-300">
+                      <div className="text-xs text-rk-text-secondary">
                         {l.project_type}
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono">
+                      <div className="text-[11px] text-rk-muted font-mono">
                         Budget : {l.budget} • Pôle : {l.pole_assigned}
                       </div>
                     </div>
@@ -410,7 +410,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 space-y-4">
               <h3 className="font-serif text-lg font-bold text-white flex items-center justify-between">
                 <span>Performance des 6 Pôles</span>
-                <span className="text-xs font-mono text-slate-400 font-normal">Équipe Arckaton</span>
+                <span className="text-xs font-mono text-rk-muted font-normal">Équipe Arckaton</span>
               </h3>
 
               <div className="space-y-2.5">
@@ -429,7 +429,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white">{info.name}</span>
                           {responsable && (
-                            <span className="text-[11px] text-slate-400 font-mono">({responsable})</span>
+                            <span className="text-[11px] text-rk-muted font-mono">({responsable})</span>
                           )}
                         </div>
                         <span className="font-mono text-[11px] text-emerald-400">{percent}% tâches</span>
@@ -457,7 +457,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
             <h4 className="font-serif text-xl font-bold text-white">
               Générateur d'Audit & Rapports Stratégiques
             </h4>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-rk-text-secondary leading-relaxed">
               Activez le moteur Gemini pour analyser vos marges par forfait, prioriser les leads chauds et générer la feuille de route du prochain sprint.
             </p>
             <div className="pt-2">

@@ -54,7 +54,7 @@ export const FieldBlogSection: React.FC = () => {
                 Récits de déploiements et résultats clients.
               </span>
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 mt-4 leading-relaxed font-light">
+            <p className="text-sm sm:text-base text-rk-text-secondary mt-4 leading-relaxed font-light">
               La technologie ne s'invente pas dans une tour d'ivoire. Découvrez comment nos cadreurs, ingénieurs et chefs de projets interviennent au cœur des commerces locaux pour bâtir des systèmes souverains et rentables.
             </p>
           </div>
@@ -68,7 +68,7 @@ export const FieldBlogSection: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                   selectedCategory === c.id
                     ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                    : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
+                    : 'bg-rk-panel text-rk-muted hover:text-white border border-rk-line-soft'
                 }`}
               >
                 {c.label}
@@ -80,9 +80,9 @@ export const FieldBlogSection: React.FC = () => {
         {/* Blog Post Cards Grid */}
         {filteredPosts.length === 0 ? (
           <div className="text-center py-16 bg-rk-panel border border-rk-line rounded-3xl">
-            <Camera className="w-8 h-8 text-slate-500 mx-auto mb-3" aria-hidden="true" />
-            <p className="text-sm text-slate-300">Aucun récit publié dans cette catégorie pour le moment.</p>
-            <p className="text-xs text-slate-500 mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
+            <Camera className="w-8 h-8 text-rk-muted mx-auto mb-3" aria-hidden="true" />
+            <p className="text-sm text-rk-text-secondary">Aucun récit publié dans cette catégorie pour le moment.</p>
+            <p className="text-xs text-rk-muted mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
           </div>
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
@@ -110,15 +110,15 @@ export const FieldBlogSection: React.FC = () => {
                     <span className="text-[11px] font-mono uppercase bg-black/60 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
                       {post.category_label}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-rk-line flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-400" />
+                    <span className="text-[11px] font-mono text-rk-text-secondary bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-rk-line flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-rk-muted" />
                       <span>{post.read_time}</span>
                     </span>
                   </div>
 
                   {/* Field Mission Badge if applicable */}
                   {post.field_spec && (
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-xl text-[11px] font-mono text-slate-200 flex items-center gap-2">
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-xl text-[11px] font-mono text-rk-text flex items-center gap-2">
                       <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span className="truncate">{post.field_spec.lieu}</span>
                     </div>
@@ -135,18 +135,18 @@ export const FieldBlogSection: React.FC = () => {
 
                 {/* Card Content */}
                 <div className="p-6 sm:p-7">
-                  <div className="text-xs text-slate-400 font-mono mb-2 flex items-center gap-2">
+                  <div className="text-xs text-rk-muted font-mono mb-2 flex items-center gap-2">
                     <span>{post.date}</span>
                     <span>•</span>
                     <span className="text-emerald-400">{post.author_name}</span>
-                    <span className="text-slate-400">({post.author_role})</span>
+                    <span className="text-rk-muted">({post.author_role})</span>
                   </div>
 
                   <h3 className="font-serif text-xl sm:text-2xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
                     {post.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-300 mt-3 font-light leading-relaxed line-clamp-3">
+                  <p className="text-xs sm:text-sm text-rk-text-secondary mt-3 font-light leading-relaxed line-clamp-3">
                     {post.excerpt}
                   </p>
                 </div>
@@ -154,13 +154,13 @@ export const FieldBlogSection: React.FC = () => {
 
               {/* Card Footer Action */}
               <div className="px-6 sm:px-7 pb-6 pt-2 border-t border-rk-line-soft flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-400 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-medium">
+                <span className="text-rk-muted group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-medium">
                   <span>Consulter le rapport complet</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <div className="flex items-center gap-1.5">
                   {post.tags.slice(0, 2).map((t, idx) => (
-                    <span key={idx} className="bg-white/[0.04] text-[11px] text-slate-400 px-2 py-0.5 rounded border border-rk-line-soft">
+                    <span key={idx} className="bg-white/[0.04] text-[11px] text-rk-muted px-2 py-0.5 rounded border border-rk-line-soft">
                       #{t}
                     </span>
                   ))}

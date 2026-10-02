@@ -223,7 +223,7 @@ export const ProjectsProductionTab: React.FC = () => {
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
             Suivi des Projets Actifs
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
+          <p className="text-rk-text-secondary text-xs sm:text-sm max-w-2xl">
             Validez les jalons contractuels, planifiez les sorties terrain de captation vidéo/photo et communiquez directement avec vos clients.
           </p>
         </div>
@@ -231,7 +231,7 @@ export const ProjectsProductionTab: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsCreatingProject((v) => !v)}
-            className="bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-rk-line px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+            className="bg-white/[0.04] hover:bg-white/[0.08] text-rk-text border border-rk-line px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Nouveau projet</span>
@@ -260,7 +260,7 @@ export const ProjectsProductionTab: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <h3 className="font-serif text-lg font-bold text-white">Ouvrir un projet client</h3>
-            <button type="button" onClick={() => setIsCreatingProject(false)} className="text-slate-400 hover:text-white text-xs">
+            <button type="button" onClick={() => setIsCreatingProject(false)} className="text-rk-muted hover:text-white text-xs">
               Fermer
             </button>
           </div>
@@ -268,22 +268,22 @@ export const ProjectsProductionTab: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <input required placeholder="Nom du client *" value={newProject.client_name}
               onChange={(e) => setNewProject((p) => ({ ...p, client_name: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
             <input placeholder="Code client (ex: PRJ-KOTTO)" value={newProject.client_code}
               onChange={(e) => setNewProject((p) => ({ ...p, client_code: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400 font-mono" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted font-mono" />
             <input required placeholder="Service / offre *" value={newProject.service}
               onChange={(e) => setNewProject((p) => ({ ...p, service: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
             <input placeholder="Chef de projet" value={newProject.chef_de_projet}
               onChange={(e) => setNewProject((p) => ({ ...p, chef_de_projet: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
             <input placeholder="Téléphone client" value={newProject.client_phone}
               onChange={(e) => setNewProject((p) => ({ ...p, client_phone: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
             <input placeholder="Email client" value={newProject.client_email}
               onChange={(e) => setNewProject((p) => ({ ...p, client_email: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
             <select value={newProject.pole}
               onChange={(e) => setNewProject((p) => ({ ...p, pole: e.target.value as Pole }))}
               className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white">
@@ -293,13 +293,13 @@ export const ProjectsProductionTab: React.FC = () => {
             </select>
             <input placeholder="Forfait" value={newProject.forfait}
               onChange={(e) => setNewProject((p) => ({ ...p, forfait: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
             <input placeholder="Livraison cible" value={newProject.deadline}
               onChange={(e) => setNewProject((p) => ({ ...p, deadline: e.target.value }))}
-              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
           </div>
 
-          <label className="flex items-center gap-2 text-xs text-slate-300">
+          <label className="flex items-center gap-2 text-xs text-rk-text-secondary">
             <input type="checkbox" checked={newProject.create_milestones}
               onChange={(e) => setNewProject((p) => ({ ...p, create_milestones: e.target.checked }))}
               className="accent-emerald-500" />
@@ -307,7 +307,7 @@ export const ProjectsProductionTab: React.FC = () => {
           </label>
 
           <div className="flex items-center justify-end gap-3">
-            <button type="button" onClick={() => setIsCreatingProject(false)} className="px-4 py-2 text-xs text-slate-400 hover:text-white">
+            <button type="button" onClick={() => setIsCreatingProject(false)} className="px-4 py-2 text-xs text-rk-muted hover:text-white">
               Annuler
             </button>
             <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
@@ -323,13 +323,13 @@ export const ProjectsProductionTab: React.FC = () => {
         
         {/* Search */}
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-rk-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Rechercher par client, code (ex: PRJ-KOTTO)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white placeholder:text-rk-muted focus:outline-none focus:border-emerald-500/50"
           />
         </div>
 
@@ -339,7 +339,7 @@ export const ProjectsProductionTab: React.FC = () => {
           <select
             value={selectedStatusFilter}
             onChange={(e) => setSelectedStatusFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-rk-text-secondary focus:outline-none focus:border-emerald-500/50"
           >
             <option value="all">Tous statuts</option>
             <option value="en_cours">En cours</option>
@@ -351,7 +351,7 @@ export const ProjectsProductionTab: React.FC = () => {
           <select
             value={selectedPoleFilter}
             onChange={(e) => setSelectedPoleFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-rk-text-secondary focus:outline-none focus:border-emerald-500/50"
           >
             <option value="all">Tous les pôles</option>
             <option value="Tech">Pôle Tech</option>
@@ -370,7 +370,7 @@ export const ProjectsProductionTab: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {filteredProjects.length === 0 ? (
-            <div className="text-center py-12 bg-rk-chrome rounded-3xl border border-rk-line text-slate-400 text-xs">
+            <div className="text-center py-12 bg-rk-chrome rounded-3xl border border-rk-line text-rk-muted text-xs">
               Aucun projet ne correspond à vos filtres.
             </div>
           ) : (
@@ -405,7 +405,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         <h3 className="font-serif text-lg font-bold text-white">
                           {project.client_name}
                         </h3>
-                        <span className="text-[11px] font-mono bg-white/5 text-slate-400 px-2 py-0.5 rounded-full border border-rk-line">
+                        <span className="text-[11px] font-mono bg-white/5 text-rk-muted px-2 py-0.5 rounded-full border border-rk-line">
                           {project.client_code || project.id}
                         </span>
                         <span className="text-[11px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
@@ -413,12 +413,12 @@ export const ProjectsProductionTab: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="text-xs text-slate-300 mt-0.5">
+                      <div className="text-xs text-rk-text-secondary mt-0.5">
                         {project.service} • <strong className="text-emerald-400">{project.forfait || project.budget_estime}</strong>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-1 font-mono">
-                        <span>Chef de Projet : <strong className="text-slate-200">{project.chef_de_projet || 'Non affecté'}</strong></span>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-rk-muted mt-1 font-mono">
+                        <span>Chef de Projet : <strong className="text-rk-text">{project.chef_de_projet || 'Non affecté'}</strong></span>
                         <span>•</span>
                         <span>Échéance : {project.deadline}</span>
                       </div>
@@ -430,7 +430,7 @@ export const ProjectsProductionTab: React.FC = () => {
                     {/* Live Progress Indicator */}
                     <div className="w-36 sm:w-48 text-right">
                       <div className="flex justify-between text-xs font-mono mb-1">
-                        <span className="text-slate-400">Progression</span>
+                        <span className="text-rk-muted">Progression</span>
                         <span className="font-bold text-emerald-400">{progression}%</span>
                       </div>
                       <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
@@ -444,7 +444,7 @@ export const ProjectsProductionTab: React.FC = () => {
                     {/* Expand/Collapse Chevron */}
                     <button 
                       type="button" 
-                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300"
+                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-rk-text-secondary"
                       title={isExpanded ? 'Réduire' : 'Déplier les détails'}
                     >
                       {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -458,11 +458,11 @@ export const ProjectsProductionTab: React.FC = () => {
                     
                     {/* Action Bar (Direct WhatsApp Client + Open Portal Link) */}
                     <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-rk-chrome border border-rk-line-soft">
-                      <div className="flex items-center gap-2 text-xs text-slate-300">
+                      <div className="flex items-center gap-2 text-xs text-rk-text-secondary">
                         <User className="w-4 h-4 text-emerald-400" />
                         <span>Client : <strong className="text-white">{project.client_name}</strong></span>
                         {project.client_phone && (
-                          <span className="font-mono text-slate-400">({project.client_phone})</span>
+                          <span className="font-mono text-rk-muted">({project.client_phone})</span>
                         )}
                       </div>
 
@@ -499,14 +499,14 @@ export const ProjectsProductionTab: React.FC = () => {
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             <span>Jalons & Livrables Contractuels ({milestones.length})</span>
                           </h4>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-rk-muted">
                             Cochez ou mettez à jour les statuts. La progression globale se recalcule automatiquement.
                           </p>
                         </div>
 
                         <button
                           onClick={() => setIsAddingMilestone(!isAddingMilestone)}
-                          className="bg-white/5 hover:bg-white/10 text-slate-300 text-xs px-3 py-1.5 rounded-xl border border-rk-line flex items-center gap-1.5 cursor-pointer"
+                          className="bg-white/5 hover:bg-white/10 text-rk-text-secondary text-xs px-3 py-1.5 rounded-xl border border-rk-line flex items-center gap-1.5 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Ajouter un jalon</span>
@@ -542,7 +542,7 @@ export const ProjectsProductionTab: React.FC = () => {
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={() => setIsAddingMilestone(false)}
-                              className="px-3 py-1.5 rounded-xl text-xs text-slate-400 hover:text-white"
+                              className="px-3 py-1.5 rounded-xl text-xs text-rk-muted hover:text-white"
                             >
                               Annuler
                             </button>
@@ -574,18 +574,18 @@ export const ProjectsProductionTab: React.FC = () => {
                               }`}
                             >
                               <div className="flex items-start gap-3">
-                                <span className="w-6 h-6 rounded-lg bg-white/5 text-slate-400 font-mono text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="w-6 h-6 rounded-lg bg-white/5 text-rk-muted font-mono text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                                   {idx + 1}
                                 </span>
                                 <div>
                                   <div className="font-semibold text-white text-xs sm:text-sm">
                                     {m.titre}
                                   </div>
-                                  <div className="text-xs text-slate-300 mt-0.5">
+                                  <div className="text-xs text-rk-text-secondary mt-0.5">
                                     {m.description}
                                   </div>
                                   {m.echeance && (
-                                    <div className="text-[11px] font-mono text-slate-400 mt-0.5">
+                                    <div className="text-[11px] font-mono text-rk-muted mt-0.5">
                                       Échéance : {m.echeance}
                                     </div>
                                   )}
@@ -600,7 +600,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                   className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors ${
                                     m.statut === 'en_attente'
                                       ? 'bg-slate-700 text-white font-bold'
-                                      : 'bg-white/5 text-slate-400 hover:text-white'
+                                      : 'bg-white/5 text-rk-muted hover:text-white'
                                   }`}
                                 >
                                   En attente
@@ -612,7 +612,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                   className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors ${
                                     m.statut === 'en_cours'
                                       ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 font-bold'
-                                      : 'bg-white/5 text-slate-400 hover:text-white'
+                                      : 'bg-white/5 text-rk-muted hover:text-white'
                                   }`}
                                 >
                                   En cours
@@ -624,7 +624,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                   className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors flex items-center gap-1 ${
                                     m.statut === 'valide'
                                       ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                                      : 'bg-white/5 text-slate-400 hover:text-white'
+                                      : 'bg-white/5 text-rk-muted hover:text-white'
                                   }`}
                                 >
                                   <CheckCircle2 className="w-3 h-3" />
@@ -645,7 +645,7 @@ export const ProjectsProductionTab: React.FC = () => {
                             <Camera className="w-4 h-4 text-purple-400" />
                             <span>Sorties Terrain & Captations ({project.sorties_terrain_effectuees || 0} / {project.sorties_terrain_total || 9} réalisées)</span>
                           </h4>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-rk-muted">
                             Planification et suivi des reportages photo / vidéo chez le client à Yaoundé et Douala.
                           </p>
                         </div>
@@ -700,7 +700,7 @@ export const ProjectsProductionTab: React.FC = () => {
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={() => setIsAddingVisit(false)}
-                              className="px-3 py-1.5 rounded-xl text-xs text-slate-400 hover:text-white"
+                              className="px-3 py-1.5 rounded-xl text-xs text-rk-muted hover:text-white"
                             >
                               Annuler
                             </button>
@@ -718,7 +718,7 @@ export const ProjectsProductionTab: React.FC = () => {
                       {fieldVisits.length === 0 ? (
                         <div className="py-6 px-4 rounded-2xl border border-dashed border-purple-500/25 bg-purple-500/5 text-center">
                           <p className="text-xs font-mono text-purple-300">Aucune sortie terrain planifiee pour ce projet.</p>
-                          <p className="text-[11px] text-slate-400 mt-1">
+                          <p className="text-[11px] text-rk-muted mt-1">
                             Programmez une captation : chaque session suit son cycle planifiee → realisee → montage → livree.
                           </p>
                         </div>
@@ -742,7 +742,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                   ? 'bg-amber-500/20 text-amber-300'
                                   : v.statut === 'effectuee'
                                   ? 'bg-blue-500/20 text-blue-300'
-                                  : 'bg-slate-700 text-slate-300'
+                                  : 'bg-slate-700 text-rk-text-secondary'
                               }`}>
                                  {VISIT_STATUT_LABEL[v.statut] || v.statut.toUpperCase()}
                               </span>
@@ -752,7 +752,7 @@ export const ProjectsProductionTab: React.FC = () => {
                               {v.objectif}
                             </div>
 
-                            <div className="text-slate-400 font-mono text-[11px] pt-1 border-t border-rk-line-soft">
+                            <div className="text-rk-muted font-mono text-[11px] pt-1 border-t border-rk-line-soft">
                               <div>Lieu : {v.lieu} • Date : {v.date}</div>
                               <div>Intervenant : {v.intervenant || 'Non affecte'}</div>
                             </div>
@@ -799,7 +799,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         value={editingNotes[project.id] !== undefined ? editingNotes[project.id] : (project.notes_internes || '')}
                         onChange={(e) => setEditingNotes({ ...editingNotes, [project.id]: e.target.value })}
                         placeholder="Consignes internes pour les designers, développeurs et chefs de projet..."
-                        className="w-full p-3 rounded-2xl bg-rk-chrome border border-rk-line text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full p-3 rounded-2xl bg-rk-chrome border border-rk-line text-xs text-white placeholder:text-rk-muted focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
 

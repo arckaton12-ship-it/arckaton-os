@@ -20,6 +20,7 @@
   --color-rk-line-strong: rgba(255, 255, 255, 0.16);
   --color-rk-line-bold: rgba(255, 255, 255, 0.24);
   --color-rk-text: #f1f5f9;
+  --color-rk-text-secondary: #cbd5e1;
   --color-rk-muted: #94a3b8;
   --color-rk-accent: #10b981;
   --color-rk-focus: #34d399;
@@ -281,54 +282,14 @@ body.theme-light,
   --color-rk-line-strong: #cbd5e1;
   --color-rk-line-bold: #94a3b8;
   --color-rk-text: #0f172a;
+  --color-rk-text-secondary: #334155;
   --color-rk-muted: #475569;
   --color-rk-focus: #047857;
 }
 
-/* Canvas & Background Adaptations */
-html.theme-light .bg-\[\#0a0e17\],
-html.theme-light .bg-\[\#070c1e\],
-html.theme-light .bg-\[\#080d1a\],
-.theme-light .bg-\[\#0a0e17\],
-.theme-light .bg-\[\#070c1e\],
-.theme-light .bg-\[\#080d1a\] {
-  background-color: #f8fafc !important;
-}
-
-/* Surface Cards: Crisp Pure White with Subtle Elevation */
-html.theme-light .bg-\[\#0d1322\],
-html.theme-light .bg-\[\#0f1523\],
-html.theme-light .bg-\[\#0c1322\],
-html.theme-light .bg-\[\#0e1424\],
-.theme-light .bg-\[\#0d1322\],
-.theme-light .bg-\[\#0f1523\],
-.theme-light .bg-\[\#0c1322\],
-.theme-light .bg-\[\#0e1424\] {
-  background-color: #ffffff !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
-}
-
-/* Deep insets / dark boxes inside cards */
-html.theme-light .bg-\[\#070b14\],
-html.theme-light .bg-\[\#090d18\],
-.theme-light .bg-\[\#070b14\],
-.theme-light .bg-\[\#090d18\] {
-  background-color: #f1f5f9 !important;
-}
-
-/* Borders in Light Mode: Crisp Slate-200 */
-html.theme-light .border-white\/\[0\.08\],
-html.theme-light .border-white\/\[0\.12\],
-html.theme-light .border-white\/\[0\.06\],
-html.theme-light .border-white\/\[0\.1\],
-html.theme-light .border-white\/\[0\.05\],
-.theme-light .border-white\/\[0\.08\],
-.theme-light .border-white\/\[0\.12\],
-.theme-light .border-white\/\[0\.06\],
-.theme-light .border-white\/\[0\.1\],
-.theme-light .border-white\/\[0\.05\] {
-  border-color: #e2e8f0 !important;
-}
+/* Les fonds et bordures ne sont plus patchees ici : ils passent par les
+   jetons --color-rk-* ci-dessus (bg-rk-*, border-rk-*). Seuls les textes
+   blancs et translucides restent couverts par le moteur Mode Jour. */
 
 /* Text Adaptations */
 html.theme-light .text-white,
@@ -336,19 +297,28 @@ html.theme-light .text-white,
   color: #0f172a !important;
 }
 
-html.theme-light .text-slate-100,
-html.theme-light .text-slate-200,
-.theme-light .text-slate-100,
-.theme-light .text-slate-200 {
-  color: #1e293b !important;
+/* Exception : le texte blanc pose sur un fond accentue plein doit le rester.
+   Specificite (0,3,0) > regle generique ci-dessus. */
+.theme-light :is(
+  .bg-emerald-500,
+  .bg-emerald-600,
+  .bg-blue-500,
+  .bg-blue-600,
+  .bg-purple-500,
+  .bg-purple-600,
+  .bg-violet-500,
+  .bg-violet-600,
+  .bg-rose-500,
+  .bg-red-500,
+  .bg-amber-500,
+  .bg-slate-700,
+  .bg-slate-900
+).text-white {
+  color: #ffffff !important;
 }
 
-html.theme-light .text-slate-300,
-html.theme-light .text-slate-400,
-.theme-light .text-slate-300,
-.theme-light .text-slate-400 {
-  color: #475569 !important;
-}
+/* Les gris de texte neutres passent par les jetons text-rk-text /
+   text-rk-text-secondary / text-rk-muted : plus de regles ici. */
 
 /* Light Pills & Subdued Backgrounds */
 html.theme-light .bg-white\/\[0\.04\],
@@ -501,26 +471,10 @@ html.theme-light .text-lime-400,
   color: #4d7c0f !important;
 }
 
-/* Mode Jour : gris de texte plus foncés (lisibilité des textes secondaires) */
-html.theme-light .text-slate-300,
-html.theme-light .text-slate-400,
-html.theme-light .text-slate-500,
-.theme-light .text-slate-300,
-.theme-light .text-slate-400,
-.theme-light .text-slate-500 {
-  color: #334155 !important;
-}
-
 /* Mode Jour : fonds de boutons clairs avec texte sombre lisible */
 html.theme-light .bg-emerald-500\/10,
 .theme-light .bg-emerald-500\/10 {
   background-color: #d1fae5 !important;
-}
-
-/* Mode Nuit : plancher de contraste sur les gris */
-html.dark .text-slate-400,
-html.dark .text-slate-500 {
-  color: #b6c2d4 !important;
 }
 
 /* Impression : neutralise les fonds sombres non imprimables */

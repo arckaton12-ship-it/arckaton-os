@@ -132,7 +132,7 @@ export const QuoteModal: React.FC = () => {
                     {step === 3 && "Étape 3 : Vos Coordonnées"}
                     {step === 4 && "Demande Transmise !"}
                   </h3>
-                  <p className="text-[11px] text-slate-400 font-mono">
+                  <p className="text-[11px] text-rk-muted font-mono">
                     {step <= 3 ? `Configurateur interactif de devis` : `Votre dossier est transmis à la direction`}
                   </p>
                 </div>
@@ -141,7 +141,7 @@ export const QuoteModal: React.FC = () => {
               <button
                 onClick={handleClose}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-rk-muted hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -153,7 +153,7 @@ export const QuoteModal: React.FC = () => {
               {step === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 uppercase tracking-wider mb-3">
+                    <label className="block text-xs font-mono text-rk-text-secondary uppercase tracking-wider mb-3">
                       Quel type de système digital souhaitez-vous déployer ?
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -165,14 +165,14 @@ export const QuoteModal: React.FC = () => {
                           className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
                             projectType === opt.id
                               ? 'bg-emerald-500/10 border-emerald-500/40 text-white shadow-sm'
-                              : 'bg-rk-base border-rk-line-soft text-slate-300 hover:border-rk-line-strong'
+                              : 'bg-rk-base border-rk-line-soft text-rk-text-secondary hover:border-rk-line-strong'
                           }`}
                         >
                           <div className="text-xs font-semibold text-white flex items-center justify-between">
                             <span>{opt.label}</span>
                             {projectType === opt.id && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                           </div>
-                          <div className="text-[11px] text-slate-400 mt-1 leading-snug font-light">
+                          <div className="text-[11px] text-rk-muted mt-1 leading-snug font-light">
                             {opt.desc}
                           </div>
                         </button>
@@ -181,7 +181,7 @@ export const QuoteModal: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-mono text-rk-text-secondary uppercase tracking-wider mb-2">
                       Décrivez brièvement votre activité et votre besoin :
                     </label>
                     <textarea
@@ -210,7 +210,7 @@ export const QuoteModal: React.FC = () => {
               {step === 2 && (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 uppercase tracking-wider mb-2.5">
+                    <label className="block text-xs font-mono text-rk-text-secondary uppercase tracking-wider mb-2.5">
                       Délai de réalisation souhaité :
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -222,7 +222,7 @@ export const QuoteModal: React.FC = () => {
                           className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer ${
                             timeline === t
                               ? 'bg-emerald-500/10 border-emerald-500/40 text-white font-medium'
-                              : 'bg-rk-base border-rk-line-soft text-slate-300 hover:border-rk-line-strong'
+                              : 'bg-rk-base border-rk-line-soft text-rk-text-secondary hover:border-rk-line-strong'
                           }`}
                         >
                           {t}
@@ -232,7 +232,7 @@ export const QuoteModal: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 uppercase tracking-wider mb-2.5">
+                    <label className="block text-xs font-mono text-rk-text-secondary uppercase tracking-wider mb-2.5">
                       Fourchette budgétaire envisagée :
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -244,20 +244,20 @@ export const QuoteModal: React.FC = () => {
                           className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer ${
                             budgetRange === b
                               ? 'bg-amber-500/10 border-amber-500/40 text-white font-medium'
-                              : 'bg-rk-base border-rk-line-soft text-slate-300 hover:border-rk-line-strong'
+                              : 'bg-rk-base border-rk-line-soft text-rk-text-secondary hover:border-rk-line-strong'
                           }`}
                         >
                           {b}
                         </button>
                       ))}
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-2 font-mono">
+                    <p className="text-[11px] text-rk-muted mt-2 font-mono">
                       * Note : Nous ajustons les livrables pour respecter précisément votre enveloppe.
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-mono text-rk-text-secondary uppercase tracking-wider mb-2">
                       Public cible visé :
                     </label>
                     <input
@@ -273,7 +273,7 @@ export const QuoteModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="text-slate-400 hover:text-white text-xs flex items-center gap-1.5 px-3 py-2 cursor-pointer"
+                      className="text-rk-muted hover:text-white text-xs flex items-center gap-1.5 px-3 py-2 cursor-pointer"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Précédent</span>
@@ -296,7 +296,7 @@ export const QuoteModal: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1">
                         Votre Nom & Prénom *
                       </label>
                       <input
@@ -310,7 +310,7 @@ export const QuoteModal: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1">
                         Nom de votre entreprise / Marque
                       </label>
                       <input
@@ -325,7 +325,7 @@ export const QuoteModal: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1">
                         Téléphone WhatsApp * (avec indicatif)
                       </label>
                       <input
@@ -339,7 +339,7 @@ export const QuoteModal: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1">
                         Adresse Email (optionnel)
                       </label>
                       <input
@@ -353,7 +353,7 @@ export const QuoteModal: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                    <label className="block text-xs font-mono text-rk-text-secondary mb-1">
                       Localisation (Ville & Pays) — Livraison internationale 🌍
                     </label>
                     <input
@@ -366,7 +366,7 @@ export const QuoteModal: React.FC = () => {
                   </div>
 
                   <div className="pt-2">
-                    <label className="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
+                    <label className="flex items-center gap-2.5 text-xs text-rk-text-secondary cursor-pointer">
                       <input
                         type="checkbox"
                         checked={consent}
@@ -381,7 +381,7 @@ export const QuoteModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="text-slate-400 hover:text-white text-xs flex items-center gap-1.5 px-3 py-2 cursor-pointer"
+                      className="text-rk-muted hover:text-white text-xs flex items-center gap-1.5 px-3 py-2 cursor-pointer"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Précédent</span>
@@ -419,7 +419,7 @@ export const QuoteModal: React.FC = () => {
                     <h3 className="font-serif text-2xl font-bold text-white">
                       Votre demande est entre de bonnes mains !
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed font-light">
+                    <p className="text-xs sm:text-sm text-rk-text-secondary max-w-md mx-auto leading-relaxed font-light">
                       Merci <strong className="text-white">{name}</strong>. Nos équipes ont bien reçu votre projet pour <strong className="text-emerald-400">{projectType}</strong>. Votre dossier a été transmis à la direction dans Arckaton OS.
                     </p>
                   </div>
@@ -430,7 +430,7 @@ export const QuoteModal: React.FC = () => {
                       <MessageSquare className="w-4 h-4" />
                       <span>Accélérer la réponse par WhatsApp</span>
                     </div>
-                    <p className="text-xs text-slate-300 font-light">
+                    <p className="text-xs text-rk-text-secondary font-light">
                       Vous pouvez ouvrir directement la conversation pré-remplie avec notre conseiller pour un échange vocal ou textuel immédiat :
                     </p>
                     <a
@@ -448,7 +448,7 @@ export const QuoteModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleClose}
-                      className="text-xs text-slate-400 hover:text-white px-4 py-2 cursor-pointer"
+                      className="text-xs text-rk-muted hover:text-white px-4 py-2 cursor-pointer"
                     >
                       Fermer la fenêtre
                     </button>

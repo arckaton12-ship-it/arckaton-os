@@ -34,10 +34,10 @@ export const AboutApproach: React.FC = () => {
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15]">
                 La technologie reste avant tout une affaire humaine.
               </h2>
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-light">
+              <p className="text-rk-text-secondary text-base sm:text-lg leading-relaxed font-light">
                 Chez Arckaton, nous refusons les livraisons de vitrines inertes. Le commerce et l'entreprise en Afrique exigent du pragmatisme : des sites ultra-légers optimisés pour les connexions locales, des flux Mobile Money sans échec, et une présence physique continue sur le terrain.
               </p>
-              <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-light">
+              <p className="text-rk-muted text-sm sm:text-base leading-relaxed font-light">
                 C'est pour cela que nos forfaits Synergie et Architecture prévoient <strong className="text-white font-medium">6 à 9 sorties terrain mensuelles</strong> par nos équipes dédiées pour shooter vos produits, tourner vos capsules et animer votre acquisition client.
               </p>
             </div>
@@ -51,7 +51,7 @@ export const AboutApproach: React.FC = () => {
               <div className="pt-4 border-t border-rk-line flex items-center justify-between">
                 <div>
                   <div className="font-medium text-white text-sm">Mme Clarisse Mbida</div>
-                  <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mt-0.5">
+                  <div className="text-[11px] font-mono text-rk-muted uppercase tracking-wider mt-0.5">
                     Fondatrice Maison Kotto • Cliente Forfait Architecture
                   </div>
                 </div>
@@ -73,7 +73,7 @@ export const AboutApproach: React.FC = () => {
 
               <button
                 onClick={() => setIsAgentModalOpen(true)}
-                className="bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-rk-line px-5 py-3.5 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                className="bg-white/[0.06] hover:bg-white/[0.1] text-rk-text border border-rk-line px-5 py-3.5 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <span>Consulter la méthode d'agence</span>
               </button>
@@ -91,7 +91,7 @@ export const AboutApproach: React.FC = () => {
             <div className="p-6 rounded-2xl bg-rk-surface border border-rk-line space-y-2">
               <div className="text-xs font-mono text-emerald-400 uppercase tracking-wider">01 • Ancrage Réel</div>
               <h3 className="font-serif text-lg font-bold text-white">Bureau à Yaoundé (Mimboman)</h3>
-              <p className="text-xs text-slate-400 leading-relaxed font-light">
+              <p className="text-xs text-rk-muted leading-relaxed font-light">
                 Une équipe physiquement joignable, mobile pour des réunions de cadrage et des shootings sur site dans tout le triangle national.
               </p>
             </div>
@@ -99,7 +99,7 @@ export const AboutApproach: React.FC = () => {
             <div className="p-6 rounded-2xl bg-rk-surface border border-rk-line space-y-2">
               <div className="text-xs font-mono text-blue-400 uppercase tracking-wider">02 • Rayonnement Global</div>
               <h3 className="font-serif text-lg font-bold text-white">Clients dans 7 pays</h3>
-              <p className="text-xs text-slate-400 leading-relaxed font-light">
+              <p className="text-xs text-rk-muted leading-relaxed font-light">
                 De Libreville à Abidjan, de Paris à Montréal, nos systèmes de gestion et sites e-commerce sont déployés à distance avec la même efficacité.
               </p>
             </div>
@@ -107,7 +107,7 @@ export const AboutApproach: React.FC = () => {
             <div className="p-6 rounded-2xl bg-rk-surface border border-rk-line space-y-2">
               <div className="text-xs font-mono text-amber-400 uppercase tracking-wider">03 • Cockpit Transparent</div>
               <h3 className="font-serif text-lg font-bold text-white">Arckaton OS pour chaque client</h3>
-              <p className="text-xs text-slate-400 leading-relaxed font-light">
+              <p className="text-xs text-rk-muted leading-relaxed font-light">
                 Suivez en temps réel le calendrier des sorties terrain, la validation des jalons BAT, vos factures et les tickets de support sans intermédiaire.
               </p>
             </div>

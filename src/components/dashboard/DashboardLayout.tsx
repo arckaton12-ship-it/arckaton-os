@@ -71,7 +71,7 @@ export const DashboardLayout: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-rk-bg flex items-center justify-center">
-        <div className="text-slate-400 text-sm font-mono flex items-center gap-2">
+        <div className="text-rk-muted text-sm font-mono flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
           Arckaton OS — Vérification de la session…
         </div>
@@ -107,18 +107,18 @@ export const DashboardLayout: React.FC = () => {
   const breadcrumb = (
     <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-xs font-mono">
       {activeTab === 'overview' ? (
-        <span className="text-slate-300">Cockpit</span>
+        <span className="text-rk-text-secondary">Cockpit</span>
       ) : (
         <>
           <button
             type="button"
             onClick={() => goToTab('overview')}
-            className="flex items-center gap-1.5 text-slate-200 hover:text-white bg-white/5 hover:bg-white/10 border border-rk-line px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-rk-text hover:text-white bg-white/5 hover:bg-white/10 border border-rk-line px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Retour au Cockpit</span>
           </button>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
+          <ChevronRight className="w-3.5 h-3.5 text-rk-muted" aria-hidden="true" />
           <span className="text-white font-semibold truncate max-w-[220px]" aria-current="page">
             {currentLabel}
           </span>
@@ -128,7 +128,7 @@ export const DashboardLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-rk-bg text-slate-100 flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-rk-bg text-rk-text flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Mobile Top Header */}
       <div className="md:hidden bg-rk-chrome border-b border-rk-line p-4 flex items-center justify-between sticky top-0 z-30">
@@ -137,7 +137,7 @@ export const DashboardLayout: React.FC = () => {
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             aria-label={isSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={isSidebarOpen}
-            className="p-2 rounded-lg bg-white/5 text-slate-300 hover:text-white"
+            className="p-2 rounded-lg bg-white/5 text-rk-text-secondary hover:text-white"
           >
             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -155,7 +155,7 @@ export const DashboardLayout: React.FC = () => {
           <button
             onClick={() => setIsNotificationsOpen(true)}
             aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
-            className="p-2 rounded-lg bg-white/5 text-slate-300 relative"
+            className="p-2 rounded-lg bg-white/5 text-rk-text-secondary relative"
           >
             <Bell className="w-4 h-4" aria-hidden="true" />
             {unreadCount > 0 && (
@@ -215,7 +215,7 @@ export const DashboardLayout: React.FC = () => {
             <button
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Fermer le menu"
-              className="md:hidden text-slate-400 hover:text-white"
+              className="md:hidden text-rk-muted hover:text-white"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -243,11 +243,11 @@ export const DashboardLayout: React.FC = () => {
                         : 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                       : isSpecial
                       ? 'text-emerald-300/90 hover:bg-emerald-500/10 border border-emerald-500/20'
-                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      : 'text-rk-text-secondary hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon aria-hidden="true" className={`w-4 h-4 ${isActive ? 'text-white' : isSpecial ? 'text-emerald-400' : 'text-slate-400'}`} />
+                    <Icon aria-hidden="true" className={`w-4 h-4 ${isActive ? 'text-white' : isSpecial ? 'text-emerald-400' : 'text-rk-muted'}`} />
                     <span>{item.label}</span>
                   </div>
 
@@ -279,7 +279,7 @@ export const DashboardLayout: React.FC = () => {
                 {role}
               </span>
             </div>
-            <div className="text-[11px] font-mono text-slate-400 truncate mt-0.5">
+            <div className="text-[11px] font-mono text-rk-muted truncate mt-0.5">
               {user.poste_titre} • Pôle {user.pole}
             </div>
           </div>
@@ -287,7 +287,7 @@ export const DashboardLayout: React.FC = () => {
           {/* Mode Switcher to Public Site */}
           <button
             onClick={() => setMode('public')}
-            className="w-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-rk-line py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs transition-colors cursor-pointer"
+            className="w-full bg-white/5 hover:bg-white/10 text-rk-text-secondary hover:text-white border border-rk-line py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Revenir au Site Public</span>
@@ -302,7 +302,7 @@ export const DashboardLayout: React.FC = () => {
         <header className="hidden md:flex items-center justify-between px-8 py-3.5 bg-rk-chrome/95 backdrop-blur-md border-b border-rk-line sticky top-0 z-30">
           <div className="flex items-center gap-3">
             {breadcrumb}
-            <span className="hidden lg:inline text-xs font-mono text-slate-500">
+            <span className="hidden lg:inline text-xs font-mono text-rk-muted">
               • Yaoundé & Rayonnement Mondial
             </span>
           </div>
@@ -312,7 +312,7 @@ export const DashboardLayout: React.FC = () => {
             <div className="flex items-center gap-2 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
                 <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
-                <div className="text-[11px] font-mono text-slate-400 mt-0.5">{role}</div>
+                <div className="text-[11px] font-mono text-rk-muted mt-0.5">{role}</div>
               </div>
               <button
                 onClick={logout}
@@ -326,7 +326,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Notification Bell */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
-              className="p-2 rounded-xl bg-rk-bg hover:bg-white/5 text-slate-300 border border-rk-line relative transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-rk-bg hover:bg-white/5 text-rk-text-secondary border border-rk-line relative transition-colors cursor-pointer"
               title="Notifications"
               aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
             >

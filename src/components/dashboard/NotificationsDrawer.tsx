@@ -60,7 +60,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
             </div>
             <div>
               <h3 className="font-serif text-base font-bold text-white">Notifications Arckaton OS</h3>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-[11px] text-rk-muted font-mono">
                 {notifications.filter(n => !n.read).length} non lues
               </p>
             </div>
@@ -70,7 +70,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
             {notifications.length > 0 && (
               <button
                 onClick={clearNotifications}
-                className="text-[11px] text-slate-400 hover:text-white font-mono px-2 py-1"
+                className="text-[11px] text-rk-muted hover:text-white font-mono px-2 py-1"
               >
                 Tout effacer
               </button>
@@ -78,7 +78,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
             <button
               onClick={onClose}
               aria-label="Fermer les notifications"
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center"
             >
               <X className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -88,7 +88,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {notifications.length === 0 ? (
-            <div className="text-center py-16 text-slate-400 space-y-3">
+            <div className="text-center py-16 text-rk-muted space-y-3">
               <Check className="w-8 h-8 mx-auto opacity-40 text-emerald-400" />
               <p className="text-xs">Toutes les alertes sont à jour. Aucun événement non traité.</p>
             </div>
@@ -109,16 +109,16 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-500' : 'bg-blue-400 animate-pulse'}`} />
                     <span className="text-xs font-semibold text-white">{n.title}</span>
                   </div>
-                  <span className="text-[11px] font-mono text-slate-400 flex-shrink-0">
+                  <span className="text-[11px] font-mono text-rk-muted flex-shrink-0">
                     {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                <p className="text-xs text-rk-text-secondary mt-2 leading-relaxed">
                   {n.message}
                 </p>
 
-                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-rk-line-soft">
+                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-rk-muted pt-2 border-t border-rk-line-soft">
                   <span className="text-emerald-400">Pôle : {n.pole_target || n.pole}</span>
                   <span className="inline-flex items-center gap-1 text-blue-300 group-hover:text-blue-200 font-semibold">
                     {sourceLabel(n)}

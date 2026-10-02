@@ -19,60 +19,8 @@
   min-height: 100vh;
 }
 
-/* Surfaces (cartes, panneaux, entetes de colonnes) */
-.theme-light .bg-\[\#070c1e\],
-.theme-light .bg-\[\#070c1e\]\/60,
-.theme-light .bg-\[\#070c1e\]\/80,
-.theme-light .bg-\[\#070d1e\],
-.theme-light .bg-\[\#070d1e\]\/80,
-.theme-light .bg-\[\#080d1e\],
-.theme-light .bg-\[\#090f21\],
-.theme-light .bg-\[\#09122a\],
-.theme-light .bg-\[\#09122a\]\/95,
-.theme-light .bg-\[\#0a0e17\],
-.theme-light .bg-\[\#0a0e17\]\/50,
-.theme-light .bg-\[\#0a0e17\]\/80,
-.theme-light .bg-\[\#0a0e17\]\/85,
-.theme-light .bg-\[\#0a0e17\]\/90,
-.theme-light .bg-\[\#0a0f2e\],
-.theme-light .bg-\[\#0a122e\],
-.theme-light .bg-\[\#0a1435\],
-.theme-light .bg-\[\#0b1120\],
-.theme-light .bg-\[\#0b122e\],
-.theme-light .bg-\[\#0b1329\],
-.theme-light .bg-\[\#0c1322\],
-.theme-light .bg-\[\#0d1322\],
-.theme-light .bg-\[\#0d1633\],
-.theme-light .bg-\[\#0d1733\],
-.theme-light .bg-\[\#0e163d\],
-.theme-light .bg-\[\#0e1a3d\],
-.theme-light .bg-\[\#0f1523\],
-.theme-light .bg-\[\#0f1523\]\/60,
-.theme-light .bg-\[\#0f1523\]\/95,
-.theme-light .bg-\[\#0f172e\],
-.theme-light .bg-\[\#111827\] {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Encarts (champs de saisie, zones creuses) */
-.theme-light .bg-\[\#050814\],
-.theme-light .bg-\[\#060a14\],
-.theme-light .bg-\[\#060a16\],
-.theme-light .bg-\[\#060a18\],
-.theme-light .bg-\[\#060b1b\]\/80,
-.theme-light .bg-\[\#070b14\],
-.theme-light .bg-\[\#080d1a\],
-.theme-light .bg-\[\#090d18\] {
-  background-color: #f1f5f9 !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Le <body> porte sa propre classe de fond : il faut la cibler */
-body.theme-light[class*="bg-["] {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-}
+/* Les surfaces et encarts ne sont plus patchees ici : ils passent par les
+   jetons --color-rk-* (utilitaires bg-rk-*). */
 
 /* Degrades : les paliers sombre sont remplaces par une surface unie */
 .theme-light .bg-gradient-to-b,
@@ -83,25 +31,12 @@ body.theme-light[class*="bg-["] {
   background-color: #ffffff !important;
 }
 
-/* Les degrades decoratifs (motifs de grille) s inversent aussi */
-.theme-light .bg-\[\#070c1e\] {
-  background-image:
-    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px) !important;
-}
-
-/* Textes : blanc et grisclair -> fonces */
+/* Textes : blanc et grisclair -> fonces.
+   Les gris neutres passent desormais par text-rk-text / text-rk-muted. */
 .theme-light .text-white,
-.theme-light .text-white\/80,
-.theme-light .text-slate-100 {
+.theme-light .text-white\/80 {
   color: #0f172a !important;
 }
-
-.theme-light .text-slate-200 { color: #1e293b !important; }
-.theme-light .text-slate-300 { color: #334155 !important; }
-.theme-light .text-slate-400 { color: #475569 !important; }
-.theme-light .text-slate-500 { color: #64748b !important; }
-.theme-light .text-slate-600 { color: #475569 !important; }
 
 /* Textes d accent : les teintes claires deviennent des teintes 700,
    sinon un vert ou un bleu pale sur fond blanc est illisible. */
@@ -146,21 +81,8 @@ body.theme-light[class*="bg-["] {
   color: #be123c !important;
 }
 
-/* Bordures blanc translucide -> gris visible */
-.theme-light [class*="border-white/"] {
-  border-color: #e2e8f0 !important;
-}
-
-/* Separateurs de liste et texte indicatif des champs */
-.theme-light .divide-white\/5,
-.theme-light .divide-white\/10 {
-  border-color: #e2e8f0 !important;
-}
-
-.theme-light .placeholder\:text-slate-400::placeholder,
-.theme-light .placeholder\:text-slate-500::placeholder {
-  color: #94a3b8 !important;
-}
+/* Bordures et separateurs : passes aux jetons border-rk-line* et
+   divide-rk-line* ; le Mode Jour les redefinit en gris. */
 
 /* Les voiles blanc semi-transparents (white/5, white/10) restent en place
    sur une surface claire : ils y sont invisibles et ne nuit pas a la

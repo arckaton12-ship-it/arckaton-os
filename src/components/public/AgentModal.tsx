@@ -188,7 +188,7 @@ export const AgentModal: React.FC = () => {
                         Officiel 6 Pôles
                       </span>
                     </h3>
-                    <p className="text-[11px] text-slate-400 font-light">
+                    <p className="text-[11px] text-rk-muted font-light">
                       Posez vos questions techniques, artistiques ou tarifaires en direct.
                     </p>
                   </div>
@@ -197,7 +197,7 @@ export const AgentModal: React.FC = () => {
                 <button
                   onClick={() => setIsAgentModalOpen(false)}
                   aria-label="Fermer"
-                  className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-rk-muted hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -215,7 +215,7 @@ export const AgentModal: React.FC = () => {
                       className={`px-3 py-1.5 rounded-lg font-mono text-xs whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                         isActive
                           ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
-                          : 'bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]'
+                          : 'bg-white/[0.04] text-rk-text-secondary hover:bg-white/[0.08]'
                       }`}
                     >
                       <span>{info.name}</span>
@@ -246,7 +246,7 @@ export const AgentModal: React.FC = () => {
                       className={`max-w-[85%] rounded-2xl p-4 ${
                         isUser
                           ? 'bg-emerald-500 text-slate-950 font-medium rounded-tr-none'
-                          : 'bg-rk-surface text-slate-200 border border-rk-line rounded-tl-none font-light'
+                          : 'bg-rk-surface text-rk-text border border-rk-line rounded-tl-none font-light'
                       }`}
                     >
                       {!isUser && (
@@ -261,7 +261,7 @@ export const AgentModal: React.FC = () => {
               })}
 
               {loading && (
-                <div className="flex gap-3 items-center text-xs text-slate-400">
+                <div className="flex gap-3 items-center text-xs text-rk-muted">
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   </div>
@@ -285,7 +285,7 @@ export const AgentModal: React.FC = () => {
                   key={idx}
                   onClick={() => handleSend(q)}
                   disabled={loading}
-                  className="text-[11px] font-mono text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-rk-line-soft px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
+                  className="text-[11px] font-mono text-rk-text-secondary hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-rk-line-soft px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
                 >
                   {q}
                 </button>
@@ -319,11 +319,11 @@ export const AgentModal: React.FC = () => {
                 </button>
               </form>
 
-              <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+              <div className="flex items-center justify-between text-xs text-rk-muted pt-1">
                 <button
                   type="button"
                   onClick={handleGenerateReport}
-                  className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="text-rk-muted hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5 text-emerald-400" />
                   <span>

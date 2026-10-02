@@ -29,7 +29,7 @@ export const BlueprintModal: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25 }}
-          className="relative w-full max-w-4xl bg-rk-surface border border-rk-line rounded-3xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh] outline-none"
+          className="relative w-full max-w-4xl bg-rk-surface border border-rk-line rounded-3xl shadow-2xl overflow-hidden text-rk-text flex flex-col max-h-[90vh] outline-none"
         >
           {/* Top Bar */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-rk-line bg-rk-inset">
@@ -46,7 +46,7 @@ export const BlueprintModal: React.FC = () => {
                     Officiel v2.4
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-light">
+                <p className="text-xs text-rk-muted font-light">
                   Cabinet Arckaton • Mimboman, Yaoundé & International
                 </p>
               </div>
@@ -55,7 +55,7 @@ export const BlueprintModal: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrint}
-                className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] px-3 py-1.5 rounded-xl border border-rk-line transition-colors cursor-pointer"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-rk-text-secondary hover:text-white bg-white/[0.05] hover:bg-white/[0.1] px-3 py-1.5 rounded-xl border border-rk-line transition-colors cursor-pointer"
                 title="Imprimer ou enregistrer en PDF"
               >
                 <Printer className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
@@ -64,7 +64,7 @@ export const BlueprintModal: React.FC = () => {
               <button
                 onClick={() => setIsBlueprintModalOpen(false)}
                 aria-label="Fermer"
-                className="p-2 rounded-xl text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-rk-muted hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -78,7 +78,7 @@ export const BlueprintModal: React.FC = () => {
               className={`pb-3 px-3 text-xs font-medium border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 activeTab === 'doctrine'
                   ? 'border-emerald-400 text-emerald-400 font-semibold'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-rk-muted hover:text-rk-text'
               }`}
             >
               <Network className="w-3.5 h-3.5" />
@@ -90,7 +90,7 @@ export const BlueprintModal: React.FC = () => {
               className={`pb-3 px-3 text-xs font-medium border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 activeTab === 'sla'
                   ? 'border-emerald-400 text-emerald-400 font-semibold'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-rk-muted hover:text-rk-text'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -102,7 +102,7 @@ export const BlueprintModal: React.FC = () => {
               className={`pb-3 px-3 text-xs font-medium border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 activeTab === 'arka'
                   ? 'border-emerald-400 text-emerald-400 font-semibold'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-rk-muted hover:text-rk-text'
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
@@ -111,7 +111,7 @@ export const BlueprintModal: React.FC = () => {
           </div>
 
           {/* Tab Content Body */}
-          <div className="p-6 overflow-y-auto space-y-6 text-slate-300 text-xs sm:text-sm font-light leading-relaxed flex-1">
+          <div className="p-6 overflow-y-auto space-y-6 text-rk-text-secondary text-xs sm:text-sm font-light leading-relaxed flex-1">
             
             {/* Tab 1: Doctrine */}
             {activeTab === 'doctrine' && (
@@ -129,7 +129,7 @@ export const BlueprintModal: React.FC = () => {
                       <span className="w-2 h-2 rounded-full bg-emerald-400" />
                       <span>Pôle 1 : Direction & Stratégie</span>
                     </div>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-rk-text-secondary">
                       Gouvernance globale, cadrage initial, validation du modèle de rentabilité et supervision des jalons de chaque client.
                     </p>
                   </div>
@@ -139,7 +139,7 @@ export const BlueprintModal: React.FC = () => {
                       <span className="w-2 h-2 rounded-full bg-purple-400" />
                       <span>Pôle 2 : Studio & Créatif</span>
                     </div>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-rk-text-secondary">
                       Direction artistique exclusive, logotypes vectoriels, chartes graphiques complètes et validation BAT préalable à toute production.
                     </p>
                   </div>
@@ -149,7 +149,7 @@ export const BlueprintModal: React.FC = () => {
                       <span className="w-2 h-2 rounded-full bg-blue-400" />
                       <span>Pôle 3 : Tech & Architecture SaaS</span>
                     </div>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-rk-text-secondary">
                       Développement Next.js / Vite, intégration webhooks MTN MoMo & Orange Money, moteur hors-ligne ARKA-PME et serveurs haute disponibilité.
                     </p>
                   </div>
@@ -159,7 +159,7 @@ export const BlueprintModal: React.FC = () => {
                       <span className="w-2 h-2 rounded-full bg-amber-400" />
                       <span>Pôle 4 : Growth & Marketing Digital</span>
                     </div>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-rk-text-secondary">
                       SEO local Yaoundé / Douala / CEMAC, gestion des campagnes Meta Ads & Google Ads, tunnels de vente et suivi du ROI commercial.
                     </p>
                   </div>
@@ -169,17 +169,17 @@ export const BlueprintModal: React.FC = () => {
                       <span className="w-2 h-2 rounded-full bg-rose-400" />
                       <span>Pôle 5 : Expérience Client & Terrain</span>
                     </div>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-rk-text-secondary">
                       6 à 9 sorties terrain par mois avec caméra cinéma et éclairage studio pro pour capturer la réalité des stocks et ateliers des clients.
                     </p>
                   </div>
 
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
-                    <div className="flex items-center gap-2 text-slate-400 font-mono text-xs font-semibold">
+                    <div className="flex items-center gap-2 text-rk-muted font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-slate-400" />
                       <span>Pôle 6 : Partenaires & Conseil Externe</span>
                     </div>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-rk-text-secondary">
                       Accompagnement juridique (contrats commerciaux, CGV e-commerce), conseil fiscalité locale et réseau d'influenceurs KOL certifiés.
                     </p>
                   </div>
@@ -193,15 +193,15 @@ export const BlueprintModal: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-emerald-400">&lt; 2h</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-1">Délai Réponse Support</div>
+                    <div className="text-[11px] text-rk-muted font-mono mt-1">Délai Réponse Support</div>
                   </div>
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-emerald-400">100%</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-1">Propriété Intellectuelle Client</div>
+                    <div className="text-[11px] text-rk-muted font-mono mt-1">Propriété Intellectuelle Client</div>
                   </div>
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-amber-400">5% / sem</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-1">Pénalité Contractuelle Retard</div>
+                    <div className="text-[11px] text-rk-muted font-mono mt-1">Pénalité Contractuelle Retard</div>
                   </div>
                 </div>
 
@@ -210,7 +210,7 @@ export const BlueprintModal: React.FC = () => {
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Garantie de Livraison & Calendrier Contractuel</span>
                   </h4>
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs text-rk-text-secondary">
                     Chaque devis signé stipule une date limite de livraison ferme (ex. 14 jours ouvrés pour Initiation, 3 à 4 semaines pour Synergie). Tout retard non imputable au client entraîne une remise automatique de 5% par semaine entamée.
                   </p>
 
@@ -218,7 +218,7 @@ export const BlueprintModal: React.FC = () => {
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Processus de Validation BAT (Bon À Tirer)</span>
                   </h4>
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs text-rk-text-secondary">
                     Aucune mise en production n'est effectuée sans votre validation expresse dans votre Espace Client Arckaton OS. Deux à trois rounds de retouches complets sont inscrits au contrat.
                   </p>
 
@@ -226,7 +226,7 @@ export const BlueprintModal: React.FC = () => {
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Transmission Complète des Accès</span>
                   </h4>
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs text-rk-text-secondary">
                     Dès le solde réglé, nous vous transférons l'intégralité des identifiants : registar du nom de domaine, console Cloud, fichiers Figma et code source sans verrouillage propriétaire.
                   </p>
                 </div>
@@ -241,7 +241,7 @@ export const BlueprintModal: React.FC = () => {
                   ARKA-PME a été conçu spécifiquement pour le contexte économique camerounais et africain où les coupures de courant et d'internet ne doivent jamais bloquer les ventes.
                 </div>
 
-                <div className="space-y-3 text-xs text-slate-300">
+                <div className="space-y-3 text-xs text-rk-text-secondary">
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-rk-line-soft">
                     <span className="font-mono text-emerald-400 font-bold">01.</span>
                     <div>
@@ -277,7 +277,7 @@ export const BlueprintModal: React.FC = () => {
 
           {/* Bottom Actions */}
           <div className="p-4 sm:p-6 border-t border-rk-line bg-rk-inset flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-[11px] font-mono text-slate-400 text-center sm:text-left">
+            <div className="text-[11px] font-mono text-rk-muted text-center sm:text-left">
               Arckaton • Immeuble Mimboman, Yaoundé • WhatsApp +237 681 46 29 82
             </div>
 

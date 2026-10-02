@@ -61,7 +61,7 @@ export const BlogReaderModal: React.FC = () => {
               <span className="text-xs font-mono uppercase bg-emerald-500 text-slate-950 px-3 py-1 rounded-full font-bold">
                 {activeBlogPost.category_label}
               </span>
-              <span className="text-xs font-mono text-slate-200 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-rk-line">
+              <span className="text-xs font-mono text-rk-text bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-rk-line">
                 {activeBlogPost.read_time}
               </span>
             </div>
@@ -72,9 +72,9 @@ export const BlogReaderModal: React.FC = () => {
             
             {/* Meta header */}
             <div>
-              <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-400 mb-2">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-rk-muted mb-2">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <Calendar className="w-3.5 h-3.5 text-rk-muted" />
                   <span>{activeBlogPost.date}</span>
                 </span>
                 <span>•</span>
@@ -98,19 +98,19 @@ export const BlogReaderModal: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono pt-1">
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-slate-400 block text-[11px]">Zone de déploiement :</span>
+                    <span className="text-rk-muted block text-[11px]">Zone de déploiement :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.lieu}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-slate-400 block text-[11px]">Matériel déployé :</span>
+                    <span className="text-rk-muted block text-[11px]">Matériel déployé :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.materiel}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-slate-400 block text-[11px]">Agents mobilisés :</span>
+                    <span className="text-rk-muted block text-[11px]">Agents mobilisés :</span>
                     <span className="text-emerald-300 font-medium">{activeBlogPost.field_spec.agents_mobilises.join(' • ')}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-slate-400 block text-[11px]">Livrables générés :</span>
+                    <span className="text-rk-muted block text-[11px]">Livrables générés :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.livrables_generes}</span>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export const BlogReaderModal: React.FC = () => {
                 <div className="mt-4 pt-3 border-t border-emerald-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="text-xs font-bold text-white">{activeBlogPost.client_quote.author}</div>
-                    <div className="text-[11px] font-mono text-slate-400">{activeBlogPost.client_quote.role} • {activeBlogPost.client_quote.company}</div>
+                    <div className="text-[11px] font-mono text-rk-muted">{activeBlogPost.client_quote.role} • {activeBlogPost.client_quote.company}</div>
                   </div>
                   <div className="bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 rounded-xl text-xs font-mono text-emerald-300 font-bold self-start sm:self-auto">
                     {activeBlogPost.client_quote.metrics}
@@ -137,15 +137,15 @@ export const BlogReaderModal: React.FC = () => {
             )}
 
             {/* Main content body formatted */}
-            <div className="text-sm sm:text-base text-slate-300 font-light leading-relaxed whitespace-pre-line space-y-4 pt-2">
+            <div className="text-sm sm:text-base text-rk-text-secondary font-light leading-relaxed whitespace-pre-line space-y-4 pt-2">
               {activeBlogPost.content}
             </div>
 
             {/* Tags strip */}
             <div className="pt-4 border-t border-rk-line flex flex-wrap items-center gap-2">
-              <span className="text-xs font-mono text-slate-400">Mots-clés :</span>
+              <span className="text-xs font-mono text-rk-muted">Mots-clés :</span>
               {activeBlogPost.tags.map((tag, idx) => (
-                <span key={idx} className="text-xs font-mono bg-white/[0.05] border border-rk-line text-slate-300 px-2.5 py-1 rounded-lg">
+                <span key={idx} className="text-xs font-mono bg-white/[0.05] border border-rk-line text-rk-text-secondary px-2.5 py-1 rounded-lg">
                   #{tag}
                 </span>
               ))}
@@ -155,7 +155,7 @@ export const BlogReaderModal: React.FC = () => {
             <div className="bg-rk-bg border border-rk-line rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="font-serif text-lg font-bold text-white">Vous souhaitez un déploiement similaire ?</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Nos équipes évaluent vos besoins et interviennent sous 48h à Yaoundé ou Douala.</p>
+                <p className="text-xs text-rk-muted mt-0.5">Nos équipes évaluent vos besoins et interviennent sous 48h à Yaoundé ou Douala.</p>
               </div>
               <button
                 onClick={() => {

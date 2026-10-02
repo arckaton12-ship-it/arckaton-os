@@ -120,7 +120,7 @@ export const ClientPortalModal: React.FC = () => {
                       En Direct
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-rk-muted font-light">
                     Consultez l'avancement, validez vos BAT et échangez avec l'équipe dédiée.
                   </p>
                 </div>
@@ -129,7 +129,7 @@ export const ClientPortalModal: React.FC = () => {
               <button
                 onClick={() => setIsClientPortalOpen(false)}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-rk-muted hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -139,7 +139,7 @@ export const ClientPortalModal: React.FC = () => {
             {currentProject && (
             <div className="px-6 py-3 bg-rk-base/80 border-b border-rk-line-soft flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
               <div className="flex items-center gap-2 overflow-x-auto text-xs py-1">
-                <span className="text-slate-400 font-mono text-[11px] whitespace-nowrap">Projets actifs :</span>
+                <span className="text-rk-muted font-mono text-[11px] whitespace-nowrap">Projets actifs :</span>
                 {projets.map((p) => {
                   const code = p.client_code || p.id;
                   const isSelected = (currentProject?.client_code === code) || (currentProject?.id === p.id);
@@ -150,7 +150,7 @@ export const ClientPortalModal: React.FC = () => {
                       className={`px-3 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
                         isSelected
                           ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
-                          : 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-rk-line-soft'
+                          : 'bg-white/[0.04] hover:bg-white/[0.08] text-rk-text-secondary border border-rk-line-soft'
                       }`}
                     >
                       {p.client_name} <span className="font-mono opacity-75 text-[11px]">({code})</span>
@@ -160,14 +160,14 @@ export const ClientPortalModal: React.FC = () => {
               </div>
 
               <form onSubmit={handleSearch} className="relative flex items-center min-w-[200px]">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3" aria-hidden="true" />
+                <Search className="w-3.5 h-3.5 text-rk-muted absolute left-3" aria-hidden="true" />
                 <input
                   type="text"
                   aria-label="Rechercher un projet par sa référence"
                   placeholder="Réf (ex: PRJ-KOTTO)..."
                   value={searchCode}
                   onChange={(e) => setSearchCode(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-rk-surface border border-rk-line text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 font-mono"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-rk-surface border border-rk-line text-xs text-white placeholder:text-rk-muted focus:outline-none focus:border-emerald-500/50 font-mono"
                 />
               </form>
             </div>
@@ -190,12 +190,12 @@ export const ClientPortalModal: React.FC = () => {
                 <h4 className="font-serif text-xl font-bold text-white">
                   Aucun projet client n'est encore ouvert
                 </h4>
-                <p className="text-xs text-slate-300 font-light max-w-md leading-relaxed">
+                <p className="text-xs text-rk-text-secondary font-light max-w-md leading-relaxed">
                   L'espace client se remplit automatiquement dès qu'un projet est créé dans
                   Arckaton OS &gt; Production &amp; Pilotage. Le client pourra alors suivre ses
                   jalons, valider ses BAT et déposer ses demandes d'ajustement.
                 </p>
-                <p className="text-[11px] text-slate-400 font-mono">
+                <p className="text-[11px] text-rk-muted font-mono">
                   Source de données : Supabase (table projects) — synchronisation en temps réel
                 </p>
                 <button
@@ -220,7 +220,7 @@ export const ClientPortalModal: React.FC = () => {
                     <h2 className="font-serif text-2xl font-bold text-white mt-0.5">
                       {currentProject.client_name}
                     </h2>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-1 font-light">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-rk-muted mt-1 font-light">
                       <span>Chef de projet : <strong className="text-white font-medium">{currentProject.chef_de_projet || 'À désigner'}</strong></span>
                       <span>•</span>
                       <span>Livraison cible : <strong className="text-white font-medium">{currentProject.deadline}</strong></span>
@@ -245,7 +245,7 @@ export const ClientPortalModal: React.FC = () => {
                 {/* Progress Bar */}
                 <div className="mt-4 pt-3 border-t border-rk-line-soft">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="text-slate-400 font-light">Avancement global du déploiement</span>
+                    <span className="text-rk-muted font-light">Avancement global du déploiement</span>
                     <span className="font-mono font-bold text-emerald-400">{progression}% terminé</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
@@ -260,7 +260,7 @@ export const ClientPortalModal: React.FC = () => {
 
             {/* Navigation Tabs */}
             {currentProject && (
-            <div className="flex border-b border-rk-line-soft bg-rk-base px-6 text-xs font-medium text-slate-400 flex-shrink-0 overflow-x-auto">
+            <div className="flex border-b border-rk-line-soft bg-rk-base px-6 text-xs font-medium text-rk-muted flex-shrink-0 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('avancement')}
                 className={`py-3 px-4 border-b-2 transition-all cursor-pointer ${
@@ -308,14 +308,14 @@ export const ClientPortalModal: React.FC = () => {
                     <h4 className="font-serif text-base font-bold text-white">
                       Feuille de Route & Validation des Livrables
                     </h4>
-                    <p className="text-xs text-slate-400 font-light">
+                    <p className="text-xs text-rk-muted font-light">
                       Chaque étape franchie est vérifiée avec vous. Cliquez sur "Valider le BAT" pour donner votre accord officiel.
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     {milestones.length === 0 ? (
-                      <div className="text-center py-8 text-xs text-slate-400 bg-white/[0.04] rounded-2xl">
+                      <div className="text-center py-8 text-xs text-rk-muted bg-white/[0.04] rounded-2xl">
                         Aucun jalon configuré pour ce projet.
                       </div>
                     ) : (
@@ -341,7 +341,7 @@ export const ClientPortalModal: React.FC = () => {
                                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                     : isCurrent
                                     ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                                    : 'bg-white/[0.04] text-slate-400 border border-rk-line-soft'
+                                    : 'bg-white/[0.04] text-rk-muted border border-rk-line-soft'
                                 }`}>
                                   {isDone ? <CheckCircle2 className="w-4 h-4" /> : `0${idx + 1}`}
                                 </div>
@@ -356,17 +356,17 @@ export const ClientPortalModal: React.FC = () => {
                                         ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                         : isCurrent
                                         ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                                        : 'bg-slate-800 text-slate-400'
+                                        : 'bg-slate-800 text-rk-muted'
                                     }`}>
                                       {isDone ? 'Validé (BAT Conforme)' : isCurrent ? 'En cours de production' : 'En attente'}
                                     </span>
                                   </div>
-                                  <p className="text-xs text-slate-300 mt-1 font-light">
+                                  <p className="text-xs text-rk-text-secondary mt-1 font-light">
                                     {milestone.description || "Livrable contractuel inclus dans votre forfait."}
                                   </p>
                                   {milestone.echeance && (
-                                    <div className="text-[11px] font-mono text-slate-400 mt-1 flex items-center gap-1">
-                                      <Clock className="w-3 h-3 text-slate-400" />
+                                    <div className="text-[11px] font-mono text-rk-muted mt-1 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 text-rk-muted" />
                                       <span>Échéance visée : {milestone.echeance}</span>
                                     </div>
                                   )}
@@ -390,7 +390,7 @@ export const ClientPortalModal: React.FC = () => {
                                     setFeedbackType('demande_ajustement');
                                     setFeedbackText(`Concernant le livrable "${milestone.titre}" : `);
                                   }}
-                                  className="bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-rk-line-soft px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                                  className="bg-white/[0.04] hover:bg-white/[0.08] text-rk-text-secondary border border-rk-line-soft px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer"
                                 >
                                   <span>Demander un ajustement</span>
                                 </button>
@@ -413,7 +413,7 @@ export const ClientPortalModal: React.FC = () => {
                       <h4 className="font-serif text-lg font-bold text-white mt-0.5">
                         {currentProject?.sorties_terrain_effectuees || 0} sur {currentProject?.sorties_terrain_total || 9} sessions de captation réalisées
                       </h4>
-                      <p className="text-xs text-slate-300 mt-1 font-light">
+                      <p className="text-xs text-rk-text-secondary mt-1 font-light">
                         Nos équipes de vidéastes et photographes se déplacent dans vos locaux pour alimenter vos catalogues et réseaux.
                       </p>
                     </div>
@@ -456,7 +456,7 @@ export const ClientPortalModal: React.FC = () => {
                           {visit.objectif}
                         </div>
 
-                        <div className="text-xs text-slate-400 space-y-1 pt-1 border-t border-rk-line-soft font-mono">
+                        <div className="text-xs text-rk-muted space-y-1 pt-1 border-t border-rk-line-soft font-mono">
                           <div>Lieu : {visit.lieu}</div>
                           <div>Date : {visit.date}</div>
                           <div>Intervenant : {visit.intervenant}</div>
@@ -479,14 +479,14 @@ export const ClientPortalModal: React.FC = () => {
                     <h4 className="font-serif text-base font-bold text-white">
                       Fil de Discussion & Remarques sur le Projet
                     </h4>
-                    <p className="text-xs text-slate-400 font-light">
+                    <p className="text-xs text-rk-muted font-light">
                       Posez une question à l'équipe technique ou demandez un ajustement.
                     </p>
                   </div>
 
                   <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                     {feedbacks.length === 0 ? (
-                      <div className="text-center py-8 text-xs text-slate-400 bg-white/[0.04] rounded-2xl font-light">
+                      <div className="text-center py-8 text-xs text-rk-muted bg-white/[0.04] rounded-2xl font-light">
                         Aucun message pour l'instant. Utilisez le formulaire ci-dessous pour transmettre vos remarques.
                       </div>
                     ) : (
@@ -505,9 +505,9 @@ export const ClientPortalModal: React.FC = () => {
                               <span className={`font-bold ${isClient ? 'text-emerald-400' : 'text-blue-400'}`}>
                                 {fb.auteur} {isClient ? '(Client)' : '(Équipe Arckaton)'}
                               </span>
-                              <span className="font-mono text-slate-400 text-[11px]">{fb.date}</span>
+                              <span className="font-mono text-rk-muted text-[11px]">{fb.date}</span>
                             </div>
-                            <p className="text-slate-200 leading-relaxed font-light">
+                            <p className="text-rk-text leading-relaxed font-light">
                               {fb.message}
                             </p>
                           </div>
@@ -519,7 +519,7 @@ export const ClientPortalModal: React.FC = () => {
                   {/* New Message Input Form */}
                   <form onSubmit={handleSendFeedback} className="p-4 rounded-2xl bg-rk-surface border border-rk-line space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs text-slate-400">Type de message :</span>
+                      <span className="text-xs text-rk-muted">Type de message :</span>
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
@@ -527,7 +527,7 @@ export const ClientPortalModal: React.FC = () => {
                           className={`text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                             feedbackType === 'demande_ajustement'
                               ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                              : 'bg-white/[0.04] text-slate-400 border-rk-line-soft'
+                              : 'bg-white/[0.04] text-rk-muted border-rk-line-soft'
                           }`}
                         >
                           Demande d'ajustement
@@ -539,7 +539,7 @@ export const ClientPortalModal: React.FC = () => {
                           className={`text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                             feedbackType === 'validation'
                               ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                              : 'bg-white/[0.04] text-slate-400 border-rk-line-soft'
+                              : 'bg-white/[0.04] text-rk-muted border-rk-line-soft'
                           }`}
                         >
                           Validation formelle
@@ -551,7 +551,7 @@ export const ClientPortalModal: React.FC = () => {
                           className={`text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                             feedbackType === 'question'
                               ? 'bg-blue-500/10 text-blue-300 border-blue-500/30'
-                              : 'bg-white/[0.04] text-slate-400 border-rk-line-soft'
+                              : 'bg-white/[0.04] text-rk-muted border-rk-line-soft'
                           }`}
                         >
                           Simple question
@@ -564,12 +564,12 @@ export const ClientPortalModal: React.FC = () => {
                       value={feedbackText}
                       onChange={(e) => setFeedbackText(e.target.value)}
                       placeholder="Écrivez votre message ou vos ajustements souhaités ici..."
-                      className="w-full p-3 rounded-xl bg-rk-base border border-rk-line text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full p-3 rounded-xl bg-rk-base border border-rk-line text-xs text-white placeholder:text-rk-muted focus:outline-none focus:border-emerald-500/50"
                       required
                     />
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-slate-400 font-mono">
+                      <span className="text-[11px] text-rk-muted font-mono">
                         Transmis en temps réel au Pôle Client et Tech
                       </span>
 
@@ -588,14 +588,14 @@ export const ClientPortalModal: React.FC = () => {
             )}
 
             {/* Modal Bottom Footer */}
-            <div className="px-6 py-3 bg-rk-base border-t border-rk-line flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2 flex-shrink-0 font-mono">
+            <div className="px-6 py-3 bg-rk-base border-t border-rk-line flex flex-col sm:flex-row sm:items-center justify-between text-xs text-rk-muted gap-2 flex-shrink-0 font-mono">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span>Serveur Arckaton OS Connecté • Support 24/7 disponible</span>
               </div>
 
               <div className="flex items-center gap-4">
-                <span className="text-slate-300">Yaoundé, Mimboman</span>
+                <span className="text-rk-text-secondary">Yaoundé, Mimboman</span>
                 <a
                   href="tel:+237681462982"
                   className="text-emerald-400 hover:underline flex items-center gap-1"

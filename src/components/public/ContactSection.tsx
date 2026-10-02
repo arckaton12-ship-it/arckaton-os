@@ -62,7 +62,7 @@ export const ContactSection: React.FC = () => {
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-[1.15]">
                 Parlons concrètement de votre système digital
               </h2>
-              <p className="text-slate-400 text-sm sm:text-base mt-3 leading-relaxed font-light">
+              <p className="text-rk-muted text-sm sm:text-base mt-3 leading-relaxed font-light">
                 Notre bureau à Yaoundé (Mimboman) et nos équipes à distance vous répondent sous 24h ouvrées. Choisissez le canal qui vous convient le mieux.
               </p>
             </div>
@@ -78,7 +78,7 @@ export const ContactSection: React.FC = () => {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-mono text-slate-400">WhatsApp & Téléphone Officiel</div>
+                  <div className="text-xs font-mono text-rk-muted">WhatsApp & Téléphone Officiel</div>
                   <div className="text-base font-semibold text-white mt-0.5">{OFFICIAL_KNOWLEDGE.agency.phone}</div>
                   <div className="text-[11px] text-emerald-400 font-mono">Réponse sous 2h ouvrées</div>
                 </div>
@@ -92,9 +92,9 @@ export const ContactSection: React.FC = () => {
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-mono text-slate-400">Courriel Professionnel</div>
+                  <div className="text-xs font-mono text-rk-muted">Courriel Professionnel</div>
                   <div className="text-base font-semibold text-white mt-0.5">{OFFICIAL_KNOWLEDGE.agency.email}</div>
-                  <div className="text-[11px] text-slate-400 font-mono">Devis formels & cahiers des charges</div>
+                  <div className="text-[11px] text-rk-muted font-mono">Devis formels & cahiers des charges</div>
                 </div>
               </a>
 
@@ -103,9 +103,9 @@ export const ContactSection: React.FC = () => {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-mono text-slate-400">Bureau Principal</div>
+                  <div className="text-xs font-mono text-rk-muted">Bureau Principal</div>
                   <div className="text-base font-semibold text-white mt-0.5">{OFFICIAL_KNOWLEDGE.agency.location}</div>
-                  <div className="text-[11px] text-slate-400 font-mono">Accueil sur rendez-vous</div>
+                  <div className="text-[11px] text-rk-muted font-mono">Accueil sur rendez-vous</div>
                 </div>
               </div>
             </div>
@@ -121,14 +121,14 @@ export const ContactSection: React.FC = () => {
                     <h3 className="font-serif text-2xl font-bold text-white">
                       Envoyer un message direct
                     </h3>
-                    <p className="text-xs text-slate-400 font-light">
+                    <p className="text-xs text-rk-muted font-light">
                       Remplissez ces informations clés pour être mis en relation avec le pôle adéquat.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Votre nom ou entreprise *
                       </label>
                       <input
@@ -142,7 +142,7 @@ export const ContactSection: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Numéro WhatsApp * (avec indicatif)
                       </label>
                       <input
@@ -158,7 +158,7 @@ export const ContactSection: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Email professionnel
                       </label>
                       <input
@@ -171,7 +171,7 @@ export const ContactSection: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Pays / Ville d'exercice
                       </label>
                       <input
@@ -185,7 +185,7 @@ export const ContactSection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                    <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                       Projet ou forfait souhaité
                     </label>
                     <select
@@ -203,7 +203,7 @@ export const ContactSection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                    <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                       Précisions sur votre besoin
                     </label>
                     <textarea
@@ -233,7 +233,7 @@ export const ContactSection: React.FC = () => {
                         </>
                       )}
                     </button>
-                    <p className="text-[11px] text-center text-slate-400 font-mono mt-2.5">
+                    <p className="text-[11px] text-center text-rk-muted font-mono mt-2.5">
                       Réponse garantie sous 24h ouvrées • Aucun engagement financier initial
                     </p>
                   </div>
@@ -247,7 +247,7 @@ export const ContactSection: React.FC = () => {
                     <h4 className="font-serif text-2xl font-bold text-white">
                       Message bien reçu !
                     </h4>
-                    <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                    <p className="text-xs text-rk-text-secondary max-w-md mx-auto leading-relaxed">
                       Merci <strong className="text-white">{name}</strong>. Nos équipes ont bien enregistré votre demande pour <strong className="text-emerald-400">{projectType}</strong>. Votre dossier est désormais visible dans Arckaton OS.
                     </p>
                   </div>
@@ -265,7 +265,7 @@ export const ContactSection: React.FC = () => {
 
                     <button
                       onClick={() => setSubmitted(false)}
-                      className="text-xs text-slate-400 hover:text-white cursor-pointer"
+                      className="text-xs text-rk-muted hover:text-white cursor-pointer"
                     >
                       Envoyer un autre message
                     </button>

@@ -50,7 +50,7 @@ export const CrmSection: React.FC = () => {
     qualifie: { label: 'Besoins Qualifiés', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
     devis_envoye: { label: 'Devis Transmis', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' },
     converti: { label: 'Client Signé ðŸŽ‰', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
-    archive: { label: 'Archivé', color: 'bg-slate-700 text-slate-400 border-slate-600' },
+    archive: { label: 'Archivé', color: 'bg-slate-700 text-rk-muted border-slate-600' },
     perdu: { label: 'Sans Suite', color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' }
   };
 
@@ -85,7 +85,7 @@ export const CrmSection: React.FC = () => {
           <h2 className="font-serif text-2xl font-bold text-white">
             CRM & Ventes Arckaton OS
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-rk-muted mt-1">
             Traitez les opportunités entrantes, générez des devis chiffrés et convertissez les leads en projets actifs.
           </p>
         </div>
@@ -93,12 +93,12 @@ export const CrmSection: React.FC = () => {
         {/* Global Leads stats */}
         <div className="flex items-center gap-2">
           <div className="bg-rk-bg border border-rk-line px-4 py-2 rounded-xl text-xs font-mono">
-            <span className="text-slate-400">Total Leads : </span>
+            <span className="text-rk-muted">Total Leads : </span>
             <span className="text-white font-bold">{leads.length}</span>
           </div>
 
           <div className="bg-rk-bg border border-rk-line px-4 py-2 rounded-xl text-xs font-mono">
-            <span className="text-slate-400">Signés : </span>
+            <span className="text-rk-muted">Signés : </span>
             <span className="text-emerald-400 font-bold">{leads.filter(l => l.statut === 'converti').length}</span>
           </div>
         </div>
@@ -107,7 +107,7 @@ export const CrmSection: React.FC = () => {
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-rk-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
@@ -137,7 +137,7 @@ export const CrmSection: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {filteredLeads.length === 0 ? (
-          <div className="text-center py-12 text-slate-400 bg-rk-panel rounded-2xl border border-rk-line-soft">
+          <div className="text-center py-12 text-rk-muted bg-rk-panel rounded-2xl border border-rk-line-soft">
             Aucun prospect ne correspond à ces critères.
           </div>
         ) : (
@@ -164,16 +164,16 @@ export const CrmSection: React.FC = () => {
                       <div className="font-serif text-base font-bold text-white flex items-center gap-2">
                         <span>{l.name}</span>
                         {l.country && (
-                          <span className="text-[11px] font-mono text-slate-400 bg-white/5 px-2 py-0.2 rounded">
+                          <span className="text-[11px] font-mono text-rk-muted bg-white/5 px-2 py-0.2 rounded">
                             {l.country}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-400 font-mono flex items-center gap-2 mt-0.5">
-                        <Phone className="w-3 h-3 text-slate-400" />
+                      <div className="text-xs text-rk-muted font-mono flex items-center gap-2 mt-0.5">
+                        <Phone className="w-3 h-3 text-rk-muted" />
                         <span>{l.phone}</span>
                         <span>•</span>
-                        <Clock className="w-3 h-3 text-slate-400" />
+                        <Clock className="w-3 h-3 text-rk-muted" />
                         <span>{l.created_at}</span>
                       </div>
                     </div>
@@ -194,24 +194,24 @@ export const CrmSection: React.FC = () => {
                 {/* Project details & Message */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                   <div className="md:col-span-2 space-y-1">
-                    <span className="text-[11px] font-mono uppercase text-slate-400">Projet demandé :</span>
+                    <span className="text-[11px] font-mono uppercase text-rk-muted">Projet demandé :</span>
                     <div className="font-semibold text-white text-sm">{l.project_type}</div>
                     {l.message && (
-                      <p className="text-slate-300 bg-rk-bg p-3 rounded-xl border border-rk-line-soft leading-relaxed mt-1">
+                      <p className="text-rk-text-secondary bg-rk-bg p-3 rounded-xl border border-rk-line-soft leading-relaxed mt-1">
                         « {l.message} »
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[11px] font-mono uppercase text-slate-400">Budget / Forfait envisagé :</span>
+                    <span className="text-[11px] font-mono uppercase text-rk-muted">Budget / Forfait envisagé :</span>
                     <div className="font-serif text-sm font-bold text-emerald-400">
                       {l.budget || 'À cadrer lors du devis'}
                     </div>
 
                     {/* Status switcher */}
                     <div className="pt-2">
-                      <span className="text-[11px] font-mono text-slate-400 block mb-1">Changer l'état :</span>
+                      <span className="text-[11px] font-mono text-rk-muted block mb-1">Changer l'état :</span>
                       <select
                         value={l.statut}
                         onChange={(e) => updateLeadStatus(l.id, e.target.value as LeadStatus)}
@@ -245,7 +245,7 @@ export const CrmSection: React.FC = () => {
                     {/* Generate Quote */}
                     <button
                       onClick={() => setActiveModal({ lead: l, type: 'devis' })}
-                      className="bg-white/5 hover:bg-white/10 text-slate-200 border border-rk-line px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="bg-white/5 hover:bg-white/10 text-rk-text border border-rk-line px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <FileText className="w-3.5 h-3.5 text-blue-400" />
                       <span>Générer Devis</span>
@@ -254,7 +254,7 @@ export const CrmSection: React.FC = () => {
                     {/* Proforma Invoice */}
                     <button
                       onClick={() => setActiveModal({ lead: l, type: 'facture' })}
-                      className="bg-white/5 hover:bg-white/10 text-slate-200 border border-rk-line px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="bg-white/5 hover:bg-white/10 text-rk-text border border-rk-line px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Receipt className="w-3.5 h-3.5 text-amber-400" />
                       <span>Facture Proforma</span>

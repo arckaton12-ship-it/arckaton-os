@@ -115,7 +115,7 @@ export const LeadsTab: React.FC = () => {
               {filteredLeads.length} dossiers
             </span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-rk-muted mt-1">
             Gérez les prospects issus du site public, des formulaires de devis et des essais ARKA-PME.
           </p>
         </div>
@@ -133,7 +133,7 @@ export const LeadsTab: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         {/* Search */}
         <div className="md:col-span-6 relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-rk-muted" />
           <input
             type="text"
             value={searchQuery}
@@ -182,7 +182,7 @@ export const LeadsTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[750px]">
             <thead>
-              <tr className="border-b border-rk-line bg-rk-bg text-slate-400 font-mono text-[11px]">
+              <tr className="border-b border-rk-line bg-rk-bg text-rk-muted font-mono text-[11px]">
                 <th className="py-3 px-4">Client / Entreprise</th>
                 <th className="py-3 px-4">Système Demandé</th>
                 <th className="py-3 px-4">Pôle Attribué</th>
@@ -191,7 +191,7 @@ export const LeadsTab: React.FC = () => {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rk-line-soft text-slate-300">
+            <tbody className="divide-y divide-rk-line-soft text-rk-text-secondary">
               {isDataFetching ? (
                 <>
                   <TableRowSkeleton />
@@ -202,7 +202,7 @@ export const LeadsTab: React.FC = () => {
                 </>
               ) : filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-slate-400">
+                  <td colSpan={6} className="text-center py-12 text-rk-muted">
                     Aucun prospect ne correspond à ces critères de recherche.
                   </td>
                 </tr>
@@ -217,8 +217,8 @@ export const LeadsTab: React.FC = () => {
                       {/* Name & Origin */}
                       <td className="py-3.5 px-4">
                         <div className="font-semibold text-white">{l.name}</div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                          <Globe className="w-3 h-3 text-slate-400" />
+                        <div className="text-[11px] text-rk-muted flex items-center gap-1.5 mt-0.5">
+                          <Globe className="w-3 h-3 text-rk-muted" />
                           <span>{l.country || 'Cameroun'}</span>
                           <span>•</span>
                           <span className="font-mono text-[11px]">{new Date(l.created_at).toLocaleDateString()}</span>
@@ -227,13 +227,13 @@ export const LeadsTab: React.FC = () => {
 
                       {/* Project & Budget */}
                       <td className="py-3.5 px-4">
-                        <div className="font-medium text-slate-200">{l.project_type}</div>
+                        <div className="font-medium text-rk-text">{l.project_type}</div>
                         <div className="text-[11px] text-emerald-400 font-mono mt-0.5">{l.budget}</div>
                       </td>
 
                       {/* Pole */}
                       <td className="py-3.5 px-4">
-                        <span className="font-mono text-[11px] bg-white/5 px-2.5 py-1 rounded border border-rk-line-soft text-slate-300">
+                        <span className="font-mono text-[11px] bg-white/5 px-2.5 py-1 rounded border border-rk-line-soft text-rk-text-secondary">
                           {l.pole_assigned}
                         </span>
                       </td>
@@ -259,7 +259,7 @@ export const LeadsTab: React.FC = () => {
                             l.statut === 'contacte' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
                             l.statut === 'devis_envoye' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' :
                             l.statut === 'converti' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold' :
-                            'bg-slate-800 text-slate-400 border-rk-line'
+                            'bg-slate-800 text-rk-muted border-rk-line'
                           }`}
                         >
                           <option value="nouveau">Nouveau</option>
@@ -288,7 +288,7 @@ export const LeadsTab: React.FC = () => {
                         <div className="inline-flex items-center gap-1.5">
                           <button
                             onClick={() => setActiveLeadModal(l)}
-                            className="bg-white/5 hover:bg-white/10 text-slate-300 px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+                            className="bg-white/5 hover:bg-white/10 text-rk-text-secondary px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
                             title="Détails du projet"
                           >
                             Détails
@@ -330,35 +330,35 @@ export const LeadsTab: React.FC = () => {
               <button
                 onClick={() => setActiveLeadModal(null)}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-300">
+            <div className="space-y-3 text-xs text-rk-text-secondary">
               <div className="grid grid-cols-2 gap-2 bg-rk-bg p-3 rounded-xl border border-rk-line-soft">
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 block">Téléphone :</span>
+                  <span className="text-[11px] font-mono text-rk-muted block">Téléphone :</span>
                   <span className="text-white font-semibold">{activeLeadModal.phone}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 block">Email :</span>
+                  <span className="text-[11px] font-mono text-rk-muted block">Email :</span>
                   <span className="text-white">{activeLeadModal.email || 'Non renseigné'}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 block">Budget :</span>
+                  <span className="text-[11px] font-mono text-rk-muted block">Budget :</span>
                   <span className="text-emerald-400 font-mono font-semibold">{activeLeadModal.budget}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 block">Pôle :</span>
+                  <span className="text-[11px] font-mono text-rk-muted block">Pôle :</span>
                   <span className="text-blue-400 font-mono">{activeLeadModal.pole_assigned}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-xs font-mono text-slate-400 block mb-1">Message & Cahier des charges :</span>
-                <div className="p-3 rounded-xl bg-rk-bg border border-rk-line-soft text-slate-200 whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed">
+                <span className="text-xs font-mono text-rk-muted block mb-1">Message & Cahier des charges :</span>
+                <div className="p-3 rounded-xl bg-rk-bg border border-rk-line-soft text-rk-text whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed">
                   {activeLeadModal.message}
                 </div>
               </div>
@@ -367,7 +367,7 @@ export const LeadsTab: React.FC = () => {
             <div className="pt-2 flex items-center justify-between">
               <button
                 onClick={() => setActiveLeadModal(null)}
-                className="text-xs text-slate-400 hover:text-white px-3 py-2 cursor-pointer"
+                className="text-xs text-rk-muted hover:text-white px-3 py-2 cursor-pointer"
               >
                 Fermer
               </button>
@@ -401,7 +401,7 @@ export const LeadsTab: React.FC = () => {
               <button
                 onClick={() => setIsCreateModalOpen(false)}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -409,7 +409,7 @@ export const LeadsTab: React.FC = () => {
 
             <form onSubmit={handleCreateLead} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Nom / Entreprise *</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Nom / Entreprise *</label>
                 <input
                   type="text"
                   required
@@ -421,7 +421,7 @@ export const LeadsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Téléphone WhatsApp *</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Téléphone WhatsApp *</label>
                 <input
                   type="tel"
                   required
@@ -434,7 +434,7 @@ export const LeadsTab: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Pôle Attribué</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Pôle Attribué</label>
                   <select
                     value={newPole}
                     onChange={(e) => setNewPole(e.target.value as Pole)}
@@ -450,7 +450,7 @@ export const LeadsTab: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Budget Estimé</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Budget Estimé</label>
                   <input
                     type="text"
                     value={newBudget}
@@ -461,7 +461,7 @@ export const LeadsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Type de Projet</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Type de Projet</label>
                 <input
                   type="text"
                   value={newProjectType}
@@ -471,7 +471,7 @@ export const LeadsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Notes internes</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Notes internes</label>
                 <textarea
                   rows={2}
                   value={newNotes}
@@ -485,7 +485,7 @@ export const LeadsTab: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="text-slate-400 hover:text-white px-3 py-2"
+                  className="text-rk-muted hover:text-white px-3 py-2"
                 >
                   Annuler
                 </button>

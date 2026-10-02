@@ -93,7 +93,7 @@ export const TrialModal: React.FC = () => {
                   <h3 className="font-serif text-lg font-bold text-white">
                     Démarrer l'essai ARKA-PME (30 jours)
                   </h3>
-                  <p className="text-[11px] text-slate-400 font-mono">
+                  <p className="text-[11px] text-rk-muted font-mono">
                     100% gratuit • Sans engagement • Sans carte bancaire
                   </p>
                 </div>
@@ -102,7 +102,7 @@ export const TrialModal: React.FC = () => {
               <button
                 onClick={handleClose}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-rk-muted hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -128,7 +128,7 @@ export const TrialModal: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                    <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                       Nom de votre commerce / Entreprise *
                     </label>
                     <input
@@ -143,7 +143,7 @@ export const TrialModal: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Numéro WhatsApp * (pour accès)
                       </label>
                       <input
@@ -157,7 +157,7 @@ export const TrialModal: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Ville principale
                       </label>
                       <input
@@ -171,7 +171,7 @@ export const TrialModal: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                    <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                       Secteur d'activité
                     </label>
                     <select
@@ -203,7 +203,7 @@ export const TrialModal: React.FC = () => {
                         </>
                       )}
                     </button>
-                    <p className="text-[11px] text-center text-slate-400 font-mono mt-2.5">
+                    <p className="text-[11px] text-center text-rk-muted font-mono mt-2.5">
                       Nos techniciens préparent votre base de test personnalisée sous 2h.
                     </p>
                   </div>
@@ -217,7 +217,7 @@ export const TrialModal: React.FC = () => {
                     <h4 className="font-serif text-2xl font-bold text-white">
                       Demande d'accès confirmée !
                     </h4>
-                    <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto font-light leading-relaxed">
+                    <p className="text-xs sm:text-sm text-rk-text-secondary max-w-md mx-auto font-light leading-relaxed">
                       Votre compte d'évaluation pour <strong className="text-white">{companyName}</strong> est en cours d'initialisation sur le serveur ARKA-PME.
                     </p>
                   </div>
@@ -235,7 +235,7 @@ export const TrialModal: React.FC = () => {
 
                     <button
                       onClick={handleClose}
-                      className="text-xs text-slate-400 hover:text-white cursor-pointer"
+                      className="text-xs text-rk-muted hover:text-white cursor-pointer"
                     >
                       Fermer
                     </button>

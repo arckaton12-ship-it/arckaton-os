@@ -32,13 +32,13 @@ export const DocumentLetterhead: React.FC<{ compact?: boolean }> = ({ compact })
           <div className="text-[10.5px] font-semibold tracking-wide" style={{ color: GREEN }}>
             {L.taglineLine1} · {L.taglineLine2}
           </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">
+          <div className="text-[10px] text-rk-muted mt-0.5">
             {L.relationship} de {L.parentName}
           </div>
         </div>
       </div>
 
-      <div className="text-right text-[10.5px] text-slate-600 leading-relaxed">
+      <div className="text-right text-[10.5px] text-rk-muted leading-relaxed">
         <div className="font-semibold" style={{ color: NAVY }}>
           {L.agencyLocation}
         </div>
@@ -65,7 +65,7 @@ export const DocumentLetterhead: React.FC<{ compact?: boolean }> = ({ compact })
  * donc jamais recouvrir le contenu.
  */
 export const DocumentLegalFooter: React.FC = () => (
-  <footer className="invoice-legal mt-6 border-t border-slate-200 pt-3 text-[9px] leading-relaxed text-slate-500">
+  <footer className="invoice-legal mt-6 border-t border-slate-200 pt-3 text-[9px] leading-relaxed text-rk-muted">
     <div className="font-semibold text-slate-700">
       {L.agencyName} — {L.relationship} de {L.parentName}
     </div>
@@ -73,7 +73,7 @@ export const DocumentLegalFooter: React.FC = () => (
       Agence : {L.agencyLocation} · Siège social : {L.parentLocation}
     </div>
     <div>
-      RC : {L.rc} <span className="mx-1 text-slate-300">|</span> NIU : {L.niu}
+      RC : {L.rc} <span className="mx-1 text-rk-text-secondary">|</span> NIU : {L.niu}
     </div>
   </footer>
 );

@@ -23,7 +23,7 @@ export const PublicSite: React.FC = () => {
   const { theme } = useApp();
 
   return (
-    <div className={`min-h-screen bg-rk-bg text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950 transition-colors duration-300 ${theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
+    <div className={`min-h-screen bg-rk-bg text-rk-text flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950 transition-colors duration-300 ${theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       {/* Top Fixed Header */}
       <Header />
 

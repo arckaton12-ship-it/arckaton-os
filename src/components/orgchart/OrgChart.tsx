@@ -69,7 +69,7 @@ const NiveauBadge: React.FC<{
     >
       Niveau {niveau} • {libelle}
     </span>
-    <p className="text-[11px] text-slate-400 mt-1.5">{detail}</p>
+    <p className="text-[11px] text-rk-muted mt-1.5">{detail}</p>
   </div>
 );
 
@@ -96,7 +96,7 @@ const CompteurHud: React.FC<{
           : 'text-slate-900';
   return (
     <div className="bg-white border border-slate-200 p-3.5 rounded-xl">
-      <div className="text-xs text-slate-500">{libelle}</div>
+      <div className="text-xs text-rk-muted">{libelle}</div>
       <div className={`text-xl font-semibold mt-1 ${couleur}`}>{valeur}</div>
     </div>
   );
@@ -221,7 +221,7 @@ export const OrgChart: React.FC = () => {
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Organigramme
             </h2>
-            <p className="text-sm text-slate-400 mt-2 max-w-2xl leading-relaxed">
+            <p className="text-sm text-rk-muted mt-2 max-w-2xl leading-relaxed">
               Quatre niveaux : la direction générale, les directeurs de pôle, les équipes
               opérationnelles et le réseau de freelances. Chaque poste affiche le membre
               qui l'occupe, ou « Vacant » si personne ne le pourvoit encore.
@@ -236,7 +236,7 @@ export const OrgChart: React.FC = () => {
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
                   viewMode === 'nodal'
                     ? 'bg-emerald-500 text-slate-950 font-semibold'
-                    : 'text-slate-500 hover:text-slate-700'
+                    : 'text-rk-muted hover:text-slate-700'
                 }`}
               >
                 <Network className="w-4 h-4" />
@@ -247,7 +247,7 @@ export const OrgChart: React.FC = () => {
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
                   viewMode === 'matrix'
                     ? 'bg-blue-600 text-white font-semibold'
-                    : 'text-slate-500 hover:text-slate-700'
+                    : 'text-rk-muted hover:text-slate-700'
                 }`}
               >
                 <Layers className="w-4 h-4" />
@@ -308,16 +308,16 @@ export const OrgChart: React.FC = () => {
                     <PhaseTag phase={p.phase} />
                   </div>
 
-                  <div className="text-xs font-mono text-slate-400">{p.titre}</div>
+                  <div className="text-xs font-mono text-rk-muted">{p.titre}</div>
                   <div className="text-lg font-serif font-bold text-white group-hover:text-emerald-300 transition-colors">
                     {p.titulaire}
                   </div>
-                  <p className="text-xs text-slate-300 mt-2 font-light leading-relaxed">
+                  <p className="text-xs text-rk-text-secondary mt-2 font-light leading-relaxed">
                     {p.description}
                   </p>
 
                   <div className="mt-4 pt-3 border-t border-rk-line flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-slate-400">Charge : {p.charge_estimee}</span>
+                    <span className="text-rk-muted">Charge : {p.charge_estimee}</span>
                     <span className="text-emerald-400 flex items-center gap-1">
                       Détails <ArrowRight className="w-3 h-3" />
                     </span>
@@ -353,14 +353,14 @@ export const OrgChart: React.FC = () => {
                       <PhaseTag phase={p.phase} />
                     </div>
 
-                    <div className="text-xs font-mono text-slate-400">{p.titre}</div>
+                    <div className="text-xs font-mono text-rk-muted">{p.titre}</div>
                     <div className="text-base font-serif font-bold text-white group-hover:text-blue-300 transition-colors">
                       {p.titulaire}
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <div className="mt-3 pt-2.5 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-rk-muted">
                       <span>Charge : {p.charge_estimee}</span>
-                      <span className="text-slate-300 group-hover:text-white">Détails →</span>
+                      <span className="text-rk-text-secondary group-hover:text-white">Détails →</span>
                     </div>
                   </motion.button>
                 );
@@ -386,7 +386,7 @@ export const OrgChart: React.FC = () => {
                         {col.libelle}
                       </span>
                       {col.directeurs.length > 0 && (
-                        <div className="text-[10px] text-slate-500 mt-1.5">
+                        <div className="text-[10px] text-rk-muted mt-1.5">
                           Rattaché à {col.directeurs.join(' et ')}
                         </div>
                       )}
@@ -413,7 +413,7 @@ export const OrgChart: React.FC = () => {
                             <PhaseTag phase={p.phase} compact />
                           </div>
                           <div className="text-xs font-semibold text-white">{p.titre}</div>
-                          <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                          <div className="text-[11px] text-rk-muted font-mono mt-0.5">
                             {p.titulaire}
                           </div>
                         </motion.button>
@@ -433,7 +433,7 @@ export const OrgChart: React.FC = () => {
                     key={p.id}
                     type="button"
                     onClick={() => setActivePoste(p)}
-                    className="text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-rk-bg border border-rk-line text-slate-300 hover:border-rk-line-bold"
+                    className="text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-rk-bg border border-rk-line text-rk-text-secondary hover:border-rk-line-bold"
                   >
                     {p.titre}
                   </button>
@@ -460,8 +460,8 @@ export const OrgChart: React.FC = () => {
                   className="text-left rounded-xl p-3.5 border border-dashed border-rk-line-bold bg-transparent hover:border-rk-line-bold cursor-pointer transition-all"
                 >
                   <div className="text-xs font-semibold text-white">{p.titre}</div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">{p.titulaire}</div>
-                  <p className="text-[10px] text-slate-400 mt-2 leading-relaxed line-clamp-3">
+                  <div className="text-[11px] text-rk-muted font-mono mt-0.5">{p.titulaire}</div>
+                  <p className="text-[10px] text-rk-muted mt-2 leading-relaxed line-clamp-3">
                     {p.description}
                   </p>
                 </motion.button>
@@ -482,7 +482,7 @@ export const OrgChart: React.FC = () => {
                   Télémétrie des Flux & Transferts de Données Inter-Membres
                 </h3>
               </div>
-              <span className="text-xs font-mono text-slate-400 bg-white/[0.04] px-3 py-1 rounded-full border border-rk-line self-start sm:self-auto">
+              <span className="text-xs font-mono text-rk-muted bg-white/[0.04] px-3 py-1 rounded-full border border-rk-line self-start sm:self-auto">
                 {dataTransfers.length} paquets archivés
               </span>
             </div>
@@ -502,12 +502,12 @@ export const OrgChart: React.FC = () => {
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-bold text-white">{dt.from_member_name}</span>
-                          <span className="text-slate-400 font-mono">({dt.from_role})</span>
+                          <span className="text-rk-muted font-mono">({dt.from_role})</span>
                           <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
                           <span className="font-bold text-white">{dt.to_member_name}</span>
-                          <span className="text-slate-400 font-mono">({dt.to_role})</span>
+                          <span className="text-rk-muted font-mono">({dt.to_role})</span>
                         </div>
-                        <p className="text-slate-300 mt-1 font-light leading-relaxed">
+                        <p className="text-rk-text-secondary mt-1 font-light leading-relaxed">
                           {dt.payload_summary}
                         </p>
                       </div>
@@ -517,8 +517,8 @@ export const OrgChart: React.FC = () => {
                       <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
                         {dt.clearance_level}
                       </span>
-                      <span className="text-slate-400">{dt.timestamp}</span>
-                      <span className="text-slate-400 hidden lg:inline" title="Empreinte de contrôle : permet de repérer une modification de l'entrée, ce n'est pas un chiffrement.">
+                      <span className="text-rk-muted">{dt.timestamp}</span>
+                      <span className="text-rk-muted hidden lg:inline" title="Empreinte de contrôle : permet de repérer une modification de l'entrée, ce n'est pas un chiffrement.">
                         {dt.hash || 'empreinte en cours'}
                       </span>
                     </div>
@@ -537,14 +537,14 @@ export const OrgChart: React.FC = () => {
           {/* Filters */}
           <div className="bg-rk-panel border border-rk-line p-4 rounded-2xl space-y-4">
             <div>
-              <span className="text-[11px] font-mono text-slate-400 block mb-2">Filtrer par Phase de Croissance :</span>
+              <span className="text-[11px] font-mono text-rk-muted block mb-2">Filtrer par Phase de Croissance :</span>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedPhase('all')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                     selectedPhase === 'all'
                       ? 'bg-blue-600 text-white font-bold'
-                      : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                      : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
                   }`}
                 >
                   Toutes les Phases (17)
@@ -556,7 +556,7 @@ export const OrgChart: React.FC = () => {
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                       selectedPhase === ph
                         ? 'bg-blue-600 text-white font-bold'
-                        : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                        : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
                     }`}
                   >
                     Phase {ph}
@@ -582,11 +582,11 @@ export const OrgChart: React.FC = () => {
                       <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
                         {p.pole}
                       </span>
-                      <span className="text-xs font-mono text-slate-400">Phase {p.phase}</span>
+                      <span className="text-xs font-mono text-rk-muted">Phase {p.phase}</span>
                     </div>
                     <h4 className="font-serif text-lg font-bold text-white">{p.titre}</h4>
                     <div className="text-xs font-mono text-emerald-400 mt-1">{p.titulaire}</div>
-                    <p className="text-xs text-slate-300 mt-2 font-light line-clamp-2">{p.description}</p>
+                    <p className="text-xs text-rk-text-secondary mt-2 font-light line-clamp-2">{p.description}</p>
                   </div>
                 );
               })}
@@ -612,7 +612,7 @@ export const OrgChart: React.FC = () => {
               <button
                 onClick={() => setActivePoste(null)}
                 aria-label="Fermer"
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-2"
+                className="absolute top-5 right-5 text-rk-muted hover:text-white p-2"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -621,19 +621,19 @@ export const OrgChart: React.FC = () => {
                 <span className={`text-xs font-mono uppercase px-2.5 py-0.5 rounded border ${POLE_COLORS[activePoste.pole].bg} ${POLE_COLORS[activePoste.pole].border} ${POLE_COLORS[activePoste.pole].text}`}>
                   {activePoste.pole}
                 </span>
-                <span className="text-xs font-mono text-slate-400">Phase {activePoste.phase}</span>
+                <span className="text-xs font-mono text-rk-muted">Phase {activePoste.phase}</span>
               </div>
 
               <h3 className="font-serif text-2xl font-bold text-white">{activePoste.titre}</h3>
               <div className="text-sm font-mono text-emerald-400 mt-1">Titulaire : {activePoste.titulaire}</div>
 
-              <div className="mt-4 p-4 rounded-2xl bg-rk-bg border border-rk-line-soft text-xs text-slate-300 font-light leading-relaxed">
+              <div className="mt-4 p-4 rounded-2xl bg-rk-bg border border-rk-line-soft text-xs text-rk-text-secondary font-light leading-relaxed">
                 {activePoste.description}
               </div>
 
               {/* Tasks currently assigned */}
               <div className="mt-6">
-                <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">
+                <div className="text-xs font-mono text-rk-muted uppercase tracking-wider mb-3">
                   Tâches actives sur Arckaton OS :
                 </div>
                 {getPosteTasks(activePoste.titulaire).length > 0 ? (
@@ -646,14 +646,14 @@ export const OrgChart: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-xs font-mono text-slate-400 bg-rk-bg p-3 rounded-xl">
+                  <div className="text-xs font-mono text-rk-muted bg-rk-bg p-3 rounded-xl">
                     Aucune tâche bloquante en cours pour ce membre.
                   </div>
                 )}
               </div>
 
               <div className="mt-8 pt-4 border-t border-rk-line flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Charge CPU estimée : {activePoste.charge_estimee}</span>
+                <span className="text-xs font-mono text-rk-muted">Charge CPU estimée : {activePoste.charge_estimee}</span>
                 <button
                   onClick={() => {
                     setConsoleFilter(activePoste.titulaire || '');
@@ -695,14 +695,14 @@ export const OrgChart: React.FC = () => {
                   <h3 className="font-serif text-xl font-bold text-white">
                     Console de consultation des flux
                   </h3>
-                  <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                  <p className="text-[11px] text-rk-text-secondary mt-1 leading-relaxed">
                     Chaque tâche transmise, message échangé, jalon validé ou retour client crée automatiquement
                     un fil. Cliquez sur un fil pour lire le contenu de l'échange.
                   </p>
                 </div>
                 <button
                   onClick={() => setIsConsole(false)}
-                  className="shrink-0 text-slate-300 hover:text-white p-2 rounded-lg hover:bg-white/10"
+                  className="shrink-0 text-rk-text-secondary hover:text-white p-2 rounded-lg hover:bg-white/10"
                   aria-label="Fermer"
                 >
                   <X className="w-5 h-5" aria-hidden="true" />
@@ -710,29 +710,29 @@ export const OrgChart: React.FC = () => {
               </div>
 
               <div className="px-6 py-3 border-b border-rk-line flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-mono text-slate-300 uppercase">Filtrer par membre</span>
+                <span className="text-[11px] font-mono text-rk-text-secondary uppercase">Filtrer par membre</span>
                 <input
                   value={consoleFilter}
                   onChange={(e) => setConsoleFilter(e.target.value)}
                   placeholder="Nom du membre…"
-                  className="flex-1 min-w-[160px] bg-rk-bg border border-rk-line rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-400"
+                  className="flex-1 min-w-[160px] bg-rk-bg border border-rk-line rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-rk-muted"
                 />
                 {consoleFilter && (
                   <button
                     onClick={() => setConsoleFilter('')}
-                    className="text-[11px] text-slate-300 hover:text-white underline"
+                    className="text-[11px] text-rk-text-secondary hover:text-white underline"
                   >
                     Réinitialiser
                   </button>
                 )}
-                <span className="text-[11px] font-mono text-slate-300 ml-auto">
+                <span className="text-[11px] font-mono text-rk-text-secondary ml-auto">
                   {filteredFlows.length} fil(s)
                 </span>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
                 {filteredFlows.length === 0 ? (
-                  <div className="text-center py-14 text-slate-300 space-y-2">
+                  <div className="text-center py-14 text-rk-text-secondary space-y-2">
                     <Share2 className="w-8 h-8 mx-auto opacity-50 text-blue-400" />
                     <p className="text-xs">
                       Aucun échange enregistré pour l'instant.
@@ -763,14 +763,14 @@ export const OrgChart: React.FC = () => {
                           <div className="min-w-0 flex-1">
                             <div className="text-xs text-white font-semibold truncate">
                               {f.from_member_name}
-                              <span className="text-slate-300 font-normal"> → </span>
+                              <span className="text-rk-text-secondary font-normal"> → </span>
                               {f.to_member_name}
                             </div>
-                            <div className="text-[11px] text-slate-300 font-mono truncate">
+                            <div className="text-[11px] text-rk-text-secondary font-mono truncate">
                               {DATA_TYPE_LABELS[f.data_type] || f.data_type} • {f.timestamp}
                             </div>
                           </div>
-                          <span className="text-[11px] font-mono text-slate-300 flex-shrink-0 hidden sm:block">
+                          <span className="text-[11px] font-mono text-rk-text-secondary flex-shrink-0 hidden sm:block">
                             {isOpen ? 'Réduire' : 'Lire'}
                           </span>
                         </button>
@@ -784,23 +784,23 @@ export const OrgChart: React.FC = () => {
                               className="overflow-hidden"
                             >
                               <div className="px-4 pb-4 pt-1 space-y-3 border-t border-rk-line">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-slate-300">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-rk-text-secondary">
                                   <div className="bg-black/25 rounded-lg px-3 py-2">
-                                    <div className="text-slate-400">Émetteur</div>
+                                    <div className="text-rk-muted">Émetteur</div>
                                     <div className="text-white">{f.from_member_name} — {f.from_role}</div>
                                   </div>
                                   <div className="bg-black/25 rounded-lg px-3 py-2">
-                                    <div className="text-slate-400">Destinataire</div>
+                                    <div className="text-rk-muted">Destinataire</div>
                                     <div className="text-white">{f.to_member_name} — {f.to_role}</div>
                                   </div>
                                 </div>
                                 <div className="bg-rk-inset rounded-lg px-3.5 py-3 border border-rk-line">
-                                  <div className="text-[11px] font-mono text-slate-400 mb-1">Contenu de l'échange</div>
-                                  <p className="text-xs text-slate-100 leading-relaxed whitespace-pre-wrap">
+                                  <div className="text-[11px] font-mono text-rk-muted mb-1">Contenu de l'échange</div>
+                                  <p className="text-xs text-rk-text leading-relaxed whitespace-pre-wrap">
                                     {f.payload_summary}
                                   </p>
                                 </div>
-                                <div className="flex items-center justify-between gap-3 text-[11px] font-mono text-slate-400">
+                                <div className="flex items-center justify-between gap-3 text-[11px] font-mono text-rk-muted">
                                   <span>Pôle : {f.pole}</span>
                                   <span title="Empreinte de contrôle : permet de repérer une modification de l'entrée, ce n'est pas un chiffrement.">
                                     {f.hash || 'empreinte en cours'}
@@ -817,7 +817,7 @@ export const OrgChart: React.FC = () => {
               </div>
 
               <div className="p-4 border-t border-rk-line flex items-center justify-between gap-3">
-                <p className="text-[11px] text-slate-300">
+                <p className="text-[11px] text-rk-text-secondary">
                   Journal local à l'appareil, alimenté par les actions réelles des membres.
                 </p>
                 <button

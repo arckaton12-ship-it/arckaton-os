@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-rk-inset text-slate-400 text-xs border-t border-rk-line pt-16 pb-12">
+    <footer className="bg-rk-inset text-rk-muted text-xs border-t border-rk-line pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-rk-line-soft">
@@ -26,7 +26,7 @@ export const Footer: React.FC = () => {
                 arckaton<span className="text-emerald-400">.</span>
               </span>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed font-sans">
+            <p className="text-xs text-rk-muted leading-relaxed font-sans">
               On ne livre pas un site. On livre un système digital complet. Agence digitale et éditeur du logiciel SaaS ARKA-PME pour PME africaines et internationales.
             </p>
             <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px]">
@@ -59,7 +59,7 @@ export const Footer: React.FC = () => {
               <li><span className="text-purple-400">Pôle Studio :</span> Direction Artistique & Identité</li>
               <li><span className="text-amber-400">Pôle Growth :</span> SEO Local & Sorties Terrain</li>
               <li><span className="text-rose-400">Pôle Client :</span> Onboarding & Support 24h</li>
-              <li><span className="text-slate-300">Pôle Direction :</span> Stratégie & ROI Agence</li>
+              <li><span className="text-rk-text-secondary">Pôle Direction :</span> Stratégie & ROI Agence</li>
             </ul>
           </div>
 
@@ -83,7 +83,7 @@ export const Footer: React.FC = () => {
               </div>
               {/* Rattachement à la société mère : le siège et les
                   identifiants affichés sont ceux de SLOMAH SARL. */}
-              <div className="pt-1 text-[11px] text-slate-400 font-mono leading-relaxed">
+              <div className="pt-1 text-[11px] text-rk-muted font-mono leading-relaxed">
                 {OFFICIAL_KNOWLEDGE.letterhead.agencyName} est {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}, siège social à {OFFICIAL_KNOWLEDGE.letterhead.parentLocation}.<br />
                 RC : {OFFICIAL_KNOWLEDGE.letterhead.rc} — NIU : {OFFICIAL_KNOWLEDGE.letterhead.niu}
               </div>
@@ -92,7 +92,7 @@ export const Footer: React.FC = () => {
             <div className="pt-2">
               <button
                 onClick={() => setMode('dashboard')}
-                className="text-[11px] font-mono text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="text-[11px] font-mono text-rk-muted hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Espace réservé aux membres habilités"
               >
                 <LayoutDashboard className="w-3 h-3" />
@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-[11px] font-mono">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-rk-muted text-[11px] font-mono">
           <div className="flex flex-wrap items-center gap-2">
             <span>
               &copy; {new Date().getFullYear()} {OFFICIAL_KNOWLEDGE.letterhead.agencyName}, {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}. Tous droits réservés.

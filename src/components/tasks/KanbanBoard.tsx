@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 const COLUMNS: Array<{ id: TaskStatus; title: string; color: string; badge: string; dot: string }> = [
-  { id: 'a_faire', title: 'À Faire', color: 'border-slate-600', badge: 'bg-slate-700 text-slate-300', dot: 'bg-slate-500' },
+  { id: 'a_faire', title: 'À Faire', color: 'border-slate-600', badge: 'bg-slate-700 text-rk-text-secondary', dot: 'bg-slate-500' },
   { id: 'en_cours', title: 'En Cours', color: 'border-blue-500/50', badge: 'bg-blue-500/20 text-blue-300', dot: 'bg-blue-500' },
   { id: 'revue', title: 'En Revue / Test', color: 'border-amber-500/50', badge: 'bg-amber-500/20 text-amber-300', dot: 'bg-amber-500' },
   { id: 'termine', title: 'Terminé & Livré', color: 'border-emerald-500/50', badge: 'bg-emerald-500/20 text-emerald-300', dot: 'bg-emerald-500' }
@@ -169,7 +169,7 @@ export const KanbanBoard: React.FC = () => {
               </span>
             )}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-rk-muted mt-1">
             Glissez une carte d'une colonne à l'autre, ou utilisez les flèches. La charge par membre
             ci-dessous sert à répartir le travail de toute l'agence.
           </p>
@@ -188,7 +188,7 @@ export const KanbanBoard: React.FC = () => {
       <div className="bg-rk-panel border border-rk-line rounded-2xl p-3.5 space-y-3">
         <div className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-rk-muted" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -226,7 +226,7 @@ export const KanbanBoard: React.FC = () => {
           {hasFilters && (
             <button
               onClick={resetFilters}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-rk-text-secondary text-xs cursor-pointer"
             >
               <FilterX className="w-3.5 h-3.5" />
               Réinitialiser
@@ -246,7 +246,7 @@ export const KanbanBoard: React.FC = () => {
                     ? c
                       ? `${c.bg} ${c.text} font-bold border ${c.border}`
                       : 'bg-white text-slate-950 font-bold'
-                    : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
+                    : 'bg-rk-panel text-rk-muted hover:text-white border border-rk-line-soft'
                 }`}
               >
                 {p === 'all' ? 'Tous les Pôles' : p}
@@ -261,12 +261,12 @@ export const KanbanBoard: React.FC = () => {
         <div className="flex items-center gap-2 mb-3">
           <Users className="w-4 h-4 text-blue-400" />
           <h3 className="font-serif text-sm font-bold text-white">Charge de travail par membre</h3>
-          <span className="text-[11px] font-mono text-slate-500">
+          <span className="text-[11px] font-mono text-rk-muted">
             {workload.length} membre{workload.length > 1 ? 's' : ''} sur des tâches
           </span>
         </div>
         {workload.length === 0 ? (
-          <p className="text-xs text-slate-500 font-mono">Aucune tâche assignée pour le moment.</p>
+          <p className="text-xs text-rk-muted font-mono">Aucune tâche assignée pour le moment.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5">
             {workload.map((w) => {
@@ -290,7 +290,7 @@ export const KanbanBoard: React.FC = () => {
                   </div>
                   <div className="flex items-baseline gap-1.5 mt-1.5">
                     <span className="text-lg font-mono font-bold text-white leading-none">{w.ouvertes}</span>
-                    <span className="text-[9px] font-mono text-slate-500">ouvertes</span>
+                    <span className="text-[9px] font-mono text-rk-muted">ouvertes</span>
                     {w.enRetard > 0 && (
                       <span className="text-[9px] font-mono text-rose-300 font-bold ml-auto">
                         {w.enRetard} en retard
@@ -348,7 +348,7 @@ export const KanbanBoard: React.FC = () => {
 
               <div className="p-3 space-y-3 overflow-y-auto flex-1">
                 {colTasks.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-xs font-mono">
+                  <div className="text-center py-8 text-rk-muted text-xs font-mono">
                     {isTarget ? 'Déposez ici' : 'Aucune tâche'}
                   </div>
                 ) : (
@@ -376,7 +376,7 @@ export const KanbanBoard: React.FC = () => {
                       >
                         <div className="flex items-center justify-between gap-1">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <GripVertical className="w-3 h-3 text-slate-600 shrink-0 cursor-grab" />
+                            <GripVertical className="w-3 h-3 text-rk-muted shrink-0 cursor-grab" />
                             <span
                               className={`text-[9px] font-mono px-1.5 py-0.5 rounded border shrink-0 ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}
                             >
@@ -389,7 +389,7 @@ export const KanbanBoard: React.FC = () => {
                                 ? 'bg-rose-500/20 text-rose-300 font-bold'
                                 : priority === 'haute'
                                 ? 'bg-amber-500/20 text-amber-300'
-                                : 'bg-slate-700 text-slate-300'
+                                : 'bg-slate-700 text-rk-text-secondary'
                             }`}
                           >
                             {String(priority).toUpperCase()}
@@ -399,7 +399,7 @@ export const KanbanBoard: React.FC = () => {
                         <div>
                           <h4 className="font-serif text-xs font-bold text-white leading-snug">{titreOf(t)}</h4>
                           {t.description && (
-                            <p className="text-[11px] text-slate-300 mt-1 line-clamp-2 leading-relaxed">
+                            <p className="text-[11px] text-rk-text-secondary mt-1 line-clamp-2 leading-relaxed">
                               {t.description}
                             </p>
                           )}
@@ -415,7 +415,7 @@ export const KanbanBoard: React.FC = () => {
                           </div>
                         )}
 
-                        <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
+                        <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-rk-muted">
                           <div
                             className={`flex items-center gap-1.5 truncate max-w-[130px] ${
                               assigneeOf(t) ? '' : 'text-amber-300/80'
@@ -444,7 +444,7 @@ export const KanbanBoard: React.FC = () => {
                                 ? `Déjà relancée ${t.relances} fois — relancer à nouveau`
                                 : 'Relancer le membre assigné'
                             }
-                            className="p-1 rounded bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 text-[11px] flex items-center gap-0.5 cursor-pointer"
+                            className="p-1 rounded bg-white/5 hover:bg-amber-500/20 text-rk-muted hover:text-amber-300 text-[11px] flex items-center gap-0.5 cursor-pointer"
                           >
                             <Bell className="w-3 h-3" />
                             <span className="hidden sm:inline">Relancer</span>
@@ -455,7 +455,7 @@ export const KanbanBoard: React.FC = () => {
                             {prevSt && (
                               <button
                                 onClick={() => updateTaskStatus(t.id, prevSt)}
-                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-[11px] flex items-center gap-0.5 cursor-pointer"
+                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white text-[11px] flex items-center gap-0.5 cursor-pointer"
                                 title="Déplacer vers l'étape précédente"
                               >
                                 <ChevronLeft className="w-3 h-3" />
@@ -499,7 +499,7 @@ export const KanbanBoard: React.FC = () => {
               <button
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -507,7 +507,7 @@ export const KanbanBoard: React.FC = () => {
 
             <form onSubmit={handleCreateTask} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Titre du livrable *</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Titre du livrable *</label>
                 <input
                   type="text"
                   required
@@ -519,7 +519,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Consignes &amp; Détails</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Consignes &amp; Détails</label>
                 <textarea
                   rows={2}
                   value={description}
@@ -530,7 +530,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Projet concerné</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Projet concerné</label>
                 <select
                   value={projectId}
                   onChange={(e) => {
@@ -553,7 +553,7 @@ export const KanbanBoard: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Pôle</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Pôle</label>
                   <select
                     value={pole}
                     onChange={(e) => setPole(e.target.value as Pole)}
@@ -568,7 +568,7 @@ export const KanbanBoard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Priorité</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Priorité</label>
                   <select
                     value={priorite}
                     onChange={(e) => setPriorite(e.target.value as TaskPriority)}
@@ -583,7 +583,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Assigné à</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Assigné à</label>
                 {osMembers.length === 0 ? (
                   <p className="text-[11px] text-amber-300 bg-amber-500/5 border border-amber-500/20 rounded-xl px-3 py-2 font-mono">
                     Aucun membre enregistré : ajoutez votre équipe dans l'onglet Équipe pour pouvoir assigner des tâches.
@@ -610,7 +610,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Échéance</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Échéance</label>
                 <input
                   type="date"
                   value={dateEcheance}
@@ -620,7 +620,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white px-3 py-2">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="text-rk-muted hover:text-white px-3 py-2">
                   Annuler
                 </button>
                 <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl">

@@ -22,7 +22,7 @@ export const Testimonials: React.FC = () => {
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15]">
             Ils déploient, <span className="text-emerald-400 font-normal italic">ils témoignent.</span>
           </h2>
-          <p className="text-slate-400 text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
+          <p className="text-rk-muted text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
             Des résultats vérifiables et des équipes mobilisées sur le terrain, au Cameroun comme à l'international.
           </p>
         </div>
@@ -42,14 +42,14 @@ export const Testimonials: React.FC = () => {
                     <Star key={i} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
-                <p className="text-sm text-slate-200 leading-relaxed font-light">
+                <p className="text-sm text-rk-text leading-relaxed font-light">
                   « {t.text} »
                 </p>
               </div>
 
               <div className="pt-6 mt-4 border-t border-rk-line-soft">
                 <div className="font-serif text-base font-bold text-white">{t.author}</div>
-                <div className="text-[11px] font-mono text-slate-400">
+                <div className="text-[11px] font-mono text-rk-muted">
                   {t.role} — {t.company}
                 </div>
                 {t.metrics && (

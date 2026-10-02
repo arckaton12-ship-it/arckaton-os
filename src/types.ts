@@ -6,7 +6,7 @@ export const POLE_COLORS: Record<Pole, { hex: string; bg: string; border: string
   Tech: { hex: '#4d8dff', bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400' },
   Digital: { hex: '#f5a83c', bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400' },
   Client: { hex: '#ff4d6a', bg: 'bg-rose-500/10', border: 'border-rose-500/30', text: 'text-rose-400' },
-  Externe: { hex: '#8892a4', bg: 'bg-slate-500/10', border: 'border-slate-500/30', text: 'text-slate-400' },
+  Externe: { hex: '#8892a4', bg: 'bg-slate-500/10', border: 'border-slate-500/30', text: 'text-rk-muted' },
 };
 
 export type UserRole = 'admin' | 'site_editor' | 'membre';

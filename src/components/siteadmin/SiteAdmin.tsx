@@ -297,7 +297,7 @@ export const SiteAdmin: React.FC = () => {
           <Lock className="w-6 h-6" />
         </div>
         <h3 className="font-serif text-xl font-bold text-white">Accès Réservé au Gestionnaire du Site</h3>
-        <p className="text-xs text-slate-300 font-light leading-relaxed">
+        <p className="text-xs text-rk-text-secondary font-light leading-relaxed">
           Votre rôle actuel (<span className="text-rose-400 font-mono">{role}</span>) ne possède pas les privilèges d'administration CMS. Seuls les administrateurs et éditeurs du site peuvent modifier le contenu public.
         </p>
       </div>
@@ -319,7 +319,7 @@ export const SiteAdmin: React.FC = () => {
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Gestionnaire Intégral du Site Public
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl font-light">
+            <p className="text-xs sm:text-sm text-rk-text-secondary mt-1 max-w-2xl font-light">
               Modifiez chaque segment du site en direct sans toucher au code : bandeau d'alerte, titres du hero, tarifs des forfaits, articles du journal de bord et canaux WhatsApp.
             </p>
           </div>
@@ -347,7 +347,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'announcement'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <Megaphone className="w-3.5 h-3.5" />
@@ -359,7 +359,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'hero'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <Layout className="w-3.5 h-3.5" />
@@ -371,7 +371,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'forfaits'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <DollarSign className="w-3.5 h-3.5" />
@@ -383,7 +383,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'blog'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -395,7 +395,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'realisations'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <FolderKanban className="w-3.5 h-3.5" />
@@ -407,7 +407,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'temoignages'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <Star className="w-3.5 h-3.5" />
@@ -419,7 +419,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'contact'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-bg text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             <Phone className="w-3.5 h-3.5" />
@@ -433,7 +433,7 @@ export const SiteAdmin: React.FC = () => {
         <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 sm:p-8">
           <div className="mb-6">
             <h3 className="font-serif text-xl font-bold text-white">Bandeau Supérieur d'Alerte & Événements</h3>
-            <p className="text-xs text-slate-400 mt-1">S'affiche tout en haut du site public pour diffuser les alertes ou lancements majeurs.</p>
+            <p className="text-xs text-rk-muted mt-1">S'affiche tout en haut du site public pour diffuser les alertes ou lancements majeurs.</p>
           </div>
 
           <form onSubmit={handleSaveAnnouncement} className="space-y-4 max-w-3xl">
@@ -451,7 +451,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Badge de l'annonce :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Badge de l'annonce :</label>
               <input
                 type="text"
                 value={announcementForm.badge}
@@ -462,7 +462,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Texte principal du message :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Texte principal du message :</label>
               <textarea
                 rows={2}
                 value={announcementForm.text}
@@ -474,7 +474,7 @@ export const SiteAdmin: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Intitulé du bouton d'action :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Intitulé du bouton d'action :</label>
                 <input
                   type="text"
                   value={announcementForm.button_text}
@@ -484,7 +484,7 @@ export const SiteAdmin: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Lien cible (Ancre ou URL) :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Lien cible (Ancre ou URL) :</label>
                 <input
                   type="text"
                   value={announcementForm.target_url}
@@ -513,12 +513,12 @@ export const SiteAdmin: React.FC = () => {
         <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 sm:p-8">
           <div className="mb-6">
             <h3 className="font-serif text-xl font-bold text-white">Section Héro Principale & Chiffres d'Autorité</h3>
-            <p className="text-xs text-slate-400 mt-1">Le premier message que voient les prospects et clients en arrivant sur le site.</p>
+            <p className="text-xs text-rk-muted mt-1">Le premier message que voient les prospects et clients en arrivant sur le site.</p>
           </div>
 
           <form onSubmit={handleSaveHero} className="space-y-5 max-w-3xl">
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Badge de localisation & statut :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Badge de localisation & statut :</label>
               <input
                 type="text"
                 value={heroForm.badge}
@@ -529,7 +529,7 @@ export const SiteAdmin: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Titre principal (Ligne 1) :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Titre principal (Ligne 1) :</label>
                 <input
                   type="text"
                   value={heroForm.title_line_1}
@@ -538,7 +538,7 @@ export const SiteAdmin: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Titre mis en relief (Vert émeraude) :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Titre mis en relief (Vert émeraude) :</label>
                 <input
                   type="text"
                   value={heroForm.title_highlight}
@@ -549,7 +549,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Sous-titre descriptif :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Sous-titre descriptif :</label>
               <textarea
                 rows={3}
                 value={heroForm.subtitle}
@@ -560,7 +560,7 @@ export const SiteAdmin: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Bouton Action Primaire :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Bouton Action Primaire :</label>
                 <input
                   type="text"
                   value={heroForm.cta_primary}
@@ -569,7 +569,7 @@ export const SiteAdmin: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Bouton Action Secondaire :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Bouton Action Secondaire :</label>
                 <input
                   type="text"
                   value={heroForm.cta_secondary}
@@ -580,7 +580,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div className="pt-4 border-t border-rk-line">
-              <span className="text-xs font-mono text-slate-400 uppercase block mb-3 font-bold">Les 3 Métriques Clés du Héro :</span>
+              <span className="text-xs font-mono text-rk-muted uppercase block mb-3 font-bold">Les 3 Métriques Clés du Héro :</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-rk-bg p-3.5 rounded-xl border border-rk-line-soft">
                   <input
@@ -593,7 +593,7 @@ export const SiteAdmin: React.FC = () => {
                     type="text"
                     value={heroForm.stat_1_label}
                     onChange={(e) => setHeroForm({ ...heroForm, stat_1_label: e.target.value })}
-                    className="w-full bg-transparent text-slate-400 text-[11px]"
+                    className="w-full bg-transparent text-rk-muted text-[11px]"
                   />
                 </div>
 
@@ -608,7 +608,7 @@ export const SiteAdmin: React.FC = () => {
                     type="text"
                     value={heroForm.stat_2_label}
                     onChange={(e) => setHeroForm({ ...heroForm, stat_2_label: e.target.value })}
-                    className="w-full bg-transparent text-slate-400 text-[11px]"
+                    className="w-full bg-transparent text-rk-muted text-[11px]"
                   />
                 </div>
 
@@ -623,7 +623,7 @@ export const SiteAdmin: React.FC = () => {
                     type="text"
                     value={heroForm.stat_3_label}
                     onChange={(e) => setHeroForm({ ...heroForm, stat_3_label: e.target.value })}
-                    className="w-full bg-transparent text-slate-400 text-[11px]"
+                    className="w-full bg-transparent text-rk-muted text-[11px]"
                   />
                 </div>
               </div>
@@ -648,7 +648,7 @@ export const SiteAdmin: React.FC = () => {
           <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 sm:p-8">
             <div className="mb-6">
               <h3 className="font-serif text-xl font-bold text-white">Gestion des Forfaits Commerciaux</h3>
-              <p className="text-xs text-slate-400 mt-1">Ajustez les prix de création, abonnements mensuels et quotas de sorties terrain.</p>
+              <p className="text-xs text-rk-muted mt-1">Ajustez les prix de création, abonnements mensuels et quotas de sorties terrain.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -664,20 +664,20 @@ export const SiteAdmin: React.FC = () => {
                       )}
                     </div>
                     <h4 className="font-serif text-2xl font-bold text-white">{f.name}</h4>
-                    <p className="text-xs text-slate-400 mt-1 font-light line-clamp-2">{f.tagline}</p>
+                    <p className="text-xs text-rk-muted mt-1 font-light line-clamp-2">{f.tagline}</p>
 
                     <div className="mt-4 p-3 bg-white/[0.02] rounded-xl border border-rk-line-soft space-y-1 text-xs font-mono">
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Création :</span>
+                        <span className="text-rk-muted">Création :</span>
                         <span className="text-white font-bold">{f.creation_price}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Mensuel :</span>
+                        <span className="text-rk-muted">Mensuel :</span>
                         <span className="text-emerald-400 font-bold">{f.monthly_price}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Terrain :</span>
-                        <span className="text-slate-300">{f.sorties_terrain}</span>
+                        <span className="text-rk-muted">Terrain :</span>
+                        <span className="text-rk-text-secondary">{f.sorties_terrain}</span>
                       </div>
                     </div>
                   </div>
@@ -708,12 +708,12 @@ export const SiteAdmin: React.FC = () => {
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   Édition du Forfait {editingForfait.name}
                 </h3>
-                <p className="text-xs text-slate-400 mb-6">Mise à jour immédiate répercutée sur le comparateur et le devis.</p>
+                <p className="text-xs text-rk-muted mb-6">Mise à jour immédiate répercutée sur le comparateur et le devis.</p>
 
                 <form onSubmit={handleSaveForfait} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Prix Création (Libellé) :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Prix Création (Libellé) :</label>
                       <input
                         type="text"
                         value={editingForfait.creation_price}
@@ -722,7 +722,7 @@ export const SiteAdmin: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Montant brut FCFA :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Montant brut FCFA :</label>
                       <input
                         type="number"
                         value={editingForfait.creation_price_amount}
@@ -734,7 +734,7 @@ export const SiteAdmin: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Prix Mensuel (Libellé) :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Prix Mensuel (Libellé) :</label>
                       <input
                         type="text"
                         value={editingForfait.monthly_price}
@@ -743,7 +743,7 @@ export const SiteAdmin: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Montant mensuel FCFA :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Montant mensuel FCFA :</label>
                       <input
                         type="number"
                         value={editingForfait.monthly_price_amount}
@@ -754,7 +754,7 @@ export const SiteAdmin: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Sorties Terrain par mois :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Sorties Terrain par mois :</label>
                     <input
                       type="text"
                       value={editingForfait.sorties_terrain}
@@ -767,7 +767,7 @@ export const SiteAdmin: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setEditingForfait(null)}
-                      className="px-4 py-2 text-xs text-slate-400 hover:text-white"
+                      className="px-4 py-2 text-xs text-rk-muted hover:text-white"
                     >
                       Annuler
                     </button>
@@ -792,7 +792,7 @@ export const SiteAdmin: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Articles & Témoignages Terrain</h3>
-              <p className="text-xs text-slate-400 mt-1">Publiez les retours d'interventions, études de cas ROI et coulisses R&D.</p>
+              <p className="text-xs text-rk-muted mt-1">Publiez les retours d'interventions, études de cas ROI et coulisses R&D.</p>
             </div>
             <button
               onClick={openNewBlogModal}
@@ -821,17 +821,17 @@ export const SiteAdmin: React.FC = () => {
                       <span className="text-[11px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                         {post.category_label}
                       </span>
-                      <span className="text-[11px] font-mono text-slate-400">{post.date}</span>
+                      <span className="text-[11px] font-mono text-rk-muted">{post.date}</span>
                     </div>
                     <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{post.title}</h4>
-                    <span className="text-xs text-slate-400 font-mono">Auteur : {post.author_name}</span>
+                    <span className="text-xs text-rk-muted font-mono">Auteur : {post.author_name}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-auto">
                   <button
                     onClick={() => setActiveBlogPost(post)}
-                    className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-rk-text-secondary hover:text-white rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                     title="Prévisualiser"
                   >
                     <Eye className="w-3.5 h-3.5" />
@@ -876,11 +876,11 @@ export const SiteAdmin: React.FC = () => {
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingBlogPost ? "Modifier le Récit Terrain" : "Publier un Nouveau Récit d'Action"}
                 </h3>
-                <p className="text-xs text-slate-400 mb-6">Visible instantanément sur la page d'accueil dans la section Journal de Bord.</p>
+                <p className="text-xs text-rk-muted mb-6">Visible instantanément sur la page d'accueil dans la section Journal de Bord.</p>
 
                 <form onSubmit={handleSaveBlogPost} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Titre de l'article :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Titre de l'article :</label>
                     <input
                       type="text"
                       required
@@ -893,7 +893,7 @@ export const SiteAdmin: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Catégorie :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Catégorie :</label>
                       <select
                         value={blogFormData.category}
                         onChange={(e) => {
@@ -916,7 +916,7 @@ export const SiteAdmin: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Temps de lecture :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Temps de lecture :</label>
                       <input
                         type="text"
                         value={blogFormData.read_time}
@@ -929,7 +929,7 @@ export const SiteAdmin: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Auteur :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Auteur :</label>
                       <input
                         type="text"
                         value={blogFormData.author_name}
@@ -938,7 +938,7 @@ export const SiteAdmin: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Rôle de l'auteur :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Rôle de l'auteur :</label>
                       <input
                         type="text"
                         value={blogFormData.author_role}
@@ -949,7 +949,7 @@ export const SiteAdmin: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">URL Image d'illustration :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">URL Image d'illustration :</label>
                     <input
                       type="text"
                       value={blogFormData.image}
@@ -959,7 +959,7 @@ export const SiteAdmin: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Extrait court (Teaser) :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Extrait court (Teaser) :</label>
                     <textarea
                       rows={2}
                       value={blogFormData.excerpt}
@@ -969,7 +969,7 @@ export const SiteAdmin: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Texte intégral de l'intervention :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Texte intégral de l'intervention :</label>
                     <textarea
                       rows={6}
                       required
@@ -983,7 +983,7 @@ export const SiteAdmin: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsBlogModalOpen(false)}
-                      className="px-4 py-2 text-xs text-slate-400 hover:text-white"
+                      className="px-4 py-2 text-xs text-rk-muted hover:text-white"
                     >
                       Annuler
                     </button>
@@ -1008,7 +1008,7 @@ export const SiteAdmin: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Études de Cas & Réalisations</h3>
-              <p className="text-xs text-slate-400 mt-1">Ces dossiers clients s'affichent dans la section « Réalisations » du site public, avec métriques chiffrées.</p>
+              <p className="text-xs text-rk-muted mt-1">Ces dossiers clients s'affichent dans la section « Réalisations » du site public, avec métriques chiffrées.</p>
             </div>
             <button
               onClick={openNewRealModal}
@@ -1030,10 +1030,10 @@ export const SiteAdmin: React.FC = () => {
                     <span className="text-[11px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                       {r.categoryLabel}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-400">{r.forfait}</span>
+                    <span className="text-[11px] font-mono text-rk-muted">{r.forfait}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{r.name}</h4>
-                  <div className="text-xs text-slate-400 mt-1 font-mono">
+                  <div className="text-xs text-rk-muted mt-1 font-mono">
                     <span className="text-emerald-400 font-bold">{r.mainMetric}</span> {r.mainMetricLabel} • {r.delay}
                   </div>
                 </div>
@@ -1061,7 +1061,7 @@ export const SiteAdmin: React.FC = () => {
               </div>
             ))}
             {realisations.length === 0 && (
-              <div className="p-8 text-center text-xs text-slate-400">
+              <div className="p-8 text-center text-xs text-rk-muted">
                 Aucune réalisation. Cliquez sur « Importer les données de départ » (en haut) ou ajoutez la première.
               </div>
             )}
@@ -1081,17 +1081,17 @@ export const SiteAdmin: React.FC = () => {
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingRealisation ? 'Modifier la Réalisation' : 'Ajouter une Réalisation'}
                 </h3>
-                <p className="text-xs text-slate-400 mb-6">Publiée instantanément sur la vitrine Réalisations.</p>
+                <p className="text-xs text-rk-muted mb-6">Publiée instantanément sur la vitrine Réalisations.</p>
 
                 <form onSubmit={saveRealisation} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du dossier client :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Nom du dossier client :</label>
                     <input type="text" required value={realForm.name} onChange={(e) => setRealForm({ ...realForm, name: e.target.value })}
                       className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Catégorie :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Catégorie :</label>
                       <select
                         value={realForm.category}
                         onChange={(e) => {
@@ -1104,40 +1104,40 @@ export const SiteAdmin: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Forfait associé :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Forfait associé :</label>
                       <input type="text" value={realForm.forfait} onChange={(e) => setRealForm({ ...realForm, forfait: e.target.value })}
                         className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Description :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Description :</label>
                     <textarea rows={3} required value={realForm.description} onChange={(e) => setRealForm({ ...realForm, description: e.target.value })}
                       className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white resize-none" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique principale :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Métrique principale :</label>
                       <input type="text" required value={realForm.mainMetric} onChange={(e) => setRealForm({ ...realForm, mainMetric: e.target.value })}
                         className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" placeholder="+38%" />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Libellé de la métrique :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Libellé de la métrique :</label>
                       <input type="text" required value={realForm.mainMetricLabel} onChange={(e) => setRealForm({ ...realForm, mainMetricLabel: e.target.value })}
                         className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" placeholder="chiffre d'affaires" />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique secondaire :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Métrique secondaire :</label>
                       <input type="text" value={realForm.subMetric} onChange={(e) => setRealForm({ ...realForm, subMetric: e.target.value })}
                         className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" placeholder="×2 rotations" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Délai de déploiement :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Délai de déploiement :</label>
                     <input type="text" value={realForm.delay} onChange={(e) => setRealForm({ ...realForm, delay: e.target.value })}
                       className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" placeholder="14 jours" />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Points de livraison (un par ligne) :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Points de livraison (un par ligne) :</label>
                     <textarea
                       rows={3}
                       value={realForm.points.join('\n')}
@@ -1148,7 +1148,7 @@ export const SiteAdmin: React.FC = () => {
                   </div>
 
                   <div className="pt-4 flex items-center justify-end gap-3">
-                    <button type="button" onClick={() => setIsRealModalOpen(false)} className="px-4 py-2 text-xs text-slate-400 hover:text-white">Annuler</button>
+                    <button type="button" onClick={() => setIsRealModalOpen(false)} className="px-4 py-2 text-xs text-rk-muted hover:text-white">Annuler</button>
                     <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
                       <Save className="w-3.5 h-3.5" />
                       <span>{editingRealisation ? "Mettre à jour" : "Publier la réalisation"}</span>
@@ -1167,7 +1167,7 @@ export const SiteAdmin: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Témoignages Clients</h3>
-              <p className="text-xs text-slate-400 mt-1">Citations de clients publiées dans la section « Voix de nos clients » sous la vitrine Réalisations.</p>
+              <p className="text-xs text-rk-muted mt-1">Citations de clients publiées dans la section « Voix de nos clients » sous la vitrine Réalisations.</p>
             </div>
             <button
               onClick={openNewTemModal}
@@ -1187,12 +1187,12 @@ export const SiteAdmin: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">5/5</span>
-                    <span className="text-[11px] font-mono text-slate-400">{t.metrics || '—'}</span>
+                    <span className="text-[11px] font-mono text-rk-muted">{t.metrics || '—'}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">
                     {t.author} <span className="text-emerald-400 font-normal">— {t.company}</span>
                   </h4>
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2 font-light">« {t.text} »</p>
+                  <p className="text-xs text-rk-muted mt-1 line-clamp-2 font-light">« {t.text} »</p>
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-auto">
@@ -1218,7 +1218,7 @@ export const SiteAdmin: React.FC = () => {
               </div>
             ))}
             {temoignages.length === 0 && (
-              <div className="p-8 text-center text-xs text-slate-400">
+              <div className="p-8 text-center text-xs text-rk-muted">
                 Aucun témoignage. Ajoutez le premier ou cliquez sur « Importer les données de départ ».
               </div>
             )}
@@ -1238,39 +1238,39 @@ export const SiteAdmin: React.FC = () => {
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingTemoignage ? 'Modifier le Témoignage' : 'Ajouter un Témoignage'}
                 </h3>
-                <p className="text-xs text-slate-400 mb-6">Citation publiée dans la section Témoignages du site public.</p>
+                <p className="text-xs text-rk-muted mb-6">Citation publiée dans la section Témoignages du site public.</p>
 
                 <form onSubmit={saveTemoignage} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du client :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Nom du client :</label>
                       <input type="text" required value={temForm.author} onChange={(e) => setTemForm({ ...temForm, author: e.target.value })}
                         className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Fonction :</label>
+                      <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Fonction :</label>
                       <input type="text" value={temForm.role} onChange={(e) => setTemForm({ ...temForm, role: e.target.value })}
                         className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" placeholder="Gérant" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Entreprise :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Entreprise :</label>
                     <input type="text" value={temForm.company} onChange={(e) => setTemForm({ ...temForm, company: e.target.value })}
                       className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Citation :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Citation :</label>
                     <textarea rows={4} required value={temForm.text} onChange={(e) => setTemForm({ ...temForm, text: e.target.value })}
                       className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white resize-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique / résultat (optionnel) :</label>
+                    <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Métrique / résultat (optionnel) :</label>
                     <input type="text" value={temForm.metrics} onChange={(e) => setTemForm({ ...temForm, metrics: e.target.value })}
                       className="w-full bg-rk-bg border border-rk-line rounded-xl p-3 text-xs text-white" placeholder="+38% CA en 3 mois" />
                   </div>
 
                   <div className="pt-4 flex items-center justify-end gap-3">
-                    <button type="button" onClick={() => setIsTemModalOpen(false)} className="px-4 py-2 text-xs text-slate-400 hover:text-white">Annuler</button>
+                    <button type="button" onClick={() => setIsTemModalOpen(false)} className="px-4 py-2 text-xs text-rk-muted hover:text-white">Annuler</button>
                     <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
                       <Save className="w-3.5 h-3.5" />
                       <span>{editingTemoignage ? "Mettre à jour" : "Publier le témoignage"}</span>
@@ -1288,13 +1288,13 @@ export const SiteAdmin: React.FC = () => {
         <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 sm:p-8">
           <div className="mb-6">
             <h3 className="font-serif text-xl font-bold text-white">Canaux de Contact & Lignes Officielles</h3>
-            <p className="text-xs text-slate-400 mt-1">Numéro WhatsApp direct, adresses physiques et téléphone d'urgence.</p>
+            <p className="text-xs text-rk-muted mt-1">Numéro WhatsApp direct, adresses physiques et téléphone d'urgence.</p>
           </div>
 
           <form onSubmit={handleSaveContact} className="space-y-4 max-w-3xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Numéro WhatsApp (Format URL international) :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Numéro WhatsApp (Format URL international) :</label>
                 <input
                   type="text"
                   value={contactForm.whatsapp_number}
@@ -1303,7 +1303,7 @@ export const SiteAdmin: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Affichage du numéro WhatsApp :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Affichage du numéro WhatsApp :</label>
                 <input
                   type="text"
                   value={contactForm.whatsapp_display}
@@ -1315,7 +1315,7 @@ export const SiteAdmin: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Téléphone d'astreinte :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Téléphone d'astreinte :</label>
                 <input
                   type="text"
                   value={contactForm.phone_call}
@@ -1324,7 +1324,7 @@ export const SiteAdmin: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Email Officiel :</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Email Officiel :</label>
                 <input
                   type="email"
                   value={contactForm.email_contact}
@@ -1335,7 +1335,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Adresse Bureau Bastos / Yaoundé :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Adresse Bureau Bastos / Yaoundé :</label>
               <input
                 type="text"
                 value={contactForm.address_yaounde}
@@ -1345,7 +1345,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Adresse Pôle Bonanjo / Douala :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Adresse Pôle Bonanjo / Douala :</label>
               <input
                 type="text"
                 value={contactForm.address_douala}
@@ -1355,7 +1355,7 @@ export const SiteAdmin: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 uppercase mb-1.5">Engagement de Disponibilité / Support :</label>
+              <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Engagement de Disponibilité / Support :</label>
               <input
                 type="text"
                 value={contactForm.disponibilite}

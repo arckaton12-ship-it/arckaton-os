@@ -21,7 +21,7 @@ export const Forfaits: React.FC = () => {
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15]">
             Des forfaits transparents, calculés pour votre rentabilité
           </h2>
-          <p className="text-slate-400 text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
+          <p className="text-rk-muted text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
             Chaque forfait comprend le nom de domaine, l'hébergement sécurisé 1 an, la formation de vos équipes et l'accès permanent au cockpit Arckaton OS.
           </p>
 
@@ -33,7 +33,7 @@ export const Forfaits: React.FC = () => {
                 className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   billingCycle === 'monthly'
                     ? 'bg-white/[0.1] text-white'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : 'text-rk-muted hover:text-rk-text'
                 }`}
               >
                 Sans engagement
@@ -43,7 +43,7 @@ export const Forfaits: React.FC = () => {
                 className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                   billingCycle === 'annual'
                     ? 'bg-emerald-500 text-slate-950 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : 'text-rk-muted hover:text-rk-text'
                 }`}
               >
                 <span>Engagement Annuel</span>
@@ -85,7 +85,7 @@ export const Forfaits: React.FC = () => {
                   {/* Title & Timing */}
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                      <span className="text-xs font-mono text-rk-muted uppercase tracking-widest">
                         Forfait {f.number}
                       </span>
                       <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/20">
@@ -95,7 +95,7 @@ export const Forfaits: React.FC = () => {
                     <h3 className="font-serif text-3xl font-bold text-white mt-2">
                       {f.name}
                     </h3>
-                    <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[38px] font-light">
+                    <p className="text-xs text-rk-text-secondary mt-2 leading-relaxed min-h-[38px] font-light">
                       {f.tagline}
                     </p>
                   </div>
@@ -103,13 +103,13 @@ export const Forfaits: React.FC = () => {
                   {/* Pricing Breakdown */}
                   <div className="pt-4 pb-2 border-y border-rk-line space-y-2">
                     <div>
-                      <span className="text-xs text-slate-400 font-mono">Création initiale clé-en-main :</span>
+                      <span className="text-xs text-rk-muted font-mono">Création initiale clé-en-main :</span>
                       <div className="font-serif text-3xl font-bold text-white">
                         {formatCurrencyPrice(f.creation_price_amount || 500000, currency)}
                       </div>
                     </div>
                     <div>
-                      <span className="text-xs text-slate-400 font-mono">Suivi & sorties terrain :</span>
+                      <span className="text-xs text-rk-muted font-mono">Suivi & sorties terrain :</span>
                       <div className="text-sm font-semibold text-emerald-400">
                         + {formatCurrencyPrice(
                           f.monthly_price_amount || 200000,
@@ -122,10 +122,10 @@ export const Forfaits: React.FC = () => {
 
                   {/* Creation Deliverables */}
                   <div className="space-y-2">
-                    <span className="text-xs font-mono text-slate-400 uppercase tracking-wider block">
+                    <span className="text-xs font-mono text-rk-muted uppercase tracking-wider block">
                       Ce qui est conçu :
                     </span>
-                    <ul className="space-y-2 text-xs text-slate-200">
+                    <ul className="space-y-2 text-xs text-rk-text">
                       {f.creation_features.map((feat, idx) => (
                         <li key={idx} className="flex items-start gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -137,10 +137,10 @@ export const Forfaits: React.FC = () => {
 
                   {/* Monthly Field & Maintenance Outputs */}
                   <div className="space-y-2 pt-2">
-                    <span className="text-xs font-mono text-slate-400 uppercase tracking-wider block">
+                    <span className="text-xs font-mono text-rk-muted uppercase tracking-wider block">
                       Chaque mois inclus :
                     </span>
-                    <ul className="space-y-2 text-xs text-slate-300">
+                    <ul className="space-y-2 text-xs text-rk-text-secondary">
                       {f.monthly_features.map((feat, idx) => (
                         <li key={idx} className="flex items-start gap-2.5">
                           <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
@@ -164,7 +164,7 @@ export const Forfaits: React.FC = () => {
                     <span>Choisir ce forfait</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
-                  <div className="text-[11px] text-center text-slate-400 font-mono mt-2.5">
+                  <div className="text-[11px] text-center text-rk-muted font-mono mt-2.5">
                     {f.retouches}
                   </div>
                 </div>
@@ -181,11 +181,11 @@ export const Forfaits: React.FC = () => {
               <h3 className="font-serif text-2xl font-bold text-white">
                 Matrice comparative exhaustive
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-rk-muted mt-1">
                 Tout est personnalisable via le configurateur de devis selon vos priorités et vos contraintes.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-white/[0.04] px-3 py-1 rounded-full border border-rk-line self-start sm:self-auto">
+            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-rk-text-secondary bg-white/[0.04] px-3 py-1 rounded-full border border-rk-line self-start sm:self-auto">
               <Globe className="w-3.5 h-3.5 text-emerald-400" />
               <span>Livraison internationale ðŸŒ</span>
             </span>
@@ -194,14 +194,14 @@ export const Forfaits: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[620px]">
               <thead>
-                <tr className="border-b border-rk-line text-slate-400 font-mono">
+                <tr className="border-b border-rk-line text-rk-muted font-mono">
                   <th className="py-3 px-4 font-normal">Spécifications</th>
                   <th className="py-3 px-4 text-white font-serif text-sm">Initiation</th>
                   <th className="py-3 px-4 text-emerald-400 font-serif text-sm">Synergie (Recommandé)</th>
                   <th className="py-3 px-4 text-amber-300 font-serif text-sm">Architecture</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-rk-line-soft text-slate-300">
+              <tbody className="divide-y divide-rk-line-soft text-rk-text-secondary">
                 <tr>
                   <td className="py-3.5 px-4 font-medium text-white">Frais de création</td>
                   <td className="py-3.5 px-4 font-mono">{formatCurrencyPrice(380000, currency)}</td>
@@ -222,7 +222,7 @@ export const Forfaits: React.FC = () => {
                 </tr>
                 <tr>
                   <td className="py-3.5 px-4">Passerelle Mobile Money</td>
-                  <td className="py-3.5 px-4 text-slate-400">Bouton WhatsApp pré-rempli</td>
+                  <td className="py-3.5 px-4 text-rk-muted">Bouton WhatsApp pré-rempli</td>
                   <td className="py-3.5 px-4 text-emerald-400">Formulaires & devis en ligne</td>
                   <td className="py-3.5 px-4 text-amber-300 font-semibold">MTN MoMo & Orange Money direct</td>
                 </tr>
@@ -255,7 +255,7 @@ export const Forfaits: React.FC = () => {
           </div>
 
           <div className="pt-6 mt-4 border-t border-rk-line flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs text-slate-400 flex items-center gap-2">
+            <div className="text-xs text-rk-muted flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>Garantie d'achèvement contractuelle avec pénalités de retard à notre charge.</span>
             </div>
@@ -269,7 +269,7 @@ export const Forfaits: React.FC = () => {
               </button>
               <button
                 onClick={() => setIsAgentModalOpen(true)}
-                className="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="text-xs text-rk-text-secondary hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>Conseiller IA</span>
                 <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />

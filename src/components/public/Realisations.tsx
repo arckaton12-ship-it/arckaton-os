@@ -33,7 +33,7 @@ export const Realisations: React.FC = () => {
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15]">
             Des systèmes conçus pour générer des résultats tangibles
           </h2>
-          <p className="text-slate-400 text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
+          <p className="text-rk-muted text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
             Nous ne concevons pas de vitrines inertes : chacun de nos déploiements est taillé pour accélérer le chiffre d'affaires, éliminer les pertes opérationnelles et ancrer votre marque.
           </p>
 
@@ -46,7 +46,7 @@ export const Realisations: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   filter === tab.id
                     ? 'bg-white/[0.1] text-white border border-rk-line-strong'
-                    : 'text-slate-400 hover:text-slate-200 border border-transparent'
+                    : 'text-rk-muted hover:text-rk-text border border-transparent'
                 }`}
               >
                 {tab.label}
@@ -58,7 +58,7 @@ export const Realisations: React.FC = () => {
         {/* Case Studies Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {realisations.length === 0 && (
-            <div className="col-span-full text-center py-16 text-sm text-slate-400">
+            <div className="col-span-full text-center py-16 text-sm text-rk-muted">
               Les études de cas sont en cours de publication par l'équipe Arckaton.
             </div>
           )}
@@ -77,14 +77,14 @@ export const Realisations: React.FC = () => {
                     <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                       {getCategoryLabel(cs.category)}
                     </span>
-                    <span className="text-xs font-mono text-slate-400">{cs.forfait}</span>
+                    <span className="text-xs font-mono text-rk-muted">{cs.forfait}</span>
                   </div>
 
                   <div>
                     <h3 className="font-serif text-2xl font-bold text-white group-hover:text-emerald-300 transition-colors">
                       {cs.name}
                     </h3>
-                    <p className="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed font-light">
+                    <p className="text-rk-text-secondary text-xs sm:text-sm mt-2 leading-relaxed font-light">
                       {cs.description}
                     </p>
                   </div>
@@ -94,15 +94,15 @@ export const Realisations: React.FC = () => {
                     <div className="font-serif text-3xl sm:text-4xl font-bold text-emerald-400">
                       {cs.mainMetric}
                     </div>
-                    <div className="text-xs font-medium text-slate-200">
+                    <div className="text-xs font-medium text-rk-text">
                       {cs.mainMetricLabel}
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-[11px] text-rk-muted">
                       {cs.subMetric}
                     </div>
                   </div>
 
-                  <ul className="text-xs text-slate-300 space-y-2">
+                  <ul className="text-xs text-rk-text-secondary space-y-2">
                     {cs.points.map((pt, pIdx) => (
                       <li key={pIdx} className="flex items-start gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -113,7 +113,7 @@ export const Realisations: React.FC = () => {
                 </div>
 
                 <div className="pt-6 border-t border-rk-line mt-6 flex items-center justify-between">
-                  <span className="text-xs font-mono text-slate-400">{cs.delay}</span>
+                  <span className="text-xs font-mono text-rk-muted">{cs.delay}</span>
                   <button
                     onClick={() => setIsQuoteModalOpen(true)}
                     className="text-xs font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors cursor-pointer"

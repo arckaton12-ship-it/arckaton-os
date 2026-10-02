@@ -52,13 +52,13 @@ export const LegalModal: React.FC = () => {
               <h2 className="font-serif text-xl font-bold text-slate-900">
                 Informations légales
               </h2>
-              <p className="text-xs text-slate-500 font-mono mt-1">
+              <p className="text-xs text-rk-muted font-mono mt-1">
                 {L.agencyName} — {L.relationship} de {L.parentName}
               </p>
             </div>
             <button
               onClick={() => setIsLegalModalOpen(false)}
-              className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
+              className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-rk-muted flex items-center justify-center transition-colors"
               aria-label="Fermer"
             >
               <X className="w-4 h-4" />
@@ -72,7 +72,7 @@ export const LegalModal: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
                 tab === 'mentions'
                   ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 text-rk-muted hover:bg-slate-200'
               }`}
             >
               <Scale className="w-3.5 h-3.5" />
@@ -83,7 +83,7 @@ export const LegalModal: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
                 tab === 'confidentialite'
                   ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 text-rk-muted hover:bg-slate-200'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -213,7 +213,7 @@ export const LegalModal: React.FC = () => {
                       d'affichage, et état local de l'interface.
                     </li>
                   </ul>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-rk-muted">
                     Aucune donnée dite « sensible » (santé, opinions politiques ou religieuses,
                     orientation sexuelle) n'est collectée, et aucune donnée n'est vendue à des
                     tiers.
@@ -253,7 +253,7 @@ export const LegalModal: React.FC = () => {
                     membres restent actifs jusqu'à suppression demandée ; un compte désactivé
                     conserve son journal d'activité pour traçabilité.
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-rk-muted">
                     L'hébergement est situé en Europe. La durée exacte de conservation des
                     journaux de connexion reste à préciser.
                   </p>
@@ -292,7 +292,7 @@ export const LegalModal: React.FC = () => {
 
           {/* Pied */}
           <div className="px-5 sm:px-7 py-4 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
-            <span className="text-[11px] font-mono text-slate-500">
+            <span className="text-[11px] font-mono text-rk-muted">
               Dernière révision : {new Date().toLocaleDateString('fr-FR')}
             </span>
             <a

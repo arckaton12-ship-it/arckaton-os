@@ -227,7 +227,7 @@ export const MembersTab: React.FC = () => {
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Membres & Habilitations
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl font-light">
+            <p className="text-xs sm:text-sm text-rk-text-secondary mt-1 max-w-xl font-light">
               Seul le boss ajoute, active, désactive ou retire des membres. Chaque membre a un rôle, un pôle et des permissions (content / bat / finance).
             </p>
           </div>
@@ -250,7 +250,7 @@ export const MembersTab: React.FC = () => {
       {message && <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs rounded-2xl px-4 py-3">{message}</div>}
 
       {loading ? (
-        <div className="text-center py-16 text-slate-400 flex items-center justify-center gap-2">
+        <div className="text-center py-16 text-rk-muted flex items-center justify-center gap-2">
           <Loader2 className="w-5 h-5 animate-spin" /> Chargement des membres…
         </div>
       ) : (
@@ -274,7 +274,7 @@ export const MembersTab: React.FC = () => {
                           {POLES_INFO[m.pole]?.name || m.pole}
                         </span>
                       </div>
-                      <div className="text-[11px] font-mono text-slate-400 mt-1">
+                      <div className="text-[11px] font-mono text-rk-muted mt-1">
                         {m.email} • {m.poste_titre || 'Poste à définir'}
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -298,7 +298,7 @@ export const MembersTab: React.FC = () => {
                     </span>
                     <button
                       onClick={() => toggleActive(m)}
-                      className="p-2 bg-white/[0.04] hover:bg-white/[0.1] text-slate-300 rounded-xl transition-colors cursor-pointer"
+                      className="p-2 bg-white/[0.04] hover:bg-white/[0.1] text-rk-text-secondary rounded-xl transition-colors cursor-pointer"
                       title={m.active ? 'Désactiver (refuser le login)' : 'Réactiver'}
                     >
                       <Power className="w-4 h-4" />
@@ -325,7 +325,7 @@ export const MembersTab: React.FC = () => {
                 réussi. L'afficher après une erreur de session donnait
                 l'impression que l'annuaire était vide. */}
             {members.length === 0 && !error && (
-              <div className="p-10 text-center text-sm text-slate-400">
+              <div className="p-10 text-center text-sm text-rk-muted">
                 Aucun membre trouvé. Utilisez « Ajouter un membre » pour créer un compte avec son nom, son pôle et ses permissions.
               </div>
             )}
@@ -343,13 +343,13 @@ export const MembersTab: React.FC = () => {
           <div className="space-y-2 max-h-72 overflow-y-auto">
             {activity.map((a) => (
               <div key={a.id} className="flex items-center justify-between gap-3 bg-rk-bg border border-rk-line-soft rounded-xl px-4 py-2.5 text-xs">
-                <div className="text-slate-300">
+                <div className="text-rk-text-secondary">
                   <span className="text-emerald-400 font-mono">{a.actor_name}</span>
                   <span> — </span>
                   <span className="text-white">{a.action}</span>
-                  <span className="text-slate-400"> ({a.kind}/{a.ref})</span>
+                  <span className="text-rk-muted"> ({a.kind}/{a.ref})</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400 flex-shrink-0">{fmtDate(a.created_at)}</span>
+                <span className="text-[11px] font-mono text-rk-muted flex-shrink-0">{fmtDate(a.created_at)}</span>
               </div>
             ))}
           </div>
@@ -370,7 +370,7 @@ export const MembersTab: React.FC = () => {
             <button
               onClick={() => setModal(null)}
               aria-label="Fermer"
-              className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 text-rk-muted hover:text-white cursor-pointer"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -378,14 +378,14 @@ export const MembersTab: React.FC = () => {
               <Users className="w-5 h-5 text-emerald-400" />
               {modal === 'add' ? 'Ajouter un membre OS' : 'Modifier le membre'}
             </h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-rk-muted mb-6">
               Le compte est créé dans la base PostgreSQL et activé immédiatement. Le membre pourra se connecter à l'entrée Arckaton OS.
             </p>
 
             <form onSubmit={save} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom complet *</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Nom complet *</label>
                   <input
                     type="text" required value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -393,7 +393,7 @@ export const MembersTab: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Email *</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Email *</label>
                   <input
                     type="email" required value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -404,7 +404,7 @@ export const MembersTab: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-1">
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Rôle</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Rôle</label>
                   <select
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
@@ -416,7 +416,7 @@ export const MembersTab: React.FC = () => {
                   </select>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Pôle</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Pôle</label>
                   <select
                     value={form.pole}
                     onChange={(e) => setForm({ ...form, pole: e.target.value as Pole })}
@@ -431,7 +431,7 @@ export const MembersTab: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Poste (titre)</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Poste (titre)</label>
                   <input
                     type="text" value={form.poste_titre}
                     onChange={(e) => setForm({ ...form, poste_titre: e.target.value })}
@@ -440,7 +440,7 @@ export const MembersTab: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Téléphone</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Téléphone</label>
                   <input
                     type="text" value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -451,7 +451,7 @@ export const MembersTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1">
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1">
                   {modal === 'add' ? 'Mot de passe initial *' : 'Nouveau mot de passe (laisser vide pour ne rien changer)'}
                 </label>
                 <input
@@ -463,10 +463,10 @@ export const MembersTab: React.FC = () => {
               </div>
 
               <div>
-                <span className="block text-xs font-mono text-slate-400 uppercase mb-2">Permissions</span>
+                <span className="block text-xs font-mono text-rk-muted uppercase mb-2">Permissions</span>
                 <div className="space-y-2">
                   {PERMS.map((p) => (
-                    <label key={p.key} className="flex items-center gap-3 bg-rk-bg border border-rk-line-soft p-3 rounded-xl text-xs text-slate-200 cursor-pointer">
+                    <label key={p.key} className="flex items-center gap-3 bg-rk-bg border border-rk-line-soft p-3 rounded-xl text-xs text-rk-text cursor-pointer">
                       <input
                         type="checkbox"
                         checked={form.permissions.includes(p.key)}
@@ -480,7 +480,7 @@ export const MembersTab: React.FC = () => {
               </div>
 
               {modal === 'edit' && (
-                <label className="flex items-center gap-3 bg-rk-bg border border-rk-line-soft p-3 rounded-xl text-xs text-slate-200 cursor-pointer">
+                <label className="flex items-center gap-3 bg-rk-bg border border-rk-line-soft p-3 rounded-xl text-xs text-rk-text cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.active}
@@ -496,7 +496,7 @@ export const MembersTab: React.FC = () => {
               <div className="pt-4 flex items-center justify-end gap-3">
                 <button
                   type="button" onClick={() => setModal(null)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                  className="px-4 py-2 text-xs text-rk-muted hover:text-white cursor-pointer"
                 >
                   Annuler
                 </button>

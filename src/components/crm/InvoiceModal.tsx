@@ -178,7 +178,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
   };
 
   const inputClass =
-    'w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none print:hidden';
+    'w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 placeholder:text-rk-muted focus:border-slate-400 focus:outline-none print:hidden';
 
   return createPortal(
     <div className="invoice-modal rk-print-portal fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-backdrop-in overflow-auto">
@@ -192,11 +192,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
       >
 
         {/* Barre d'actions (non imprimable) */}
-        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-rk-surface border border-rk-line px-4 py-3 text-slate-100 shadow-xl">
+        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-rk-surface border border-rk-line px-4 py-3 text-rk-text shadow-xl">
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={onClose}
-              className="bg-white/5 hover:bg-white/10 text-slate-200 border border-rk-line font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              className="bg-white/5 hover:bg-white/10 text-rk-text border border-rk-line font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
               title="Retour au CRM (Échap)"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -205,7 +205,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
             <span className="text-[11px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30">
               {type === 'devis' ? 'Devis' : 'Facture proforma'}
             </span>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-[11px] font-mono text-rk-muted">
               Réf : {savedRef || quoteRef || '—'}
             </span>
             {savedRef && (
@@ -243,7 +243,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
             </button>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center cursor-pointer"
               title="Fermer"
               aria-label="Fermer"
             >
@@ -272,11 +272,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
               >
                 {type === 'devis' ? 'DEVIS' : 'FACTURE PROFORMA'}
               </h1>
-              <div className="mt-1.5 text-[11px] font-mono text-slate-500">
+              <div className="mt-1.5 text-[11px] font-mono text-rk-muted">
                 Référence : <span className="font-semibold text-slate-700">{savedRef || quoteRef || '—'}</span>
               </div>
             </div>
-            <div className="text-[11px] text-slate-600 sm:text-right leading-relaxed">
+            <div className="text-[11px] text-rk-muted sm:text-right leading-relaxed">
               <div>Date d'émission : <span className="font-semibold text-slate-800">{dateStr}</span></div>
               <div>Validité de l'offre : <span className="font-semibold text-slate-800">30 jours</span></div>
               <div>Statut : <span className="font-semibold text-slate-800">{STATUS_LABELS[status] || status}</span></div>
@@ -286,22 +286,22 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           {/* Client + détails */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+              <div className="text-[9.5px] font-semibold uppercase tracking-wider text-rk-muted">
                 Client / Donneur d'ordre
               </div>
               <div className="mt-1 text-[13px] font-bold text-slate-900">
                 {clientName || 'Client à renseigner'}
               </div>
-              {clientPhone && <div className="text-[11px] text-slate-600 mt-0.5">{clientPhone}</div>}
-              {clientEmail && <div className="text-[11px] text-slate-600">{clientEmail}</div>}
-              {lead?.country && <div className="text-[11px] text-slate-600">{lead.country}</div>}
+              {clientPhone && <div className="text-[11px] text-rk-muted mt-0.5">{clientPhone}</div>}
+              {clientEmail && <div className="text-[11px] text-rk-muted">{clientEmail}</div>}
+              {lead?.country && <div className="text-[11px] text-rk-muted">{lead.country}</div>}
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+              <div className="text-[9.5px] font-semibold uppercase tracking-wider text-rk-muted">
                 Détails de la prestation
               </div>
-              <div className="mt-1 text-[11px] text-slate-600 space-y-0.5">
+              <div className="mt-1 text-[11px] text-rk-muted space-y-0.5">
                 <div>
                   Projet : <span className="font-semibold text-slate-800">{projet?.client_name || clientName || '—'}</span>
                 </div>
@@ -333,8 +333,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
 
             {lines.length === 0 ? (
               <div className="no-print mt-2 py-6 px-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 text-center">
-                <p className="text-xs font-mono text-slate-500">Aucune prestation saisie.</p>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-xs font-mono text-rk-muted">Aucune prestation saisie.</p>
+                <p className="text-[11px] text-rk-muted mt-1">
                   Ajoutez les lignes avec leur montant : rien n'est estimé automatiquement.
                 </p>
               </div>
@@ -351,7 +351,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                 <tbody>
                   {lines.map((l, i) => (
                     <tr key={i} className="align-top border-b border-slate-100">
-                      <td className="py-2.5 pl-2 text-[11px] font-mono text-slate-400">{i + 1}</td>
+                      <td className="py-2.5 pl-2 text-[11px] font-mono text-rk-muted">{i + 1}</td>
                       <td className="py-2.5 pr-3 space-y-1">
                         <input
                           type="text"
@@ -368,10 +368,10 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                           value={l.detail}
                           onChange={(e) => updateLine(i, { detail: e.target.value })}
                           placeholder="Détail de la prestation"
-                          className={`${inputClass} text-slate-600`}
+                          className={`${inputClass} text-rk-muted`}
                         />
                         {l.detail && (
-                          <div className="text-[11px] text-slate-500">{l.detail}</div>
+                          <div className="text-[11px] text-rk-muted">{l.detail}</div>
                         )}
                       </td>
                       <td className="py-2.5 text-center">
@@ -404,7 +404,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                           />
                           <button
                             onClick={() => removeLine(i)}
-                            className="no-print text-slate-400 hover:text-red-500 px-1 cursor-pointer"
+                            className="no-print text-rk-muted hover:text-red-500 px-1 cursor-pointer"
                             title="Retirer la ligne"
                           >
                             <X className="w-3.5 h-3.5" />
@@ -424,8 +424,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           {/* Modalités + totaux */}
           {lines.length > 0 && (
             <div className="invoice-totals mt-5 flex flex-col sm:flex-row justify-between items-start gap-5">
-              <div className="flex-1 space-y-1 text-[11px] text-slate-600">
-                <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+              <div className="flex-1 space-y-1 text-[11px] text-rk-muted">
+                <div className="text-[9.5px] font-semibold uppercase tracking-wider text-rk-muted">
                   Modalités de règlement
                 </div>
                 <div>
@@ -436,13 +436,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                   • 50% de solde à la livraison finale :{' '}
                   <span className="font-semibold text-slate-800">{formatFcfa(balance)}</span>
                 </div>
-                <div className="text-slate-500">
+                <div className="text-rk-muted">
                   Moyens acceptés : Mobile Money (MTN / Orange), virement bancaire, espèces contre reçu.
                 </div>
 
                 {notes.trim() && (
                   <div className="pt-1.5">
-                    <div className="text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+                    <div className="text-[9.5px] font-semibold uppercase tracking-wider text-rk-muted">
                       Notes / conditions
                     </div>
                     <div className="whitespace-pre-wrap text-slate-700">{notes}</div>
@@ -452,7 +452,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                 {/* Édition (jamais imprimée) */}
                 <div className="no-print pt-3 space-y-2">
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wide text-slate-500">Statut de suivi</label>
+                    <label className="block text-[10px] uppercase tracking-wide text-rk-muted">Statut de suivi</label>
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
@@ -465,7 +465,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wide text-slate-500">Conditions / notes</label>
+                    <label className="block text-[10px] uppercase tracking-wide text-rk-muted">Conditions / notes</label>
                     <textarea
                       rows={2}
                       value={notes}
@@ -479,11 +479,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
               </div>
 
               <div className="w-full sm:w-[260px] rounded-xl border border-slate-200 overflow-hidden shrink-0">
-                <div className="flex justify-between px-4 py-2 text-[11px] text-slate-600 bg-slate-50">
+                <div className="flex justify-between px-4 py-2 text-[11px] text-rk-muted bg-slate-50">
                   <span>Total prestations</span>
                   <span className="font-mono">{formatFcfa(total)}</span>
                 </div>
-                <div className="flex justify-between px-4 py-2 text-[11px] text-slate-600 border-t border-slate-100">
+                <div className="flex justify-between px-4 py-2 text-[11px] text-rk-muted border-t border-slate-100">
                   <span>Acompte (50%)</span>
                   <span className="font-mono">{formatFcfa(deposit)}</span>
                 </div>
@@ -500,7 +500,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           )}
 
           {/* Signatures */}
-          <div className="invoice-signature mt-8 flex flex-col sm:flex-row justify-between gap-6 text-[11px] text-slate-500">
+          <div className="invoice-signature mt-8 flex flex-col sm:flex-row justify-between gap-6 text-[11px] text-rk-muted">
             <div className="w-full sm:w-[45%]">
               <div className="font-semibold text-slate-700">Le client (bon pour accord)</div>
               <div className="mt-8 border-t border-dashed border-slate-300 pt-1">Nom, date et signature</div>
@@ -511,7 +511,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
             </div>
           </div>
 
-          <div className="mt-5 flex items-center gap-1.5 text-[9px] text-slate-400">
+          <div className="mt-5 flex items-center gap-1.5 text-[9px] text-rk-muted">
             <ShieldCheck className="w-3 h-3 text-emerald-600" />
             <span>Document généré par Arckaton OS</span>
           </div>

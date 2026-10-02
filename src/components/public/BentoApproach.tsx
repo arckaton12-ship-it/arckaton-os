@@ -26,7 +26,7 @@ export const BentoApproach: React.FC = () => {
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15]">
             Trois pôles d'expertise unis pour bâtir votre croissance
           </h2>
-          <p className="text-slate-400 text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
+          <p className="text-rk-muted text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto">
             Nous conjuguons l'ingénierie logicielle la plus rigoureuse à une direction artistique de haut standing et un marketing d'activation terrain ancré dans la réalité locale.
           </p>
         </div>
@@ -56,7 +56,7 @@ export const BentoApproach: React.FC = () => {
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
                   Systèmes Web & SaaS Résilients
                 </h3>
-                <p className="text-slate-300 text-sm sm:text-base mt-2.5 leading-relaxed font-light">
+                <p className="text-rk-text-secondary text-sm sm:text-base mt-2.5 leading-relaxed font-light">
                   Développement web ultra-rapide, boutique e-commerce avec encaissement instantané par API MTN MoMo et Orange Money, et notre logiciel ARKA-PME opérant à 100% même en cas de coupure de réseau.
                 </p>
               </div>
@@ -64,25 +64,25 @@ export const BentoApproach: React.FC = () => {
               {/* Technical Badges Row */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3.5 rounded-xl bg-rk-base border border-rk-line-soft space-y-1">
-                  <div className="text-[11px] text-slate-400 font-mono">Mobile Money</div>
+                  <div className="text-[11px] text-rk-muted font-mono">Mobile Money</div>
                   <div className="text-sm font-semibold text-white">MTN & Orange</div>
                   <div className="text-[11px] text-emerald-400">0% d'échec de passerelle</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-rk-base border border-rk-line-soft space-y-1">
-                  <div className="text-[11px] text-slate-400 font-mono">Mode Hybride</div>
+                  <div className="text-[11px] text-rk-muted font-mono">Mode Hybride</div>
                   <div className="text-sm font-semibold text-white">Offline First</div>
-                  <div className="text-[11px] text-slate-400">Sync automatique dès reconnexion</div>
+                  <div className="text-[11px] text-rk-muted">Sync automatique dès reconnexion</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-rk-base border border-rk-line-soft space-y-1">
-                  <div className="text-[11px] text-slate-400 font-mono">Volume Consolidé</div>
+                  <div className="text-[11px] text-rk-muted font-mono">Volume Consolidé</div>
                   <div className="text-sm font-semibold text-emerald-400">12,8M FCFA</div>
-                  <div className="text-[11px] text-slate-400">Gérés sans perte de caisse</div>
+                  <div className="text-[11px] text-rk-muted">Gérés sans perte de caisse</div>
                 </div>
               </div>
 
-              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300 pt-2">
+              <ul className="space-y-2.5 text-xs sm:text-sm text-rk-text-secondary pt-2">
                 <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                   <span>Architecture cloud évolutive, temps de chargement &lt; 0.8s certifié.</span>
@@ -95,7 +95,7 @@ export const BentoApproach: React.FC = () => {
             </div>
 
             <div className="pt-8 border-t border-rk-line mt-8 flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-400">Livraison : 2 à 4 semaines</span>
+              <span className="text-xs font-mono text-rk-muted">Livraison : 2 à 4 semaines</span>
               <button
                 onClick={() => openAgentWithPole('Tech')}
                 className="text-xs font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -131,12 +131,12 @@ export const BentoApproach: React.FC = () => {
                   <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
                     Identité & Standing Visuel
                   </h3>
-                  <p className="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed font-light">
+                  <p className="text-rk-text-secondary text-xs sm:text-sm mt-2 leading-relaxed font-light">
                     Logotypes intemporels, typographies sur-mesure, packaging haut de gamme et shootings photo/vidéo professionnels en studio et sur site client.
                   </p>
                 </div>
 
-                <div className="text-xs text-slate-300 space-y-1.5">
+                <div className="text-xs text-rk-text-secondary space-y-1.5">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
                     <span>Kit de marque complet & direction artistique 2026.</span>
@@ -149,7 +149,7 @@ export const BentoApproach: React.FC = () => {
               </div>
 
               <div className="pt-6 border-t border-rk-line mt-6 flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">2 à 3 rounds inclus</span>
+                <span className="text-xs font-mono text-rk-muted">2 à 3 rounds inclus</span>
                 <button
                   onClick={() => openAgentWithPole('Creatif')}
                   className="text-xs font-medium text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -182,7 +182,7 @@ export const BentoApproach: React.FC = () => {
                   <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
                     Sorties Terrain & Acquisition
                   </h3>
-                  <p className="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed font-light">
+                  <p className="text-rk-text-secondary text-xs sm:text-sm mt-2 leading-relaxed font-light">
                     Le digital prend tout son sens sur le terrain. Nous déployons nos équipes à Yaoundé et Douala pour capter des contenus réels et convertir vos prospects.
                   </p>
                 </div>
@@ -202,7 +202,7 @@ export const BentoApproach: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="text-xs text-slate-300 space-y-1.5">
+                <div className="text-xs text-rk-text-secondary space-y-1.5">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                     <span>6 à 9 sorties terrain mensuelles (Forfaits Synergie & Arch.).</span>
@@ -215,7 +215,7 @@ export const BentoApproach: React.FC = () => {
               </div>
 
               <div className="pt-6 border-t border-rk-line mt-6 flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">+337% de conversion</span>
+                <span className="text-xs font-mono text-rk-muted">+337% de conversion</span>
                 <button
                   onClick={() => openAgentWithPole('Digital')}
                   className="text-xs font-medium text-blue-400 hover:text-blue-300 flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -249,11 +249,11 @@ export const BentoApproach: React.FC = () => {
                 6 Pôles d'Excellence Connectés en Temps Réel
               </h3>
 
-              <p className="text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
+              <p className="text-xs sm:text-sm text-rk-text-secondary font-light leading-relaxed">
                 Aucun projet n'avance en silo. Notre Direction Générale, le Pôle Tech & Logiciel, le Studio Créatif, le Pôle Digital Terrain, le Service Client et nos Partenaires Logistiques opèrent sur un même tableau de bord unifié.
               </p>
 
-              <div className="grid grid-cols-2 gap-3 pt-2 text-xs font-mono text-slate-300">
+              <div className="grid grid-cols-2 gap-3 pt-2 text-xs font-mono text-rk-text-secondary">
                 <div className="p-2.5 rounded-lg bg-rk-base border border-rk-line-soft flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span>Direction Stratégique</span>
@@ -281,7 +281,7 @@ export const BentoApproach: React.FC = () => {
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 right-3 bg-rk-base/85 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 flex items-center gap-2">
+              <div className="absolute bottom-3 right-3 bg-rk-base/85 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-lg text-[11px] font-mono text-rk-text-secondary flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>Interconnexion Opérationnelle Active</span>
               </div>

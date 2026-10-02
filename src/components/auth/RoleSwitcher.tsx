@@ -37,14 +37,14 @@ export const RoleSwitcher: React.FC = () => {
         
         <div className="text-left hidden sm:block">
           <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
-          <div className="text-[11px] font-mono text-slate-400 mt-0.5">{user.poste_titre}</div>
+          <div className="text-[11px] font-mono text-rk-muted mt-0.5">{user.poste_titre}</div>
         </div>
 
         <span className={`text-[11px] font-mono px-2 py-0.5 rounded-md border ${roleLabels[role]?.badgeColor || ''}`}>
           {roleLabels[role]?.label}
         </span>
 
-        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+        <ChevronDown className="w-3.5 h-3.5 text-rk-muted" />
       </button>
 
       {isOpen && (
@@ -61,7 +61,7 @@ export const RoleSwitcher: React.FC = () => {
               </span>
             </div>
 
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-rk-muted leading-relaxed">
               Basculez entre les rôles de l'architecture Arckaton OS pour tester les permissions et vues spécifiques.
             </p>
 
@@ -80,7 +80,7 @@ export const RoleSwitcher: React.FC = () => {
                     className={`w-full flex items-start justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
                       isCurrent
                         ? 'bg-blue-600/20 border border-blue-500/40 text-white'
-                        : 'hover:bg-white/5 text-slate-300'
+                        : 'hover:bg-white/5 text-rk-text-secondary'
                     }`}
                   >
                     <div>
@@ -90,7 +90,7 @@ export const RoleSwitcher: React.FC = () => {
                           {p.role}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                      <div className="text-[11px] text-rk-muted font-mono mt-0.5">
                         {p.poste_titre} • Pôle {p.pole}
                       </div>
                     </div>
@@ -101,7 +101,7 @@ export const RoleSwitcher: React.FC = () => {
               })}
             </div>
 
-            <div className="pt-2 border-t border-rk-line text-[11px] font-mono text-slate-400 flex items-center justify-between">
+            <div className="pt-2 border-t border-rk-line text-[11px] font-mono text-rk-muted flex items-center justify-between">
               <span>Sécurité : Isolation Multi-rôles</span>
               <span className="text-emerald-400">Certifié Arckaton</span>
             </div>

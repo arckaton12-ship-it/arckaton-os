@@ -84,7 +84,7 @@ export const Header: React.FC = () => {
               <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white">
                 arckaton<span className="text-emerald-400">.</span>
               </span>
-              <span className="text-[11px] tracking-wider text-slate-400 font-mono mt-0.5">
+              <span className="text-[11px] tracking-wider text-rk-muted font-mono mt-0.5">
                 SYSTÈMES DIGITAUX · YAOUNDÉ
               </span>
             </div>
@@ -93,7 +93,7 @@ export const Header: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <a
               href="tel:+237681462982"
-              className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white px-3 py-2 rounded-xl border border-rk-line bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+              className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-rk-text hover:text-white px-3 py-2 rounded-xl border border-rk-line bg-white/[0.04] hover:bg-white/[0.08] transition-all"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-400" />
               <span className="whitespace-nowrap">Appeler</span>
@@ -111,7 +111,7 @@ export const Header: React.FC = () => {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={menuOpen}
-              className="p-2.5 rounded-xl text-slate-100 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-rk-line transition-all cursor-pointer flex items-center justify-center"
+              className="p-2.5 rounded-xl text-rk-text hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-rk-line transition-all cursor-pointer flex items-center justify-center"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -141,14 +141,14 @@ export const Header: React.FC = () => {
             >
               <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
                 <div>
-                  <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-slate-400 mb-3">Navigation</p>
+                  <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-rk-muted mb-3">Navigation</p>
                   <ul className="space-y-1">
                     {NAV_ITEMS.map((item) => (
                       <li key={item.id}>
                         {item.action ? (
                           <button
                             onClick={() => runAction(item.action)}
-                            className="w-full text-left px-3.5 py-3 rounded-xl text-slate-100 hover:text-white hover:bg-white/[0.07] transition-colors flex items-center justify-between text-sm font-medium cursor-pointer"
+                            className="w-full text-left px-3.5 py-3 rounded-xl text-rk-text hover:text-white hover:bg-white/[0.07] transition-colors flex items-center justify-between text-sm font-medium cursor-pointer"
                           >
                             <span>{item.label}</span>
                             {item.badge && (
@@ -167,7 +167,7 @@ export const Header: React.FC = () => {
                           <a
                             href={`#${item.id}`}
                             onClick={close}
-                            className="px-3.5 py-3 rounded-xl text-slate-100 hover:text-white hover:bg-white/[0.07] transition-colors flex items-center justify-between text-sm font-medium"
+                            className="px-3.5 py-3 rounded-xl text-rk-text hover:text-white hover:bg-white/[0.07] transition-colors flex items-center justify-between text-sm font-medium"
                           >
                             <span>{item.label}</span>
                             {item.badge && (
@@ -227,8 +227,8 @@ export const Header: React.FC = () => {
               {/* Pied de menu : préférences d'affichage */}
               <div className="px-5 py-4 border-t border-rk-line space-y-3 bg-black/20">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-300 font-medium flex items-center gap-2">
-                    <LayoutGrid className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-xs text-rk-text-secondary font-medium flex items-center gap-2">
+                    <LayoutGrid className="w-3.5 h-3.5 text-rk-muted" />
                     <span>Devise</span>
                   </span>
                   <div className="flex items-center gap-1 bg-white/[0.06] p-1 rounded-lg border border-rk-line">
@@ -237,7 +237,7 @@ export const Header: React.FC = () => {
                         key={c.code}
                         onClick={() => setCurrency(c.code)}
                         className={`px-2.5 py-1 text-xs rounded-md font-mono cursor-pointer transition-colors ${
-                          currency === c.code ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-slate-300 hover:text-white'
+                          currency === c.code ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-rk-text-secondary hover:text-white'
                         }`}
                       >
                         {c.label}
@@ -247,13 +247,13 @@ export const Header: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-300 font-medium flex items-center gap-2">
-                    <Globe className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-xs text-rk-text-secondary font-medium flex items-center gap-2">
+                    <Globe className="w-3.5 h-3.5 text-rk-muted" />
                     <span>Thème</span>
                   </span>
                   <button
                     onClick={toggleTheme}
-                    className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-rk-line text-slate-100 hover:bg-white/[0.12] transition-all cursor-pointer flex items-center gap-2 text-xs"
+                    className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-rk-line text-rk-text hover:bg-white/[0.12] transition-all cursor-pointer flex items-center gap-2 text-xs"
                   >
                     {theme === 'dark' ? (
                       <>

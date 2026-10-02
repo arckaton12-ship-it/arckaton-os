@@ -108,10 +108,10 @@ export const SettingsTab: React.FC = () => {
 
   const StatusLine: React.FC<{ label: string; ok: boolean | null; children: React.ReactNode }> = ({ label, ok, children }) => (
     <div className="pt-2 flex items-center justify-between gap-3">
-      <span className="text-slate-300">{label}</span>
+      <span className="text-rk-text-secondary">{label}</span>
       <span
         className={`font-mono flex items-center gap-1.5 text-right ${
-          ok === null ? 'text-slate-400' : ok ? 'text-emerald-400' : 'text-amber-400'
+          ok === null ? 'text-rk-muted' : ok ? 'text-emerald-400' : 'text-amber-400'
         }`}
       >
         {ok === null ? (
@@ -138,7 +138,7 @@ export const SettingsTab: React.FC = () => {
           <Settings className="w-5 h-5 text-emerald-400" />
           <span>Paramètres & Infrastructure Arckaton OS</span>
         </h2>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-rk-muted mt-1">
           Configuration de l'agence, état réel des services connectés et bascule des données de démonstration.
         </p>
       </div>
@@ -173,11 +173,11 @@ export const SettingsTab: React.FC = () => {
               </StatusLine>
 
               <StatusLine label="Méthode 6 Pôles :" ok={null}>
-                <span className="text-slate-400">procédures internes</span>
+                <span className="text-rk-muted">procédures internes</span>
               </StatusLine>
 
               <StatusLine label="Contenu en mémoire :" ok={null}>
-                <span className="text-slate-400">
+                <span className="text-rk-muted">
                   {projets.length} projet(s) • {leads.length} lead(s) • {tasks.length} tâche(s)
                 </span>
               </StatusLine>
@@ -185,18 +185,18 @@ export const SettingsTab: React.FC = () => {
           )}
 
           {!aiOk && health && (
-            <p className="text-[11px] text-slate-400 flex items-start gap-1.5">
+            <p className="text-[11px] text-rk-muted flex items-start gap-1.5">
               <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-amber-400" />
               <span>
                 Sans clé Gemini côté serveur, le copilote et l'agent chat répondent avec des réponses
-                préparées. Ajoutez <code className="font-mono text-slate-300">GEMINI_API_KEY</code> sur le
+                préparées. Ajoutez <code className="font-mono text-rk-text-secondary">GEMINI_API_KEY</code> sur le
                 service Render pour activer l'IA réelle.
               </span>
             </p>
           )}
 
           {healthError && (
-            <p className="text-[11px] text-slate-400 flex items-start gap-1.5">
+            <p className="text-[11px] text-rk-muted flex items-start gap-1.5">
               <WifiOff className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
               <span>Vérifiez la connexion réseau : le diagnostic serveur n'a pas abouti.</span>
             </p>
@@ -211,13 +211,13 @@ export const SettingsTab: React.FC = () => {
           </h3>
 
           {loadingSettings ? (
-            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+            <div className="flex items-center gap-2 text-[11px] font-mono text-rk-muted">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Chargement des valeurs enregistrées…
             </div>
           ) : (
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 font-mono mb-1">Téléphone WhatsApp Principal</label>
+                <label className="block text-rk-muted font-mono mb-1">Téléphone WhatsApp Principal</label>
                 <input
                   type="text"
                   value={agency.phone}
@@ -228,7 +228,7 @@ export const SettingsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-400 font-mono mb-1">Email Agence</label>
+                <label className="block text-rk-muted font-mono mb-1">Email Agence</label>
                 <input
                   type="text"
                   value={agency.email}
@@ -239,7 +239,7 @@ export const SettingsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-400 font-mono mb-1">Bureau Principal</label>
+                <label className="block text-rk-muted font-mono mb-1">Bureau Principal</label>
                 <input
                   type="text"
                   value={agency.location}
@@ -284,7 +284,7 @@ export const SettingsTab: React.FC = () => {
           <Palette className="w-4 h-4 text-emerald-400" />
           <span>Apparence du tableau de bord</span>
         </h3>
-        <p className="text-[11px] text-slate-400">
+        <p className="text-[11px] text-rk-muted">
           Choisissez le thème d'affichage. Le choix est conservé sur cet appareil et s'applique
           immédiatement à tout le tableau de bord.
         </p>
@@ -300,9 +300,9 @@ export const SettingsTab: React.FC = () => {
                 : 'bg-rk-bg border-rk-line hover:border-rk-line-bold'
             }`}
           >
-            <Sun className={`w-4 h-4 ${theme === 'light' ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <Sun className={`w-4 h-4 ${theme === 'light' ? 'text-emerald-400' : 'text-rk-muted'}`} />
             <span className="text-xs font-semibold text-white">Mode jour</span>
-            <span className="text-[11px] text-slate-400">Fond clair, idéal en plein jour.</span>
+            <span className="text-[11px] text-rk-muted">Fond clair, idéal en plein jour.</span>
             {theme === 'light' && (
               <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> actif
@@ -320,9 +320,9 @@ export const SettingsTab: React.FC = () => {
                 : 'bg-rk-bg border-rk-line hover:border-rk-line-bold'
             }`}
           >
-            <Moon className={`w-4 h-4 ${theme === 'dark' ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <Moon className={`w-4 h-4 ${theme === 'dark' ? 'text-emerald-400' : 'text-rk-muted'}`} />
             <span className="text-xs font-semibold text-white">Mode nuit</span>
-            <span className="text-[11px] text-slate-400">Fond sombre, plus reposant le soir.</span>
+            <span className="text-[11px] text-rk-muted">Fond sombre, plus reposant le soir.</span>
             {theme === 'dark' && (
               <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> actif
@@ -337,7 +337,7 @@ export const SettingsTab: React.FC = () => {
         <h3 className="font-serif text-base font-bold text-white">
           Grille Tarifaire de Référence
         </h3>
-        <p className="text-[11px] text-slate-400">
+        <p className="text-[11px] text-rk-muted">
           Valeurs indicatives communiquées au public. Le chiffrage d'un devis se saisit ligne par ligne
           dans le CRM : rien n'est calculé automatiquement à partir du nom du service.
         </p>
@@ -347,8 +347,8 @@ export const SettingsTab: React.FC = () => {
             <div key={f.id} className="p-4 rounded-xl bg-rk-bg border border-rk-line-soft space-y-1.5">
               <div className="font-semibold text-white">{f.name}</div>
               <div className="font-serif text-lg font-bold text-emerald-400">{f.creation_price}</div>
-              <div className="text-slate-400 text-[11px]">Suivi : {f.monthly_price}</div>
-              <div className="text-[11px] font-mono text-slate-400">{f.delai} • {f.retouches}</div>
+              <div className="text-rk-muted text-[11px]">Suivi : {f.monthly_price}</div>
+              <div className="text-[11px] font-mono text-rk-muted">{f.delai} • {f.retouches}</div>
             </div>
           ))}
         </div>
@@ -368,7 +368,7 @@ export const SettingsTab: React.FC = () => {
           </span>
         </h3>
 
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-xs text-rk-muted leading-relaxed">
           Les données fictives de démonstration (projets, leads, tâches, notifications, messagerie, agenda,
           rapports IA, réalisations, témoignages, articles) sont retirées de cet appareil. Vos données réelles
           (leads reçus via le site, membres, projets et devis enregistrés dans la base PostgreSQL) sont conservées.
@@ -396,11 +396,11 @@ export const SettingsTab: React.FC = () => {
               }}
               className="bg-white/[0.06] hover:bg-white/[0.12] text-white border border-rk-line px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-slate-300" />
+              <RefreshCw className="w-3.5 h-3.5 text-rk-text-secondary" />
               <span>Restaurer les données de démonstration</span>
             </button>
           )}
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-[11px] font-mono text-rk-muted">
             {projets.length} projet(s) • {leads.length} lead(s) • {tasks.length} tâche(s) affichés
           </span>
         </div>

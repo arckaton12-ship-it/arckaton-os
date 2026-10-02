@@ -106,7 +106,7 @@ export const TasksTab: React.FC = () => {
               {filteredTasks.length} tâches
             </span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-rk-muted mt-1">
             Affectez et suivez l'avancement des livrables pour chacun des 6 pôles de l'agence.
           </p>
         </div>
@@ -129,7 +129,7 @@ export const TasksTab: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-colors cursor-pointer ${
               selectedPole === 'all'
                 ? 'bg-white text-slate-950 font-bold'
-                : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
+                : 'bg-rk-panel text-rk-muted hover:text-white border border-rk-line-soft'
             }`}
           >
             Tous les Pôles
@@ -141,7 +141,7 @@ export const TasksTab: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-colors cursor-pointer ${
                 selectedPole === p
                   ? 'bg-purple-600 text-white font-bold'
-                  : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
+                  : 'bg-rk-panel text-rk-muted hover:text-white border border-rk-line-soft'
               }`}
             >
               {p}
@@ -190,7 +190,7 @@ export const TasksTab: React.FC = () => {
       {/* Tasks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTasks.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-slate-400 bg-rk-panel rounded-2xl border border-rk-line-soft">
+          <div className="col-span-full text-center py-12 text-rk-muted bg-rk-panel rounded-2xl border border-rk-line-soft">
             Aucune tâche trouvée pour cette combinaison de filtres.
           </div>
         ) : (
@@ -211,14 +211,14 @@ export const TasksTab: React.FC = () => {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono uppercase bg-white/5 text-slate-300 px-2.5 py-0.5 rounded border border-rk-line-soft">
+                    <span className="text-[11px] font-mono uppercase bg-white/5 text-rk-text-secondary px-2.5 py-0.5 rounded border border-rk-line-soft">
                       {t.pole}
                     </span>
 
                     <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
                       t.priority === 'urgente' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
                       t.priority === 'normale' ? 'bg-blue-500/20 text-blue-300' :
-                      'bg-slate-700 text-slate-400'
+                      'bg-slate-700 text-rk-muted'
                     }`}>
                       {t.priority.toUpperCase()}
                     </span>
@@ -226,12 +226,12 @@ export const TasksTab: React.FC = () => {
 
                   <div>
                     <h3 className={`font-serif text-base font-bold text-white leading-snug ${
-                      isCompleted ? 'line-through text-slate-400' : ''
+                      isCompleted ? 'line-through text-rk-muted' : ''
                     }`}>
                       {t.title}
                     </h3>
                     {t.description && (
-                      <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-rk-text-secondary mt-1.5 leading-relaxed">
                         {t.description}
                       </p>
                     )}
@@ -246,9 +246,9 @@ export const TasksTab: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-rk-muted">
                     <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <User className="w-3.5 h-3.5 text-rk-muted" />
                       <span>{t.assigned_to || t.assignee_name || 'Non assignée'}</span>
                     </div>
                     {t.due_date && (
@@ -285,7 +285,7 @@ export const TasksTab: React.FC = () => {
                         (t.status || t.statut) === 'termine' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
                         (t.status || t.statut) === 'en_cours' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
                         (t.status || t.statut) === 'revue' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
-                        'bg-slate-800 text-slate-400 border-rk-line'
+                        'bg-slate-800 text-rk-muted border-rk-line'
                       }`}
                     >
                       <option value="a_faire">À faire</option>
@@ -318,7 +318,7 @@ export const TasksTab: React.FC = () => {
               <button
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Fermer"
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -326,7 +326,7 @@ export const TasksTab: React.FC = () => {
 
             <form onSubmit={handleCreateTask} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Titre de la tâche *</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Titre de la tâche *</label>
                 <input
                   type="text"
                   required
@@ -338,7 +338,7 @@ export const TasksTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Description détaillée</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Description détaillée</label>
                 <textarea
                   rows={2}
                   value={description}
@@ -350,7 +350,7 @@ export const TasksTab: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Pôle</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Pôle</label>
                   <select
                     value={pole}
                     onChange={(e) => {
@@ -370,7 +370,7 @@ export const TasksTab: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Priorité</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Priorité</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value as any)}
@@ -385,7 +385,7 @@ export const TasksTab: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Responsable</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Responsable</label>
                   <input
                     type="text"
                     list="task-members"
@@ -399,7 +399,7 @@ export const TasksTab: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-mono mb-1">Échéance</label>
+                  <label className="block text-rk-text-secondary font-mono mb-1">Échéance</label>
                   <input
                     type="text"
                     value={dueDate}
@@ -411,7 +411,7 @@ export const TasksTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-mono mb-1">Projet actif rattaché</label>
+                <label className="block text-rk-text-secondary font-mono mb-1">Projet actif rattaché</label>
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
@@ -428,7 +428,7 @@ export const TasksTab: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="text-slate-400 hover:text-white px-3 py-2"
+                  className="text-rk-muted hover:text-white px-3 py-2"
                 >
                   Annuler
                 </button>

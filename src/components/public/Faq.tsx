@@ -56,7 +56,7 @@ export const Faq: React.FC = () => {
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
             Questions fréquentes
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base font-light max-w-xl mx-auto">
+          <p className="text-rk-muted text-sm sm:text-base font-light max-w-xl mx-auto">
             Des réponses claires et précises pour préparer votre collaboration avec Arckaton en toute sérénité.
           </p>
         </div>
@@ -83,7 +83,7 @@ export const Faq: React.FC = () => {
                     {item.question}
                   </span>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-200 flex-shrink-0 ${
-                    isOpen ? 'rotate-180 bg-emerald-500/10 text-emerald-400' : 'text-slate-400 bg-white/[0.04]'
+                    isOpen ? 'rotate-180 bg-emerald-500/10 text-emerald-400' : 'text-rk-muted bg-white/[0.04]'
                   }`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
@@ -98,7 +98,7 @@ export const Faq: React.FC = () => {
                       transition={{ duration: 0.25, ease: 'easeInOut' }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-6 pt-1 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-rk-line-soft font-light">
+                      <div className="px-6 pb-6 pt-1 text-rk-text-secondary text-xs sm:text-sm leading-relaxed border-t border-rk-line-soft font-light">
                         {item.answer}
                       </div>
                     </motion.div>
@@ -115,7 +115,7 @@ export const Faq: React.FC = () => {
             <h4 className="font-serif text-base font-bold text-white">
               Une autre question spécifique à votre secteur ?
             </h4>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-rk-muted mt-0.5">
               Consultez notre agent interactif entraîné sur l'ensemble de notre méthode.
             </p>
           </div>

@@ -206,7 +206,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
             Copilote Stratégique & Générateur de Rapports IA
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+          <p className="text-rk-text-secondary text-xs sm:text-sm max-w-2xl leading-relaxed">
             Un centre de commandement assisté par intelligence artificielle pour auditer vos opérations en 1 clic, déceler les opportunités commerciales et guider les 6 pôles de l'agence.
           </p>
         </div>
@@ -244,7 +244,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                   Rapports Stratégiques IA
                 </h3>
               </div>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono text-rk-muted">
                 {agentReports.length} rapports archivés
               </span>
             </div>
@@ -258,7 +258,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                   className={`px-3 py-2 rounded-xl text-xs font-mono whitespace-nowrap transition-all cursor-pointer border ${
                     selectedReport?.id === rep.id
                       ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-semibold'
-                      : 'bg-rk-bg border-rk-line-soft text-slate-400 hover:text-white'
+                      : 'bg-rk-bg border-rk-line-soft text-rk-muted hover:text-white'
                   }`}
                 >
                   {rep.title.slice(0, 30)}...
@@ -282,7 +282,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <h4 className="font-serif text-base font-bold text-white">
                       {selectedReport.title}
                     </h4>
-                    <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400 mt-1">
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-rk-muted mt-1">
                       <span>Pôle : {selectedReport.pole}</span>
                       <span>•</span>
                       <span>{new Date(selectedReport.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -292,14 +292,14 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                   <div className="flex items-center gap-2">
                     <button
                       onClick={copyReportText}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-rk-text-secondary transition-colors"
                       title="Copier le rapport"
                     >
                       <Copy className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => window.print()}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-rk-text-secondary transition-colors"
                       title="Imprimer / Exporter PDF"
                     >
                       <Printer className="w-4 h-4" />
@@ -313,7 +313,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                   </div>
                 )}
 
-                <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+                <div className="space-y-3 text-xs text-rk-text-secondary leading-relaxed">
                   <div className="space-y-1">
                     <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
                       Synthèse Exécutive :
@@ -339,7 +339,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
 
                   {selectedReport.forfait_recommande && (
                     <div className="pt-2 flex items-center justify-between p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20">
-                      <span className="text-slate-300 font-medium">Forfait Recommandé par l'IA :</span>
+                      <span className="text-rk-text-secondary font-medium">Forfait Recommandé par l'IA :</span>
                       <span className="font-mono text-emerald-300 font-bold">{selectedReport.forfait_recommande}</span>
                     </div>
                   )}
@@ -366,7 +366,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <h3 className="font-serif text-lg font-bold text-white">
                       Copilote Décisionnel
                     </h3>
-                    <p className="text-[11px] text-slate-400 font-mono">
+                    <p className="text-[11px] text-rk-muted font-mono">
                       Conseiller IA interne • Branché sur votre base en temps réel
                     </p>
                   </div>
@@ -401,7 +401,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                         className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
                           isUser
                             ? 'bg-blue-600 text-white rounded-tr-none font-medium'
-                            : 'bg-rk-panel text-slate-200 border border-rk-line rounded-tl-none'
+                            : 'bg-rk-panel text-rk-text border border-rk-line rounded-tl-none'
                         }`}
                       >
                         <p className="whitespace-pre-line">{m.text}</p>
@@ -415,13 +415,13 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
 
               {/* Quick Prompts */}
               <div className="space-y-1.5 pt-1">
-                <span className="text-[11px] font-mono text-slate-400">Questions stratégiques rapides :</span>
+                <span className="text-[11px] font-mono text-rk-muted">Questions stratégiques rapides :</span>
                 <div className="flex flex-wrap gap-1.5">
                   {quickCopilotPrompts.map((p, i) => (
                     <button
                       key={i}
                       onClick={() => handleSendChat(p)}
-                      className="text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 px-2.5 py-1 rounded-lg border border-rk-line-soft transition-colors cursor-pointer"
+                      className="text-[11px] bg-white/5 hover:bg-white/10 text-rk-text-secondary px-2.5 py-1 rounded-lg border border-rk-line-soft transition-colors cursor-pointer"
                     >
                       {p}
                     </button>

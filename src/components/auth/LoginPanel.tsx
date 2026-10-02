@@ -83,7 +83,7 @@ export const LoginPanel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-rk-bg text-slate-100 flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-rk-bg text-rk-text flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="bg-rk-panel border border-rk-line rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.05] rounded-full blur-3xl pointer-events-none" />
@@ -97,7 +97,7 @@ export const LoginPanel: React.FC = () => {
                 <h1 className="font-serif text-2xl font-bold text-white tracking-tight">
                   arckaton <span className="text-blue-400 font-mono text-sm align-middle ml-1">OS</span>
                 </h1>
-                <p className="text-xs text-slate-400 font-light mt-1 max-w-xs">
+                <p className="text-xs text-rk-muted font-light mt-1 max-w-xs">
                   Espace de pilotage interne — accès réservé aux membres habilités par la direction.
                 </p>
               </div>
@@ -110,19 +110,19 @@ export const LoginPanel: React.FC = () => {
                   Configuration initiale — Création du Directeur (admin)
                 </span>
                 <div>
-                  <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Nom complet</label>
+                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Nom complet</label>
                   <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Email professionnel</label>
+                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Email professionnel</label>
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Mot de passe initial</label>
+                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Mot de passe initial</label>
                   <input type="text" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Téléphone (optionnel)</label>
+                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Téléphone (optionnel)</label>
                   <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 {error && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl px-4 py-3">{error}</div>}
@@ -136,31 +136,31 @@ export const LoginPanel: React.FC = () => {
             {needsBoot !== true && (
               <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1.5">Email professionnel</label>
+                <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1.5">Email professionnel</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-rk-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="prenom@arckaton.com"
-                    className="w-full bg-rk-bg border border-rk-line focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
+                    className="w-full bg-rk-bg border border-rk-line focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-rk-muted outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1.5">Mot de passe</label>
+                <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1.5">Mot de passe</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-rk-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-rk-bg border border-rk-line focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
+                    className="w-full bg-rk-bg border border-rk-line focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-rk-muted outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -182,7 +182,7 @@ export const LoginPanel: React.FC = () => {
             </form>
             )}
 
-            <div className="flex items-center justify-between pt-2 text-[11px] font-mono text-slate-400">
+            <div className="flex items-center justify-between pt-2 text-[11px] font-mono text-rk-muted">
               <span className="flex items-center gap-1.5">
                 {bootChecked ? (
                   <>
@@ -198,7 +198,7 @@ export const LoginPanel: React.FC = () => {
               </span>
               <button
                 onClick={() => setMode('public')}
-                className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="flex items-center gap-1 text-rk-muted hover:text-white transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Retour au site public</span>
