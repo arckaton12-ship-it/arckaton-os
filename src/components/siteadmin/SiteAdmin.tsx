@@ -696,14 +696,14 @@ export const SiteAdmin: React.FC = () => {
 
           {/* Edit Forfait Modal */}
           {editingForfait && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-backdrop-in">
               <div
                 ref={forfaitDialogRef}
                 tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition du forfait"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative outline-none"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   Édition du Forfait {editingForfait.name}
@@ -864,14 +864,14 @@ export const SiteAdmin: React.FC = () => {
 
           {/* Create/Edit Blog Modal */}
           {isBlogModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-backdrop-in">
               <div
                 ref={blogDialogRef}
                 tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition d'article de blog"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingBlogPost ? "Modifier le Récit Terrain" : "Publier un Nouveau Récit d'Action"}
@@ -1069,14 +1069,14 @@ export const SiteAdmin: React.FC = () => {
 
           {/* Realisation Modal */}
           {isRealModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-backdrop-in">
               <div
                 ref={realisationDialogRef}
                 tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition d'une réalisation"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingRealisation ? 'Modifier la Réalisation' : 'Ajouter une Réalisation'}
@@ -1226,14 +1226,14 @@ export const SiteAdmin: React.FC = () => {
 
           {/* Temoignage Modal */}
           {isTemModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-backdrop-in">
               <div
                 ref={temoignageDialogRef}
                 tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition d'un témoignage"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none"
+                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingTemoignage ? 'Modifier le Témoignage' : 'Ajouter un Témoignage'}

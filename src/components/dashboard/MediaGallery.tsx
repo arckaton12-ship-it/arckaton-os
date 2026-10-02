@@ -174,7 +174,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
 
       {apercu && (
         <div
-          className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4 animate-backdrop-in"
           onClick={() => setApercu(null)}
         >
           <div
@@ -183,7 +183,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
             role="dialog"
             aria-modal="true"
             aria-label="Aperçu de l'image"
-            className="relative w-full h-full flex items-center justify-center outline-none"
+            className="relative w-full h-full flex items-center justify-center outline-none animate-modal-in"
           >
             <button
               type="button"

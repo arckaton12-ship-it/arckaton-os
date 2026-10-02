@@ -485,14 +485,14 @@ export const KanbanBoard: React.FC = () => {
 
       {/* Modale de création */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-backdrop-in overflow-y-auto">
           <div
             ref={dialogRef}
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label="Créer une tâche Kanban"
-            className="bg-[#0a122e] border border-white/15 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4 my-8 outline-none"
+            className="rk-panel border-white/15 w-full max-w-md shadow-2xl p-6 space-y-4 my-8 outline-none animate-modal-in"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-serif text-lg font-bold text-white">Créer une Tâche Kanban</h3>

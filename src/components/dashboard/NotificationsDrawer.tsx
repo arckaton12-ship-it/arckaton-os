@@ -39,7 +39,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fadeIn"
+      className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm animate-backdrop-in"
       onClick={onClose}
     >
       <div
@@ -49,7 +49,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
         aria-modal="true"
         aria-label="Notifications Arckaton OS"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-[#0a0f2e] border-l border-white/15 h-full flex flex-col shadow-2xl outline-none"
+        className="w-full max-w-md bg-[#0a0f2e] border-l border-white/15 h-full flex flex-col shadow-2xl outline-none animate-drawer-in"
       >
         
         {/* Top Header */}

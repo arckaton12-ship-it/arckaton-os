@@ -97,6 +97,49 @@
   animation: skeleton-shimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* Animations d'ouverture des boites de dialogue, alignees sur les modales
+   publiques (fondu du fond, apparition douce du panneau). */
+@keyframes rk-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rk-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-backdrop-in {
+  animation: rk-fade-in 0.2s ease-out;
+}
+
+.animate-modal-in {
+  animation: rk-modal-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes rk-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-drawer-in {
+  animation: rk-drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Subtle Architectural Blueprint Grid Pattern */
 .bg-blueprint-grid {
   background-size: 40px 40px;

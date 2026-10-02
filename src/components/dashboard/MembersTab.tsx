@@ -358,14 +358,14 @@ export const MembersTab: React.FC = () => {
 
       {/* Modals add / edit */}
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-backdrop-in">
           <div
             ref={dialogRef}
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label={modal === 'add' ? 'Ajouter un membre OS' : 'Modifier le membre'}
-            className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative my-8 outline-none"
+            className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
           >
             <button
               onClick={() => setModal(null)}
@@ -379,7 +379,7 @@ export const MembersTab: React.FC = () => {
               {modal === 'add' ? 'Ajouter un membre OS' : 'Modifier le membre'}
             </h3>
             <p className="text-xs text-slate-400 mb-6">
-              Le compte est créé dans Supabase Auth et activé immédiatement. Le membre pourra se connecter à l'entrée Arckaton OS.
+              Le compte est créé dans la base PostgreSQL et activé immédiatement. Le membre pourra se connecter à l'entrée Arckaton OS.
             </p>
 
             <form onSubmit={save} className="space-y-4">

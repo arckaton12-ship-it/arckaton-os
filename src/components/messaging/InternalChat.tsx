@@ -329,14 +329,14 @@ export const InternalChat: React.FC = () => {
 
       {/* Simulateur d'échange multi-membres */}
       {isSimOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-backdrop-in">
           <div
             ref={dialogRef}
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label="Simulateur d'échange multi-membres"
-            className="bg-[#0a122e] border border-amber-500/25 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden outline-none"
+            className="bg-[#0a122e] border border-amber-500/25 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden outline-none animate-modal-in"
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <div>
