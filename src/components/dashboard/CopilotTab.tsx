@@ -28,7 +28,7 @@ export const CopilotTab: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
     {
       role: 'assistant',
-      text: "Bonjour Boss ! Je suis le Copilote Stratégique d'Arckaton OS. J'ai accès en temps réel au pipeline des leads, aux tâches des 6 pôles et aux performances financières. Comment puis-je vous aider aujourd'hui ?"
+      text: "Bonjour ! Je suis le Copilote Stratégique d'Arckaton OS, branché sur vos données en temps réel : pipeline des prospects, tâches, devis et contacts arrivés par le site. Je suis en lecture seule — j'analyse et je conseille, mais je ne modifie rien moi-même. Que voulez-vous examiner ?"
     }
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -189,7 +189,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
   const quickCopilotPrompts = [
     "Quels leads relancer en priorité aujourd'hui ?",
     "Rédige un message WhatsApp de closing pour le Forfait Synergie",
-    "Analyse la rentabilité de nos 9 sorties terrain",
+    "Analyse notre rentabilité et nos devis en cours",
     "Goulots d'étranglement actuels sur le Pôle Tech ?"
   ];
 

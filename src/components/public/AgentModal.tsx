@@ -26,6 +26,8 @@ export const AgentModal: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
+  const [savingReport, setSavingReport] = useState(false);
+  const [captureNotice, setCaptureNotice] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,12 +59,13 @@ export const AgentModal: React.FC = () => {
 
       const data = await res.json();
       setMessages([...newMessages, { role: 'assistant', text: data.reply, pole: selectedPole }]);
+      if (data.captured) setCaptureNotice(true);
     } catch (err) {
       setMessages([
         ...newMessages,
         {
           role: 'assistant',
-          text: `Le Pôle ${selectedPole} vous répond : Chez Arckaton, nous proposons trois forfaits officiels (Initiation à 380k, Synergie à 750k et Architecture à 2,9M FCFA), tous conçus pour livrer des résultats concrets avec suivi mensuel et sorties terrain. Souhaitez-vous que nous cadrions votre devis personnalisé ?`,
+          text: `Chez Arckaton, nous proposons trois forfaits officiels (Initiation à 380 000 FCFA, Synergie à 750 000 FCFA et Architecture à 2 900 000 FCFA), avec suivi mensuel et sorties terrain. Laissez-moi votre nom et un contact (téléphone ou email) : notre équipe vous recontacte sous 24h pour cadrer votre devis.`,
           pole: selectedPole
         }
       ]);
@@ -71,20 +74,43 @@ export const AgentModal: React.FC = () => {
     }
   };
 
-  const handleGenerateReport = () => {
+  const handleGenerateReport = async () => {
+    if (savingReport) return;
+    setSavingReport(true);
+    const summary = `Échange interactif de ${messages.length} messages avec le conseiller IA du site, orienté sur les besoins « ${selectedPole} ».`;
+    const recommendations = [
+      'Organiser un appel de cadrage de 15 minutes sur WhatsApp',
+      `Préparer une proposition calquée sur le forfait le plus pertinent (${selectedPole === 'Tech' ? 'Architecture' : 'Synergie'})`,
+      "Confirmer les coordonnées du prospect avant l'envoi",
+    ];
+    try {
+      // La synthèse est enregistrée côté serveur : elle remonte ainsi dans le
+      // dashboard et déclenche la notification WhatsApp. Sans cet appel, elle
+      // n'existait que dans le navigateur du visiteur.
+      await fetch('/api/ai/generate-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: 'Visiteur Site Web',
+          pole: selectedPole,
+          messages: messages.map((m) => ({ role: m.role, text: m.text })),
+          summary,
+          recommendations,
+          intention: /essai|arka/i.test(messages.map((m) => m.text).join(' ')) ? 'essai' : 'devis',
+        }),
+      });
+    } catch {
+      /* le message de confirmation reste affiché, la synthèse locale est créée */
+    }
     addAgentReport({
-      title: `Synthèse Échange Client — Pôle ${selectedPole}`,
+      title: `Synthèse Échange Client — ${selectedPole}`,
       pole: selectedPole,
       lead_name: 'Visiteur Site Web',
-      summary: `Échange interactif de ${messages.length} messages orienté sur les besoins ${selectedPole}. Le visiteur a abordé les forfaits et la mise en œuvre technique/marketing.`,
-      recommendations: [
-        'Organiser un appel de cadrage de 15 minutes sur WhatsApp',
-        `Préparer une proposition calquée sur le forfait le plus pertinent (${selectedPole === 'Tech' ? 'Architecture' : 'Synergie'})`,
-        'Présenter les métriques de succès (Kotto +337%, Districash 12 min)'
-      ],
-      forfait_recommande: selectedPole === 'Tech' ? 'Architecture (2 900 000 FCFA)' : 'Synergie (750 000 FCFA)'
+      summary,
+      recommendations,
+      forfait_recommande: selectedPole === 'Tech' ? 'Architecture (2 900 000 FCFA)' : 'Synergie (750 000 FCFA)',
     });
-
+    setSavingReport(false);
     setReportGenerated(true);
     setTimeout(() => setReportGenerated(false), 4000);
   };
@@ -245,6 +271,13 @@ export const AgentModal: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
+            {captureNotice && (
+              <div className="no-print mx-4 mb-1 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-300">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                <span>Votre demande a bien été transmise à l'équipe Arckaton, qui vous recontacte sous 24h.</span>
+              </div>
+            )}
+
             {/* Quick Suggestions Chips */}
             <div className="bg-[#0a0e17] px-4 py-2 border-t border-white/[0.06] overflow-x-auto flex gap-2">
               {quickQuestions[selectedPole].map((q, idx) => (
@@ -270,10 +303,10 @@ export const AgentModal: React.FC = () => {
               >
                 <input
                   type="text"
-                  aria-label={`Votre question au Pôle ${selectedPole}`}
+                  aria-label="Votre message au conseiller Arckaton"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder={`Posez une question au Pôle ${selectedPole}...`}
+                  placeholder="Écrivez votre message (nom, besoin, contact)..."
                   className="flex-1 bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                 />
                 <button
@@ -293,7 +326,13 @@ export const AgentModal: React.FC = () => {
                   className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{reportGenerated ? 'Synthèse transmise à l\'équipe !' : 'Générer une synthèse'}</span>
+                  <span>
+                    {savingReport
+                      ? 'Enregistrement…'
+                      : reportGenerated
+                      ? 'Synthèse transmise à l\'équipe !'
+                      : 'Générer une synthèse'}
+                  </span>
                 </button>
 
                 <button

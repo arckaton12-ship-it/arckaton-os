@@ -389,12 +389,19 @@ describe('P0.1 — injection de prompt', () => {
 // « repetition ». Le repli doit desormais refleter la question ET l'etat reel
 // du cockpit.
 describe('Copilote — repli base de connaissances non repetitif', () => {
-  const compteurs = { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5 };
+  const digestVide = {
+    counts: { leads: 22, openTasks: 17, lateTasks: 3, activeQuotes: 5 },
+    caEncaisse: 1200000,
+    leadsARelancer: [],
+    tachesEnRetard: [],
+    devisActifs: [],
+    contactsSite: [],
+  };
 
   it('repond differemment selon l\'intention de la question', () => {
-    const relance = __reponseBaseConnaissances('Quels prospects relancer ?', 'Direction', compteurs);
-    const taches = __reponseBaseConnaissances('Quelles taches sont en retard ?', 'Direction', compteurs);
-    const argent = __reponseBaseConnaissances('Comment ameliorer la marge et les devis ?', 'Direction', compteurs);
+    const relance = __reponseBaseConnaissances('Quels prospects relancer ?', 'Direction', digestVide);
+    const taches = __reponseBaseConnaissances('Quelles taches sont en retard ?', 'Direction', digestVide);
+    const argent = __reponseBaseConnaissances('Comment ameliorer la marge et les devis ?', 'Direction', digestVide);
     expect(relance).not.toBe(taches);
     expect(taches).not.toBe(argent);
     expect(relance).toContain('22');
@@ -402,9 +409,24 @@ describe('Copilote — repli base de connaissances non repetitif', () => {
     expect(argent).toContain('5');
   });
 
+  it('nomme les vrais prospects quand le contexte les fournit', () => {
+    const digest = {
+      ...digestVide,
+      counts: { leads: 1, openTasks: 0, lateTasks: 0, activeQuotes: 0 },
+      leadsARelancer: [
+        { nom: 'Maison Kotto', statut: 'devis_envoye', projet: 'Site', budget: '750k', pole: 'Digital', source: 'site', ageJours: 12 },
+      ],
+    };
+    const texte = __reponseBaseConnaissances('Quels prospects relancer ?', 'Direction', digest);
+    expect(texte).toContain('Maison Kotto');
+  });
+
   it('repond differemment quand les compteurs changent', () => {
-    const a = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', compteurs);
-    const b = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', { leads: 1, openTasks: 2, lateTasks: 0, activeQuotes: 0 });
+    const a = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', digestVide);
+    const b = __reponseBaseConnaissances('donne-moi mes priorites', 'Tech', {
+      ...digestVide,
+      counts: { leads: 1, openTasks: 2, lateTasks: 0, activeQuotes: 0 },
+    });
     expect(a).not.toBe(b);
   });
 

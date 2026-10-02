@@ -2234,6 +2234,8 @@ Arckaton livre des "systèmes digitaux complets" pour PME africaines et internat
 RÈGLES CAPITALES STRICTES :
 0. Tu parles TOUJOURS au visiteur comme à un client ou à un prospect, jamais comme à un collègue ou à un membre de l'équipe. Tu ES le conseiller d'Arckaton face au public : tu ne fais pas partie de l'équipe interne. Tu ne dis donc jamais « je prends en charge votre demande », « je transmets à l'équipe technique » ou « en tant que Direction/Tech/Créatif... » comme si tu étais un service interne. Tu proposes plutôt de mettre le client en relation avec l'équipe (« notre équipe vous répond sous 24h », « un chef de projet vous accompagnera »).
 0bis. Ne révèle jamais l'organisation interne (les 6 pôles, les rôles, les coulisses). Ne cite pas de nom de pôle comme étant ton identité.
+0ter. Tu es en LECTURE SEULE : tu ne peux exécuter AUCUNE action (créer une fiche, réserver ou confirmer un créneau, envoyer un email/SMS/WhatsApp, modifier un dossier). Tu ne dis donc JAMAIS « c'est noté », « c'est transmis à l'équipe », « le rendez-vous est fixé / confirmé / sécurisé », « je viens de… ». Tu proposes, tu ne fais pas : « notre équipe vous recontacte sous 24h ».
+0quater. Quand le visiteur veut un rendez-vous, un devis ou l'essai ARKA-PME, demande-lui son nom et un moyen de contact (téléphone ou email). Dès qu'il laisse un contact, la demande est enregistrée automatiquement côté Arckaton et remonte à l'équipe : tu peux alors dire que « la demande a bien été transmise à l'équipe, qui revient vers vous sous 24h », sans jamais prétendre avoir réservé un créneau toi-même.
 1. Tu ne dois JAMAIS inventer de prix, de tarif sur mesure ou de chiffre financier non officiel.
 2. Tu ne donnes PAS de prix directement pour un devis personnalisé : tu présentes les 3 forfaits de base officiels (leurs noms et ce qu'ils incluent) et tu orientes toujours le client vers le formulaire de devis interactif multi-étapes pour chiffrage humain par l'équipe.
 3. Les 3 forfaits officiels sont :
@@ -2393,6 +2395,94 @@ function cleanStr(v: unknown, max: number): string {
   return v.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
 }
 
+// Detecte un moyen de contact laisse par un visiteur dans un message libre.
+// Une demande n'est persistee que si elle est exploitable, c'est-a-dire
+// rattachable a un telephone ou un email.
+function extraireContact(texte: string): { phone: string; email: string } {
+  const email = ((texte.match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [''])[0] || '').toLowerCase();
+  const brut = (texte.match(/(\+?\d[\d\s().-]{7,}\d)/) || [''])[0] || '';
+  const phone = brut.replace(/[^\d+]/g, '');
+  return { phone: phone.replace(/\D/g, '').length >= 8 ? phone : '', email };
+}
+
+// Persiste une demande issue du conseiller IA du site pour qu'elle remonte
+// dans le dashboard (leads + agent_reports) et declenche la notification
+// WhatsApp. Idempotent : la cle derive du contact, donc des messages
+// successifs d'un meme visiteur ne creent pas de doublon.
+async function capturerDemandePublique(message: string, pole: string): Promise<{ captured: boolean }> {
+  const sb = getSupabase();
+  if (!sb) return { captured: false };
+  const { phone, email } = extraireContact(message);
+  if (!phone && !email) return { captured: false };
+
+  const cle = (email || phone).toLowerCase().replace(/[^a-z0-9@.+-]/g, '').slice(0, 120);
+  if (!cle) return { captured: false };
+  const ref = `webchat-${cle}`;
+
+  const intention = /essai|arka/i.test(message)
+    ? 'essai'
+    : /devis|forfait|prix|tarif|budget|site|e-commerce|rendez|rdv/i.test(message)
+    ? 'devis'
+    : 'information';
+
+  const nomExplicite = (message.match(/(?:je m'appelle|je suis|c'est|nom\s*:)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,60})/i) || [])[1];
+  const nom = (nomExplicite || (email ? email.split('@')[0] : 'Prospect site (chat)')).trim().slice(0, 120);
+  const projet = intention === 'essai' ? 'Essai ARKA-PME' : intention === 'devis' ? 'Projet digital (via conseiller IA du site)' : "Demande d'information";
+  const contactInfo = [email ? `email ${email}` : '', phone ? `tél ${phone}` : ''].filter(Boolean).join(' / ').slice(0, 200);
+  const resume = `Demande reçue via le conseiller IA du site. Message : « ${message.slice(0, 300)} ». Intention : ${intention}.`;
+
+  try {
+    await sb.from('leads').upsert(
+      {
+        client_ref: ref,
+        name: nom,
+        email: email.slice(0, 160),
+        phone: phone.slice(0, 32),
+        project_type: projet,
+        budget: 'À qualifier',
+        message: message.slice(0, 1000),
+        source: 'site_v2_chat',
+        statut: 'nouveau',
+        notes: '',
+        pole_assigned: pole,
+        country: 'Cameroun / International',
+      },
+      { onConflict: 'client_ref', ignoreDuplicates: true }
+    );
+
+    await sb.from('agent_reports').upsert(
+      {
+        client_ref: ref,
+        client_name: nom,
+        lead_name: nom,
+        sujet: `Contact via conseiller IA du site — ${projet}`,
+        pole,
+        resume,
+        recommendations: [],
+        intention,
+        contact_info: contactInfo,
+        status: 'non_traite',
+        messages_count: 1,
+      },
+      { onConflict: 'client_ref', ignoreDuplicates: true }
+    );
+
+    await persistOutbox({
+      client_ref: ref,
+      kind: 'lead',
+      to_numbers: buildOutboxTargets(),
+      message: truncate(
+        `Nouveau contact via l'IA du site — ${nom} (${intention}) — ${contactInfo || 'contact non précisé'} — ${message}`,
+        600
+      ),
+    });
+    return { captured: true };
+  } catch (err) {
+    console.warn('capturerDemandePublique:', err);
+    return { captured: false };
+  }
+}
+
 // Agent Chat endpoint
 // Ouverte au public (visiteurs du site) mais plafonnée : chaque appel
 // consomme du quota Gemini.
@@ -2455,15 +2545,18 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, scope: 'ai
           contents: fullPrompt,
         });
 
-        return res.json({ reply: texte, source: "gemini", model });
+        const { captured } = await capturerDemandePublique([message, history].filter(Boolean).join('\n'), pole);
+        return res.json({ reply: texte, source: "gemini", model, captured });
       } catch (geminiError) {
         console.warn("Gemini API call fell back to knowledge base:", geminiError);
         const fallback = generateSmartFallbackResponse(pole, message);
-        return res.json({ reply: fallback, source: "knowledge_base" });
+        const { captured } = await capturerDemandePublique([message, history].filter(Boolean).join('\n'), pole);
+        return res.json({ reply: fallback, source: "knowledge_base", captured });
       }
     } else {
       const fallback = generateSmartFallbackResponse(pole, message);
-      return res.json({ reply: fallback, source: "knowledge_base" });
+      const { captured } = await capturerDemandePublique([message, history].filter(Boolean).join('\n'), pole);
+      return res.json({ reply: fallback, source: "knowledge_base", aiEnabled: false, captured });
     }
   } catch (err: any) {
     console.error("Agent chat error:", err);
@@ -3271,15 +3364,17 @@ function sanitizeForPrompt(s: unknown, max: number): string {
     .trim();
 }
 
-// Construit le contexte cockpit transmis a l'IA.
+// Construit le contexte REEL du copilote strategique (session authentifiee).
 //
-// Regle de confidentialite : ce contexte ne contient QUE des compteurs
-// agreges. Aucun nom de client, aucun telephone, aucun email, aucun montant
-// individuel. Le but est de donner a l'IA de quoi repondre utilement sur la
-// charge et la conversion, sans lui transmettre le portefeuille de prospects.
+// Le copilote est reserve aux membres connectes. Contrairement a l'agent
+// public, il doit pouvoir nommer les vrais dossiers : quand le Boss demande
+// « quels leads relancer ? », il attend des noms, pas des placeholders. Le
+// contexte est donc construit par le SERVEUR, depuis la base et la portee du
+// membre (Direction voit tout, un membre voit son pole et ses taches), jamais
+// a partir de champs fournis par le client.
 //
-// Si la base est injoignable, on renvoie un contexte neutre plutot que de
-// laisser passer une erreur : le copilote doit rester utilisable.
+// Les coordonnees (telephone, email) restent hors du prompt : inutiles pour
+// conseiller, et le copilote renvoie vers la fiche CRM pour le contact.
 interface CockpitCounts {
   leads: number;
   openTasks: number;
@@ -3287,86 +3382,242 @@ interface CockpitCounts {
   activeQuotes: number;
 }
 
-async function buildCockpitContext(): Promise<{ text: string; counts: CockpitCounts | null }> {
+interface DigestLead { nom: string; statut: string; projet: string; budget: string; pole: string; source: string; ageJours: number; }
+interface DigestTache { titre: string; pole: string; priorite: string; echeance: string; retardJours: number; assigne: string; }
+interface DigestDevis { ref: string; client: string; total: number; statut: string; ageJours: number; }
+interface DigestContact { client: string; sujet: string; intention: string; statut: string; ageJours: number; }
+
+interface CockpitDigest {
+  counts: CockpitCounts;
+  caEncaisse: number;
+  leadsARelancer: DigestLead[];
+  tachesEnRetard: DigestTache[];
+  devisActifs: DigestDevis[];
+  contactsSite: DigestContact[];
+}
+
+const STATUTS_A_RELANCER = ['nouveau', 'contacte', 'qualifie', 'devis_envoye'];
+
+function ageEnJours(iso: unknown): number {
+  const t = typeof iso === 'string' ? Date.parse(iso) : NaN;
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
+}
+
+async function buildCockpitDigest(member: MemberRow): Promise<CockpitDigest | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
   try {
-    const sb = getSupabase();
-    if (!sb) {
-      return { text: '\n\nContexte cockpit : donnees indisponibles.', counts: null };
+    const estDirection = member.role === 'admin' || member.poste_id === 'p1';
+    const aujourdhui = new Date().toISOString().slice(0, 10);
+
+    let leadsQ = sb.from('leads').select('*').order('created_at', { ascending: true }).limit(500);
+    if (!estDirection) leadsQ = leadsQ.eq('pole_assigned', member.pole);
+
+    let tasksQ = sb.from('tasks').select('*').neq('statut', 'termine').limit(500);
+    if (!estDirection) {
+      tasksQ = tasksQ.orChamps([
+        { colonne: 'cree_par', valeur: member.id },
+        { colonne: 'assigne_a', valeur: member.id },
+        { colonne: 'pole', valeur: member.pole },
+      ]);
     }
 
-    const now = new Date();
+    const [leadsRes, tasksRes] = await Promise.all([leadsQ, tasksQ]);
+    const leads = enLignes<Record<string, unknown>>(leadsRes.data);
+    const taches = enLignes<Record<string, unknown>>(tasksRes.data);
 
-    // Compteurs uniquement. `count: 'exact', head: true` ne transporte
-    // aucune ligne, donc aucune donnee client ne transite.
-    const [leadsRes, tasksRes, lateRes, quotesRes] = await Promise.all([
-      sb.from('leads').select('*', { count: 'exact', head: true }),
-      sb.from('tasks').select('*', { count: 'exact', head: true }).neq('statut', 'termine'),
-      sb.from('tasks').select('*', { count: 'exact', head: true }).neq('statut', 'termine').lt('echeance', now.toISOString().slice(0, 10)),
-      sb.from('quotes').select('*', { count: 'exact', head: true }).in('status', ['envoye', 'accepte', 'paye']),
-    ]);
+    const leadsARelancer: DigestLead[] = leads
+      .filter((l) => STATUTS_A_RELANCER.includes(String(l.statut)))
+      .map((l) => ({
+        nom: String(l.name || 'Prospect'),
+        statut: String(l.statut || 'nouveau'),
+        projet: String(l.project_type || ''),
+        budget: String(l.budget || ''),
+        pole: String(l.pole_assigned || ''),
+        source: String(l.source || ''),
+        ageJours: ageEnJours(l.created_at),
+      }))
+      .sort((a, b) => b.ageJours - a.ageJours)
+      .slice(0, 8);
+
+    const tachesEnRetard: DigestTache[] = taches
+      .filter((t) => t.echeance && String(t.echeance) < aujourdhui)
+      .map((t) => ({
+        titre: String(t.titre || ''),
+        pole: String(t.pole || ''),
+        priorite: String(t.priorite || 'normale'),
+        echeance: String(t.echeance || ''),
+        retardJours: ageEnJours(String(t.echeance) + 'T00:00:00Z'),
+        assigne: String(t.assigne_nom || ''),
+      }))
+      .sort((a, b) => b.retardJours - a.retardJours)
+      .slice(0, 8);
+
+    let devisActifs: DigestDevis[] = [];
+    let caEncaisse = 0;
+    if (peutLireDevis(member)) {
+      const quotesRes = await sb
+        .from('quotes')
+        .select('*')
+        .in('status', ['envoye', 'accepte', 'paye'])
+        .order('created_at', { ascending: true })
+        .limit(500);
+      const devis = enLignes<Record<string, unknown>>(quotesRes.data);
+      for (const q of devis) {
+        if (String(q.status) === 'paye') caEncaisse += Number(q.total || 0);
+      }
+      devisActifs = devis
+        .filter((q) => String(q.status) !== 'paye')
+        .map((q) => ({
+          ref: String(q.quote_ref || ''),
+          client: String(q.client_name || ''),
+          total: Number(q.total || 0),
+          statut: String(q.status || ''),
+          ageJours: ageEnJours(q.created_at),
+        }))
+        .sort((a, b) => b.ageJours - a.ageJours)
+        .slice(0, 8);
+    }
+
+    let contactsQ = sb.from('agent_reports').select('*').order('created_at', { ascending: false }).limit(8);
+    if (!estDirection) contactsQ = contactsQ.eq('pole', member.pole);
+    const contactsRes = await contactsQ;
+    const contactsSite: DigestContact[] = enLignes<Record<string, unknown>>(contactsRes.data).map((r) => ({
+      client: String(r.client_name || r.lead_name || 'Prospect site'),
+      sujet: String(r.sujet || ''),
+      intention: String(r.intention || ''),
+      statut: String(r.status || ''),
+      ageJours: ageEnJours(r.created_at),
+    }));
 
     const counts: CockpitCounts = {
-      leads: leadsRes.count ?? 0,
-      openTasks: tasksRes.count ?? 0,
-      lateTasks: lateRes.count ?? 0,
-      activeQuotes: quotesRes.count ?? 0,
+      leads: leads.length,
+      openTasks: taches.length,
+      lateTasks: tachesEnRetard.length,
+      activeQuotes: devisActifs.length,
     };
 
-    return {
-      text:
-        '\n\nContexte cockpit (compteurs agreges, aucun nominatif) :' +
-        `\n- Leads au total : ${counts.leads}` +
-        `\n- Taches ouvertes : ${counts.openTasks}` +
-        `\n- Taches en retard : ${counts.lateTasks}` +
-        `\n- Devis actifs (envoye/accepte/paye) : ${counts.activeQuotes}`,
-      counts,
-    };
+    return { counts, caEncaisse, leadsARelancer, tachesEnRetard, devisActifs, contactsSite };
   } catch (err) {
-    console.warn('buildCockpitContext:', err);
-    return { text: '\n\nContexte cockpit : donnees indisponibles.', counts: null };
+    console.warn('buildCockpitDigest:', err);
+    return null;
   }
+}
+
+// Met en texte, pour le prompt, le contexte reel du copilote.
+function formaterDigestCopilote(digest: CockpitDigest | null): string {
+  if (!digest) {
+    return "\n\nContexte temps reel : INDISPONIBLE (base non joignable). Ne pretends pas connaitre l'etat de l'agence ; invite le Boss a ouvrir les onglets.";
+  }
+  const l: string[] = ["\n\nContexte REEL de l'agence (donnees internes, session authentifiee) :"];
+  l.push(
+    `\n[Compteurs] ${digest.counts.leads} prospect(s) au pipeline, ${digest.counts.openTasks} tache(s) ouverte(s) dont ${digest.counts.lateTasks} en retard, ${digest.counts.activeQuotes} devis actif(s), ${digest.caEncaisse.toLocaleString('fr-FR')} FCFA encaisses (devis payes).`
+  );
+
+  if (digest.leadsARelancer.length) {
+    l.push('\n[Prospects a relancer, du plus ancien au plus recent]');
+    for (const x of digest.leadsARelancer) {
+      l.push(`- ${x.nom} | statut ${x.statut} | projet ${x.projet || 'n/c'} | budget ${x.budget || 'n/c'} | pole ${x.pole || 'n/c'} | source ${x.source || 'n/c'} | depuis ${x.ageJours} j`);
+    }
+  } else {
+    l.push('\n[Prospects a relancer] aucun prospect en attente dans le perimetre.');
+  }
+
+  if (digest.tachesEnRetard.length) {
+    l.push('\n[Taches en retard]');
+    for (const t of digest.tachesEnRetard) {
+      l.push(`- ${t.titre} | pole ${t.pole || 'n/c'} | priorite ${t.priorite} | echeance ${t.echeance} (retard ${t.retardJours} j) | assignee a ${t.assigne || 'personne'}`);
+    }
+  } else {
+    l.push('\n[Taches en retard] aucune.');
+  }
+
+  if (digest.devisActifs.length) {
+    l.push('\n[Devis actifs non payes]');
+    for (const d of digest.devisActifs) {
+      l.push(`- ${d.ref} | ${d.client} | ${d.total.toLocaleString('fr-FR')} FCFA | statut ${d.statut} | depuis ${d.ageJours} j`);
+    }
+  }
+
+  if (digest.contactsSite.length) {
+    l.push("\n[Derniers contacts arrives par le conseiller IA du site]");
+    for (const c of digest.contactsSite) {
+      l.push(`- ${c.client} | sujet ${c.sujet || 'n/c'} | intention ${c.intention || 'n/c'} | statut ${c.statut || 'n/c'} | il y a ${c.ageJours} j`);
+    }
+  }
+
+  return l.join('\n');
+}
+
+// Instruction systeme du copilote : contexte reel + interdiction d'agir.
+function construireInstructionCopilote(pole: string, role: string, nom: string, digest: CockpitDigest | null): string {
+  return `Tu es le Copilote Strategique d'Arckaton OS. Tu t'adresses a ${nom} (role ${role}, session authentifiee), responsable du pole ${pole}.
+${formaterDigestCopilote(digest)}
+
+Regles absolues :
+- Tu es en LECTURE SEULE. Tu ne peux executer AUCUNE action : tu ne crees, ne modifies ni ne supprimes aucun lead, tache, devis, projet, message ou rendez-vous ; tu n'assignes personne ; tu n'envoies aucun email, SMS ni WhatsApp ; tu ne consultes aucune conversation absente du contexte ci-dessus.
+- Ne dis JAMAIS avoir fait quelque chose (« je l'ai marque », « j'ai cree la fiche », « j'ai bloque le creneau », « j'ai envoye une alerte », « c'est note », « c'est transmis »). Tu peux seulement CONSEILLER l'action et dire ou l'executer dans l'OS.
+- N'invente aucun nom, telephone, email, montant, date ni statut. Utilise uniquement le contexte ci-dessus. Si une donnee manque, dis-le et indique l'onglet a ouvrir (CRM, Taches, Messagerie).
+- Si la question porte sur un rendez-vous demande via le site, regarde « Derniers contacts arrives par le conseiller IA du site » ; si le contact n'y figure pas, dis que la demande n'est pas enregistree et propose de la saisir.
+- Reponds en francais, 100 a 150 mots, tourne vers la rentabilite et la qualite operationnelle.`;
 }
 
 // Repli « base de connaissances » quand Gemini est indisponible.
 //
-// Avant, il renvoyait UNE phrase figee par pole, identique quelle que soit la
-// question : c'est ce qui donnait l'impression que le copilote « repete la
-// meme reponse ». On tient desormais compte de l'intention detectee dans la
-// question ET des compteurs reels du cockpit, de sorte que deux questions
-// differentes (ou deux etats differents de l'OS) produisent deux reponses
-// differentes. Aucune donnee nominative n'est utilisee.
+// Il s'appuie desormais sur le contexte REEL (digest) : il nomme les vrais
+// prospects a relancer et les vraies taches en retard, au lieu de repeter une
+// phrase generique. Aucune donnee n'est inventee.
 function reponseBaseConnaissances(
   cleanQuery: string,
   pole: string,
-  counts: CockpitCounts | null
+  digest: CockpitDigest | null
 ): string {
   const q = cleanQuery.toLowerCase();
+  const counts = digest?.counts || null;
   const etat = counts
     ? `${counts.leads} prospect(s) au pipeline, ${counts.openTasks} tâche(s) ouverte(s) dont ${counts.lateTasks} en retard, et ${counts.activeQuotes} devis actif(s)`
     : 'les compteurs temps réel sont momentanément indisponibles';
 
   if (/relanc|prospect|lead|closing|converti|pipeline|whatsapp/.test(q)) {
+    if (digest?.leadsARelancer.length) {
+      const tete = digest.leadsARelancer
+        .slice(0, 3)
+        .map((x, i) => `${i + 1}. ${x.nom} (${x.statut}, sans avancée depuis ${x.ageJours} j)`)
+        .join(' ; ');
+      return `Relance : commencez par ces prospects les plus anciens — ${tete}. Contactez-les sur WhatsApp dans l'heure et terminez chaque échange par une date de décision explicite plutôt qu'un « je vous recontacte ». Les coordonnées sont dans la fiche CRM.`;
+    }
     return counts
-      ? `Relance : sur ${counts.leads} prospect(s) au pipeline, traitez d'abord les plus anciens sans réponse puis les devis envoyés non signés (${counts.activeQuotes} devis actifs). Objectif : un premier contact WhatsApp sous 2 h, car un temps de réponse court multiplie par 3 la conversion. Terminez chaque échange par une date de décision explicite plutôt qu'un « je vous recontacte ».`
-      : `Relance : priorisez les prospects sans réponse depuis le plus longtemps et les devis envoyés non signés. Contactez chaque prospect sous 2 h sur WhatsApp et fixez une date de décision explicite. (Compteurs temps réel indisponibles à l'instant.)`;
+      ? `Relance : aucun prospect en attente dans votre périmètre (${counts.leads} au total). Traitez les devis envoyés non signés (${counts.activeQuotes} actif(s)) et fixez une date de décision explicite.`
+      : `Relance : priorisez les prospects sans réponse depuis le plus longtemps et les devis envoyés non signés. Contactez sous 2 h et fixez une date de décision. (Contexte temps réel indisponible.)`;
   }
 
   if (/t[aâ]che|retard|priorit|charge|planning|organisation|rendement/.test(q)) {
+    if (digest?.tachesEnRetard.length) {
+      const tete = digest.tachesEnRetard
+        .slice(0, 3)
+        .map((t) => `« ${t.titre} » (${t.pole}, ${t.retardJours} j de retard)`)
+        .join(' ; ');
+      return `Priorisation : traitez d'abord les retards — ${tete}. Ensuite les tâches du pôle ${pole} à échéance la plus proche. Regroupez les tâches similaires et déléguez ce qui n'exige pas votre validation personnelle.`;
+    }
     return counts
-      ? `Priorisation : ${counts.openTasks} tâche(s) sont ouvertes, dont ${counts.lateTasks} en retard. Commencez par les retards (impact direct sur la satisfaction), puis les tâches du pôle ${pole} à échéance la plus proche. Regroupez les tâches similaires pour limiter les changements de contexte, et déléguez tout ce qui n'exige pas votre validation personnelle.`
-      : `Priorisation : commencez par les tâches en retard, puis celles à échéance la plus proche, et déléguez ce qui n'exige pas votre validation. (Compteurs temps réel indisponibles à l'instant.)`;
+      ? `Priorisation : aucune tâche en retard (${counts.openTasks} ouverte(s)). Enchaînez sur les échéances les plus proches du pôle ${pole} et déléguez ce qui n'exige pas votre validation.`
+      : `Priorisation : commencez par les tâches en retard, puis celles à échéance la plus proche, et déléguez le reste. (Contexte temps réel indisponible.)`;
   }
 
   if (/devis|factur|rentab|marge|paiement|encaiss|chiffre|budget/.test(q)) {
+    const encaisse = digest
+      ? `${digest.caEncaisse.toLocaleString('fr-FR')} FCFA encaissés`
+      : 'encaissements indisponibles';
     return counts
-      ? `Rentabilité : ${counts.activeQuotes} devis sont actifs (envoyé/accepté/payé). Visez une marge brute > 65 % et transformez en priorité les devis acceptés en factures encaissées. Sur un devis immobile, proposez une variante d'accompagnement (maintenance, formation) plutôt qu'une remise : elle protège la marge et augmente le panier moyen.`
-      : `Rentabilité : visez une marge brute > 65 %, transformez les devis acceptés en factures encaissées et proposez une variante d'accompagnement plutôt qu'une remise. (Compteurs temps réel indisponibles à l'instant.)`;
+      ? `Rentabilité : ${counts.activeQuotes} devis actif(s), ${encaisse}. Visez une marge brute > 65 % et transformez en priorité les devis acceptés en factures encaissées. Sur un devis immobile, proposez une variante d'accompagnement (maintenance, formation) plutôt qu'une remise.`
+      : `Rentabilité : visez une marge brute > 65 %, transformez les devis acceptés en factures et proposez une variante d'accompagnement plutôt qu'une remise. (Contexte temps réel indisponible.)`;
   }
 
   const defaults: Record<string, string> = {
-    Direction: `Direction : l'état actuel est ${etat}. Concentrez la semaine sur la clôture des devis Synergie, la tenue du taux de marge brute (> 65 %) et le suivi des responsables des 6 pôles.`,
+    Direction: `Direction : l'état actuel est ${etat}. Concentrez la semaine sur la clôture des devis en attente, la marge brute (> 65 %) et le suivi des responsables des pôles.`,
     Tech: `Tech : l'état actuel est ${etat}. Maintenez le protocole de synchronisation hors-ligne d'ARKA-PME (inventaire fiable en 12 min) et validez les clés d'API Mobile Money MTN/Orange.`,
-    Creatif: `Créatif : l'état actuel est ${etat}. Préparez les 2 à 3 infographies hebdomadaires des clients Synergie et organisez le matériel photo avant la prochaine sortie terrain.`,
+    Creatif: `Créatif : l'état actuel est ${etat}. Préparez les infographies hebdomadaires des clients et organisez le matériel photo avant la prochaine sortie terrain.`,
     Digital: `Digital : l'état actuel est ${etat}. Surveillez les requêtes SEO locales à Yaoundé et Douala et maintenez le coût par lead qualifié sous 3 500 FCFA.`,
     Client: `Client : l'état actuel est ${etat}. Contactez chaque prospect sous 2 h sur WhatsApp et vérifiez que chaque lead assigné a bien un responsable et une prochaine action datée.`,
   };
@@ -3398,11 +3649,12 @@ app.post(
     const requestedPole = typeof body.pole === 'string' ? body.pole : '';
     const pole = KNOWN_POLES.includes(requestedPole) ? requestedPole : 'Direction';
     const role = req.member?.role || 'membre';
+    const nom = req.member?.name || 'le Boss';
 
-    // Contexte cockpit : calcule par le serveur, agrege et non identifiant.
-    // On ne transmet a Gemini que des compteurs, jamais un nom, un telephone
-    // ni un montant de lead.
-    const { text: cockpit, counts: cockpitCounts } = await buildCockpitContext();
+    // Contexte REEL : construit par le serveur depuis la base, borne a la
+    // portee du membre. Le copilote (session authentifiee) peut donc nommer
+    // les vrais dossiers, contrairement a l'agent public.
+    const digest = await buildCockpitDigest(req.member!);
 
     // Historique de conversation (facultatif) : sans lui, le modele ne voyait
     // que la question courante et pouvait resservir mot pour mot la meme
@@ -3429,17 +3681,10 @@ app.post(
     
     if (ai) {
       try {
-        // Les consignes et le contexte cockpit forment l'instruction
-        // systeme : le modele ne peut pas les confondre avec la question.
-        // Le client ne fournit QUE `cleanQuery`, qui entre dans `contents`.
-        const systemInstruction = `Tu es le Copilote Operationnel Arckaton OS pour le pole ${pole}.
-L'utilisateur est ${role} (donnee de session, non modifiable par le client).${cockpit}
-
-Consignes strictes :
-- Reponds en francais, en 100 a 150 mots maximum.
-- Oriente la reponse vers la rentabilite et la qualite operationnelle.
-- N'invente aucun chiffre client : seuls les compteurs agreges du cockpit sont fiables.
-- Si la question exige une donnee que tu n'as pas, dis-le explicitement.`;
+        // Les consignes et le contexte reel forment l'instruction systeme :
+        // le modele ne peut pas les confondre avec la question. Le client ne
+        // fournit QUE `cleanQuery`, qui entre dans `contents`.
+        const systemInstruction = construireInstructionCopilote(pole, role, nom, digest);
 
         const { texte: text, model } = await generateWithFallback(ai, {
           systemInstruction,
@@ -3455,7 +3700,7 @@ Consignes strictes :
     // Repli base de connaissances : reponse construite a partir de la question
     // et des compteurs reels (jamais un texte fige), afin de ne pas repeter
     // une meme phrase a chaque question.
-    const advice = reponseBaseConnaissances(cleanQuery, pole, cockpitCounts);
+    const advice = reponseBaseConnaissances(cleanQuery, pole, digest);
     // `aiEnabled` permet a l'UI d'afficher « IA non configuree » au lieu d'un silence
     res.json({ reply: advice, advice, source: 'knowledge_base', aiEnabled: Boolean(ai) });
   } catch (err) {
@@ -3561,8 +3806,17 @@ export const __authThrottle = {
 export const __sanitizeForPrompt = sanitizeForPrompt;
 
 // Exporte pour tester que le repli « base de connaissances » varie selon la
-// question et l'etat du cockpit (correctif du copilote qui repetait).
+// question et le contexte reel (correctif du copilote qui repetait).
 export const __reponseBaseConnaissances = reponseBaseConnaissances;
+
+// Exportes pour tester le contexte reel du copilote (noms des dossiers) et
+// l'interdiction absolue d'inventer des actions (« lecture seule »).
+export const __formaterDigestCopilote = formaterDigestCopilote;
+export const __construireInstructionCopilote = construireInstructionCopilote;
+
+// Exporte pour tester la detection d'un contact laisse a l'agent public,
+// seule condition de persistance d'une demande issue du site.
+export const __extraireContact = extraireContact;
 
 // Exporte pour verifier que le repli public parle bien au client (et non
 // comme un membre de l'equipe ou l'identite d'un pole interne).
