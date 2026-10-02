@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
@@ -18,8 +18,11 @@ import {
   FileEdit,
   ShieldCheck,
   Briefcase,
-  FolderKanban
+  FolderKanban,
+  Search,
+  LogOut
 } from 'lucide-react';
+import { CommandPalette, type PaletteItem } from './CommandPalette';
 import { OverviewTab } from './OverviewTab';
 import { ProjectsProductionTab } from './ProjectsProductionTab';
 import { OrgChart } from '../orgchart/OrgChart';
@@ -44,6 +47,19 @@ export const DashboardLayout: React.FC = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+  // Raccourci universel de la palette de commandes (Ctrl/Cmd + K).
+  useEffect(() => {
+    const surRaccourci = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', surRaccourci);
+    return () => window.removeEventListener('keydown', surRaccourci);
+  }, []);
 
   // Navigation centralisee : sidebar, notifications, vue d'ensemble
   const goToTab = (t: string) => {
@@ -127,6 +143,38 @@ export const DashboardLayout: React.FC = () => {
     </nav>
   );
 
+  // Commandes de la palette : navigation entre sections + actions rapides.
+  const paletteItems: PaletteItem[] = [
+    ...navItems.map((item) => ({
+      id: `nav-${item.id}`,
+      label: item.label,
+      group: 'Navigation',
+      icon: item.icon,
+      run: () => goToTab(item.id),
+    })),
+    {
+      id: 'action-public',
+      label: 'Voir le site public',
+      group: 'Actions',
+      icon: Globe,
+      run: () => setMode('public'),
+    },
+    {
+      id: 'action-notifications',
+      label: 'Ouvrir les notifications',
+      group: 'Actions',
+      icon: Bell,
+      run: () => setIsNotificationsOpen(true),
+    },
+    {
+      id: 'action-logout',
+      label: 'Se déconnecter',
+      group: 'Actions',
+      icon: LogOut,
+      run: () => logout(),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-rk-bg text-rk-text flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
       
@@ -152,6 +200,14 @@ export const DashboardLayout: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsPaletteOpen(true)}
+            aria-label="Ouvrir la palette de commandes"
+            className="p-2 rounded-lg bg-white/5 text-rk-text-secondary"
+          >
+            <Search className="w-4 h-4" aria-hidden="true" />
+          </button>
+
           <button
             onClick={() => setIsNotificationsOpen(true)}
             aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
@@ -308,6 +364,17 @@ export const DashboardLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Palette de commandes */}
+            <button
+              onClick={() => setIsPaletteOpen(true)}
+              className="hidden lg:flex items-center gap-2 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl text-xs text-rk-muted hover:text-white transition-colors cursor-pointer"
+              aria-label="Ouvrir la palette de commandes (Ctrl ou Cmd + K)"
+            >
+              <Search className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Rechercher</span>
+              <kbd className="font-mono text-[10px] border border-rk-line-soft rounded px-1.5 py-0.5">⌘K</kbd>
+            </button>
+
             {/* Session Membre */}
             <div className="flex items-center gap-2 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
@@ -372,6 +439,12 @@ export const DashboardLayout: React.FC = () => {
         isOpen={isNotificationsOpen}
         onNavigate={goToTab}
         onClose={() => setIsNotificationsOpen(false)}
+      />
+
+      <CommandPalette
+        isOpen={isPaletteOpen}
+        onClose={() => setIsPaletteOpen(false)}
+        items={paletteItems}
       />
 
     </div>
