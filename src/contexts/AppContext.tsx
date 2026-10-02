@@ -859,7 +859,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // locale est remplacée (plus de projets de démonstration fantômes).
       if (projectsRes && Array.isArray(projectsRes.projects)) {
         const serverProjects = projectsRes.projects.map(mapServerProject);
-        if (isRealDataMode) {
+        if (isRealDataMode()) {
           setProjets(serverProjects);
         } else {
           const serverIds = new Set(serverProjects.map((p) => p.id));
@@ -921,7 +921,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const isFirstProjectsSync = useRef(true);
 
   useEffect(() => {
-    if (purgeInProgress || !isRealDataMode) return;
+    if (purgeInProgress || !isRealDataMode()) return;
     // Le premier passage correspond à l'hydratation depuis le serveur : on ne renvoie rien.
     if (isFirstProjectsSync.current) {
       isFirstProjectsSync.current = false;
@@ -1037,11 +1037,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateLeadStatus = (id: string, statut: Lead['statut']) => {
+    const avant = leads;
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, statut } : l)));
+    // Sans enregistrement serveur, le statut choisi disparaissait au
+    // rechargement et un lead deja converti pouvait l'etre a nouveau.
+    if (isRealDataMode()) {
+      apiRequest(`/api/leads/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ statut }),
+      }).catch((err) => {
+        console.error('Statut de lead non enregistre, retour a l\'etat precedent:', err);
+        setLeads(avant);
+      });
+    }
   };
 
   const updateLeadNotes = (id: string, notes: string) => {
+    const avant = leads;
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, notes } : l)));
+    if (isRealDataMode()) {
+      apiRequest(`/api/leads/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ notes }),
+      }).catch((err) => {
+        console.error('Notes de lead non enregistrees, retour a l\'etat precedent:', err);
+        setLeads(avant);
+      });
+    }
   };
 
   // Convert Lead to Project + Quote (as required by section 3.5 & 4)
@@ -1129,6 +1151,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         statut: 'en_cours',
         priorite: 'urgente',
         pole: 'Direction',
+        project_id: newProject.id,
+        project_name: newProject.client_name,
         ...assignation(direction),
         date_echeance: 'Sous 3 jours',
         created_at: 'Aujourd\'hui',
@@ -1140,6 +1164,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         statut: 'a_faire',
         priorite: 'haute',
         pole: 'Creatif',
+        project_id: newProject.id,
+        project_name: newProject.client_name,
         ...assignation(creatif),
         date_echeance: 'Sous 10 jours',
         created_at: 'Aujourd\'hui',
@@ -1151,18 +1177,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         statut: 'a_faire',
         priorite: 'haute',
         pole: 'Tech',
+        project_id: newProject.id,
+        project_name: newProject.client_name,
         ...assignation(tech),
         date_echeance: 'Sous 15 jours',
         created_at: 'Aujourd\'hui',
       }
     ];
 
-    setTasks((prev) => [...initialTasks, ...prev]);
+    // Persistance via le canal normal des taches (POST /api/tasks). Avant,
+    // `setTasks` n'ecrivait qu'en local : les 3 taches de cadrage
+    // disparaissaient des que l'agent rechargeait la page ou changeait de
+    // poste. `addTask` gere l'enregistrement serveur et le suivi d'activite.
+    initialTasks.forEach((t) => addTask(t));
 
     // Update lead status to converted
+    const notesConverti = (lead.notes ? lead.notes + ' | ' : '') + `Converti en projet ${clientCode}`;
     setLeads((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, statut: 'converti' as const, notes: (l.notes ? l.notes + ' | ' : '') + `Converti en projet ${clientCode}` } : l))
+      prev.map((l) => (l.id === id ? { ...l, statut: 'converti' as const, notes: notesConverti } : l))
     );
+
+    // Le projet et le nouveau statut du lead sont pousses vers le serveur.
+    if (isRealDataMode()) {
+      apiRequest('/api/projects', { method: 'POST', body: JSON.stringify(newProject) })
+        .catch((err) => console.error('Projet non enregistre cote serveur:', err));
+      apiRequest(`/api/leads/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ statut: 'converti', notes: notesConverti }),
+      }).catch((err) => console.error('Statut de lead non enregistre:', err));
+    }
 
     // Notification
     const notif: AppNotification = {
@@ -1195,7 +1238,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Création immédiate côté serveur : le portail BAT doit voir le projet
     // même si l'agent se déconnecte juste après.
-    if (isRealDataMode) {
+    if (isRealDataMode()) {
       const token = localStorage.getItem('arckaton_os_token');
       fetch('/api/projects', {
         method: 'POST',
@@ -1588,7 +1631,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...taskData,
       statut: initialStatus,
       status: initialStatus,
-      id: `t-${Date.now()}`,
+      // Suffixe aleatoire : plusieurs taches creees dans la meme
+      // milliseconde (conversion d'un lead) doivent avoir des identifiants
+      // distincts, sinon elles se confondent au retour du serveur.
+      id: `t-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
       created_at: 'Aujourd\'hui',
       relances: 0,
     };

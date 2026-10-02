@@ -2643,6 +2643,52 @@ app.get("/api/leads", requireAuth, async (_req, res) => {
   res.json({ leads: leadsStore });
 });
 
+// La qualification d'un lead (statut, notes internes) doit survivre au
+// rechargement de la page. Sans cette route, changer un lead en « converti »
+// n'était visible que dans l'onglet courant : la base le relisait ensuite
+// comme « nouveau », et un lead deja converti pouvait l'etre a nouveau.
+const LEAD_STATUTS = ['nouveau', 'contacte', 'qualifie', 'devis_envoye', 'converti', 'archive', 'perdu'];
+
+app.patch("/api/leads/:ref", requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: "Base de donnees non configuree" });
+  try {
+    const ref = req.params.ref;
+    if (!ref) return res.status(400).json({ error: "Reference lead manquante" });
+    // L'interface connait soit l'`id` de la ligne (uuid, lead hydraté depuis
+    // la base), soit le `client_ref` (lead créé localement, `lead-...`).
+    // Cibler la bonne colonne évite de comparer un uuid inexistant.
+    const estUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ref);
+    const colonne = estUuid ? "id" : "client_ref";
+    const patch: { statut?: string; notes?: string } = {};
+    if (typeof req.body?.statut === 'string') {
+      if (!LEAD_STATUTS.includes(req.body.statut)) {
+        return res.status(400).json({ error: "Statut de lead invalide" });
+      }
+      patch.statut = req.body.statut;
+    }
+    if (typeof req.body?.notes === "string") {
+      patch.notes = req.body.notes.slice(0, 4000);
+    }
+    if (Object.keys(patch).length === 0) {
+      return res.status(400).json({ error: "Aucun champ a modifier" });
+    }
+    const { data, error } = await sb
+      .from("leads")
+      .update(patch)
+      .eq(colonne, ref)
+      .select("*")
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: "Lead introuvable" });
+    await logActivity(req.member!, 'update', 'lead', ref, patch);
+    res.json({ success: true, lead: data });
+  } catch (err: any) {
+    console.error("Erreur mise a jour lead:", err);
+    res.status(500).json({ error: "Erreur mise a jour lead" });
+  }
+});
+
 app.get("/api/reports", requireAuth, async (_req, res) => {
   try {
     const serverReports = await fetchReportsServer();

@@ -868,3 +868,21 @@ describe('Preuves de terrain — acces protege', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// La qualification d'un lead (statut « converti », notes) doit passer par
+// une session : un anonyme ne peut pas marquer un prospect comme traite.
+describe('Qualification de lead — acces protege', () => {
+  it('refuse la mise a jour sans jeton', async () => {
+    const res = await request(app)
+      .patch('/api/leads/lead-quelconque')
+      .send({ statut: 'converti' });
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse les notes sans jeton', async () => {
+    const res = await request(app)
+      .patch('/api/leads/lead-quelconque')
+      .send({ notes: 'client injoignable' });
+    expect(res.status).toBe(401);
+  });
+});
