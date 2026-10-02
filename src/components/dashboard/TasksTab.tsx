@@ -263,9 +263,10 @@ export const TasksTab: React.FC = () => {
                   {!isCompleted && (
                     <button
                       onClick={() => remindTask(t.id)}
+                      aria-label={`Envoyer un rappel pour la tâche « ${t.title || t.titre} »`}
                       className="w-full flex items-center justify-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-lg px-2 py-1.5 transition-colors cursor-pointer"
                     >
-                      <Bell className="w-3 h-3" />
+                      <Bell className="w-3 h-3" aria-hidden="true" />
                       <span>Relancer{t.relances ? ` (${t.relances})` : ''}</span>
                     </button>
                   )}

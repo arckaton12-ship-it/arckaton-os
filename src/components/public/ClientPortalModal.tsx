@@ -151,9 +151,10 @@ export const ClientPortalModal: React.FC = () => {
               </div>
 
               <form onSubmit={handleSearch} className="relative flex items-center min-w-[200px]">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3" />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3" aria-hidden="true" />
                 <input
                   type="text"
+                  aria-label="Rechercher un projet par sa référence"
                   placeholder="Réf (ex: PRJ-KOTTO)..."
                   value={searchCode}
                   onChange={(e) => setSearchCode(e.target.value)}

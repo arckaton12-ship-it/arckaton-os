@@ -110,6 +110,8 @@ export const DashboardLayout: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label={isSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={isSidebarOpen}
             className="p-2 rounded-lg bg-white/5 text-slate-300 hover:text-white"
           >
             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -127,9 +129,10 @@ export const DashboardLayout: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsNotificationsOpen(true)}
+            aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
             className="p-2 rounded-lg bg-white/5 text-slate-300 relative"
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-4 h-4" aria-hidden="true" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[11px] text-white font-bold flex items-center justify-center">
                 {unreadCount}
@@ -176,9 +179,10 @@ export const DashboardLayout: React.FC = () => {
 
             <button
               onClick={() => setIsSidebarOpen(false)}
+              aria-label="Fermer le menu"
               className="md:hidden text-slate-400 hover:text-white"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -196,6 +200,7 @@ export const DashboardLayout: React.FC = () => {
                     setActiveTab(item.id);
                     setIsSidebarOpen(false);
                   }}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                     isActive
                       ? isSpecial
@@ -207,7 +212,7 @@ export const DashboardLayout: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : isSpecial ? 'text-emerald-400' : 'text-slate-400'}`} />
+                    <Icon aria-hidden="true" className={`w-4 h-4 ${isActive ? 'text-white' : isSpecial ? 'text-emerald-400' : 'text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
 
@@ -287,8 +292,9 @@ export const DashboardLayout: React.FC = () => {
               onClick={() => setIsNotificationsOpen(true)}
               className="p-2 rounded-xl bg-[#070c1e] hover:bg-white/5 text-slate-300 border border-white/10 relative transition-colors cursor-pointer"
               title="Notifications"
+              aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="w-4 h-4" aria-hidden="true" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[11px] text-white font-bold flex items-center justify-center">
                   {unreadCount}
