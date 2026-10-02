@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Send, Phone, Mail, MapPin, CheckCircle2, MessageSquare, ArrowRight } from 'lucide-react';
+import { Send, Phone, Mail, MapPin, CheckCircle2, MessageSquare, ArrowRight, Loader2 } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { motion } from 'motion/react';
 
@@ -14,26 +14,37 @@ export const ContactSection: React.FC = () => {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [generatedWaLink, setGeneratedWaLink] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone) return;
+    if (!name || !phone || isSubmitting) return;
+    setIsSubmitting(true);
 
-    const { whatsappLink } = addLead({
-      name,
-      email,
-      phone,
-      project_type: projectType,
-      budget: 'Sur devis',
-      message: message || 'Prise de contact directe depuis le site.',
-      source: 'site_v2',
-      statut: 'nouveau',
-      pole_assigned: 'Direction',
-      country,
-    });
+    try {
+      const { whatsappLink } = addLead({
+        name,
+        email,
+        phone,
+        project_type: projectType,
+        budget: 'Sur devis',
+        message: message || 'Prise de contact directe depuis le site.',
+        source: 'site_v2',
+        statut: 'nouveau',
+        pole_assigned: 'Direction',
+        country,
+      });
 
-    setGeneratedWaLink(whatsappLink);
-    setSubmitted(true);
+      setGeneratedWaLink(whatsappLink);
+      // Petit delai volontaire : le bouton affiche « Envoi en cours… » et un
+      // double clic ne peut pas creer deux prospects.
+      window.setTimeout(() => {
+        setSubmitted(true);
+        setIsSubmitting(false);
+      }, 400);
+    } catch {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -207,10 +218,20 @@ export const ContactSection: React.FC = () => {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold py-3.5 px-6 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20"
+                      disabled={isSubmitting}
+                      className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 px-6 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20"
                     >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Transmettre ma demande à l'équipe</span>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                          <span>Envoi en cours…</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" aria-hidden="true" />
+                          <span>Transmettre ma demande à l'équipe</span>
+                        </>
+                      )}
                     </button>
                     <p className="text-[11px] text-center text-slate-400 font-mono mt-2.5">
                       Réponse garantie sous 24h ouvrées • Aucun engagement financier initial

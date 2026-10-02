@@ -267,6 +267,7 @@ export const AgentModal: React.FC = () => {
               >
                 <input
                   type="text"
+                  aria-label={`Votre question au Pôle ${selectedPole}`}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder={`Posez une question au Pôle ${selectedPole}...`}
@@ -275,9 +276,10 @@ export const AgentModal: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading || !inputText.trim()}
+                  aria-label="Envoyer la question"
                   className="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-slate-950 p-3 rounded-xl transition-all cursor-pointer shadow-md"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-4 h-4" aria-hidden="true" />
                 </button>
               </form>
 

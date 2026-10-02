@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { X, ArrowRight, ArrowLeft, CheckCircle2, MessageSquare, Send } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, CheckCircle2, MessageSquare, Send, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatCurrencyPrice } from '../../utils/currency';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
@@ -37,7 +37,7 @@ export const QuoteModal: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone) return;
+    if (!name || !phone || isSubmitting) return;
 
     setIsSubmitting(true);
 
@@ -50,22 +50,28 @@ export const QuoteModal: React.FC = () => {
 - Entreprise : ${companyName || 'Particulier / Projet'}
 - Localisation : ${location}`;
 
-    const { whatsappLink: waUrl } = addLead({
-      name,
-      email,
-      phone,
-      project_type: projectType,
-      budget: budgetRange,
-      message: structuredMessage,
-      source: 'site_v2_devis',
-      statut: 'nouveau',
-      pole_assigned: 'Direction',
-      country: location,
-    });
+    try {
+      const { whatsappLink: waUrl } = addLead({
+        name,
+        email,
+        phone,
+        project_type: projectType,
+        budget: budgetRange,
+        message: structuredMessage,
+        source: 'site_v2_devis',
+        statut: 'nouveau',
+        pole_assigned: 'Direction',
+        country: location,
+      });
 
-    setWhatsappLink(waUrl);
-    setIsSubmitting(false);
-    setStep(4);
+      setWhatsappLink(waUrl);
+      window.setTimeout(() => {
+        setIsSubmitting(false);
+        setStep(4);
+      }, 400);
+    } catch {
+      setIsSubmitting(false);
+    }
   };
 
   const projectOptions = [
@@ -384,10 +390,19 @@ export const QuoteModal: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting || !consent}
-                      className="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-semibold px-7 py-3 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20"
+                      className="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold px-7 py-3 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20"
                     >
-                      <span>Confirmer et envoyer mon devis</span>
-                      <Send className="w-4 h-4" />
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                          <span>Envoi en cours…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Confirmer et envoyer mon devis</span>
+                          <Send className="w-4 h-4" aria-hidden="true" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>

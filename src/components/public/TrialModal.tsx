@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { X, Play, CheckCircle2, Clock, WifiOff, Smartphone, MessageSquare, ArrowRight } from 'lucide-react';
+import { X, Play, CheckCircle2, Clock, WifiOff, Smartphone, MessageSquare, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
@@ -14,6 +14,7 @@ export const TrialModal: React.FC = () => {
   const [city, setCity] = useState('Yaoundé');
   const [submitted, setSubmitted] = useState(false);
   const [whatsappLink, setWhatsappLink] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const activities = [
     'Boutique de détail & Prêt-à-porter',
@@ -26,23 +27,31 @@ export const TrialModal: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!companyName || !phone) return;
+    if (!companyName || !phone || isSubmitting) return;
+    setIsSubmitting(true);
 
-    const { whatsappLink: wa } = addLead({
-      name: companyName,
-      phone,
-      email,
-      project_type: `ARKA-PME (essai 30j) — ${activity}`,
-      budget: 'Essai Gratuit 30 Jours',
-      message: `DEMANDE D'ESSAI ARKA-PME 30 JOURS SANS ENGAGEMENT. Activité : ${activity}. Ville : ${city}. Téléphone : ${phone}.`,
-      source: 'site_v2_trial',
-      statut: 'nouveau',
-      pole_assigned: 'Tech',
-      country: city,
-    });
+    try {
+      const { whatsappLink: wa } = addLead({
+        name: companyName,
+        phone,
+        email,
+        project_type: `ARKA-PME (essai 30j) — ${activity}`,
+        budget: 'Essai Gratuit 30 Jours',
+        message: `DEMANDE D'ESSAI ARKA-PME 30 JOURS SANS ENGAGEMENT. Activité : ${activity}. Ville : ${city}. Téléphone : ${phone}.`,
+        source: 'site_v2_trial',
+        statut: 'nouveau',
+        pole_assigned: 'Tech',
+        country: city,
+      });
 
-    setWhatsappLink(wa);
-    setSubmitted(true);
+      setWhatsappLink(wa);
+      window.setTimeout(() => {
+        setSubmitted(true);
+        setIsSubmitting(false);
+      }, 400);
+    } catch {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -179,10 +188,20 @@ export const TrialModal: React.FC = () => {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold py-3 px-5 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 transition-all"
+                      disabled={isSubmitting}
+                      className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed text-slate-950 font-semibold py-3 px-5 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 transition-all"
                     >
-                      <span>Activer mes identifiants de test (30 jours)</span>
-                      <ArrowRight className="w-4 h-4" />
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                          <span>Envoi en cours…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Activer mes identifiants de test (30 jours)</span>
+                          <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                        </>
+                      )}
                     </button>
                     <p className="text-[11px] text-center text-slate-400 font-mono mt-2.5">
                       Nos techniciens préparent votre base de test personnalisée sous 2h.
