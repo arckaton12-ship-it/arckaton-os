@@ -217,7 +217,7 @@ export const MembersTab: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
-      <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+      <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-3">
@@ -254,7 +254,7 @@ export const MembersTab: React.FC = () => {
           <Loader2 className="w-5 h-5 animate-spin" /> Chargement des membres…
         </div>
       ) : (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl overflow-hidden">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl overflow-hidden">
           <div className="divide-y divide-white/[0.06]">
             {members.map((m) => {
               const poleColor = POLE_COLORS[m.pole as Pole] || POLE_COLORS.Direction;
@@ -335,14 +335,14 @@ export const MembersTab: React.FC = () => {
 
       {/* Journal d'activité */}
       {activity.length > 0 && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-5">
             <Activity className="w-4 h-4 text-emerald-400" />
             <h3 className="font-serif text-lg font-bold text-white">Journal d'activité récent</h3>
           </div>
           <div className="space-y-2 max-h-72 overflow-y-auto">
             {activity.map((a) => (
-              <div key={a.id} className="flex items-center justify-between gap-3 bg-[#070c1e] border border-white/[0.05] rounded-xl px-4 py-2.5 text-xs">
+              <div key={a.id} className="flex items-center justify-between gap-3 bg-rk-bg border border-white/[0.05] rounded-xl px-4 py-2.5 text-xs">
                 <div className="text-slate-300">
                   <span className="text-emerald-400 font-mono">{a.actor_name}</span>
                   <span> — </span>
@@ -365,7 +365,7 @@ export const MembersTab: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label={modal === 'add' ? 'Ajouter un membre OS' : 'Modifier le membre'}
-            className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
+            className="bg-rk-panel border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
           >
             <button
               onClick={() => setModal(null)}
@@ -389,7 +389,7 @@ export const MembersTab: React.FC = () => {
                   <input
                     type="text" required value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   />
                 </div>
                 <div>
@@ -397,7 +397,7 @@ export const MembersTab: React.FC = () => {
                   <input
                     type="email" required value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   />
                 </div>
               </div>
@@ -408,7 +408,7 @@ export const MembersTab: React.FC = () => {
                   <select
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   >
                     <option value="membre">Membre</option>
                     <option value="site_editor">Gestionnaire Contenu</option>
@@ -420,7 +420,7 @@ export const MembersTab: React.FC = () => {
                   <select
                     value={form.pole}
                     onChange={(e) => setForm({ ...form, pole: e.target.value as Pole })}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   >
                     {Object.keys(POLES_INFO).map((p) => (
                       <option key={p} value={p}>{POLES_INFO[p].name}</option>
@@ -436,7 +436,7 @@ export const MembersTab: React.FC = () => {
                     type="text" value={form.poste_titre}
                     onChange={(e) => setForm({ ...form, poste_titre: e.target.value })}
                     placeholder="Ex: Dev Full-Stack / CTO"
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   />
                 </div>
                 <div>
@@ -445,7 +445,7 @@ export const MembersTab: React.FC = () => {
                     type="text" value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     placeholder="+237 …"
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   />
                 </div>
               </div>
@@ -458,7 +458,7 @@ export const MembersTab: React.FC = () => {
                   type="text" required={modal === 'add'} value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="minimum 6 caractères"
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
 
@@ -466,7 +466,7 @@ export const MembersTab: React.FC = () => {
                 <span className="block text-xs font-mono text-slate-400 uppercase mb-2">Permissions</span>
                 <div className="space-y-2">
                   {PERMS.map((p) => (
-                    <label key={p.key} className="flex items-center gap-3 bg-[#070c1e] border border-white/[0.06] p-3 rounded-xl text-xs text-slate-200 cursor-pointer">
+                    <label key={p.key} className="flex items-center gap-3 bg-rk-bg border border-white/[0.06] p-3 rounded-xl text-xs text-slate-200 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={form.permissions.includes(p.key)}
@@ -480,7 +480,7 @@ export const MembersTab: React.FC = () => {
               </div>
 
               {modal === 'edit' && (
-                <label className="flex items-center gap-3 bg-[#070c1e] border border-white/[0.06] p-3 rounded-xl text-xs text-slate-200 cursor-pointer">
+                <label className="flex items-center gap-3 bg-rk-bg border border-white/[0.06] p-3 rounded-xl text-xs text-slate-200 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.active}

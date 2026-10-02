@@ -9,7 +9,7 @@ export const Testimonials: React.FC = () => {
   if (temoignages.length === 0) return null;
 
   return (
-    <section id="temoignages" className="py-24 bg-[#080d1e] relative overflow-hidden border-t border-white/[0.08]">
+    <section id="temoignages" className="py-24 bg-rk-bg relative overflow-hidden border-t border-white/[0.08]">
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-72 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
 
@@ -34,7 +34,7 @@ export const Testimonials: React.FC = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: idx * 0.08 }}
-              className="bg-[#0f1523] border border-white/[0.08] rounded-2xl p-7 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300"
+              className="bg-rk-surface border border-white/[0.08] rounded-2xl p-7 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300"
             >
               <div>
                 <div className="flex gap-1 mb-4">

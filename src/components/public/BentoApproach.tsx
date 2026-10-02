@@ -10,7 +10,7 @@ export const BentoApproach: React.FC = () => {
   const { openAgentWithPole } = useApp();
 
   return (
-    <section className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] overflow-hidden">
+    <section className="py-28 bg-rk-base relative border-t border-white/[0.08] overflow-hidden">
       {/* Blueprint grid and ambient glow */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute -top-40 right-10 w-96 h-96 bg-purple-500/[0.05] rounded-full blur-3xl pointer-events-none" />
@@ -40,7 +40,7 @@ export const BentoApproach: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="lg:col-span-7 rounded-2xl bg-[#0f1523] border border-white/[0.08] p-8 sm:p-10 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300"
+            className="lg:col-span-7 rounded-2xl bg-rk-surface border border-white/[0.08] p-8 sm:p-10 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300"
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -63,19 +63,19 @@ export const BentoApproach: React.FC = () => {
 
               {/* Technical Badges Row */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div className="p-3.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] space-y-1">
+                <div className="p-3.5 rounded-xl bg-rk-base border border-white/[0.06] space-y-1">
                   <div className="text-[11px] text-slate-400 font-mono">Mobile Money</div>
                   <div className="text-sm font-semibold text-white">MTN & Orange</div>
                   <div className="text-[11px] text-emerald-400">0% d'échec de passerelle</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] space-y-1">
+                <div className="p-3.5 rounded-xl bg-rk-base border border-white/[0.06] space-y-1">
                   <div className="text-[11px] text-slate-400 font-mono">Mode Hybride</div>
                   <div className="text-sm font-semibold text-white">Offline First</div>
                   <div className="text-[11px] text-slate-400">Sync automatique dès reconnexion</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] space-y-1">
+                <div className="p-3.5 rounded-xl bg-rk-base border border-white/[0.06] space-y-1">
                   <div className="text-[11px] text-slate-400 font-mono">Volume Consolidé</div>
                   <div className="text-sm font-semibold text-emerald-400">12,8M FCFA</div>
                   <div className="text-[11px] text-slate-400">Gérés sans perte de caisse</div>
@@ -115,7 +115,7 @@ export const BentoApproach: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="rounded-2xl bg-[#0f1523] border border-white/[0.08] p-7 sm:p-8 flex flex-col justify-between hover:border-purple-400/30 transition-all duration-300 flex-1"
+              className="rounded-2xl bg-rk-surface border border-white/[0.08] p-7 sm:p-8 flex flex-col justify-between hover:border-purple-400/30 transition-all duration-300 flex-1"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -166,7 +166,7 @@ export const BentoApproach: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="rounded-2xl bg-[#0f1523] border border-white/[0.08] p-7 sm:p-8 flex flex-col justify-between hover:border-blue-400/30 transition-all duration-300 flex-1"
+              className="rounded-2xl bg-rk-surface border border-white/[0.08] p-7 sm:p-8 flex flex-col justify-between hover:border-blue-400/30 transition-all duration-300 flex-1"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ export const BentoApproach: React.FC = () => {
                 </div>
 
                 {/* Field Camera Rig Preview */}
-                <div className="relative h-28 rounded-xl overflow-hidden bg-[#070b14] border border-white/[0.06] group">
+                <div className="relative h-28 rounded-xl overflow-hidden bg-rk-inset border border-white/[0.06] group">
                   <img 
                     src={fieldProductionCamImg} 
                     alt="Équipement de captation cinéma terrain Arckaton"
@@ -196,7 +196,7 @@ export const BentoApproach: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0f1523]/80 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute bottom-2 left-2 text-[11px] font-mono text-blue-300 bg-[#0a0e17]/80 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1.5">
+                  <div className="absolute bottom-2 left-2 text-[11px] font-mono text-blue-300 bg-rk-base/80 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1.5">
                     <Film className="w-3 h-3 text-blue-400" />
                     <span>Caméra Cinéma & Éclairage Mobile</span>
                   </div>
@@ -236,7 +236,7 @@ export const BentoApproach: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 rounded-2xl bg-[#0c1322] border border-white/[0.08] overflow-hidden group"
+          className="mt-12 rounded-2xl bg-rk-surface border border-white/[0.08] overflow-hidden group"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
             <div className="lg:col-span-5 p-8 sm:p-10 space-y-4">
@@ -254,26 +254,26 @@ export const BentoApproach: React.FC = () => {
               </p>
 
               <div className="grid grid-cols-2 gap-3 pt-2 text-xs font-mono text-slate-300">
-                <div className="p-2.5 rounded-lg bg-[#0a0e17] border border-white/[0.06] flex items-center gap-2">
+                <div className="p-2.5 rounded-lg bg-rk-base border border-white/[0.06] flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span>Direction Stratégique</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#0a0e17] border border-white/[0.06] flex items-center gap-2">
+                <div className="p-2.5 rounded-lg bg-rk-base border border-white/[0.06] flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span>Pôle Tech ARKA-PME</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#0a0e17] border border-white/[0.06] flex items-center gap-2">
+                <div className="p-2.5 rounded-lg bg-rk-base border border-white/[0.06] flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
                   <span>Studio Créatif & BAT</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#0a0e17] border border-white/[0.06] flex items-center gap-2">
+                <div className="p-2.5 rounded-lg bg-rk-base border border-white/[0.06] flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                   <span>Digital & Terrain Ydé/Dla</span>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-7 h-72 sm:h-80 lg:h-96 relative overflow-hidden bg-[#070b14]">
+            <div className="lg:col-span-7 h-72 sm:h-80 lg:h-96 relative overflow-hidden bg-rk-inset">
               <img 
                 src={polesNetworkHubImg} 
                 alt="Architecture topologique des 6 pôles opérationnels Arckaton"
@@ -281,7 +281,7 @@ export const BentoApproach: React.FC = () => {
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 right-3 bg-[#0a0e17]/85 backdrop-blur-md border border-white/[0.1] px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 flex items-center gap-2">
+              <div className="absolute bottom-3 right-3 bg-rk-base/85 backdrop-blur-md border border-white/[0.1] px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>Interconnexion Opérationnelle Active</span>
               </div>

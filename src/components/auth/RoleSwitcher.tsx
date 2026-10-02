@@ -29,7 +29,7 @@ export const RoleSwitcher: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 bg-[#0a122e] hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer"
+        className="flex items-center gap-2.5 bg-rk-panel hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer"
       >
         <div className="w-6 h-6 rounded-lg bg-blue-600/30 border border-blue-400/40 flex items-center justify-center font-mono font-bold text-[11px] text-blue-300">
           {user.name.split(' ').map(n => n[0]).join('')}
@@ -50,7 +50,7 @@ export const RoleSwitcher: React.FC = () => {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-80 bg-[#0a122e] border border-white/15 rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fadeIn">
+          <div className="absolute right-0 mt-2 w-80 bg-rk-panel border border-white/15 rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />

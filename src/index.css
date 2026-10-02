@@ -1,7 +1,31 @@
 @import "tailwindcss";
 
+/* =========================================================
+   JETONS SEMANTIQUES EXPOSES A TAILWIND (v4)
+   Ces couleurs alimentent des utilitaires lisibles et themables :
+   bg-rk-panel, bg-rk-surface, bg-rk-inset, bg-rk-chrome, border-rk-line,
+   text-rk-muted, etc. Les valeurs par defaut decrivent le theme nuit ;
+   le Mode Jour les redefinit plus bas. Une seule source de verite,
+   plus aucune couleur de structure codee en dur dans les ecrans.
+   ========================================================= */
+@theme {
+  --color-rk-bg: #070c1e;
+  --color-rk-base: #0a0e17;
+  --color-rk-chrome: #09122a;
+  --color-rk-panel: #0a0f2e;
+  --color-rk-surface: #0f1523;
+  --color-rk-inset: #070b14;
+  --color-rk-line: rgba(255, 255, 255, 0.1);
+  --color-rk-line-soft: rgba(255, 255, 255, 0.06);
+  --color-rk-text: #f1f5f9;
+  --color-rk-muted: #94a3b8;
+  --color-rk-accent: #10b981;
+  --color-rk-focus: #34d399;
+}
+
 @layer base {
   :root {
+    color-scheme: dark;
     --font-serif: 'Fraunces', Georgia, serif;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'DM Mono', monospace;
@@ -210,6 +234,17 @@
 }
 
 /* =========================================================
+   VISIBILITE DU FOCUS CLAVIER (WCAG 2.4.7 / 2.4.11)
+   Anneau emeraude ≥ 3:1 sur les deux themes. Les composants qui
+   definissent leur propre style de focus (ring, bordure) le
+   surchargent via `focus:outline-none` + `focus:ring-*`.
+   ========================================================= */
+:focus-visible {
+  outline: 2px solid var(--color-rk-focus, var(--rk-accent));
+  outline-offset: 2px;
+}
+
+/* =========================================================
    LIGHT THEME ARCHITECTURAL ENGINE (Mode Jour)
    Alabaster, Crisp White, Slate-900 & High-Contrast Emerald
    ========================================================= */
@@ -230,6 +265,20 @@ body.theme-light,
   --rk-text: #0f172a;
   --rk-text-muted: #475569;
   --rk-accent: #047857;
+
+  /* Memes jetons, exposes a Tailwind : surcharger --color-rk-* suffit
+     a faire basculer les utilitaires bg-rk-*/border-rk-* en Mode Jour. */
+  --color-rk-bg: #f8fafc;
+  --color-rk-base: #f8fafc;
+  --color-rk-chrome: #ffffff;
+  --color-rk-panel: #ffffff;
+  --color-rk-surface: #ffffff;
+  --color-rk-inset: #f1f5f9;
+  --color-rk-line: #e2e8f0;
+  --color-rk-line-soft: #eef2f7;
+  --color-rk-text: #0f172a;
+  --color-rk-muted: #475569;
+  --color-rk-focus: #047857;
 }
 
 /* Canvas & Background Adaptations */

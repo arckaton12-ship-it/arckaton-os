@@ -151,7 +151,7 @@ export const KanbanBoard: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* En-tête */}
-      <div className="bg-[#0a122e] border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-rk-panel border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5 flex-wrap">
             <span>Tableau Kanban des Tâches</span>
@@ -185,7 +185,7 @@ export const KanbanBoard: React.FC = () => {
       </div>
 
       {/* Filtres */}
-      <div className="bg-[#0a122e] border border-white/10 rounded-2xl p-3.5 space-y-3">
+      <div className="bg-rk-panel border border-white/10 rounded-2xl p-3.5 space-y-3">
         <div className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
@@ -193,14 +193,14 @@ export const KanbanBoard: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher une tâche, un livrable, un projet…"
-              className="w-full bg-[#070c1e] border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
+              className="w-full bg-rk-bg border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
             />
           </div>
 
           <select
             value={selectedMember}
             onChange={(e) => setSelectedMember(e.target.value)}
-            className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
+            className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
           >
             <option value="all">Tous les membres</option>
             {workload.map((w) => (
@@ -213,7 +213,7 @@ export const KanbanBoard: React.FC = () => {
           <select
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
-            className="bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
+            className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
           >
             <option value="all">Tous les projets</option>
             {projets.map((p) => (
@@ -246,7 +246,7 @@ export const KanbanBoard: React.FC = () => {
                     ? c
                       ? `${c.bg} ${c.text} font-bold border ${c.border}`
                       : 'bg-white text-slate-950 font-bold'
-                    : 'bg-[#0a122e] text-slate-400 hover:text-white border border-white/5'
+                    : 'bg-rk-panel text-slate-400 hover:text-white border border-white/5'
                 }`}
               >
                 {p === 'all' ? 'Tous les Pôles' : p}
@@ -257,7 +257,7 @@ export const KanbanBoard: React.FC = () => {
       </div>
 
       {/* Charge par membre */}
-      <div className="bg-[#0a122e] border border-white/10 rounded-2xl p-4">
+      <div className="bg-rk-panel border border-white/10 rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <Users className="w-4 h-4 text-blue-400" />
           <h3 className="font-serif text-sm font-bold text-white">Charge de travail par membre</h3>
@@ -278,7 +278,7 @@ export const KanbanBoard: React.FC = () => {
                   key={w.name}
                   onClick={() => setSelectedMember(selectedMember === w.name ? 'all' : w.name)}
                   title={`Filtrer sur ${w.name}`}
-                  className={`text-left bg-[#070c1e] border rounded-xl p-3 transition-colors cursor-pointer ${
+                  className={`text-left bg-rk-bg border rounded-xl p-3 transition-colors cursor-pointer ${
                     selectedMember === w.name ? 'border-blue-500/60' : 'border-white/5 hover:border-white/20'
                   }`}
                 >
@@ -334,7 +334,7 @@ export const KanbanBoard: React.FC = () => {
               }}
               onDragLeave={() => setDragOver((d) => (d === col.id ? null : d))}
               onDrop={() => onDrop(col.id)}
-              className={`bg-[#09122a] border rounded-2xl flex flex-col max-h-[calc(100vh-260px)] min-h-[400px] transition-colors ${
+              className={`bg-rk-chrome border rounded-2xl flex flex-col max-h-[calc(100vh-260px)] min-h-[400px] transition-colors ${
                 isTarget ? 'border-blue-500/70 bg-blue-950/20' : 'border-white/10'
               }`}
             >
@@ -370,7 +370,7 @@ export const KanbanBoard: React.FC = () => {
                             JSON.stringify({ id: t.id, from: statusOf(t) })
                           );
                         }}
-                        className={`bg-[#0a1435] border rounded-xl p-3.5 space-y-3 hover:border-white/20 transition-all shadow-sm ${
+                        className={`bg-rk-panel border rounded-xl p-3.5 space-y-3 hover:border-white/20 transition-all shadow-sm ${
                           urgent ? 'border-rose-500/40' : late ? 'border-amber-500/40' : 'border-white/5'
                         }`}
                       >
@@ -514,7 +514,7 @@ export const KanbanBoard: React.FC = () => {
                   value={titre}
                   onChange={(e) => setTitre(e.target.value)}
                   placeholder="Ex : Recette passerelle MTN MoMo pour Maison Kotto"
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
                 />
               </div>
 
@@ -525,7 +525,7 @@ export const KanbanBoard: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Critères d'acceptation, spécifications..."
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
                 />
               </div>
 
@@ -539,7 +539,7 @@ export const KanbanBoard: React.FC = () => {
                     const p = projets.find((x) => x.id === v);
                     if (p) setPole(p.pole);
                   }}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                 >
                   <option value="">Aucun projet (tâche libre)</option>
                   {projets.map((p) => (
@@ -557,7 +557,7 @@ export const KanbanBoard: React.FC = () => {
                   <select
                     value={pole}
                     onChange={(e) => setPole(e.target.value as Pole)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                   >
                     {ALL_POLES.map((p) => (
                       <option key={p} value={p}>
@@ -572,7 +572,7 @@ export const KanbanBoard: React.FC = () => {
                   <select
                     value={priorite}
                     onChange={(e) => setPriorite(e.target.value as TaskPriority)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                   >
                     <option value="basse">Basse</option>
                     <option value="normale">Normale</option>
@@ -597,7 +597,7 @@ export const KanbanBoard: React.FC = () => {
                       const m = osMembers.find((x) => x.id === v);
                       if (m) setPole(m.pole);
                     }}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                   >
                     <option value="">Aucun responsable pour l'instant</option>
                     {osMembers.map((m) => (
@@ -615,7 +615,7 @@ export const KanbanBoard: React.FC = () => {
                   type="date"
                   value={dateEcheance}
                   onChange={(e) => setDateEcheance(e.target.value)}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
                 />
               </div>
 

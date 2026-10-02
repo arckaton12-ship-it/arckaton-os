@@ -76,7 +76,7 @@ export const CrmSection: React.FC = () => {
     <div className="space-y-6 animate-fadeIn">
       
       {/* Header */}
-      <div className="bg-[#0a122e] border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-rk-panel border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-2">
             <Users className="w-3.5 h-3.5" />
@@ -92,12 +92,12 @@ export const CrmSection: React.FC = () => {
 
         {/* Global Leads stats */}
         <div className="flex items-center gap-2">
-          <div className="bg-[#070c1e] border border-white/10 px-4 py-2 rounded-xl text-xs font-mono">
+          <div className="bg-rk-bg border border-white/10 px-4 py-2 rounded-xl text-xs font-mono">
             <span className="text-slate-400">Total Leads : </span>
             <span className="text-white font-bold">{leads.length}</span>
           </div>
 
-          <div className="bg-[#070c1e] border border-white/10 px-4 py-2 rounded-xl text-xs font-mono">
+          <div className="bg-rk-bg border border-white/10 px-4 py-2 rounded-xl text-xs font-mono">
             <span className="text-slate-400">Signés : </span>
             <span className="text-emerald-400 font-bold">{leads.filter(l => l.statut === 'converti').length}</span>
           </div>
@@ -113,14 +113,14 @@ export const CrmSection: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par nom, téléphone, type de projet..."
-            className="w-full bg-[#0a122e] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
+            className="w-full bg-rk-panel border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
           />
         </div>
 
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="bg-[#0a122e] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none w-full sm:w-auto"
+          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none w-full sm:w-auto"
         >
           <option value="all">Tous les statuts</option>
           <option value="nouveau">Nouveaux</option>
@@ -137,7 +137,7 @@ export const CrmSection: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {filteredLeads.length === 0 ? (
-          <div className="text-center py-12 text-slate-400 bg-[#0a122e] rounded-2xl border border-white/5">
+          <div className="text-center py-12 text-slate-400 bg-rk-panel rounded-2xl border border-white/5">
             Aucun prospect ne correspond à ces critères.
           </div>
         ) : (
@@ -151,7 +151,7 @@ export const CrmSection: React.FC = () => {
             return (
               <div
                 key={l.id}
-                className="bg-[#0a122e] border border-white/10 hover:border-white/20 rounded-2xl p-5 space-y-4 transition-all"
+                className="bg-rk-panel border border-white/10 hover:border-white/20 rounded-2xl p-5 space-y-4 transition-all"
               >
                 {/* Top Row */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
@@ -197,7 +197,7 @@ export const CrmSection: React.FC = () => {
                     <span className="text-[11px] font-mono uppercase text-slate-400">Projet demandé :</span>
                     <div className="font-semibold text-white text-sm">{l.project_type}</div>
                     {l.message && (
-                      <p className="text-slate-300 bg-[#070c1e] p-3 rounded-xl border border-white/5 leading-relaxed mt-1">
+                      <p className="text-slate-300 bg-rk-bg p-3 rounded-xl border border-white/5 leading-relaxed mt-1">
                         « {l.message} »
                       </p>
                     )}
@@ -215,7 +215,7 @@ export const CrmSection: React.FC = () => {
                       <select
                         value={l.statut}
                         onChange={(e) => updateLeadStatus(l.id, e.target.value as LeadStatus)}
-                        className="bg-[#070c1e] border border-white/10 rounded-lg px-2 py-1 text-xs text-white w-full focus:outline-none"
+                        className="bg-rk-bg border border-white/10 rounded-lg px-2 py-1 text-xs text-white w-full focus:outline-none"
                       >
                         <option value="nouveau">Nouveau</option>
                         <option value="contacte">Contacté</option>

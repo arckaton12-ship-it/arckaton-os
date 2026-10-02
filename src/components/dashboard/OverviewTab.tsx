@@ -155,7 +155,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Pipeline Leads */}
-          <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Pipeline Commercial</span>
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
@@ -177,7 +177,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 2: Chiffre d'affaires réel */}
-          <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Volume Facturé Consolidé</span>
               <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
@@ -205,7 +205,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 3: Sorties terrain réelles */}
-          <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Sorties Terrain</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
@@ -233,7 +233,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 4: Tâches & Santé Pôles */}
-          <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Tâches & Pôles</span>
               <div className="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">
@@ -269,7 +269,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
       {isDataFetching ? (
         <ProjectStripSkeleton />
       ) : (
-        <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-4">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-2">
               <FolderKanban className="w-4 h-4 text-emerald-400" />
@@ -293,7 +293,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 <div 
                   key={prj.id}
                   onClick={() => onSelectTab('projects')}
-                  className="p-4 rounded-2xl bg-[#070c1e] border border-white/5 hover:border-emerald-500/40 transition-all cursor-pointer space-y-3"
+                  className="p-4 rounded-2xl bg-rk-bg border border-white/5 hover:border-emerald-500/40 transition-all cursor-pointer space-y-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -337,7 +337,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {isDataFetching ? (
             <LeadsPanelSkeleton />
           ) : (
-            <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-5">
+            <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-5">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
@@ -356,7 +356,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 {leads.slice(0, 5).map((l) => (
                   <div
                     key={l.id}
-                    className="p-4 rounded-xl bg-[#070c1e] border border-white/5 hover:border-white/15 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 rounded-xl bg-rk-bg border border-white/5 hover:border-white/15 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -407,7 +407,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {isDataFetching ? (
             <PolesPerformanceSkeleton />
           ) : (
-            <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-4">
+            <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-4">
               <h3 className="font-serif text-lg font-bold text-white flex items-center justify-between">
                 <span>Performance des 6 Pôles</span>
                 <span className="text-xs font-mono text-slate-400 font-normal">Équipe Arckaton</span>
@@ -424,7 +424,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                   const percent = total ? Math.round((doneCount / total) * 100) : 100;
 
                   return (
-                    <div key={pole} className="p-2.5 rounded-xl bg-[#070c1e] border border-white/5 space-y-1.5">
+                    <div key={pole} className="p-2.5 rounded-xl bg-rk-bg border border-white/5 space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white">{info.name}</span>

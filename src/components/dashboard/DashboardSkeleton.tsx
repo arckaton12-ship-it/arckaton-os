@@ -35,7 +35,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
  */
 export const MetricCardSkeleton: React.FC<{ index?: number }> = () => {
   return (
-    <div className="bg-[#0a0f2e] border border-white/10 rounded-2xl p-5 space-y-3 relative">
+    <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3 relative">
       <div className="flex items-center justify-between">
         <Skeleton className="h-3.5 w-28" />
         <Skeleton className="w-8 h-8 rounded-lg" />
@@ -108,7 +108,7 @@ export const TableRowSkeleton: React.FC = () => {
  */
 export const ProjectStripSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-4">
+    <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-4">
       <div className="flex items-center justify-between border-b border-white/10 pb-3">
         <div className="flex items-center gap-2.5">
           <Skeleton className="w-4 h-4 rounded" />
@@ -121,7 +121,7 @@ export const ProjectStripSkeleton: React.FC = () => {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="p-4 rounded-2xl bg-[#070c1e] border border-white/5 space-y-3"
+            className="p-4 rounded-2xl bg-rk-bg border border-white/5 space-y-3"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-1.5">
@@ -152,7 +152,7 @@ export const ProjectStripSkeleton: React.FC = () => {
  */
 export const LeadsPanelSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-5">
+    <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-5">
       <div className="flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-2.5">
           <Skeleton className="w-3 h-3 rounded-full" />
@@ -165,7 +165,7 @@ export const LeadsPanelSkeleton: React.FC = () => {
         {[1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
-            className="p-4 rounded-xl bg-[#070c1e] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            className="p-4 rounded-xl bg-rk-bg border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
           >
             <div className="space-y-2 flex-1">
               <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export const LeadsPanelSkeleton: React.FC = () => {
  */
 export const PolesPerformanceSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-4">
+    <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton className="h-5 w-44" />
         <Skeleton className="h-3 w-24" />
@@ -202,7 +202,7 @@ export const PolesPerformanceSkeleton: React.FC = () => {
 
       <div className="space-y-2.5">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="p-2.5 rounded-xl bg-[#070c1e] border border-white/5 space-y-2">
+          <div key={i} className="p-2.5 rounded-xl bg-rk-bg border border-white/5 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Skeleton className="h-3.5 w-24" />
@@ -269,7 +269,7 @@ export const ReportPreviewSkeleton: React.FC = () => {
         <Skeleton className="h-4 w-52" />
         <div className="space-y-2.5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="p-3.5 rounded-xl bg-[#070c1e] border border-white/5 flex items-start gap-3">
+            <div key={i} className="p-3.5 rounded-xl bg-rk-bg border border-white/5 flex items-start gap-3">
               <Skeleton className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5" />
               <div className="space-y-1.5 flex-1">
                 <Skeleton className="h-3.5 w-full" />
@@ -304,7 +304,7 @@ export const ReportPreviewSkeleton: React.FC = () => {
 export const ChatResponseSkeleton: React.FC = () => {
   return (
     <div className="flex gap-2.5 text-xs sm:text-sm justify-start animate-fadeIn">
-      <div className="p-4 rounded-2xl max-w-[85%] bg-[#0a0f2e] border border-white/10 rounded-tl-none space-y-2 w-full max-w-sm">
+      <div className="p-4 rounded-2xl max-w-[85%] bg-rk-panel border border-white/10 rounded-tl-none space-y-2 w-full max-w-sm">
         <div className="flex items-center gap-2 mb-1">
           <Skeleton className="w-2 h-2 rounded-full" />
           <Skeleton className="h-2.5 w-24" />
@@ -324,7 +324,7 @@ export const ProjectsProductionSkeleton: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top filter bar skeleton */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0a0f2e] border border-white/10">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-rk-panel border border-white/10">
         <Skeleton className="h-10 w-full sm:w-64 rounded-xl" />
         <div className="flex items-center gap-2">
           <Skeleton className="h-10 w-28 rounded-xl" />
@@ -336,7 +336,7 @@ export const ProjectsProductionSkeleton: React.FC = () => {
       {/* Project Cards List */}
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="p-6 rounded-3xl bg-[#0a0f2e] border border-white/10 space-y-4">
+          <div key={i} className="p-6 rounded-3xl bg-rk-panel border border-white/10 space-y-4">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -369,7 +369,7 @@ export const CrmSectionSkeleton: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Filter toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0a0f2e] border border-white/10">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-rk-panel border border-white/10">
         <Skeleton className="h-10 w-full sm:w-72 rounded-xl" />
         <div className="flex items-center gap-2">
           <Skeleton className="h-9 w-24 rounded-xl" />
@@ -380,7 +380,7 @@ export const CrmSectionSkeleton: React.FC = () => {
       {/* Lead Cards */}
       <div className="space-y-3">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="p-5 rounded-2xl bg-[#0a0f2e] border border-white/10 space-y-3">
+          <div key={i} className="p-5 rounded-2xl bg-rk-panel border border-white/10 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Skeleton className="h-5 w-36" />
@@ -421,7 +421,7 @@ export const OverviewTabSkeleton: React.FC = () => {
         <div className="lg:col-span-5 space-y-6">
           <PolesPerformanceSkeleton />
           {/* IA Shortcut Skeleton */}
-          <div className="bg-[#0a0f2e] border border-white/10 rounded-3xl p-6 space-y-3">
+          <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-3">
             <Skeleton className="h-3.5 w-36" />
             <Skeleton className="h-5 w-56" />
             <Skeleton className="h-3.5 w-full" />

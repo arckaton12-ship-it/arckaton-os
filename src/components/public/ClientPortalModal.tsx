@@ -103,10 +103,10 @@ export const ClientPortalModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
+            className="bg-rk-surface border border-white/[0.1] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Top Header Bar */}
-            <div className="px-6 py-4 bg-[#0a0e17] border-b border-white/[0.08] flex items-center justify-between flex-shrink-0">
+            <div className="px-6 py-4 bg-rk-base border-b border-white/[0.08] flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center font-serif text-lg font-bold text-emerald-400">
                   A
@@ -137,7 +137,7 @@ export const ClientPortalModal: React.FC = () => {
 
             {/* Search & Switcher Bar */}
             {currentProject && (
-            <div className="px-6 py-3 bg-[#0a0e17]/80 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
+            <div className="px-6 py-3 bg-rk-base/80 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
               <div className="flex items-center gap-2 overflow-x-auto text-xs py-1">
                 <span className="text-slate-400 font-mono text-[11px] whitespace-nowrap">Projets actifs :</span>
                 {projets.map((p) => {
@@ -167,7 +167,7 @@ export const ClientPortalModal: React.FC = () => {
                   placeholder="Réf (ex: PRJ-KOTTO)..."
                   value={searchCode}
                   onChange={(e) => setSearchCode(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#0f1523] border border-white/[0.08] text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 font-mono"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-rk-surface border border-white/[0.08] text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 font-mono"
                 />
               </form>
             </div>
@@ -209,7 +209,7 @@ export const ClientPortalModal: React.FC = () => {
 
             {/* Project Header Banner */}
             {currentProject && (
-              <div className="px-6 py-4 bg-[#0f1523] border-b border-white/[0.06] flex-shrink-0">
+              <div className="px-6 py-4 bg-rk-surface border-b border-white/[0.06] flex-shrink-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 text-xs font-mono text-emerald-400">
@@ -260,7 +260,7 @@ export const ClientPortalModal: React.FC = () => {
 
             {/* Navigation Tabs */}
             {currentProject && (
-            <div className="flex border-b border-white/[0.06] bg-[#0a0e17] px-6 text-xs font-medium text-slate-400 flex-shrink-0 overflow-x-auto">
+            <div className="flex border-b border-white/[0.06] bg-rk-base px-6 text-xs font-medium text-slate-400 flex-shrink-0 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('avancement')}
                 className={`py-3 px-4 border-b-2 transition-all cursor-pointer ${
@@ -300,7 +300,7 @@ export const ClientPortalModal: React.FC = () => {
 
             {/* Scrollable Tab Content Area */}
             {currentProject && (
-            <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-[#0a0e17]/50">
+            <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-rk-base/50">
               {/* TAB 1: JALONS & LIVRABLES */}
               {activeTab === 'avancement' && (
                 <div className="space-y-4">
@@ -331,7 +331,7 @@ export const ClientPortalModal: React.FC = () => {
                                 ? 'bg-emerald-500/5 border-emerald-500/20'
                                 : isCurrent
                                 ? 'bg-blue-500/5 border-blue-500/30'
-                                : 'bg-[#0f1523] border-white/[0.06] opacity-75'
+                                : 'bg-rk-surface border-white/[0.06] opacity-75'
                             }`}
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -407,7 +407,7 @@ export const ClientPortalModal: React.FC = () => {
               {/* TAB 2: SORTIES TERRAIN (PHOTO / VIDEO) */}
               {activeTab === 'terrain' && (
                 <div className="space-y-4">
-                  <div className="bg-[#0f1523] p-5 rounded-2xl border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="bg-rk-surface p-5 rounded-2xl border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <div className="text-xs font-mono text-emerald-400">ENGAGEMENT TERRAIN ARCKATON</div>
                       <h4 className="font-serif text-lg font-bold text-white mt-0.5">
@@ -435,7 +435,7 @@ export const ClientPortalModal: React.FC = () => {
                     {fieldVisits.map((visit) => (
                       <div
                         key={visit.id}
-                        className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-2"
+                        className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-2"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-mono text-emerald-400 font-bold">
@@ -517,7 +517,7 @@ export const ClientPortalModal: React.FC = () => {
                   </div>
 
                   {/* New Message Input Form */}
-                  <form onSubmit={handleSendFeedback} className="p-4 rounded-2xl bg-[#0f1523] border border-white/[0.08] space-y-3">
+                  <form onSubmit={handleSendFeedback} className="p-4 rounded-2xl bg-rk-surface border border-white/[0.08] space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs text-slate-400">Type de message :</span>
                       <div className="flex items-center gap-2">
@@ -564,7 +564,7 @@ export const ClientPortalModal: React.FC = () => {
                       value={feedbackText}
                       onChange={(e) => setFeedbackText(e.target.value)}
                       placeholder="Écrivez votre message ou vos ajustements souhaités ici..."
-                      className="w-full p-3 rounded-xl bg-[#0a0e17] border border-white/[0.08] text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full p-3 rounded-xl bg-rk-base border border-white/[0.08] text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
                       required
                     />
 
@@ -588,7 +588,7 @@ export const ClientPortalModal: React.FC = () => {
             )}
 
             {/* Modal Bottom Footer */}
-            <div className="px-6 py-3 bg-[#0a0e17] border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2 flex-shrink-0 font-mono">
+            <div className="px-6 py-3 bg-rk-base border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2 flex-shrink-0 font-mono">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span>Serveur Arckaton OS Connecté • Support 24/7 disponible</span>

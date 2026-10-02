@@ -18,7 +18,7 @@ export const Realisations: React.FC = () => {
   ];
 
   return (
-    <section id="realisations" className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
+    <section id="realisations" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Atmospheric Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[450px] bg-gradient-to-b from-emerald-500/[0.05] via-transparent to-transparent pointer-events-none blur-3xl" />
@@ -70,7 +70,7 @@ export const Realisations: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className="bg-[#0f1523] rounded-2xl border border-white/[0.08] p-8 flex flex-col justify-between hover:border-white/[0.16] transition-all duration-300 group"
+                className="bg-rk-surface rounded-2xl border border-white/[0.08] p-8 flex flex-col justify-between hover:border-white/[0.16] transition-all duration-300 group"
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -90,7 +90,7 @@ export const Realisations: React.FC = () => {
                   </div>
 
                   {/* Impact Metric Block */}
-                  <div className="bg-[#0a0e17] p-5 rounded-xl border border-white/[0.06] text-center space-y-1">
+                  <div className="bg-rk-base p-5 rounded-xl border border-white/[0.06] text-center space-y-1">
                     <div className="font-serif text-3xl sm:text-4xl font-bold text-emerald-400">
                       {cs.mainMetric}
                     </div>

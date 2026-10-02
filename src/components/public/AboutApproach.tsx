@@ -8,7 +8,7 @@ export const AboutApproach: React.FC = () => {
   const { setIsQuoteModalOpen, setIsAgentModalOpen } = useApp();
 
   return (
-    <section id="apropos" className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
+    <section id="apropos" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-20 pointer-events-none" />
       <div className="absolute -bottom-24 right-1/4 w-80 h-80 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
@@ -43,7 +43,7 @@ export const AboutApproach: React.FC = () => {
             </div>
 
             {/* Testimonial Blockquote - Clean editorial styling */}
-            <div className="p-8 rounded-2xl bg-[#0f1523] border border-white/[0.08] relative space-y-4">
+            <div className="p-8 rounded-2xl bg-rk-surface border border-white/[0.08] relative space-y-4">
               <Quote className="w-8 h-8 text-emerald-400/20" />
               <blockquote className="font-serif text-base sm:text-lg text-white italic leading-relaxed font-light">
                 « Avec Arckaton, nous sommes passés d'une boutique de quartier à une marque qui encaisse chaque jour par MTN et Orange Money. En 6 mois, notre taux de conversion a bondi de +337%. Leur accompagnement terrain fait toute la différence. »
@@ -88,7 +88,7 @@ export const AboutApproach: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="lg:col-span-5 space-y-4"
           >
-            <div className="p-6 rounded-2xl bg-[#0f1523] border border-white/[0.08] space-y-2">
+            <div className="p-6 rounded-2xl bg-rk-surface border border-white/[0.08] space-y-2">
               <div className="text-xs font-mono text-emerald-400 uppercase tracking-wider">01 • Ancrage Réel</div>
               <h3 className="font-serif text-lg font-bold text-white">Bureau à Yaoundé (Mimboman)</h3>
               <p className="text-xs text-slate-400 leading-relaxed font-light">
@@ -96,7 +96,7 @@ export const AboutApproach: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#0f1523] border border-white/[0.08] space-y-2">
+            <div className="p-6 rounded-2xl bg-rk-surface border border-white/[0.08] space-y-2">
               <div className="text-xs font-mono text-blue-400 uppercase tracking-wider">02 • Rayonnement Global</div>
               <h3 className="font-serif text-lg font-bold text-white">Clients dans 7 pays</h3>
               <p className="text-xs text-slate-400 leading-relaxed font-light">
@@ -104,7 +104,7 @@ export const AboutApproach: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#0f1523] border border-white/[0.08] space-y-2">
+            <div className="p-6 rounded-2xl bg-rk-surface border border-white/[0.08] space-y-2">
               <div className="text-xs font-mono text-amber-400 uppercase tracking-wider">03 • Cockpit Transparent</div>
               <h3 className="font-serif text-lg font-bold text-white">Arckaton OS pour chaque client</h3>
               <p className="text-xs text-slate-400 leading-relaxed font-light">

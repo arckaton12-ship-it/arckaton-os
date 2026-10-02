@@ -292,7 +292,7 @@ export const SiteAdmin: React.FC = () => {
   // Permission Gate: allows admin, superadmin, editor
   if (!isSiteEditor) {
     return (
-      <div className="bg-[#0b1329] border border-rose-500/30 rounded-3xl p-8 text-center space-y-4 max-w-lg mx-auto my-12">
+      <div className="bg-rk-panel border border-rose-500/30 rounded-3xl p-8 text-center space-y-4 max-w-lg mx-auto my-12">
         <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
           <Lock className="w-6 h-6" />
         </div>
@@ -308,7 +308,7 @@ export const SiteAdmin: React.FC = () => {
     <div className="space-y-6 animate-fadeIn pb-12">
 
       {/* Header */}
-      <div className="bg-[#0b1329] border border-white/10 p-6 sm:p-8 rounded-3xl relative overflow-hidden">
+      <div className="bg-rk-panel border border-white/10 p-6 sm:p-8 rounded-3xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/[0.03] rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -347,7 +347,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'announcement'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <Megaphone className="w-3.5 h-3.5" />
@@ -359,7 +359,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'hero'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <Layout className="w-3.5 h-3.5" />
@@ -371,7 +371,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'forfaits'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <DollarSign className="w-3.5 h-3.5" />
@@ -383,7 +383,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'blog'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -395,7 +395,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'realisations'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <FolderKanban className="w-3.5 h-3.5" />
@@ -407,7 +407,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'temoignages'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <Star className="w-3.5 h-3.5" />
@@ -419,7 +419,7 @@ export const SiteAdmin: React.FC = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
               activeTab === 'contact'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'bg-[#070c1e] text-slate-400 hover:text-white border border-white/[0.06]'
+                : 'bg-rk-bg text-slate-400 hover:text-white border border-white/[0.06]'
             }`}
           >
             <Phone className="w-3.5 h-3.5" />
@@ -430,14 +430,14 @@ export const SiteAdmin: React.FC = () => {
 
       {/* TAB 1 : BANDEAU D'ANNONCE */}
       {activeTab === 'announcement' && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="mb-6">
             <h3 className="font-serif text-xl font-bold text-white">Bandeau Supérieur d'Alerte & Événements</h3>
             <p className="text-xs text-slate-400 mt-1">S'affiche tout en haut du site public pour diffuser les alertes ou lancements majeurs.</p>
           </div>
 
           <form onSubmit={handleSaveAnnouncement} className="space-y-4 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-3 bg-[#070c1e] p-4 rounded-2xl border border-white/[0.06]">
+            <div className="flex flex-wrap items-center gap-3 bg-rk-bg p-4 rounded-2xl border border-white/[0.06]">
               <input
                 type="checkbox"
                 id="announcement-enabled"
@@ -456,7 +456,7 @@ export const SiteAdmin: React.FC = () => {
                 type="text"
                 value={announcementForm.badge}
                 onChange={(e) => setAnnouncementForm({ ...announcementForm, badge: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 placeholder="Ex: DÉPLOIEMENT T3 2026"
               />
             </div>
@@ -467,7 +467,7 @@ export const SiteAdmin: React.FC = () => {
                 rows={2}
                 value={announcementForm.text}
                 onChange={(e) => setAnnouncementForm({ ...announcementForm, text: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
                 placeholder="Ex: Ouverture du pôle Grand Compte à Douala Bonanjo..."
               />
             </div>
@@ -479,7 +479,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={announcementForm.button_text}
                   onChange={(e) => setAnnouncementForm({ ...announcementForm, button_text: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   placeholder="Ex: Découvrir le rapport"
                 />
               </div>
@@ -489,7 +489,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={announcementForm.target_url}
                   onChange={(e) => setAnnouncementForm({ ...announcementForm, target_url: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                   placeholder="#blog"
                 />
               </div>
@@ -510,7 +510,7 @@ export const SiteAdmin: React.FC = () => {
 
       {/* TAB 2 : HERO SECTION & STATS */}
       {activeTab === 'hero' && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="mb-6">
             <h3 className="font-serif text-xl font-bold text-white">Section Héro Principale & Chiffres d'Autorité</h3>
             <p className="text-xs text-slate-400 mt-1">Le premier message que voient les prospects et clients en arrivant sur le site.</p>
@@ -523,7 +523,7 @@ export const SiteAdmin: React.FC = () => {
                 type="text"
                 value={heroForm.badge}
                 onChange={(e) => setHeroForm({ ...heroForm, badge: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
               />
             </div>
 
@@ -534,7 +534,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={heroForm.title_line_1}
                   onChange={(e) => setHeroForm({ ...heroForm, title_line_1: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
               <div>
@@ -543,7 +543,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={heroForm.title_highlight}
                   onChange={(e) => setHeroForm({ ...heroForm, title_highlight: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
             </div>
@@ -554,7 +554,7 @@ export const SiteAdmin: React.FC = () => {
                 rows={3}
                 value={heroForm.subtitle}
                 onChange={(e) => setHeroForm({ ...heroForm, subtitle: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
               />
             </div>
 
@@ -565,7 +565,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={heroForm.cta_primary}
                   onChange={(e) => setHeroForm({ ...heroForm, cta_primary: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
               <div>
@@ -574,7 +574,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={heroForm.cta_secondary}
                   onChange={(e) => setHeroForm({ ...heroForm, cta_secondary: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
             </div>
@@ -582,7 +582,7 @@ export const SiteAdmin: React.FC = () => {
             <div className="pt-4 border-t border-white/[0.08]">
               <span className="text-xs font-mono text-slate-400 uppercase block mb-3 font-bold">Les 3 Métriques Clés du Héro :</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-[#070c1e] p-3.5 rounded-xl border border-white/[0.06]">
+                <div className="bg-rk-bg p-3.5 rounded-xl border border-white/[0.06]">
                   <input
                     type="text"
                     value={heroForm.stat_1_val}
@@ -597,7 +597,7 @@ export const SiteAdmin: React.FC = () => {
                   />
                 </div>
 
-                <div className="bg-[#070c1e] p-3.5 rounded-xl border border-white/[0.06]">
+                <div className="bg-rk-bg p-3.5 rounded-xl border border-white/[0.06]">
                   <input
                     type="text"
                     value={heroForm.stat_2_val}
@@ -612,7 +612,7 @@ export const SiteAdmin: React.FC = () => {
                   />
                 </div>
 
-                <div className="bg-[#070c1e] p-3.5 rounded-xl border border-white/[0.06]">
+                <div className="bg-rk-bg p-3.5 rounded-xl border border-white/[0.06]">
                   <input
                     type="text"
                     value={heroForm.stat_3_val}
@@ -645,7 +645,7 @@ export const SiteAdmin: React.FC = () => {
       {/* TAB 3 : FORFAITS & PRIX */}
       {activeTab === 'forfaits' && (
         <div className="space-y-6">
-          <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+          <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
             <div className="mb-6">
               <h3 className="font-serif text-xl font-bold text-white">Gestion des Forfaits Commerciaux</h3>
               <p className="text-xs text-slate-400 mt-1">Ajustez les prix de création, abonnements mensuels et quotas de sorties terrain.</p>
@@ -653,7 +653,7 @@ export const SiteAdmin: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {forfaits.map((f) => (
-                <div key={f.id} className="bg-[#070c1e] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between">
+                <div key={f.id} className="bg-rk-bg border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-mono text-emerald-400 uppercase font-bold">Forfait #{f.number}</span>
@@ -703,7 +703,7 @@ export const SiteAdmin: React.FC = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition du forfait"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative outline-none animate-modal-in"
+                className="bg-rk-panel border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   Édition du Forfait {editingForfait.name}
@@ -718,7 +718,7 @@ export const SiteAdmin: React.FC = () => {
                         type="text"
                         value={editingForfait.creation_price}
                         onChange={(e) => setEditingForfait({ ...editingForfait, creation_price: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-xs text-white"
                       />
                     </div>
                     <div>
@@ -727,7 +727,7 @@ export const SiteAdmin: React.FC = () => {
                         type="number"
                         value={editingForfait.creation_price_amount}
                         onChange={(e) => setEditingForfait({ ...editingForfait, creation_price_amount: Number(e.target.value) })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-xs text-white"
                       />
                     </div>
                   </div>
@@ -739,7 +739,7 @@ export const SiteAdmin: React.FC = () => {
                         type="text"
                         value={editingForfait.monthly_price}
                         onChange={(e) => setEditingForfait({ ...editingForfait, monthly_price: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-xs text-white"
                       />
                     </div>
                     <div>
@@ -748,7 +748,7 @@ export const SiteAdmin: React.FC = () => {
                         type="number"
                         value={editingForfait.monthly_price_amount}
                         onChange={(e) => setEditingForfait({ ...editingForfait, monthly_price_amount: Number(e.target.value) })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-xs text-white"
                       />
                     </div>
                   </div>
@@ -759,7 +759,7 @@ export const SiteAdmin: React.FC = () => {
                       type="text"
                       value={editingForfait.sorties_terrain}
                       onChange={(e) => setEditingForfait({ ...editingForfait, sorties_terrain: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-xs text-white"
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-xs text-white"
                     />
                   </div>
 
@@ -788,7 +788,7 @@ export const SiteAdmin: React.FC = () => {
 
       {/* TAB 4 : JOURNAL DE BORD (BLOG) */}
       {activeTab === 'blog' && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Articles & Témoignages Terrain</h3>
@@ -807,7 +807,7 @@ export const SiteAdmin: React.FC = () => {
             {blogPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-[#070c1e] border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+                className="bg-rk-bg border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
               >
                 <div className="flex items-center gap-4">
                   <img
@@ -871,7 +871,7 @@ export const SiteAdmin: React.FC = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition d'article de blog"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
+                className="bg-rk-panel border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingBlogPost ? "Modifier le Récit Terrain" : "Publier un Nouveau Récit d'Action"}
@@ -886,7 +886,7 @@ export const SiteAdmin: React.FC = () => {
                       required
                       value={blogFormData.title}
                       onChange={(e) => setBlogFormData({ ...blogFormData, title: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                       placeholder="Ex: Immersion Terrain : 48h au marché..."
                     />
                   </div>
@@ -906,7 +906,7 @@ export const SiteAdmin: React.FC = () => {
                           };
                           setBlogFormData({ ...blogFormData, category: cat, category_label: labels[cat] });
                         }}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                       >
                         <option value="terrain">Opérations Terrain</option>
                         <option value="client">Clients Satisfaits & ROI</option>
@@ -921,7 +921,7 @@ export const SiteAdmin: React.FC = () => {
                         type="text"
                         value={blogFormData.read_time}
                         onChange={(e) => setBlogFormData({ ...blogFormData, read_time: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                         placeholder="Ex: 5 min"
                       />
                     </div>
@@ -934,7 +934,7 @@ export const SiteAdmin: React.FC = () => {
                         type="text"
                         value={blogFormData.author_name}
                         onChange={(e) => setBlogFormData({ ...blogFormData, author_name: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                       />
                     </div>
                     <div>
@@ -943,7 +943,7 @@ export const SiteAdmin: React.FC = () => {
                         type="text"
                         value={blogFormData.author_role}
                         onChange={(e) => setBlogFormData({ ...blogFormData, author_role: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                       />
                     </div>
                   </div>
@@ -954,7 +954,7 @@ export const SiteAdmin: React.FC = () => {
                       type="text"
                       value={blogFormData.image}
                       onChange={(e) => setBlogFormData({ ...blogFormData, image: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                     />
                   </div>
 
@@ -964,7 +964,7 @@ export const SiteAdmin: React.FC = () => {
                       rows={2}
                       value={blogFormData.excerpt}
                       onChange={(e) => setBlogFormData({ ...blogFormData, excerpt: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
                     />
                   </div>
 
@@ -975,7 +975,7 @@ export const SiteAdmin: React.FC = () => {
                       required
                       value={blogFormData.content}
                       onChange={(e) => setBlogFormData({ ...blogFormData, content: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
                     />
                   </div>
 
@@ -1004,7 +1004,7 @@ export const SiteAdmin: React.FC = () => {
 
       {/* TAB 5BIS : RÉALISATIONS (ÉTUDES DE CAS) */}
       {activeTab === 'realisations' && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Études de Cas & Réalisations</h3>
@@ -1023,7 +1023,7 @@ export const SiteAdmin: React.FC = () => {
             {realisations.map((r) => (
               <div
                 key={r.id}
-                className="bg-[#070c1e] border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+                className="bg-rk-bg border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -1076,7 +1076,7 @@ export const SiteAdmin: React.FC = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition d'une réalisation"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
+                className="bg-rk-panel border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingRealisation ? 'Modifier la Réalisation' : 'Ajouter une Réalisation'}
@@ -1087,7 +1087,7 @@ export const SiteAdmin: React.FC = () => {
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du dossier client :</label>
                     <input type="text" required value={realForm.name} onChange={(e) => setRealForm({ ...realForm, name: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -1098,7 +1098,7 @@ export const SiteAdmin: React.FC = () => {
                           const cat = CATEGORIES.find((c) => c.key === e.target.value);
                           setRealForm({ ...realForm, category: e.target.value, categoryLabel: cat?.label || e.target.value });
                         }}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                       >
                         {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
                       </select>
@@ -1106,35 +1106,35 @@ export const SiteAdmin: React.FC = () => {
                     <div>
                       <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Forfait associé :</label>
                       <input type="text" value={realForm.forfait} onChange={(e) => setRealForm({ ...realForm, forfait: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Description :</label>
                     <textarea rows={3} required value={realForm.description} onChange={(e) => setRealForm({ ...realForm, description: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none" />
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique principale :</label>
                       <input type="text" required value={realForm.mainMetric} onChange={(e) => setRealForm({ ...realForm, mainMetric: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="+38%" />
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="+38%" />
                     </div>
                     <div>
                       <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Libellé de la métrique :</label>
                       <input type="text" required value={realForm.mainMetricLabel} onChange={(e) => setRealForm({ ...realForm, mainMetricLabel: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="chiffre d'affaires" />
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="chiffre d'affaires" />
                     </div>
                     <div>
                       <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique secondaire :</label>
                       <input type="text" value={realForm.subMetric} onChange={(e) => setRealForm({ ...realForm, subMetric: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="×2 rotations" />
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="×2 rotations" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Délai de déploiement :</label>
                     <input type="text" value={realForm.delay} onChange={(e) => setRealForm({ ...realForm, delay: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="14 jours" />
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="14 jours" />
                   </div>
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Points de livraison (un par ligne) :</label>
@@ -1142,7 +1142,7 @@ export const SiteAdmin: React.FC = () => {
                       rows={3}
                       value={realForm.points.join('\n')}
                       onChange={(e) => setRealForm({ ...realForm, points: e.target.value.split('\n').filter((p) => p.trim()) })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none"
                       placeholder={'Système de point de vente digitalisé\nFormation de l équipe sur 3 semaines'}
                     />
                   </div>
@@ -1163,7 +1163,7 @@ export const SiteAdmin: React.FC = () => {
 
       {/* TAB 5TER : TÉMOIGNAGES CLIENTS */}
       {activeTab === 'temoignages' && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Témoignages Clients</h3>
@@ -1182,7 +1182,7 @@ export const SiteAdmin: React.FC = () => {
             {temoignages.map((t) => (
               <div
                 key={t.id}
-                className="bg-[#070c1e] border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+                className="bg-rk-bg border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -1233,7 +1233,7 @@ export const SiteAdmin: React.FC = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Édition d'un témoignage"
-                className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
+                className="bg-rk-panel border border-white/15 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative my-8 outline-none animate-modal-in"
               >
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingTemoignage ? 'Modifier le Témoignage' : 'Ajouter un Témoignage'}
@@ -1245,28 +1245,28 @@ export const SiteAdmin: React.FC = () => {
                     <div>
                       <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du client :</label>
                       <input type="text" required value={temForm.author} onChange={(e) => setTemForm({ ...temForm, author: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" />
                     </div>
                     <div>
                       <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Fonction :</label>
                       <input type="text" value={temForm.role} onChange={(e) => setTemForm({ ...temForm, role: e.target.value })}
-                        className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="Gérant" />
+                        className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="Gérant" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Entreprise :</label>
                     <input type="text" value={temForm.company} onChange={(e) => setTemForm({ ...temForm, company: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" />
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" />
                   </div>
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Citation :</label>
                     <textarea rows={4} required value={temForm.text} onChange={(e) => setTemForm({ ...temForm, text: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white resize-none" />
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white resize-none" />
                   </div>
                   <div>
                     <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Métrique / résultat (optionnel) :</label>
                     <input type="text" value={temForm.metrics} onChange={(e) => setTemForm({ ...temForm, metrics: e.target.value })}
-                      className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="+38% CA en 3 mois" />
+                      className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white" placeholder="+38% CA en 3 mois" />
                   </div>
 
                   <div className="pt-4 flex items-center justify-end gap-3">
@@ -1285,7 +1285,7 @@ export const SiteAdmin: React.FC = () => {
 
       {/* TAB 5 : CANAUX & COORDONNÉES */}
       {activeTab === 'contact' && (
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-6 sm:p-8">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
           <div className="mb-6">
             <h3 className="font-serif text-xl font-bold text-white">Canaux de Contact & Lignes Officielles</h3>
             <p className="text-xs text-slate-400 mt-1">Numéro WhatsApp direct, adresses physiques et téléphone d'urgence.</p>
@@ -1299,7 +1299,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={contactForm.whatsapp_number}
                   onChange={(e) => setContactForm({ ...contactForm, whatsapp_number: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
               <div>
@@ -1308,7 +1308,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={contactForm.whatsapp_display}
                   onChange={(e) => setContactForm({ ...contactForm, whatsapp_display: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
             </div>
@@ -1320,7 +1320,7 @@ export const SiteAdmin: React.FC = () => {
                   type="text"
                   value={contactForm.phone_call}
                   onChange={(e) => setContactForm({ ...contactForm, phone_call: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
               <div>
@@ -1329,7 +1329,7 @@ export const SiteAdmin: React.FC = () => {
                   type="email"
                   value={contactForm.email_contact}
                   onChange={(e) => setContactForm({ ...contactForm, email_contact: e.target.value })}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
                 />
               </div>
             </div>
@@ -1340,7 +1340,7 @@ export const SiteAdmin: React.FC = () => {
                 type="text"
                 value={contactForm.address_yaounde}
                 onChange={(e) => setContactForm({ ...contactForm, address_yaounde: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
               />
             </div>
 
@@ -1350,7 +1350,7 @@ export const SiteAdmin: React.FC = () => {
                 type="text"
                 value={contactForm.address_douala}
                 onChange={(e) => setContactForm({ ...contactForm, address_douala: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
               />
             </div>
 
@@ -1360,7 +1360,7 @@ export const SiteAdmin: React.FC = () => {
                 type="text"
                 value={contactForm.disponibilite}
                 onChange={(e) => setContactForm({ ...contactForm, disponibilite: e.target.value })}
-                className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-3 text-xs text-white"
+                className="w-full bg-rk-bg border border-white/10 rounded-xl p-3 text-xs text-white"
               />
             </div>
 

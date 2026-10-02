@@ -35,7 +35,7 @@ export const BlogReaderModal: React.FC = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.96 }}
           transition={{ duration: 0.25 }}
-          className="bg-[#0b1329] border border-white/15 rounded-3xl max-w-3xl w-full relative shadow-2xl overflow-hidden my-8 outline-none"
+          className="bg-rk-panel border border-white/15 rounded-3xl max-w-3xl w-full relative shadow-2xl overflow-hidden my-8 outline-none"
         >
           {/* Close button */}
           <button
@@ -91,7 +91,7 @@ export const BlogReaderModal: React.FC = () => {
 
             {/* Field Mission Technical Specs Box if exists */}
             {activeBlogPost.field_spec && (
-              <div className="bg-[#070c1e] border border-emerald-500/30 rounded-2xl p-5 space-y-3">
+              <div className="bg-rk-bg border border-emerald-500/30 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono uppercase font-bold tracking-wider">
                   <MapPin className="w-4 h-4" />
                   <span>Fiche Technique d'Intervention Terrain</span>
@@ -152,7 +152,7 @@ export const BlogReaderModal: React.FC = () => {
             </div>
 
             {/* Conversion CTA in Modal */}
-            <div className="bg-[#070c1e] border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-rk-bg border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="font-serif text-lg font-bold text-white">Vous souhaitez un déploiement similaire ?</h4>
                 <p className="text-xs text-slate-400 mt-0.5">Nos équipes évaluent vos besoins et interviennent sous 48h à Yaoundé ou Douala.</p>

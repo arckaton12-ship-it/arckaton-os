@@ -74,7 +74,7 @@ export const Header: React.FC = () => {
   return (
     <>
       {/* Barre supérieure épurée : marque + CTA + burger */}
-      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-[#0a0e17]/90 border-b border-white/[0.08]">
+      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-rk-base/90 border-b border-white/[0.08]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
           <a href="#" onClick={close} className="flex items-center gap-3 group shrink-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-serif text-xl font-bold text-slate-950 transition-transform duration-300 group-hover:scale-105">
@@ -136,7 +136,7 @@ export const Header: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 260 }}
-              className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-[#0b1120] border-l border-white/10 shadow-2xl flex flex-col"
+              className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-rk-chrome border-l border-white/10 shadow-2xl flex flex-col"
               aria-label="Navigation principale"
             >
               <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">

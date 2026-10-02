@@ -107,7 +107,7 @@ export const LeadsTab: React.FC = () => {
     <div className="space-y-6 animate-fadeIn">
       
       {/* Top Controls Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0a0f2e] border border-white/10 p-5 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-rk-panel border border-white/10 p-5 rounded-2xl">
         <div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
             <span>Pipeline Commercial & CRM</span>
@@ -182,7 +182,7 @@ export const LeadsTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[750px]">
             <thead>
-              <tr className="border-b border-white/10 bg-[#070c1e] text-slate-400 font-mono text-[11px]">
+              <tr className="border-b border-white/10 bg-rk-bg text-slate-400 font-mono text-[11px]">
                 <th className="py-3 px-4">Client / Entreprise</th>
                 <th className="py-3 px-4">Système Demandé</th>
                 <th className="py-3 px-4">Pôle Attribué</th>
@@ -337,7 +337,7 @@ export const LeadsTab: React.FC = () => {
             </div>
 
             <div className="space-y-3 text-xs text-slate-300">
-              <div className="grid grid-cols-2 gap-2 bg-[#070c1e] p-3 rounded-xl border border-white/5">
+              <div className="grid grid-cols-2 gap-2 bg-rk-bg p-3 rounded-xl border border-white/5">
                 <div>
                   <span className="text-[11px] font-mono text-slate-400 block">Téléphone :</span>
                   <span className="text-white font-semibold">{activeLeadModal.phone}</span>
@@ -358,7 +358,7 @@ export const LeadsTab: React.FC = () => {
 
               <div>
                 <span className="text-xs font-mono text-slate-400 block mb-1">Message & Cahier des charges :</span>
-                <div className="p-3 rounded-xl bg-[#070c1e] border border-white/5 text-slate-200 whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed">
+                <div className="p-3 rounded-xl bg-rk-bg border border-white/5 text-slate-200 whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed">
                   {activeLeadModal.message}
                 </div>
               </div>
@@ -416,7 +416,7 @@ export const LeadsTab: React.FC = () => {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Ex: Clinique Dentaire Etoile"
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -428,7 +428,7 @@ export const LeadsTab: React.FC = () => {
                   value={newPhone}
                   onChange={(e) => setNewPhone(e.target.value)}
                   placeholder="Ex: +237 681 46 29 82"
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -438,7 +438,7 @@ export const LeadsTab: React.FC = () => {
                   <select
                     value={newPole}
                     onChange={(e) => setNewPole(e.target.value as Pole)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                   >
                     <option value="Direction">Direction</option>
                     <option value="Tech">Tech</option>
@@ -455,7 +455,7 @@ export const LeadsTab: React.FC = () => {
                     type="text"
                     value={newBudget}
                     onChange={(e) => setNewBudget(e.target.value)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
                   />
                 </div>
               </div>
@@ -466,7 +466,7 @@ export const LeadsTab: React.FC = () => {
                   type="text"
                   value={newProjectType}
                   onChange={(e) => setNewProjectType(e.target.value)}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
                 />
               </div>
 
@@ -477,7 +477,7 @@ export const LeadsTab: React.FC = () => {
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
                   placeholder="Contexte de la rencontre, besoins identifiés..."
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
                 />
               </div>
 

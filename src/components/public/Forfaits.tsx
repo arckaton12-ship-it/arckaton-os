@@ -10,7 +10,7 @@ export const Forfaits: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   return (
-    <section id="forfaits" className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] scroll-mt-20">
+    <section id="forfaits" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -27,7 +27,7 @@ export const Forfaits: React.FC = () => {
 
           {/* Billing Cycle Switcher */}
           <div className="pt-4 flex items-center justify-center">
-            <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-[#0f1523] border border-white/[0.08]">
+            <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-rk-surface border border-white/[0.08]">
               <button
                 onClick={() => setBillingCycle('monthly')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -69,8 +69,8 @@ export const Forfaits: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`relative rounded-2xl p-8 flex flex-col justify-between transition-all duration-300 ${
                   isFeatured
-                    ? 'bg-[#0f1523] border border-emerald-500/50 shadow-2xl shadow-emerald-500/10 lg:-translate-y-2'
-                    : 'bg-[#0f1523] border border-white/[0.08] hover:border-white/[0.16]'
+                    ? 'bg-rk-surface border border-emerald-500/50 shadow-2xl shadow-emerald-500/10 lg:-translate-y-2'
+                    : 'bg-rk-surface border border-white/[0.08] hover:border-white/[0.16]'
                 }`}
               >
                 {/* Popular Pill */}
@@ -175,7 +175,7 @@ export const Forfaits: React.FC = () => {
         </div>
 
         {/* Detailed Comparison Table */}
-        <div className="bg-[#0f1523] border border-white/[0.08] rounded-2xl p-6 sm:p-8 overflow-hidden">
+        <div className="bg-rk-surface border border-white/[0.08] rounded-2xl p-6 sm:p-8 overflow-hidden">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-serif text-2xl font-bold text-white">

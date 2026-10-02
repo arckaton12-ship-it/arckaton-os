@@ -119,7 +119,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0f1523] rounded-2xl border border-white/[0.08] p-6 shadow-2xl relative overflow-hidden flex flex-col space-y-5">
+    <div className="bg-rk-surface rounded-2xl border border-white/[0.08] p-6 shadow-2xl relative overflow-hidden flex flex-col space-y-5">
       
       {/* Top Cockpit Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
@@ -176,7 +176,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
 
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="bg-[#0a0e17] p-3.5 rounded-xl border border-white/[0.06]">
+        <div className="bg-rk-base p-3.5 rounded-xl border border-white/[0.06]">
           <div className="text-[11px] uppercase font-mono text-slate-400">Total Encaissé Aujourd'hui</div>
           <div className="font-serif text-lg font-bold text-emerald-400 mt-1">
             {dailySalesTotal.toLocaleString()} FCFA
@@ -186,7 +186,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-[#0a0e17] p-3.5 rounded-xl border border-white/[0.06]">
+        <div className="bg-rk-base p-3.5 rounded-xl border border-white/[0.06]">
           <div className="text-[11px] uppercase font-mono text-slate-400">Inventaire Rapide</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             12 minutes
@@ -196,7 +196,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-[#0a0e17] p-3.5 rounded-xl border border-white/[0.06] col-span-2 sm:col-span-1">
+        <div className="bg-rk-base p-3.5 rounded-xl border border-white/[0.06] col-span-2 sm:col-span-1">
           <div className="text-[11px] uppercase font-mono text-slate-400">Articles en Stock</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             {products.reduce((acc, p) => acc + p.stock, 0)} pièces
@@ -223,7 +223,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                 key={product.id}
                 onClick={() => addToCart(product)}
                 disabled={product.stock <= 0}
-                className="text-left p-3 rounded-xl bg-[#0a0e17] hover:bg-white/[0.04] border border-white/[0.06] hover:border-emerald-500/30 transition-all flex flex-col justify-between group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="text-left p-3 rounded-xl bg-rk-base hover:bg-white/[0.04] border border-white/[0.06] hover:border-emerald-500/30 transition-all flex flex-col justify-between group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <div>
                   <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
@@ -251,7 +251,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
         </div>
 
         {/* Right: Cash Register & Payment Ticket */}
-        <div className="md:col-span-5 bg-[#0a0e17] border border-white/[0.06] rounded-xl p-4 flex flex-col justify-between space-y-4">
+        <div className="md:col-span-5 bg-rk-base border border-white/[0.06] rounded-xl p-4 flex flex-col justify-between space-y-4">
           
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
@@ -387,7 +387,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="p-4 rounded-xl bg-[#0a0e17] border border-emerald-500/30 space-y-3"
+            className="p-4 rounded-xl bg-rk-base border border-emerald-500/30 space-y-3"
           >
             <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
               <div className="flex items-center gap-2">

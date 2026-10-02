@@ -81,10 +81,10 @@ export const TrialModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden relative outline-none"
+            className="bg-rk-surface border border-white/[0.1] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Header */}
-            <div className="bg-[#0a0e17] px-6 py-5 border-b border-white/[0.08] flex items-center justify-between">
+            <div className="bg-rk-base px-6 py-5 border-b border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
                   <Play className="w-4 h-4 fill-emerald-400" />
@@ -113,15 +113,15 @@ export const TrialModal: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Three Guarantee Badges */}
                   <div className="grid grid-cols-3 gap-2 pb-2">
-                    <div className="p-2.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] text-center">
+                    <div className="p-2.5 rounded-xl bg-rk-base border border-white/[0.06] text-center">
                       <Clock className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                       <div className="text-[11px] font-mono text-white">Actif en 2h</div>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] text-center">
+                    <div className="p-2.5 rounded-xl bg-rk-base border border-white/[0.06] text-center">
                       <WifiOff className="w-4 h-4 text-blue-400 mx-auto mb-1" />
                       <div className="text-[11px] font-mono text-white">100% Offline</div>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-[#0a0e17] border border-white/[0.06] text-center">
+                    <div className="p-2.5 rounded-xl bg-rk-base border border-white/[0.06] text-center">
                       <Smartphone className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                       <div className="text-[11px] font-mono text-white">MoMo & Orange</div>
                     </div>
@@ -137,7 +137,7 @@ export const TrialModal: React.FC = () => {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="Ex : Supermarché Étoile / Boutique Clarisse"
-                      className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                     />
                   </div>
 
@@ -152,7 +152,7 @@ export const TrialModal: React.FC = () => {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+237 681 46 29 82"
-                        className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
 
@@ -165,7 +165,7 @@ export const TrialModal: React.FC = () => {
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         placeholder="Yaoundé, Douala, Bafoussam..."
-                        className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
                   </div>
@@ -177,7 +177,7 @@ export const TrialModal: React.FC = () => {
                     <select
                       value={activity}
                       onChange={(e) => setActivity(e.target.value)}
-                      className="w-full bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                      className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
                     >
                       {activities.map((a) => (
                         <option key={a} value={a}>{a}</option>

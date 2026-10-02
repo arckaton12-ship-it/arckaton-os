@@ -83,9 +83,9 @@ export const LoginPanel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070c1e] text-slate-100 flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-rk-bg text-slate-100 flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md">
-        <div className="bg-[#0b1329] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+        <div className="bg-rk-panel border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.05] rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 space-y-6">
@@ -111,19 +111,19 @@ export const LoginPanel: React.FC = () => {
                 </span>
                 <div>
                   <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Nom complet</label>
-                  <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-sm text-white" />
+                  <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
                   <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Email professionnel</label>
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-sm text-white" />
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
                   <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Mot de passe initial</label>
-                  <input type="text" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-sm text-white" />
+                  <input type="text" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
                   <label className="block text-[11px] font-mono text-slate-400 uppercase mb-1">Téléphone (optionnel)</label>
-                  <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-[#070c1e] border border-white/10 rounded-xl p-2.5 text-sm text-white" />
+                  <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-rk-bg border border-white/10 rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 {error && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl px-4 py-3">{error}</div>}
                 <button type="submit" disabled={busy} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2">
@@ -145,7 +145,7 @@ export const LoginPanel: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="prenom@arckaton.com"
-                    className="w-full bg-[#070c1e] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
+                    className="w-full bg-rk-bg border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -160,7 +160,7 @@ export const LoginPanel: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-[#070c1e] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
+                    className="w-full bg-rk-bg border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-400 outline-none transition-colors"
                   />
                 </div>
               </div>

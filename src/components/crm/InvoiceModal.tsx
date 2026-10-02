@@ -192,7 +192,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
       >
 
         {/* Barre d'actions (non imprimable) */}
-        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-[#0f1523] border border-white/10 px-4 py-3 text-slate-100 shadow-xl">
+        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-rk-surface border border-white/10 px-4 py-3 text-slate-100 shadow-xl">
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={onClose}

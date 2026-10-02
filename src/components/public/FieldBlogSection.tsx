@@ -33,7 +33,7 @@ export const FieldBlogSection: React.FC = () => {
   });
 
   return (
-    <section id="blog" className="py-24 bg-[#080d1e] relative overflow-hidden border-t border-white/[0.08]">
+    <section id="blog" className="py-24 bg-rk-bg relative overflow-hidden border-t border-white/[0.08]">
       {/* Blueprint Grid and Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/2 -left-40 w-96 h-96 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
@@ -68,7 +68,7 @@ export const FieldBlogSection: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                   selectedCategory === c.id
                     ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                    : 'bg-[#0f172e] text-slate-400 hover:text-white border border-white/[0.06]'
+                    : 'bg-rk-panel text-slate-400 hover:text-white border border-white/[0.06]'
                 }`}
               >
                 {c.label}
@@ -79,7 +79,7 @@ export const FieldBlogSection: React.FC = () => {
 
         {/* Blog Post Cards Grid */}
         {filteredPosts.length === 0 ? (
-          <div className="text-center py-16 bg-[#0b1329] border border-white/10 rounded-3xl">
+          <div className="text-center py-16 bg-rk-panel border border-white/10 rounded-3xl">
             <Camera className="w-8 h-8 text-slate-500 mx-auto mb-3" aria-hidden="true" />
             <p className="text-sm text-slate-300">Aucun récit publié dans cette catégorie pour le moment.</p>
             <p className="text-xs text-slate-500 mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
@@ -92,7 +92,7 @@ export const FieldBlogSection: React.FC = () => {
               whileHover={{ y: -4 }}
               transition={{ duration: 0.2 }}
               onClick={() => setActiveBlogPost(post)}
-              className="bg-[#0b1329] border border-white/10 hover:border-emerald-500/40 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-all group flex flex-col justify-between"
+              className="bg-rk-panel border border-white/10 hover:border-emerald-500/40 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-all group flex flex-col justify-between"
             >
               <div>
                 {/* Visual Thumbnail */}

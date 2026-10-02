@@ -9,7 +9,7 @@ export const Hero: React.FC = () => {
   const [activeCockpitTab, setActiveCockpitTab] = useState<'sales' | 'inventory' | 'field'>('sales');
 
   return (
-    <section className="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden bg-[#0a0e17]">
+    <section className="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden bg-rk-base">
       {/* Subtle Radial Ambient Lighting & Blueprint Grid */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-35 pointer-events-none" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-gradient-to-b from-emerald-500/[0.09] via-blue-500/[0.03] to-transparent pointer-events-none blur-2xl" />
@@ -103,7 +103,7 @@ export const Hero: React.FC = () => {
           className="mt-16 max-w-5xl mx-auto space-y-6"
         >
           {/* Architectural System Header Banner */}
-          <div className="relative rounded-2xl overflow-hidden border border-white/[0.12] bg-[#0c1322] shadow-2xl group">
+          <div className="relative rounded-2xl overflow-hidden border border-white/[0.12] bg-rk-surface shadow-2xl group">
             <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
               {/* Left Details */}
               <div className="lg:col-span-6 p-6 sm:p-8 space-y-4 z-10">
@@ -125,7 +125,7 @@ export const Hero: React.FC = () => {
               </div>
 
               {/* Right Hero Image Render */}
-              <div className="lg:col-span-6 relative h-64 sm:h-72 lg:h-80 overflow-hidden bg-[#070b14]">
+              <div className="lg:col-span-6 relative h-64 sm:h-72 lg:h-80 overflow-hidden bg-rk-inset">
                 <img 
                   src={heroSystemCubeImg} 
                   alt="Système Central Arckaton en 3D Isométrique" 
@@ -133,17 +133,17 @@ export const Hero: React.FC = () => {
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-3 right-3 bg-[#0a0e17]/80 backdrop-blur-md border border-white/[0.1] px-3 py-1 rounded-lg text-[11px] font-mono text-emerald-400">
+                <div className="absolute bottom-3 right-3 bg-rk-base/80 backdrop-blur-md border border-white/[0.1] px-3 py-1 rounded-lg text-[11px] font-mono text-emerald-400">
                   Système Central ARCKATON
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.12] bg-[#0d1322] shadow-2xl overflow-hidden">
+          <div className="rounded-2xl border border-white/[0.12] bg-rk-surface shadow-2xl overflow-hidden">
             
             {/* Window Top Bar */}
-            <div className="bg-[#111827] px-4 py-3 flex flex-wrap items-center justify-between border-b border-white/[0.08] gap-3">
+            <div className="bg-rk-chrome px-4 py-3 flex flex-wrap items-center justify-between border-b border-white/[0.08] gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
@@ -156,7 +156,7 @@ export const Hero: React.FC = () => {
               </div>
 
               {/* Interactive Cockpit Tabs */}
-              <div className="flex items-center gap-1.5 bg-[#0a0e17] p-1 rounded-xl border border-white/[0.08]">
+              <div className="flex items-center gap-1.5 bg-rk-base p-1 rounded-xl border border-white/[0.08]">
                 <button
                   onClick={() => setActiveCockpitTab('sales')}
                   className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
@@ -200,7 +200,7 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Interactive Cockpit Content View */}
-            <div className="p-6 sm:p-8 bg-[#0a0e17]">
+            <div className="p-6 sm:p-8 bg-rk-base">
               <AnimatePresence mode="wait">
                 {activeCockpitTab === 'sales' && (
                   <motion.div
@@ -212,26 +212,26 @@ export const Hero: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Chiffre d'Affaires du Jour</div>
                         <div className="font-serif text-2xl font-bold text-white">+125 000 FCFA</div>
                         <div className="text-xs text-emerald-400 font-medium">18 transactions enregistrées</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Mobile Money (MTN + Orange)</div>
                         <div className="font-serif text-2xl font-bold text-white">78 500 FCFA</div>
                         <div className="text-xs text-slate-400">62% du volume total de la journée</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Synchronisation Cloud</div>
                         <div className="font-serif text-2xl font-bold text-emerald-400">100% En règle</div>
                         <div className="text-xs text-slate-400">Boutique Yaoundé Bastos & Kotto</div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
+                    <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         <span>Mode caisse rapide actif : encaissement sans interruption même en coupure de réseau.</span>
@@ -251,26 +251,26 @@ export const Hero: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Articles en Stock</div>
                         <div className="font-serif text-2xl font-bold text-white">1 420 références</div>
                         <div className="text-xs text-slate-400">Réparties sur 2 dépôts</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Durée d'Inventaire</div>
                         <div className="font-serif text-2xl font-bold text-amber-400">12 minutes</div>
                         <div className="text-xs text-slate-400">Gain de temps de 93% vs carnet papier</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Alertes Réapprovisionnement</div>
                         <div className="font-serif text-2xl font-bold text-white">3 articles</div>
                         <div className="text-xs text-amber-400 font-medium">Bons de commande pré-remplis</div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
+                    <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
                       <div className="flex items-center gap-2">
                         <Boxes className="w-4 h-4 text-amber-400" />
                         <span>Traçabilité complète des entrées et sorties pour stopper les disparitions de marchandises.</span>
@@ -290,26 +290,26 @@ export const Hero: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Sorties Terrain Mensuelles</div>
                         <div className="font-serif text-2xl font-bold text-white">9 sessions / mois</div>
                         <div className="text-xs text-slate-400">Incluses dans le Forfait Synergie</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Livrables Vidéo & Photo</div>
                         <div className="font-serif text-2xl font-bold text-blue-400">12 capsules HD</div>
                         <div className="text-xs text-slate-400">Montage professionnel & validation BAT</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Prochaine Captation</div>
                         <div className="font-serif text-2xl font-bold text-white">Demain 10h</div>
                         <div className="text-xs text-emerald-400 font-medium">Boutique Maison Kotto (Yaoundé)</div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-[#0f1523] border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
+                    <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
                       <div className="flex items-center gap-2">
                         <Camera className="w-4 h-4 text-blue-400" />
                         <span>Créatifs et vidéastes sur place pour nourrir vos réseaux sociaux et vos campagnes pub.</span>

@@ -70,7 +70,7 @@ export const DashboardLayout: React.FC = () => {
   // Session réelle : chargement, puis login requis
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070c1e] flex items-center justify-center">
+      <div className="min-h-screen bg-rk-bg flex items-center justify-center">
         <div className="text-slate-400 text-sm font-mono flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
           Arckaton OS — Vérification de la session…
@@ -128,10 +128,10 @@ export const DashboardLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#070c1e] text-slate-100 flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-rk-bg text-slate-100 flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Mobile Top Header */}
-      <div className="md:hidden bg-[#09122a] border-b border-white/10 p-4 flex items-center justify-between sticky top-0 z-30">
+      <div className="md:hidden bg-rk-chrome border-b border-white/10 p-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -187,7 +187,7 @@ export const DashboardLayout: React.FC = () => {
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 z-40 h-screen w-64 bg-[#09122a] border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed md:sticky top-0 z-40 h-screen w-64 bg-rk-chrome border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
@@ -222,7 +222,7 @@ export const DashboardLayout: React.FC = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1">
+          <nav className="space-y-1" aria-label="Sections du cockpit">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -269,7 +269,7 @@ export const DashboardLayout: React.FC = () => {
         </div>
 
         {/* Bottom Sidebar: User & Public Switcher */}
-        <div className="p-4 border-t border-white/10 space-y-3 bg-[#070c1e]/80">
+        <div className="p-4 border-t border-white/10 space-y-3 bg-rk-bg/80">
           
           {/* User Profile Badge */}
           <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
@@ -299,7 +299,7 @@ export const DashboardLayout: React.FC = () => {
       <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         
         {/* Desktop Top Header Bar */}
-        <header className="hidden md:flex items-center justify-between px-8 py-3.5 bg-[#09122a]/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
+        <header className="hidden md:flex items-center justify-between px-8 py-3.5 bg-rk-chrome/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
           <div className="flex items-center gap-3">
             {breadcrumb}
             <span className="hidden lg:inline text-xs font-mono text-slate-500">
@@ -309,7 +309,7 @@ export const DashboardLayout: React.FC = () => {
 
           <div className="flex items-center gap-3">
             {/* Session Membre */}
-            <div className="flex items-center gap-2 bg-[#0a122e] border border-white/10 px-3 py-1.5 rounded-xl">
+            <div className="flex items-center gap-2 bg-rk-panel border border-white/10 px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
                 <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
                 <div className="text-[11px] font-mono text-slate-400 mt-0.5">{role}</div>
@@ -326,7 +326,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Notification Bell */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
-              className="p-2 rounded-xl bg-[#070c1e] hover:bg-white/5 text-slate-300 border border-white/10 relative transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-rk-bg hover:bg-white/5 text-slate-300 border border-white/10 relative transition-colors cursor-pointer"
               title="Notifications"
               aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
             >

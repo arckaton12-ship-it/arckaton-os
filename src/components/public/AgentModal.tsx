@@ -172,10 +172,10 @@ export const AgentModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-[#0f1523] border border-white/[0.1] rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
+            className="bg-rk-surface border border-white/[0.1] rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Header with 6 Poles Tabs */}
-            <div className="bg-[#0a0e17] border-b border-white/[0.08] p-4 space-y-3">
+            <div className="bg-rk-base border-b border-white/[0.08] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
@@ -226,7 +226,7 @@ export const AgentModal: React.FC = () => {
             </div>
 
             {/* Conversation Message List */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-[#0a0e17]">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-rk-base">
               {messages.map((m, idx) => {
                 const isUser = m.role === 'user';
                 return (
@@ -246,7 +246,7 @@ export const AgentModal: React.FC = () => {
                       className={`max-w-[85%] rounded-2xl p-4 ${
                         isUser
                           ? 'bg-emerald-500 text-slate-950 font-medium rounded-tr-none'
-                          : 'bg-[#0f1523] text-slate-200 border border-white/[0.08] rounded-tl-none font-light'
+                          : 'bg-rk-surface text-slate-200 border border-white/[0.08] rounded-tl-none font-light'
                       }`}
                     >
                       {!isUser && (
@@ -279,7 +279,7 @@ export const AgentModal: React.FC = () => {
             )}
 
             {/* Quick Suggestions Chips */}
-            <div className="bg-[#0a0e17] px-4 py-2 border-t border-white/[0.06] overflow-x-auto flex gap-2">
+            <div className="bg-rk-base px-4 py-2 border-t border-white/[0.06] overflow-x-auto flex gap-2">
               {quickQuestions[selectedPole].map((q, idx) => (
                 <button
                   key={idx}
@@ -293,7 +293,7 @@ export const AgentModal: React.FC = () => {
             </div>
 
             {/* Bottom Actions & Input */}
-            <div className="p-4 bg-[#0f1523] border-t border-white/[0.08] space-y-3">
+            <div className="p-4 bg-rk-surface border-t border-white/[0.08] space-y-3">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -307,7 +307,7 @@ export const AgentModal: React.FC = () => {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Écrivez votre message (nom, besoin, contact)..."
-                  className="flex-1 bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  className="flex-1 bg-rk-base border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                 />
                 <button
                   type="submit"

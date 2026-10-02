@@ -44,7 +44,7 @@ export const Faq: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-28 bg-[#0a0e17] relative border-t border-white/[0.08] scroll-mt-20">
+    <section id="faq" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -71,8 +71,8 @@ export const Faq: React.FC = () => {
                 key={index}
                 className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                   isOpen
-                    ? 'bg-[#0f1523] border-emerald-500/30 shadow-lg shadow-emerald-500/5'
-                    : 'bg-[#0f1523]/60 border-white/[0.08] hover:border-white/[0.14]'
+                    ? 'bg-rk-surface border-emerald-500/30 shadow-lg shadow-emerald-500/5'
+                    : 'bg-rk-surface/60 border-white/[0.08] hover:border-white/[0.14]'
                 }`}
               >
                 <button
@@ -110,7 +110,7 @@ export const Faq: React.FC = () => {
         </div>
 
         {/* Bottom prompt to AI agent */}
-        <div className="mt-12 text-center p-6 rounded-2xl bg-[#0f1523] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-12 text-center p-6 rounded-2xl bg-rk-surface border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-left">
             <h4 className="font-serif text-base font-bold text-white">
               Une autre question spécifique à votre secteur ?

@@ -98,7 +98,7 @@ export const TasksTab: React.FC = () => {
     <div className="space-y-6 animate-fadeIn">
       
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0a0f2e] border border-white/10 p-5 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-rk-panel border border-white/10 p-5 rounded-2xl">
         <div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
             <span>Gestion des Tâches Opérationnelles</span>
@@ -129,7 +129,7 @@ export const TasksTab: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-colors cursor-pointer ${
               selectedPole === 'all'
                 ? 'bg-white text-slate-950 font-bold'
-                : 'bg-[#0a0f2e] text-slate-400 hover:text-white border border-white/5'
+                : 'bg-rk-panel text-slate-400 hover:text-white border border-white/5'
             }`}
           >
             Tous les Pôles
@@ -141,7 +141,7 @@ export const TasksTab: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-colors cursor-pointer ${
                 selectedPole === p
                   ? 'bg-purple-600 text-white font-bold'
-                  : 'bg-[#0a0f2e] text-slate-400 hover:text-white border border-white/5'
+                  : 'bg-rk-panel text-slate-400 hover:text-white border border-white/5'
               }`}
             >
               {p}
@@ -153,7 +153,7 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
         >
           <option value="all">Tous les statuts</option>
           <option value="a_faire">À faire</option>
@@ -166,7 +166,7 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
-          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
         >
           <option value="all">Tous les projets</option>
           {projets.map((p) => (
@@ -178,7 +178,7 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedMember}
           onChange={(e) => setSelectedMember(e.target.value)}
-          className="bg-[#0a0f2e] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none ml-auto"
+          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none ml-auto"
         >
           <option value="all">Tous les membres</option>
           {membersList.map((m) => (
@@ -190,7 +190,7 @@ export const TasksTab: React.FC = () => {
       {/* Tasks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTasks.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-slate-400 bg-[#0a0f2e] rounded-2xl border border-white/5">
+          <div className="col-span-full text-center py-12 text-slate-400 bg-rk-panel rounded-2xl border border-white/5">
             Aucune tâche trouvée pour cette combinaison de filtres.
           </div>
         ) : (
@@ -201,7 +201,7 @@ export const TasksTab: React.FC = () => {
             return (
               <div
                 key={t.id}
-                className={`bg-[#0a0f2e] border rounded-2xl p-5 flex flex-col justify-between transition-all ${
+                className={`bg-rk-panel border rounded-2xl p-5 flex flex-col justify-between transition-all ${
                   isCompleted
                     ? 'border-emerald-500/20 opacity-75'
                     : isUrgent
@@ -333,7 +333,7 @@ export const TasksTab: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex : Intégrer le paiement MTN MoMo pour un client"
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export const TasksTab: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Consignes précises, liens ou livrables attendus..."
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
                 />
               </div>
 
@@ -358,7 +358,7 @@ export const TasksTab: React.FC = () => {
                       setPole(newP);
                       setAssignedTo(poleManagers[newP]);
                     }}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                   >
                     <option value="Direction">Direction</option>
                     <option value="Tech">Tech</option>
@@ -374,7 +374,7 @@ export const TasksTab: React.FC = () => {
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value as any)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                   >
                     <option value="basse">Basse</option>
                     <option value="normale">Normale</option>
@@ -391,7 +391,7 @@ export const TasksTab: React.FC = () => {
                     list="task-members"
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
                   />
                   <datalist id="task-members">
                     {membersList.map((m) => <option key={m} value={m} />)}
@@ -405,7 +405,7 @@ export const TasksTab: React.FC = () => {
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
                     placeholder="Ex: Demain 17h"
-                    className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
                   />
                 </div>
               </div>
@@ -415,7 +415,7 @@ export const TasksTab: React.FC = () => {
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
-                  className="w-full bg-[#070c1e] border border-white/10 rounded-xl px-2 py-2 text-white"
+                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
                 >
                   <option value="">Aucun projet (tâche transverse)</option>
                   {projets.map((p) => (
