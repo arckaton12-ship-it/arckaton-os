@@ -1617,9 +1617,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (!member || !activeChannel) return;
+    // On rafraichit aussi au retour sur l'onglet : un membre qui revient
+    // sur l'OS apres plusieurs minutes voyait sinon l'etat d'il y a 20 s
+    // au mieux, et devait recharger la page pour lire les messages recus.
+    const rafraichir = () => {
+      if (document.visibilityState === 'visible') refreshMessages(activeChannel);
+    };
     refreshMessages(activeChannel);
-    const minuteur = setInterval(() => refreshMessages(activeChannel), 20_000);
-    return () => clearInterval(minuteur);
+    const minuteur = setInterval(rafraichir, 20_000);
+    window.addEventListener('focus', rafraichir);
+    document.addEventListener('visibilitychange', rafraichir);
+    return () => {
+      clearInterval(minuteur);
+      window.removeEventListener('focus', rafraichir);
+      document.removeEventListener('visibilitychange', rafraichir);
+    };
   }, [member, activeChannel, refreshMessages]);
 
   // Task Handler

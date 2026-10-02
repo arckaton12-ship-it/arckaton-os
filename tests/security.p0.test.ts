@@ -915,3 +915,24 @@ describe('Qualification de lead — acces protege', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// La messagerie interne est reservee aux membres connectes : un anonyme ne
+// doit ni lire, ni ecrire, ni supprimer un message.
+describe('Messagerie interne — acces protege', () => {
+  it('refuse la lecture sans jeton', async () => {
+    const res = await request(app).get('/api/messages?canal=c-general');
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse l\'envoi sans jeton', async () => {
+    const res = await request(app)
+      .post('/api/messages')
+      .send({ canal: 'c-general', contenu: 'intrusion' });
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse la suppression sans jeton', async () => {
+    const res = await request(app).delete('/api/messages/m-quelconque');
+    expect(res.status).toBe(401);
+  });
+});
