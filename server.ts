@@ -2757,6 +2757,65 @@ app.put("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res) =>
   }
 });
 
+// Mise a jour collaborative d'un projet par tout membre connecte.
+//
+// La creation et l'edition complete (budget, statut, client...) restent
+// reservees a la direction (POST/PUT ci-dessus). Mais les jalons, les retours
+// client, l'avancement et les sorties terrain sont alimentes par toute
+// l'equipe pendant la production : les laisser en local faisait perdre chaque
+// validation BAT au rechargement de la page, et le portail client (qui lit le
+// serveur) ne voyait jamais rien. Cette route n'accepte QUE ces champs.
+app.patch("/api/projects/:ref", requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Base de donnees non configuree' });
+  try {
+    const ref = req.params.ref;
+    if (!ref) return res.status(400).json({ error: "Référence projet manquante" });
+    const body = req.body || {};
+
+    const patch: Record<string, unknown> = {};
+    if (body.jalons !== undefined) {
+      if (!Array.isArray(body.jalons)) return res.status(400).json({ error: 'jalons doit être un tableau' });
+      patch.jalons = body.jalons.slice(0, 100);
+    }
+    if (body.feedbacks !== undefined) {
+      if (!Array.isArray(body.feedbacks)) return res.status(400).json({ error: 'feedbacks doit être un tableau' });
+      patch.feedbacks = body.feedbacks.slice(0, 200);
+    }
+    if (body.sorties_terrain !== undefined) {
+      if (!Array.isArray(body.sorties_terrain)) return res.status(400).json({ error: 'sorties_terrain doit être un tableau' });
+      patch.sorties_terrain = body.sorties_terrain.slice(0, 100);
+    }
+    if (body.progression !== undefined) {
+      const n = Number(body.progression);
+      if (!Number.isFinite(n)) return res.status(400).json({ error: 'progression invalide' });
+      patch.progression = Math.min(100, Math.max(0, Math.round(n)));
+    }
+    if (body.sorties_terrain_effectuees !== undefined) {
+      const n = Number(body.sorties_terrain_effectuees);
+      if (!Number.isFinite(n)) return res.status(400).json({ error: 'sorties_terrain_effectuees invalide' });
+      patch.sorties_terrain_effectuees = Math.max(0, Math.round(n));
+    }
+    if (Object.keys(patch).length === 0) {
+      return res.status(400).json({ error: 'Aucun champ modifiable fourni' });
+    }
+    patch.updated_at = new Date().toISOString();
+
+    const { data, error } = await sb
+      .from('projects')
+      .update(patch)
+      .eq('project_ref', ref)
+      .select('project_ref')
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Projet introuvable' });
+    res.json({ success: true, project_ref: ref });
+  } catch (err: any) {
+    console.error("Erreur mise a jour collaborative projet:", err);
+    res.status(500).json({ error: "Erreur mise a jour projet" });
+  }
+});
+
 app.delete("/api/projects/:ref", requirePerm('admin'), async (req: AuthReq, res) => {
   try {
     const sb = getSupabase();

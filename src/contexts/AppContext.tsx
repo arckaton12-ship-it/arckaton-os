@@ -1255,58 +1255,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newProject;
   };
 
+  // Synchronise les champs de production (jalons, avancement, retours client,
+  // sorties terrain) vers le serveur. Avant, ces mutations n'existaient qu'en
+  // local : une validation BAT disparaissait au rechargement et le portail
+  // client, qui lit le serveur, ne voyait jamais rien. L'appel est ignore
+  // sans session (portail public) pour ne pas partir en 401 inutile.
+  const persistProjectPatch = (ref: string, patch: Record<string, unknown>) => {
+    if (!localStorage.getItem('arckaton_os_token')) return;
+    apiRequest(`/api/projects/${encodeURIComponent(ref)}`, { method: 'PATCH', body: patch })
+      .catch((err) => console.warn('Projet non synchronisé côté serveur:', err));
+  };
+
+  const progressionDepuisJalons = (jalons: ProjectMilestone[]): number => {
+    const validCount = jalons.filter((m) => m.statut === 'valide').length;
+    return Math.round((validCount / Math.max(1, jalons.length)) * 100);
+  };
+
   const updateProjectProgression = (id: string, progression: number) => {
-    setProjets((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, progression: Math.min(100, Math.max(0, progression)) } : p))
-    );
+    const borne = Math.min(100, Math.max(0, progression));
+    setProjets((prev) => prev.map((p) => (p.id === id ? { ...p, progression: borne } : p)));
+    persistProjectPatch(id, { progression: borne });
   };
 
   const updateProjectMilestone = (projectId: string, milestoneId: string, status: ProjectMilestone['statut']) => {
+    const proj = projets.find((p) => p.id === projectId);
+    if (!proj) return;
+    const updated = (proj.jalons || []).map((m) => (m.id === milestoneId ? { ...m, statut: status } : m));
+    const newProgression = progressionDepuisJalons(updated);
     setProjets((prev) =>
-      prev.map((p) => {
-        if (p.id !== projectId) return p;
-        const currentMilestones = p.jalons || [];
-        const updated = currentMilestones.map((m) => (m.id === milestoneId ? { ...m, statut: status } : m));
-        
-        // Auto-recalculate progress
-        const validCount = updated.filter((m) => m.statut === 'valide').length;
-        const newProgression = Math.round((validCount / Math.max(1, updated.length)) * 100);
-
-        return {
-          ...p,
-          jalons: updated,
-          progression: newProgression,
-        };
-      })
+      prev.map((p) => (p.id === projectId ? { ...p, jalons: updated, progression: newProgression } : p))
     );
+    persistProjectPatch(projectId, { jalons: updated, progression: newProgression });
   };
 
   const addProjectMilestone = (projectId: string, milestone: Omit<ProjectMilestone, 'id'>) => {
+    const proj = projets.find((p) => p.id === projectId);
+    if (!proj) return;
     const newM: ProjectMilestone = {
       ...milestone,
       id: `j-${Date.now()}`,
     };
+    // Ajouter un jalon recalcule l'avancement, comme la mise a jour d'un
+    // statut : sinon le pourcentage restait fige et le nouveau livrable
+    // « en attente » n'etait pas compte dans la feuille de route.
+    const updated = [...(proj.jalons || []), newM];
+    const newProgression = progressionDepuisJalons(updated);
     setProjets((prev) =>
-      prev.map((p) => (p.id === projectId ? { ...p, jalons: [...(p.jalons || []), newM] } : p))
+      prev.map((p) => (p.id === projectId ? { ...p, jalons: updated, progression: newProgression } : p))
     );
+    persistProjectPatch(projectId, { jalons: updated, progression: newProgression });
   };
 
   const addProjectFeedback = (projectId: string, feedback: Omit<ClientFeedback, 'id' | 'date'>) => {
+    const proj = projets.find((p) => p.id === projectId);
+    if (!proj) return;
     const newFb: ClientFeedback = {
       ...feedback,
       id: `fb-${Date.now()}`,
       date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     };
 
+    const feedbacks = [...(proj.feedbacks || []), newFb];
     setProjets((prev) =>
-      prev.map((p) => {
-        if (p.id !== projectId) return p;
-        return {
-          ...p,
-          feedbacks: [...(p.feedbacks || []), newFb],
-        };
-      })
+      prev.map((p) => (p.id === projectId ? { ...p, feedbacks } : p))
     );
+    persistProjectPatch(projectId, { feedbacks });
 
     // If submitted by client, send high priority notification to team!
     if (feedback.role === 'client') {
@@ -1325,22 +1338,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addProjectFieldVisit = (projectId: string, visit: Omit<FieldVisit, 'id'>) => {
+    const proj = projets.find((p) => p.id === projectId);
+    if (!proj) return;
     const newV: FieldVisit = {
       ...visit,
       id: `v-${Date.now()}`,
     };
+    const visits = [...(proj.sorties_terrain || []), newV];
+    const effectuees = visits.filter((v) => v.statut === 'effectuee' || v.statut === 'livree').length;
     setProjets((prev) =>
-      prev.map((p) => {
-        if (p.id !== projectId) return p;
-        const visits = [...(p.sorties_terrain || []), newV];
-        const effectuees = visits.filter((v) => v.statut === 'effectuee' || v.statut === 'livree').length;
-        return {
-          ...p,
-          sorties_terrain: visits,
-          sorties_terrain_effectuees: effectuees,
-        };
-      })
+      prev.map((p) => (p.id === projectId ? { ...p, sorties_terrain: visits, sorties_terrain_effectuees: effectuees } : p))
     );
+    persistProjectPatch(projectId, { sorties_terrain: visits, sorties_terrain_effectuees: effectuees });
   };
 
   // Avancement d'une sortie terrain : planifiee -> effectuee -> en_montage -> livree
@@ -1349,30 +1358,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     visitId: string,
     patch: Partial<FieldVisit>
   ) => {
-    let visitLabel = '';
-    let nextStatut = '';
-    let projectName = '';
+    const proj = projets.find((p) => p.id === projectId);
+    if (!proj) return;
+    const cible = (proj.sorties_terrain || []).find((v) => v.id === visitId);
+    const visits = (proj.sorties_terrain || []).map((v) => (v.id === visitId ? { ...v, ...patch } : v));
+    const effectuees = visits.filter((v) => v.statut === 'effectuee' || v.statut === 'en_montage' || v.statut === 'livree').length;
 
     setProjets((prev) =>
-      prev.map((p) => {
-        if (p.id !== projectId) return p;
-        const visits = (p.sorties_terrain || []).map((v) => {
-          if (v.id !== visitId) return v;
-          visitLabel = v.objectif;
-          projectName = p.client_name;
-          if (patch.statut) nextStatut = patch.statut;
-          return { ...v, ...patch };
-        });
-        const effectuees = visits.filter((v) => v.statut === 'effectuee' || v.statut === 'en_montage' || v.statut === 'livree').length;
-        return {
-          ...p,
-          sorties_terrain: visits,
-          sorties_terrain_effectuees: effectuees,
-        };
-      })
+      prev.map((p) => (p.id === projectId ? { ...p, sorties_terrain: visits, sorties_terrain_effectuees: effectuees } : p))
     );
+    persistProjectPatch(projectId, { sorties_terrain: visits, sorties_terrain_effectuees: effectuees });
 
-    if (nextStatut) {
+    if (patch.statut) {
       const labels: Record<string, string> = {
         effectuee: 'Sortie terrain réalisée',
         en_montage: 'Reportage en montage',
@@ -1381,7 +1378,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       logExchange(
         { name: 'Terrain', pole: 'Client' },
         'ordre_terrain',
-        `${labels[nextStatut] || 'Sortie terrain mise à jour'} : « ${visitLabel} »${projectName ? ` - projet ${projectName}` : ''}`
+        `${labels[patch.statut] || 'Sortie terrain mise à jour'} : « ${cible?.objectif || ''} »${proj.client_name ? ` - projet ${proj.client_name}` : ''}`
       );
     }
   };

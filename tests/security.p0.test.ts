@@ -936,3 +936,29 @@ describe('Messagerie interne — acces protege', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// Les champs collaboratifs d'un projet (jalons, avancement, retours client,
+// sorties terrain) se poussent desormais au serveur. Un anonyme ne doit pas
+// pouvoir faire avancer une feuille de route ni valider un livrable.
+describe('Production projet — acces protege', () => {
+  it('refuse la mise a jour des jalons sans jeton', async () => {
+    const res = await request(app)
+      .patch('/api/projects/prj-quelconque')
+      .send({ jalons: [{ id: 'j-1', statut: 'valide' }] });
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse la mise a jour de l avancement sans jeton', async () => {
+    const res = await request(app)
+      .patch('/api/projects/prj-quelconque')
+      .send({ progression: 100 });
+    expect(res.status).toBe(401);
+  });
+
+  it('refuse les retours client et sorties terrain sans jeton', async () => {
+    const res = await request(app)
+      .patch('/api/projects/prj-quelconque')
+      .send({ feedbacks: [], sorties_terrain: [] });
+    expect(res.status).toBe(401);
+  });
+});

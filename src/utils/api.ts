@@ -161,11 +161,23 @@ async function once(path: string, options: RequestOptions): Promise<Response> {
   const headers: Record<string, string> = { ...(options.auth === false ? {} : authHeaders()) };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
+  // `body` peut deja etre une chaine JSON : plusieurs appelants historiques
+  // passent `JSON.stringify(...)`. On ne re-serialise PAS une chaine, sinon
+  // le serveur recoit une chaine (ex. "\"{...}\"") au lieu d'un objet,
+  // `req.body.champ` vaut undefined et la requete echoue en 400. C'est ce
+  // qui cassait l'envoi de messages, de taches et la qualification des leads.
+  const body =
+    options.body === undefined
+      ? undefined
+      : typeof options.body === 'string'
+      ? options.body
+      : JSON.stringify(options.body);
+
   try {
     return await fetch(path, {
       method: options.method || 'GET',
       headers,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      body,
       signal: controller.signal,
     });
   } finally {
