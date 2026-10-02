@@ -133,7 +133,7 @@ export const SettingsTab: React.FC = () => {
     <div className="space-y-8 animate-fadeIn max-w-4xl">
 
       {/* En-tête */}
-      <div className="bg-rk-panel border border-white/10 p-6 rounded-3xl">
+      <div className="bg-rk-panel border border-rk-line p-6 rounded-3xl">
         <h2 className="font-serif text-2xl font-bold text-white flex items-center gap-2.5">
           <Settings className="w-5 h-5 text-emerald-400" />
           <span>Paramètres & Infrastructure Arckaton OS</span>
@@ -147,7 +147,7 @@ export const SettingsTab: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* État des services */}
-        <div className="bg-rk-panel border border-white/10 p-6 rounded-3xl space-y-4">
+        <div className="bg-rk-panel border border-rk-line p-6 rounded-3xl space-y-4">
           <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <span>État réel des services</span>
@@ -159,7 +159,7 @@ export const SettingsTab: React.FC = () => {
               <span>Impossible de lire l'état du serveur. Les indicateurs ci-dessous ne sont pas vérifiables.</span>
             </div>
           ) : (
-            <div className="space-y-3 text-xs divide-y divide-white/5">
+            <div className="space-y-3 text-xs divide-y divide-rk-line-soft">
               <StatusLine label="Base de données Supabase :" ok={health ? supabaseOk : null}>
                 {supabaseOk
                   ? `connectée (${health?.supabase.contentItems ?? '?'} contenus publiés)`
@@ -204,7 +204,7 @@ export const SettingsTab: React.FC = () => {
         </div>
 
         {/* Coordonnées de l'agence */}
-        <div className="bg-rk-panel border border-white/10 p-6 rounded-3xl space-y-4">
+        <div className="bg-rk-panel border border-rk-line p-6 rounded-3xl space-y-4">
           <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
             <Globe className="w-4 h-4 text-blue-400" />
             <span>Coordonnées de l'Agence</span>
@@ -223,7 +223,7 @@ export const SettingsTab: React.FC = () => {
                   value={agency.phone}
                   onChange={(e) => setAgency({ ...agency, phone: e.target.value })}
                   placeholder="+237 6XX XX XX XX"
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
 
@@ -234,7 +234,7 @@ export const SettingsTab: React.FC = () => {
                   value={agency.email}
                   onChange={(e) => setAgency({ ...agency, email: e.target.value })}
                   placeholder="contact@..."
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
 
@@ -245,7 +245,7 @@ export const SettingsTab: React.FC = () => {
                   value={agency.location}
                   onChange={(e) => setAgency({ ...agency, location: e.target.value })}
                   placeholder="Quartier, ville, pays"
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
 
@@ -279,7 +279,7 @@ export const SettingsTab: React.FC = () => {
       </div>
 
       {/* Apparence / Thème */}
-      <div className="bg-rk-panel border border-white/10 p-6 rounded-3xl space-y-4">
+      <div className="bg-rk-panel border border-rk-line p-6 rounded-3xl space-y-4">
         <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
           <Palette className="w-4 h-4 text-emerald-400" />
           <span>Apparence du tableau de bord</span>
@@ -297,7 +297,7 @@ export const SettingsTab: React.FC = () => {
             className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-colors cursor-pointer ${
               theme === 'light'
                 ? 'bg-emerald-500/10 border-emerald-500/40'
-                : 'bg-rk-bg border-white/10 hover:border-white/20'
+                : 'bg-rk-bg border-rk-line hover:border-rk-line-bold'
             }`}
           >
             <Sun className={`w-4 h-4 ${theme === 'light' ? 'text-emerald-400' : 'text-slate-400'}`} />
@@ -317,7 +317,7 @@ export const SettingsTab: React.FC = () => {
             className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-colors cursor-pointer ${
               theme === 'dark'
                 ? 'bg-emerald-500/10 border-emerald-500/40'
-                : 'bg-rk-bg border-white/10 hover:border-white/20'
+                : 'bg-rk-bg border-rk-line hover:border-rk-line-bold'
             }`}
           >
             <Moon className={`w-4 h-4 ${theme === 'dark' ? 'text-emerald-400' : 'text-slate-400'}`} />
@@ -333,7 +333,7 @@ export const SettingsTab: React.FC = () => {
       </div>
 
       {/* Grille tarifaire */}
-      <div className="bg-rk-panel border border-white/10 p-6 rounded-3xl space-y-4">
+      <div className="bg-rk-panel border border-rk-line p-6 rounded-3xl space-y-4">
         <h3 className="font-serif text-base font-bold text-white">
           Grille Tarifaire de Référence
         </h3>
@@ -344,7 +344,7 @@ export const SettingsTab: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           {FORFAITS_DATA.map((f) => (
-            <div key={f.id} className="p-4 rounded-xl bg-rk-bg border border-white/5 space-y-1.5">
+            <div key={f.id} className="p-4 rounded-xl bg-rk-bg border border-rk-line-soft space-y-1.5">
               <div className="font-semibold text-white">{f.name}</div>
               <div className="font-serif text-lg font-bold text-emerald-400">{f.creation_price}</div>
               <div className="text-slate-400 text-[11px]">Suivi : {f.monthly_price}</div>
@@ -394,7 +394,7 @@ export const SettingsTab: React.FC = () => {
                   restoreDemoData();
                 }
               }}
-              className="bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/10 px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
+              className="bg-white/[0.06] hover:bg-white/[0.12] text-white border border-rk-line px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5 text-slate-300" />
               <span>Restaurer les données de démonstration</span>

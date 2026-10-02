@@ -117,10 +117,10 @@ export const QuoteModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-rk-surface border border-white/[0.1] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative outline-none"
+            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative outline-none"
           >
             {/* Modal Top Bar */}
-            <div className="sticky top-0 bg-rk-surface/95 backdrop-blur-md px-6 py-5 border-b border-white/[0.08] flex items-center justify-between z-10">
+            <div className="sticky top-0 bg-rk-surface/95 backdrop-blur-md px-6 py-5 border-b border-rk-line flex items-center justify-between z-10">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-mono font-bold">
                   {step <= 3 ? `0${step}` : 'OK'}
@@ -165,7 +165,7 @@ export const QuoteModal: React.FC = () => {
                           className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
                             projectType === opt.id
                               ? 'bg-emerald-500/10 border-emerald-500/40 text-white shadow-sm'
-                              : 'bg-rk-base border-white/[0.06] text-slate-300 hover:border-white/[0.16]'
+                              : 'bg-rk-base border-rk-line-soft text-slate-300 hover:border-rk-line-strong'
                           }`}
                         >
                           <div className="text-xs font-semibold text-white flex items-center justify-between">
@@ -189,7 +189,7 @@ export const QuoteModal: React.FC = () => {
                       value={projectDescription}
                       onChange={(e) => setProjectDescription(e.target.value)}
                       placeholder="Ex : Nous vendons des vêtements et souhaitons permettre à nos clients de payer par Orange Money et MTN MoMo avec livraison à Yaoundé et Douala..."
-                      className="w-full bg-rk-base border border-white/[0.08] rounded-xl p-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
+                      className="w-full bg-rk-base border border-rk-line rounded-xl p-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
                     />
                   </div>
 
@@ -222,7 +222,7 @@ export const QuoteModal: React.FC = () => {
                           className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer ${
                             timeline === t
                               ? 'bg-emerald-500/10 border-emerald-500/40 text-white font-medium'
-                              : 'bg-rk-base border-white/[0.06] text-slate-300 hover:border-white/[0.16]'
+                              : 'bg-rk-base border-rk-line-soft text-slate-300 hover:border-rk-line-strong'
                           }`}
                         >
                           {t}
@@ -244,7 +244,7 @@ export const QuoteModal: React.FC = () => {
                           className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer ${
                             budgetRange === b
                               ? 'bg-amber-500/10 border-amber-500/40 text-white font-medium'
-                              : 'bg-rk-base border-white/[0.06] text-slate-300 hover:border-white/[0.16]'
+                              : 'bg-rk-base border-rk-line-soft text-slate-300 hover:border-rk-line-strong'
                           }`}
                         >
                           {b}
@@ -265,7 +265,7 @@ export const QuoteModal: React.FC = () => {
                       value={targetAudience}
                       onChange={(e) => setTargetAudience(e.target.value)}
                       placeholder="Ex : Particuliers à Yaoundé, PME locales, Diaspora..."
-                      className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full bg-rk-base border border-rk-line rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                     />
                   </div>
 
@@ -305,7 +305,7 @@ export const QuoteModal: React.FC = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex : Jean-Paul Kamdem"
-                        className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full bg-rk-base border border-rk-line rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
 
@@ -318,7 +318,7 @@ export const QuoteModal: React.FC = () => {
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                         placeholder="Ex : Kamdem Distribution SARL"
-                        className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full bg-rk-base border border-rk-line rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
                   </div>
@@ -334,7 +334,7 @@ export const QuoteModal: React.FC = () => {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="Ex : +237 681 46 29 82"
-                        className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full bg-rk-base border border-rk-line rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
 
@@ -347,7 +347,7 @@ export const QuoteModal: React.FC = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="contact@entreprise.cm"
-                        className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full bg-rk-base border border-rk-line rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
                   </div>
@@ -361,7 +361,7 @@ export const QuoteModal: React.FC = () => {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="Ex : Yaoundé (Cameroun), Libreville, Paris, Abidjan..."
-                      className="w-full bg-rk-base border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full bg-rk-base border border-rk-line rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                     />
                   </div>
 
@@ -371,13 +371,13 @@ export const QuoteModal: React.FC = () => {
                         type="checkbox"
                         checked={consent}
                         onChange={(e) => setConsent(e.target.checked)}
-                        className="rounded border-white/20 bg-rk-base text-emerald-500 focus:ring-0"
+                        className="rounded border-rk-line-bold bg-rk-base text-emerald-500 focus:ring-0"
                       />
                       <span>J'accepte d'être recontacté(e) par un conseiller Arckaton sous 24h ouvrées.</span>
                     </label>
                   </div>
 
-                  <div className="pt-4 flex items-center justify-between border-t border-white/[0.08]">
+                  <div className="pt-4 flex items-center justify-between border-t border-rk-line">
                     <button
                       type="button"
                       onClick={() => setStep(2)}

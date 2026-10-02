@@ -236,8 +236,8 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
         {/* Left: AI Reports Section */}
         <div className="lg:col-span-6 space-y-6">
           
-          <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-rk-line pb-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-emerald-400" />
                 <h3 className="font-serif text-lg font-bold text-white">
@@ -258,7 +258,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                   className={`px-3 py-2 rounded-xl text-xs font-mono whitespace-nowrap transition-all cursor-pointer border ${
                     selectedReport?.id === rep.id
                       ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-semibold'
-                      : 'bg-rk-bg border-white/5 text-slate-400 hover:text-white'
+                      : 'bg-rk-bg border-rk-line-soft text-slate-400 hover:text-white'
                   }`}
                 >
                   {rep.title.slice(0, 30)}...
@@ -268,7 +268,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
 
             {/* Active Report View (or Skeleton Loader when generating) */}
             {generatingReport ? (
-              <div className="bg-rk-bg border border-white/5 rounded-2xl p-5">
+              <div className="bg-rk-bg border border-rk-line-soft rounded-2xl p-5">
                 <div className="text-xs font-mono text-emerald-400 mb-4 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                   <span>Le Copilote génère la structure décisionnelle...</span>
@@ -276,7 +276,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                 <ReportPreviewSkeleton />
               </div>
             ) : selectedReport ? (
-              <div className="bg-rk-bg border border-white/5 rounded-2xl p-5 space-y-5">
+              <div className="bg-rk-bg border border-rk-line-soft rounded-2xl p-5 space-y-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h4 className="font-serif text-base font-bold text-white">
@@ -318,7 +318,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
                       Synthèse Exécutive :
                     </span>
-                    <p className="whitespace-pre-line bg-rk-panel p-3.5 rounded-xl border border-white/5">
+                    <p className="whitespace-pre-line bg-rk-panel p-3.5 rounded-xl border border-rk-line-soft">
                       {selectedReport.summary}
                     </p>
                   </div>
@@ -329,7 +329,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     </span>
                     <ul className="space-y-2">
                       {selectedReport.recommendations.map((rec, i) => (
-                        <li key={i} className="flex items-start gap-2.5 bg-rk-panel p-3 rounded-xl border border-white/5">
+                        <li key={i} className="flex items-start gap-2.5 bg-rk-panel p-3 rounded-xl border border-rk-line-soft">
                           <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                           <span>{rec}</span>
                         </li>
@@ -354,10 +354,10 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
         {/* Right: Live Interactive Copilot Chat */}
         <div className="lg:col-span-6 space-y-6">
           
-          <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 h-full flex flex-col justify-between">
+          <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 h-full flex flex-col justify-between">
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center justify-between border-b border-rk-line pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
                     <Bot className="w-4 h-4" />
@@ -387,7 +387,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
               )}
 
               {/* Chat Message Scroll Area */}
-              <div className="space-y-3 max-h-[380px] overflow-y-auto p-2 bg-rk-bg rounded-2xl border border-white/5">
+              <div className="space-y-3 max-h-[380px] overflow-y-auto p-2 bg-rk-bg rounded-2xl border border-rk-line-soft">
                 {chatMessages.map((m, idx) => {
                   const isUser = m.role === 'user';
                   return (
@@ -401,7 +401,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                         className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
                           isUser
                             ? 'bg-blue-600 text-white rounded-tr-none font-medium'
-                            : 'bg-rk-panel text-slate-200 border border-white/10 rounded-tl-none'
+                            : 'bg-rk-panel text-slate-200 border border-rk-line rounded-tl-none'
                         }`}
                       >
                         <p className="whitespace-pre-line">{m.text}</p>
@@ -421,7 +421,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <button
                       key={i}
                       onClick={() => handleSendChat(p)}
-                      className="text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 transition-colors cursor-pointer"
+                      className="text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 px-2.5 py-1 rounded-lg border border-rk-line-soft transition-colors cursor-pointer"
                     >
                       {p}
                     </button>
@@ -443,7 +443,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Posez une question stratégique au Copilote Arckaton..."
-                className="flex-1 bg-rk-bg border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+                className="flex-1 bg-rk-bg border border-rk-line rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
               />
               <button
                 type="submit"

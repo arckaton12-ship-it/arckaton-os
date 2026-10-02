@@ -146,7 +146,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
           {medias.map((m) => (
-            <div key={m.id} className="relative group aspect-square rounded-lg overflow-hidden border border-white/10 bg-rk-bg">
+            <div key={m.id} className="relative group aspect-square rounded-lg overflow-hidden border border-rk-line bg-rk-bg">
               {urls[m.id] ? (
                 <img
                   src={urls[m.id]}

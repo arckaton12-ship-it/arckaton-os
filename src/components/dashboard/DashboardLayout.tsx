@@ -113,7 +113,7 @@ export const DashboardLayout: React.FC = () => {
           <button
             type="button"
             onClick={() => goToTab('overview')}
-            className="flex items-center gap-1.5 text-slate-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-slate-200 hover:text-white bg-white/5 hover:bg-white/10 border border-rk-line px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Retour au Cockpit</span>
@@ -131,7 +131,7 @@ export const DashboardLayout: React.FC = () => {
     <div className="min-h-screen bg-rk-bg text-slate-100 flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Mobile Top Header */}
-      <div className="md:hidden bg-rk-chrome border-b border-white/10 p-4 flex items-center justify-between sticky top-0 z-30">
+      <div className="md:hidden bg-rk-chrome border-b border-rk-line p-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -187,7 +187,7 @@ export const DashboardLayout: React.FC = () => {
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 z-40 h-screen w-64 bg-rk-chrome border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed md:sticky top-0 z-40 h-screen w-64 bg-rk-chrome border-r border-rk-line flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
@@ -269,10 +269,10 @@ export const DashboardLayout: React.FC = () => {
         </div>
 
         {/* Bottom Sidebar: User & Public Switcher */}
-        <div className="p-4 border-t border-white/10 space-y-3 bg-rk-bg/80">
+        <div className="p-4 border-t border-rk-line space-y-3 bg-rk-bg/80">
           
           {/* User Profile Badge */}
-          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-2.5 rounded-xl bg-white/5 border border-rk-line-soft">
             <div className="flex items-center justify-between">
               <div className="text-xs font-bold text-white truncate">{user.name}</div>
               <span className="text-[9px] font-mono uppercase bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded">
@@ -287,7 +287,7 @@ export const DashboardLayout: React.FC = () => {
           {/* Mode Switcher to Public Site */}
           <button
             onClick={() => setMode('public')}
-            className="w-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs transition-colors cursor-pointer"
+            className="w-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-rk-line py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Revenir au Site Public</span>
@@ -299,7 +299,7 @@ export const DashboardLayout: React.FC = () => {
       <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         
         {/* Desktop Top Header Bar */}
-        <header className="hidden md:flex items-center justify-between px-8 py-3.5 bg-rk-chrome/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
+        <header className="hidden md:flex items-center justify-between px-8 py-3.5 bg-rk-chrome/95 backdrop-blur-md border-b border-rk-line sticky top-0 z-30">
           <div className="flex items-center gap-3">
             {breadcrumb}
             <span className="hidden lg:inline text-xs font-mono text-slate-500">
@@ -309,7 +309,7 @@ export const DashboardLayout: React.FC = () => {
 
           <div className="flex items-center gap-3">
             {/* Session Membre */}
-            <div className="flex items-center gap-2 bg-rk-panel border border-white/10 px-3 py-1.5 rounded-xl">
+            <div className="flex items-center gap-2 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
                 <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
                 <div className="text-[11px] font-mono text-slate-400 mt-0.5">{role}</div>
@@ -326,7 +326,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Notification Bell */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
-              className="p-2 rounded-xl bg-rk-bg hover:bg-white/5 text-slate-300 border border-white/10 relative transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-rk-bg hover:bg-white/5 text-slate-300 border border-rk-line relative transition-colors cursor-pointer"
               title="Notifications"
               aria-label={unreadCount > 0 ? `Ouvrir les notifications (${unreadCount} non lues)` : 'Ouvrir les notifications'}
             >

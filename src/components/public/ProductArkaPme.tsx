@@ -9,7 +9,7 @@ export const ProductArkaPme: React.FC = () => {
   const { setIsTrialModalOpen, setIsQuoteModalOpen } = useApp();
 
   return (
-    <section id="produit" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
+    <section id="produit" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-emerald-500/[0.05] rounded-full blur-3xl pointer-events-none" />
@@ -44,7 +44,7 @@ export const ProductArkaPme: React.FC = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-rk-surface border border-white/[0.08] hover:border-white/[0.16] transition-all"
+                className="flex items-start gap-4 p-5 rounded-2xl bg-rk-surface border border-rk-line hover:border-rk-line-strong transition-all"
               >
                 <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
                   <Clock className="w-5 h-5" />
@@ -62,7 +62,7 @@ export const ProductArkaPme: React.FC = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: 0.1 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-rk-surface border border-white/[0.08] hover:border-white/[0.16] transition-all"
+                className="flex items-start gap-4 p-5 rounded-2xl bg-rk-surface border border-rk-line hover:border-rk-line-strong transition-all"
               >
                 <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 flex-shrink-0">
                   <WifiOff className="w-5 h-5" />
@@ -80,7 +80,7 @@ export const ProductArkaPme: React.FC = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-rk-surface border border-white/[0.08] hover:border-white/[0.16] transition-all"
+                className="flex items-start gap-4 p-5 rounded-2xl bg-rk-surface border border-rk-line hover:border-rk-line-strong transition-all"
               >
                 <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
                   <Smartphone className="w-5 h-5" />
@@ -106,7 +106,7 @@ export const ProductArkaPme: React.FC = () => {
 
               <button
                 onClick={() => setIsQuoteModalOpen(true)}
-                className="w-full sm:w-auto bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] px-5 py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full sm:w-auto bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-rk-line px-5 py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Intégrer à un site web</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -125,7 +125,7 @@ export const ProductArkaPme: React.FC = () => {
             <ArkaInteractiveDemo />
 
             {/* Hardware & Offline Resilience Card */}
-            <div className="rounded-2xl border border-white/[0.08] bg-rk-surface p-5 overflow-hidden relative group">
+            <div className="rounded-2xl border border-rk-line bg-rk-surface p-5 overflow-hidden relative group">
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
                 <div className="sm:col-span-5 h-36 rounded-xl overflow-hidden relative bg-rk-inset">
                   <img 

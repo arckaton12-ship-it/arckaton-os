@@ -74,7 +74,7 @@ export const Header: React.FC = () => {
   return (
     <>
       {/* Barre supérieure épurée : marque + CTA + burger */}
-      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-rk-base/90 border-b border-white/[0.08]">
+      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-rk-base/90 border-b border-rk-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
           <a href="#" onClick={close} className="flex items-center gap-3 group shrink-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-serif text-xl font-bold text-slate-950 transition-transform duration-300 group-hover:scale-105">
@@ -93,7 +93,7 @@ export const Header: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <a
               href="tel:+237681462982"
-              className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white px-3 py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+              className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white px-3 py-2 rounded-xl border border-rk-line bg-white/[0.04] hover:bg-white/[0.08] transition-all"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-400" />
               <span className="whitespace-nowrap">Appeler</span>
@@ -111,7 +111,7 @@ export const Header: React.FC = () => {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={menuOpen}
-              className="p-2.5 rounded-xl text-slate-100 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 transition-all cursor-pointer flex items-center justify-center"
+              className="p-2.5 rounded-xl text-slate-100 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-rk-line transition-all cursor-pointer flex items-center justify-center"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -136,7 +136,7 @@ export const Header: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 260 }}
-              className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-rk-chrome border-l border-white/10 shadow-2xl flex flex-col"
+              className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-rk-chrome border-l border-rk-line shadow-2xl flex flex-col"
               aria-label="Navigation principale"
             >
               <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
@@ -188,10 +188,10 @@ export const Header: React.FC = () => {
                   </ul>
                 </div>
 
-                <div className="space-y-2.5 pt-4 border-t border-white/10">
+                <div className="space-y-2.5 pt-4 border-t border-rk-line">
                   <button
                     onClick={() => runAction('blueprint')}
-                    className="w-full bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/10 py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full bg-white/[0.05] hover:bg-white/[0.1] text-white border border-rk-line py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <FileText className="w-4 h-4 text-emerald-400" />
                     <span>Fiche Cadre & Méthode</span>
@@ -200,7 +200,7 @@ export const Header: React.FC = () => {
                   {canBat && (
                     <button
                       onClick={() => runAction('bat')}
-                      className="w-full bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/10 py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full bg-white/[0.05] hover:bg-white/[0.1] text-white border border-rk-line py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Eye className="w-4 h-4 text-emerald-400" />
                       <span>Espace Client & BAT</span>
@@ -209,7 +209,7 @@ export const Header: React.FC = () => {
 
                   <button
                     onClick={() => runAction('advisor')}
-                    className="w-full bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/10 py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full bg-white/[0.05] hover:bg-white/[0.1] text-white border border-rk-line py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4 text-emerald-400" />
                     <span>Conseiller IA</span>
@@ -225,13 +225,13 @@ export const Header: React.FC = () => {
               </div>
 
               {/* Pied de menu : préférences d'affichage */}
-              <div className="px-5 py-4 border-t border-white/10 space-y-3 bg-black/20">
+              <div className="px-5 py-4 border-t border-rk-line space-y-3 bg-black/20">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-300 font-medium flex items-center gap-2">
                     <LayoutGrid className="w-3.5 h-3.5 text-slate-400" />
                     <span>Devise</span>
                   </span>
-                  <div className="flex items-center gap-1 bg-white/[0.06] p-1 rounded-lg border border-white/10">
+                  <div className="flex items-center gap-1 bg-white/[0.06] p-1 rounded-lg border border-rk-line">
                     {currencies.map((c) => (
                       <button
                         key={c.code}
@@ -253,7 +253,7 @@ export const Header: React.FC = () => {
                   </span>
                   <button
                     onClick={toggleTheme}
-                    className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/10 text-slate-100 hover:bg-white/[0.12] transition-all cursor-pointer flex items-center gap-2 text-xs"
+                    className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-rk-line text-slate-100 hover:bg-white/[0.12] transition-all cursor-pointer flex items-center gap-2 text-xs"
                   >
                     {theme === 'dark' ? (
                       <>

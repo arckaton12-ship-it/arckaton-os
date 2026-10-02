@@ -192,11 +192,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
       >
 
         {/* Barre d'actions (non imprimable) */}
-        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-rk-surface border border-white/10 px-4 py-3 text-slate-100 shadow-xl">
+        <div className="no-print flex items-center justify-between gap-3 flex-wrap rounded-2xl bg-rk-surface border border-rk-line px-4 py-3 text-slate-100 shadow-xl">
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={onClose}
-              className="bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              className="bg-white/5 hover:bg-white/10 text-slate-200 border border-rk-line font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
               title="Retour au CRM (Échap)"
             >
               <ArrowLeft className="w-3.5 h-3.5" />

@@ -29,10 +29,10 @@ export const BlueprintModal: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25 }}
-          className="relative w-full max-w-4xl bg-rk-surface border border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh] outline-none"
+          className="relative w-full max-w-4xl bg-rk-surface border border-rk-line rounded-3xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh] outline-none"
         >
           {/* Top Bar */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-rk-inset">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-rk-line bg-rk-inset">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <FileText className="w-4 h-4" />
@@ -55,7 +55,7 @@ export const BlueprintModal: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrint}
-                className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] px-3 py-1.5 rounded-xl border border-white/[0.08] transition-colors cursor-pointer"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] px-3 py-1.5 rounded-xl border border-rk-line transition-colors cursor-pointer"
                 title="Imprimer ou enregistrer en PDF"
               >
                 <Printer className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
@@ -72,7 +72,7 @@ export const BlueprintModal: React.FC = () => {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="px-6 pt-4 border-b border-white/[0.08] bg-rk-base flex gap-2 overflow-x-auto">
+          <div className="px-6 pt-4 border-b border-rk-line bg-rk-base flex gap-2 overflow-x-auto">
             <button
               onClick={() => setActiveTab('doctrine')}
               className={`pb-3 px-3 text-xs font-medium border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
@@ -124,7 +124,7 @@ export const BlueprintModal: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06] space-y-2">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
                     <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-emerald-400" />
                       <span>Pôle 1 : Direction & Stratégie</span>
@@ -134,7 +134,7 @@ export const BlueprintModal: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06] space-y-2">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
                     <div className="flex items-center gap-2 text-purple-400 font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-purple-400" />
                       <span>Pôle 2 : Studio & Créatif</span>
@@ -144,7 +144,7 @@ export const BlueprintModal: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06] space-y-2">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
                     <div className="flex items-center gap-2 text-blue-400 font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-blue-400" />
                       <span>Pôle 3 : Tech & Architecture SaaS</span>
@@ -154,7 +154,7 @@ export const BlueprintModal: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06] space-y-2">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
                     <div className="flex items-center gap-2 text-amber-400 font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-amber-400" />
                       <span>Pôle 4 : Growth & Marketing Digital</span>
@@ -164,7 +164,7 @@ export const BlueprintModal: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06] space-y-2">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
                     <div className="flex items-center gap-2 text-rose-400 font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-rose-400" />
                       <span>Pôle 5 : Expérience Client & Terrain</span>
@@ -174,7 +174,7 @@ export const BlueprintModal: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06] space-y-2">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft space-y-2">
                     <div className="flex items-center gap-2 text-slate-400 font-mono text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-slate-400" />
                       <span>Pôle 6 : Partenaires & Conseil Externe</span>
@@ -191,15 +191,15 @@ export const BlueprintModal: React.FC = () => {
             {activeTab === 'sla' && (
               <div className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06]">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-emerald-400">&lt; 2h</div>
                     <div className="text-[11px] text-slate-400 font-mono mt-1">Délai Réponse Support</div>
                   </div>
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06]">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-emerald-400">100%</div>
                     <div className="text-[11px] text-slate-400 font-mono mt-1">Propriété Intellectuelle Client</div>
                   </div>
-                  <div className="p-4 rounded-xl bg-rk-inset border border-white/[0.06]">
+                  <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-amber-400">5% / sem</div>
                     <div className="text-[11px] text-slate-400 font-mono mt-1">Pénalité Contractuelle Retard</div>
                   </div>
@@ -242,28 +242,28 @@ export const BlueprintModal: React.FC = () => {
                 </div>
 
                 <div className="space-y-3 text-xs text-slate-300">
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-white/[0.06]">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-rk-line-soft">
                     <span className="font-mono text-emerald-400 font-bold">01.</span>
                     <div>
                       <strong className="text-white">Encaissement 100% Hors-Ligne :</strong> Les encaissements et sorties de stock s'enregistrent localement sur l'appareil. Dès que la 4G/Wi-Fi revient, la réconciliation s'exécute automatiquement en tâche de fond.
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-white/[0.06]">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-rk-line-soft">
                     <span className="font-mono text-emerald-400 font-bold">02.</span>
                     <div>
                       <strong className="text-white">QR Code & Mobile Money Direct :</strong> Génération dynamique de QR Codes MTN MoMo et Orange Money scannables par le client, réduisant la fraude et les erreurs de monnaie.
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-white/[0.06]">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-rk-line-soft">
                     <span className="font-mono text-emerald-400 font-bold">03.</span>
                     <div>
                       <strong className="text-white">Zéro Matériel Propriétaire Forcé :</strong> Fonctionne sur les téléphones, tablettes ou PC déjà présents dans votre boutique, ainsi que sur les imprimantes thermiques Bluetooth standard (58mm/80mm).
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-white/[0.06]">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-rk-inset border border-rk-line-soft">
                     <span className="font-mono text-emerald-400 font-bold">04.</span>
                     <div>
                       <strong className="text-white">Essai 30 Jours Sans Carte Bancaire :</strong> Déploiement initial en 24h avec formation directe de vos vendeurs.
@@ -276,7 +276,7 @@ export const BlueprintModal: React.FC = () => {
           </div>
 
           {/* Bottom Actions */}
-          <div className="p-4 sm:p-6 border-t border-white/[0.08] bg-rk-inset flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="p-4 sm:p-6 border-t border-rk-line bg-rk-inset flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-[11px] font-mono text-slate-400 text-center sm:text-left">
               Arckaton • Immeuble Mimboman, Yaoundé • WhatsApp +237 681 46 29 82
             </div>

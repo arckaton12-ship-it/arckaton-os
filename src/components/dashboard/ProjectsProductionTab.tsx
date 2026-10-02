@@ -231,7 +231,7 @@ export const ProjectsProductionTab: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsCreatingProject((v) => !v)}
-            className="bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-white/10 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+            className="bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-rk-line px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Nouveau projet</span>
@@ -268,35 +268,35 @@ export const ProjectsProductionTab: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <input required placeholder="Nom du client *" value={newProject.client_name}
               onChange={(e) => setNewProject((p) => ({ ...p, client_name: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
             <input placeholder="Code client (ex: PRJ-KOTTO)" value={newProject.client_code}
               onChange={(e) => setNewProject((p) => ({ ...p, client_code: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400 font-mono" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400 font-mono" />
             <input required placeholder="Service / offre *" value={newProject.service}
               onChange={(e) => setNewProject((p) => ({ ...p, service: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
             <input placeholder="Chef de projet" value={newProject.chef_de_projet}
               onChange={(e) => setNewProject((p) => ({ ...p, chef_de_projet: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
             <input placeholder="Téléphone client" value={newProject.client_phone}
               onChange={(e) => setNewProject((p) => ({ ...p, client_phone: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
             <input placeholder="Email client" value={newProject.client_email}
               onChange={(e) => setNewProject((p) => ({ ...p, client_email: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
             <select value={newProject.pole}
               onChange={(e) => setNewProject((p) => ({ ...p, pole: e.target.value as Pole }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white">
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white">
               {(['Tech', 'Creatif', 'Digital', 'Client', 'Direction'] as Pole[]).map((p) => (
                 <option key={p} value={p}>{POLES_INFO[p]?.name || p}</option>
               ))}
             </select>
             <input placeholder="Forfait" value={newProject.forfait}
               onChange={(e) => setNewProject((p) => ({ ...p, forfait: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
             <input placeholder="Livraison cible" value={newProject.deadline}
               onChange={(e) => setNewProject((p) => ({ ...p, deadline: e.target.value }))}
-              className="bg-rk-bg border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-400" />
           </div>
 
           <label className="flex items-center gap-2 text-xs text-slate-300">
@@ -319,7 +319,7 @@ export const ProjectsProductionTab: React.FC = () => {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="bg-rk-chrome border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-rk-chrome border border-rk-line rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         
         {/* Search */}
         <div className="relative w-full sm:w-80">
@@ -329,7 +329,7 @@ export const ProjectsProductionTab: React.FC = () => {
             placeholder="Rechercher par client, code (ex: PRJ-KOTTO)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
           />
         </div>
 
@@ -339,7 +339,7 @@ export const ProjectsProductionTab: React.FC = () => {
           <select
             value={selectedStatusFilter}
             onChange={(e) => setSelectedStatusFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
           >
             <option value="all">Tous statuts</option>
             <option value="en_cours">En cours</option>
@@ -351,7 +351,7 @@ export const ProjectsProductionTab: React.FC = () => {
           <select
             value={selectedPoleFilter}
             onChange={(e) => setSelectedPoleFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
           >
             <option value="all">Tous les pôles</option>
             <option value="Tech">Pôle Tech</option>
@@ -370,7 +370,7 @@ export const ProjectsProductionTab: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {filteredProjects.length === 0 ? (
-            <div className="text-center py-12 bg-rk-chrome rounded-3xl border border-white/10 text-slate-400 text-xs">
+            <div className="text-center py-12 bg-rk-chrome rounded-3xl border border-rk-line text-slate-400 text-xs">
               Aucun projet ne correspond à vos filtres.
             </div>
           ) : (
@@ -387,7 +387,7 @@ export const ProjectsProductionTab: React.FC = () => {
                 className={`rounded-3xl border transition-all overflow-hidden ${
                   isExpanded 
                     ? 'bg-rk-chrome border-emerald-500/40 shadow-xl' 
-                    : 'bg-rk-bg border-white/10 hover:border-white/20'
+                    : 'bg-rk-bg border-rk-line hover:border-rk-line-bold'
                 }`}
               >
                 {/* Project Card Header / Summary Row */}
@@ -405,7 +405,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         <h3 className="font-serif text-lg font-bold text-white">
                           {project.client_name}
                         </h3>
-                        <span className="text-[11px] font-mono bg-white/5 text-slate-400 px-2 py-0.5 rounded-full border border-white/10">
+                        <span className="text-[11px] font-mono bg-white/5 text-slate-400 px-2 py-0.5 rounded-full border border-rk-line">
                           {project.client_code || project.id}
                         </span>
                         <span className="text-[11px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
@@ -454,10 +454,10 @@ export const ProjectsProductionTab: React.FC = () => {
 
                 {/* Expanded Detailed Workspace */}
                 {isExpanded && (
-                  <div className="border-t border-white/10 p-5 sm:p-7 space-y-8 bg-rk-inset/80 animate-fadeIn">
+                  <div className="border-t border-rk-line p-5 sm:p-7 space-y-8 bg-rk-inset/80 animate-fadeIn">
                     
                     {/* Action Bar (Direct WhatsApp Client + Open Portal Link) */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-rk-chrome border border-white/5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-rk-chrome border border-rk-line-soft">
                       <div className="flex items-center gap-2 text-xs text-slate-300">
                         <User className="w-4 h-4 text-emerald-400" />
                         <span>Client : <strong className="text-white">{project.client_name}</strong></span>
@@ -506,7 +506,7 @@ export const ProjectsProductionTab: React.FC = () => {
 
                         <button
                           onClick={() => setIsAddingMilestone(!isAddingMilestone)}
-                          className="bg-white/5 hover:bg-white/10 text-slate-300 text-xs px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5 cursor-pointer"
+                          className="bg-white/5 hover:bg-white/10 text-slate-300 text-xs px-3 py-1.5 rounded-xl border border-rk-line flex items-center gap-1.5 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Ajouter un jalon</span>
@@ -522,14 +522,14 @@ export const ProjectsProductionTab: React.FC = () => {
                               placeholder="Titre du jalon (ex: Validation Charte Visuelle)"
                               value={newMilestoneTitre}
                               onChange={(e) => setNewMilestoneTitre(e.target.value)}
-                              className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                              className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-emerald-500/50"
                             />
                             <input
                               type="text"
                               placeholder="Échéance (ex: Sous 7 jours)"
                               value={newMilestoneEcheance}
                               onChange={(e) => setNewMilestoneEcheance(e.target.value)}
-                              className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                              className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-emerald-500/50"
                             />
                           </div>
                           <input
@@ -537,7 +537,7 @@ export const ProjectsProductionTab: React.FC = () => {
                             placeholder="Description courte ou consigne spécifique..."
                             value={newMilestoneDesc}
                             onChange={(e) => setNewMilestoneDesc(e.target.value)}
-                            className="w-full px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                            className="w-full px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-emerald-500/50"
                           />
                           <div className="flex justify-end gap-2">
                             <button
@@ -570,7 +570,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                   ? 'bg-emerald-950/20 border-emerald-500/30' 
                                   : isOngoing 
                                   ? 'bg-blue-950/20 border-blue-500/30' 
-                                  : 'bg-white/5 border-white/5'
+                                  : 'bg-white/5 border-rk-line-soft'
                               }`}
                             >
                               <div className="flex items-start gap-3">
@@ -638,7 +638,7 @@ export const ProjectsProductionTab: React.FC = () => {
                     </div>
 
                     {/* SECTION 2: SORTIES TERRAIN (PHOTO / VIDEO) */}
-                    <div className="space-y-4 pt-4 border-t border-white/10">
+                    <div className="space-y-4 pt-4 border-t border-rk-line">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-serif text-base font-bold text-white flex items-center gap-2">
@@ -668,19 +668,19 @@ export const ProjectsProductionTab: React.FC = () => {
                               placeholder="Lieu (ex: Clinique Bastos, Yaoundé)"
                               value={newVisitLieu}
                               onChange={(e) => setNewVisitLieu(e.target.value)}
-                              className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                              className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-purple-500/50"
                             />
                             <input
                               type="text"
                               placeholder="Date (ex: Vendredi 15 Oct, 10h)"
                               value={newVisitDate}
                               onChange={(e) => setNewVisitDate(e.target.value)}
-                              className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                              className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-purple-500/50"
                             />
                             <select
                               value={newVisitIntervenant}
                               onChange={(e) => setNewVisitIntervenant(e.target.value)}
-                              className="px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                              className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-purple-500/50"
                             >
                               <option value="">Intervenant (à affecter)</option>
                               {terrainTeam.map((m) => (
@@ -695,7 +695,7 @@ export const ProjectsProductionTab: React.FC = () => {
                             placeholder="Objectif de la captation (ex: Interview du directeur et visite du bloc opératoire)"
                             value={newVisitObjectif}
                             onChange={(e) => setNewVisitObjectif(e.target.value)}
-                            className="w-full px-3 py-2 rounded-xl bg-rk-bg border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                            className="w-full px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-purple-500/50"
                           />
                           <div className="flex justify-end gap-2">
                             <button
@@ -729,7 +729,7 @@ export const ProjectsProductionTab: React.FC = () => {
                           return (
                           <div
                             key={v.id}
-                            className="p-3.5 rounded-2xl bg-rk-panel border border-white/5 space-y-1.5 text-xs"
+                            className="p-3.5 rounded-2xl bg-rk-panel border border-rk-line-soft space-y-1.5 text-xs"
                           >
                             <div className="flex items-center justify-between">
                               <span className="font-mono text-purple-400 font-bold">
@@ -752,13 +752,13 @@ export const ProjectsProductionTab: React.FC = () => {
                               {v.objectif}
                             </div>
 
-                            <div className="text-slate-400 font-mono text-[11px] pt-1 border-t border-white/5">
+                            <div className="text-slate-400 font-mono text-[11px] pt-1 border-t border-rk-line-soft">
                               <div>Lieu : {v.lieu} • Date : {v.date}</div>
                               <div>Intervenant : {v.intervenant || 'Non affecte'}</div>
                             </div>
 
                             {/* Preuves de terrain : photos uploadees (stockees en base) */}
-                            <div className="pt-1.5 border-t border-white/5 space-y-2">
+                            <div className="pt-1.5 border-t border-rk-line-soft space-y-2">
                               <MediaGallery projectRef={project.id} visitId={v.id} />
 
                               {nextStatut && (
@@ -780,7 +780,7 @@ export const ProjectsProductionTab: React.FC = () => {
                     </div>
 
                     {/* SECTION 3: NOTES INTERNES & HISTORIQUE */}
-                    <div className="space-y-3 pt-4 border-t border-white/10">
+                    <div className="space-y-3 pt-4 border-t border-rk-line">
                       <div className="flex items-center justify-between">
                         <h4 className="font-serif text-base font-bold text-white">
                           Notes Internes de l'Agence & Cadrage
@@ -799,7 +799,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         value={editingNotes[project.id] !== undefined ? editingNotes[project.id] : (project.notes_internes || '')}
                         onChange={(e) => setEditingNotes({ ...editingNotes, [project.id]: e.target.value })}
                         placeholder="Consignes internes pour les designers, développeurs et chefs de projet..."
-                        className="w-full p-3 rounded-2xl bg-rk-chrome border border-white/10 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full p-3 rounded-2xl bg-rk-chrome border border-rk-line text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
 

@@ -18,7 +18,7 @@ export const Realisations: React.FC = () => {
   ];
 
   return (
-    <section id="realisations" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20 overflow-hidden">
+    <section id="realisations" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Atmospheric Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[450px] bg-gradient-to-b from-emerald-500/[0.05] via-transparent to-transparent pointer-events-none blur-3xl" />
@@ -45,7 +45,7 @@ export const Realisations: React.FC = () => {
                 onClick={() => setFilter(tab.id)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   filter === tab.id
-                    ? 'bg-white/[0.1] text-white border border-white/[0.15]'
+                    ? 'bg-white/[0.1] text-white border border-rk-line-strong'
                     : 'text-slate-400 hover:text-slate-200 border border-transparent'
                 }`}
               >
@@ -70,7 +70,7 @@ export const Realisations: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className="bg-rk-surface rounded-2xl border border-white/[0.08] p-8 flex flex-col justify-between hover:border-white/[0.16] transition-all duration-300 group"
+                className="bg-rk-surface rounded-2xl border border-rk-line p-8 flex flex-col justify-between hover:border-rk-line-strong transition-all duration-300 group"
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -90,7 +90,7 @@ export const Realisations: React.FC = () => {
                   </div>
 
                   {/* Impact Metric Block */}
-                  <div className="bg-rk-base p-5 rounded-xl border border-white/[0.06] text-center space-y-1">
+                  <div className="bg-rk-base p-5 rounded-xl border border-rk-line-soft text-center space-y-1">
                     <div className="font-serif text-3xl sm:text-4xl font-bold text-emerald-400">
                       {cs.mainMetric}
                     </div>
@@ -112,7 +112,7 @@ export const Realisations: React.FC = () => {
                   </ul>
                 </div>
 
-                <div className="pt-6 border-t border-white/[0.08] mt-6 flex items-center justify-between">
+                <div className="pt-6 border-t border-rk-line mt-6 flex items-center justify-between">
                   <span className="text-xs font-mono text-slate-400">{cs.delay}</span>
                   <button
                     onClick={() => setIsQuoteModalOpen(true)}

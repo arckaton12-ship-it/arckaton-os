@@ -44,7 +44,7 @@ export const Faq: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20">
+    <section id="faq" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -72,7 +72,7 @@ export const Faq: React.FC = () => {
                 className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                   isOpen
                     ? 'bg-rk-surface border-emerald-500/30 shadow-lg shadow-emerald-500/5'
-                    : 'bg-rk-surface/60 border-white/[0.08] hover:border-white/[0.14]'
+                    : 'bg-rk-surface/60 border-rk-line hover:border-rk-line-strong'
                 }`}
               >
                 <button
@@ -98,7 +98,7 @@ export const Faq: React.FC = () => {
                       transition={{ duration: 0.25, ease: 'easeInOut' }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-6 pt-1 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-white/[0.04] font-light">
+                      <div className="px-6 pb-6 pt-1 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-rk-line-soft font-light">
                         {item.answer}
                       </div>
                     </motion.div>
@@ -110,7 +110,7 @@ export const Faq: React.FC = () => {
         </div>
 
         {/* Bottom prompt to AI agent */}
-        <div className="mt-12 text-center p-6 rounded-2xl bg-rk-surface border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-12 text-center p-6 rounded-2xl bg-rk-surface border border-rk-line flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-left">
             <h4 className="font-serif text-base font-bold text-white">
               Une autre question spécifique à votre secteur ?

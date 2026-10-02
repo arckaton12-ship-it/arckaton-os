@@ -80,7 +80,7 @@ export const PoleDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-rk-bg text-slate-100 flex flex-col font-sans">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-rk-chrome/95 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-rk-chrome/95 backdrop-blur-md border-b border-rk-line px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl ${colors.bg} border ${colors.border} flex items-center justify-center font-serif text-lg font-bold ${colors.text}`}>
             A
@@ -127,15 +127,15 @@ export const PoleDashboard: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-3">
-              <div className="bg-rk-bg border border-white/[0.06] rounded-2xl px-4 py-2.5 text-center">
+              <div className="bg-rk-bg border border-rk-line-soft rounded-2xl px-4 py-2.5 text-center">
                 <div className="text-xl font-bold text-emerald-400 font-serif">{poleProjets.length}</div>
                 <div className="text-[11px] font-mono text-slate-400">Projets</div>
               </div>
-              <div className="bg-rk-bg border border-white/[0.06] rounded-2xl px-4 py-2.5 text-center">
+              <div className="bg-rk-bg border border-rk-line-soft rounded-2xl px-4 py-2.5 text-center">
                 <div className="text-xl font-bold text-amber-400 font-serif">{poleTasks.filter((t) => t.statut === 'en_cours').length}</div>
                 <div className="text-[11px] font-mono text-slate-400">En cours</div>
               </div>
-              <div className="bg-rk-bg border border-white/[0.06] rounded-2xl px-4 py-2.5 text-center">
+              <div className="bg-rk-bg border border-rk-line-soft rounded-2xl px-4 py-2.5 text-center">
                 <div className="text-xl font-bold text-blue-400 font-serif">{poleLeads.length}</div>
                 <div className="text-[11px] font-mono text-slate-400">Leads pôle</div>
               </div>
@@ -151,10 +151,10 @@ export const PoleDashboard: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {poleProjets.length === 0 && (
-              <div className="bg-rk-panel border border-white/[0.06] rounded-2xl p-6 text-sm text-slate-400">Aucun projet actif sur votre pôle actuellement.</div>
+              <div className="bg-rk-panel border border-rk-line-soft rounded-2xl p-6 text-sm text-slate-400">Aucun projet actif sur votre pôle actuellement.</div>
             )}
             {poleProjets.map((p) => (
-              <div key={p.id} className="bg-rk-panel border border-white/[0.08] rounded-2xl p-5 hover:border-white/[0.15] transition-all">
+              <div key={p.id} className="bg-rk-panel border border-rk-line rounded-2xl p-5 hover:border-rk-line-strong transition-all">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-mono text-emerald-400">{p.client_code || 'PRJ'}</span>
                   <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${statusBadge(p.statut as any)}`}>{p.statut}</span>
@@ -185,7 +185,7 @@ export const PoleDashboard: React.FC = () => {
             <CheckSquare className="w-4 h-4 text-amber-400" />
             <h2 className="font-serif text-lg font-bold text-white">Tâches de votre pôle</h2>
           </div>
-          <div className="bg-rk-panel border border-white/[0.08] rounded-2xl divide-y divide-white/[0.05]">
+          <div className="bg-rk-panel border border-rk-line rounded-2xl divide-y divide-rk-line-soft">
             {poleTasks.length === 0 && (
               <div className="p-6 text-sm text-slate-400">Aucune tâche assignée.</div>
             )}
@@ -210,7 +210,7 @@ export const PoleDashboard: React.FC = () => {
                       <select
                         value={t.statut}
                         onChange={(e) => updateTaskStatus(t.id, e.target.value as TaskStatus)}
-                        className={`text-[11px] font-mono px-2 py-1 rounded-lg bg-rk-bg border border-white/10 ${statusBadge(t.statut)}`}
+                        className={`text-[11px] font-mono px-2 py-1 rounded-lg bg-rk-bg border border-rk-line ${statusBadge(t.statut)}`}
                       >
                         <option value="a_faire">À faire</option>
                         <option value="en_cours">En cours</option>
@@ -237,7 +237,7 @@ export const PoleDashboard: React.FC = () => {
             <Users className="w-4 h-4 text-blue-400" />
             <h2 className="font-serif text-lg font-bold text-white">Leads récents du pôle</h2>
           </div>
-          <div className="bg-rk-panel border border-white/[0.08] rounded-2xl divide-y divide-white/[0.05]">
+          <div className="bg-rk-panel border border-rk-line rounded-2xl divide-y divide-rk-line-soft">
             {poleLeads.length === 0 && (
               <div className="p-6 text-sm text-slate-400">Aucun lead reçu récemment en attente de traitement.</div>
             )}
@@ -255,7 +255,7 @@ export const PoleDashboard: React.FC = () => {
 
         {/* Notifications & Copilot */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className="bg-rk-panel border border-white/[0.08] rounded-2xl p-6">
+          <section className="bg-rk-panel border border-rk-line rounded-2xl p-6">
             <h2 className="font-serif text-lg font-bold text-white mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
               Alertes & Notifications
@@ -265,7 +265,7 @@ export const PoleDashboard: React.FC = () => {
                 <div className="text-sm text-slate-400">Aucune alerte non lue. Tout est au vert.</div>
               )}
               {poleNotifs.slice(0, 8).map((n) => (
-                <div key={n.id} className="bg-rk-bg border border-white/[0.05] rounded-xl px-4 py-2.5 text-xs">
+                <div key={n.id} className="bg-rk-bg border border-rk-line-soft rounded-xl px-4 py-2.5 text-xs">
                   <div className="text-white font-semibold flex items-center gap-1.5">
                     <TriangleAlert className="w-3 h-3 text-amber-400" />
                     {n.title}
@@ -274,7 +274,7 @@ export const PoleDashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="mt-4 bg-rk-bg border border-white/[0.05] rounded-xl px-4 py-3 text-xs text-slate-400">
+            <div className="mt-4 bg-rk-bg border border-rk-line-soft rounded-xl px-4 py-3 text-xs text-slate-400">
               <span className="text-slate-200">Derniers échanges :</span>{' '}
               {poleMessages.slice(0, 3).map((m) => `[${m.sender_name}] ${m.content}`).join(' • ') || '—'}
             </div>
@@ -294,7 +294,7 @@ export const PoleDashboard: React.FC = () => {
               Mes priorités du jour
             </button>
             {advice && (
-              <p className="mt-4 text-sm text-slate-200 leading-relaxed bg-rk-bg border border-white/[0.06] rounded-xl p-4">
+              <p className="mt-4 text-sm text-slate-200 leading-relaxed bg-rk-bg border border-rk-line-soft rounded-xl p-4">
                 {advice}
               </p>
             )}

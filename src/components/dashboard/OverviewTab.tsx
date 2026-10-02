@@ -116,7 +116,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           <button
             onClick={() => refreshDashboardData()}
             disabled={isDataFetching}
-            className="bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+            className="bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-rk-line px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
             title="Rafraîchir les flux de données (visualiser le skeleton loader)"
           >
             <span className={`w-2 h-2 rounded-full ${isDataFetching ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
@@ -141,7 +141,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
 
           <button
             onClick={() => onSelectTab('leads')}
-            className="bg-white/10 hover:bg-white/15 text-white border border-white/15 px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
+            className="bg-white/10 hover:bg-white/15 text-white border border-rk-line-strong px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
           >
             <Users className="w-4 h-4" />
             <span>Gérer les {totalLeads} Leads</span>
@@ -155,7 +155,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Pipeline Leads */}
-          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Pipeline Commercial</span>
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
@@ -170,14 +170,14 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 <span className="text-amber-400 font-mono">{convertedLeads} convertis</span>
               </div>
             </div>
-            <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span>Taux de conversion : {totalLeads ? Math.round((convertedLeads / totalLeads) * 100) : 0}%</span>
               <button onClick={() => onSelectTab('leads')} className="text-blue-400 hover:underline">Voir &rarr;</button>
             </div>
           </div>
 
           {/* Card 2: Chiffre d'affaires réel */}
-          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Volume Facturé Consolidé</span>
               <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
@@ -197,7 +197,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 </span>
               </div>
             </div>
-            <div className="pt-2 border-t border-white/5 text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft text-[11px] font-mono text-slate-400">
               {factures.length === 0
                 ? 'Le total se calcule dès la première facture'
                 : `Facturé : ${formatFcfa(totalValide)} • Payé : ${formatFcfa(totalPaye)} • Acomptes : ${formatFcfa(totalAcomptes)} • Reste à encaisser : ${formatFcfa(totalRestant)}`}
@@ -205,7 +205,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 3: Sorties terrain réelles */}
-          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Sorties Terrain</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
@@ -220,7 +220,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 {sortiesTotal === 0 ? 'Aucune sortie planifiée' : 'Sorties réalisées'}
               </div>
             </div>
-            <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span className="truncate">
                 {prochaineSortie
                   ? `Prochaine : ${(prochaineSortie as any).date || 'à planifier'}`
@@ -233,7 +233,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 4: Tâches & Santé Pôles */}
-          <div className="bg-rk-panel border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">Tâches & Pôles</span>
               <div className="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">
@@ -251,7 +251,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 )}
               </div>
             </div>
-            <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span>
                 {totalTasks === 0
                   ? 'Aucune tâche'
@@ -269,8 +269,8 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
       {isDataFetching ? (
         <ProjectStripSkeleton />
       ) : (
-        <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+        <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-rk-line pb-3">
             <div className="flex items-center gap-2">
               <FolderKanban className="w-4 h-4 text-emerald-400" />
               <h3 className="font-serif text-base font-bold text-white">
@@ -293,7 +293,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 <div 
                   key={prj.id}
                   onClick={() => onSelectTab('projects')}
-                  className="p-4 rounded-2xl bg-rk-bg border border-white/5 hover:border-emerald-500/40 transition-all cursor-pointer space-y-3"
+                  className="p-4 rounded-2xl bg-rk-bg border border-rk-line-soft hover:border-emerald-500/40 transition-all cursor-pointer space-y-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -337,8 +337,8 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {isDataFetching ? (
             <LeadsPanelSkeleton />
           ) : (
-            <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 space-y-5">
+              <div className="flex items-center justify-between border-b border-rk-line pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
                   <h3 className="font-serif text-lg font-bold text-white">Derniers Prospects Captés</h3>
@@ -356,7 +356,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                 {leads.slice(0, 5).map((l) => (
                   <div
                     key={l.id}
-                    className="p-4 rounded-xl bg-rk-bg border border-white/5 hover:border-white/15 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 rounded-xl bg-rk-bg border border-rk-line-soft hover:border-rk-line-strong transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -407,7 +407,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           {isDataFetching ? (
             <PolesPerformanceSkeleton />
           ) : (
-            <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 space-y-4">
+            <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 space-y-4">
               <h3 className="font-serif text-lg font-bold text-white flex items-center justify-between">
                 <span>Performance des 6 Pôles</span>
                 <span className="text-xs font-mono text-slate-400 font-normal">Équipe Arckaton</span>
@@ -424,7 +424,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
                   const percent = total ? Math.round((doneCount / total) * 100) : 100;
 
                   return (
-                    <div key={pole} className="p-2.5 rounded-xl bg-rk-bg border border-white/5 space-y-1.5">
+                    <div key={pole} className="p-2.5 rounded-xl bg-rk-bg border border-rk-line-soft space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white">{info.name}</span>

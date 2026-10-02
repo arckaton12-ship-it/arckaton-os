@@ -10,7 +10,7 @@ export const Forfaits: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   return (
-    <section id="forfaits" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20">
+    <section id="forfaits" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -27,7 +27,7 @@ export const Forfaits: React.FC = () => {
 
           {/* Billing Cycle Switcher */}
           <div className="pt-4 flex items-center justify-center">
-            <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-rk-surface border border-white/[0.08]">
+            <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-rk-surface border border-rk-line">
               <button
                 onClick={() => setBillingCycle('monthly')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -70,7 +70,7 @@ export const Forfaits: React.FC = () => {
                 className={`relative rounded-2xl p-8 flex flex-col justify-between transition-all duration-300 ${
                   isFeatured
                     ? 'bg-rk-surface border border-emerald-500/50 shadow-2xl shadow-emerald-500/10 lg:-translate-y-2'
-                    : 'bg-rk-surface border border-white/[0.08] hover:border-white/[0.16]'
+                    : 'bg-rk-surface border border-rk-line hover:border-rk-line-strong'
                 }`}
               >
                 {/* Popular Pill */}
@@ -101,7 +101,7 @@ export const Forfaits: React.FC = () => {
                   </div>
 
                   {/* Pricing Breakdown */}
-                  <div className="pt-4 pb-2 border-y border-white/[0.08] space-y-2">
+                  <div className="pt-4 pb-2 border-y border-rk-line space-y-2">
                     <div>
                       <span className="text-xs text-slate-400 font-mono">Création initiale clé-en-main :</span>
                       <div className="font-serif text-3xl font-bold text-white">
@@ -152,13 +152,13 @@ export const Forfaits: React.FC = () => {
                 </div>
 
                 {/* Card CTA Action */}
-                <div className="pt-8 mt-6 border-t border-white/[0.08]">
+                <div className="pt-8 mt-6 border-t border-rk-line">
                   <button
                     onClick={() => setIsQuoteModalOpen(true)}
                     className={`w-full py-3.5 px-5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
                       isFeatured
                         ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20'
-                        : 'bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/[0.08]'
+                        : 'bg-white/[0.06] hover:bg-white/[0.12] text-white border border-rk-line'
                     }`}
                   >
                     <span>Choisir ce forfait</span>
@@ -175,7 +175,7 @@ export const Forfaits: React.FC = () => {
         </div>
 
         {/* Detailed Comparison Table */}
-        <div className="bg-rk-surface border border-white/[0.08] rounded-2xl p-6 sm:p-8 overflow-hidden">
+        <div className="bg-rk-surface border border-rk-line rounded-2xl p-6 sm:p-8 overflow-hidden">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-serif text-2xl font-bold text-white">
@@ -185,7 +185,7 @@ export const Forfaits: React.FC = () => {
                 Tout est personnalisable via le configurateur de devis selon vos priorités et vos contraintes.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.08] self-start sm:self-auto">
+            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-white/[0.04] px-3 py-1 rounded-full border border-rk-line self-start sm:self-auto">
               <Globe className="w-3.5 h-3.5 text-emerald-400" />
               <span>Livraison internationale ðŸŒ</span>
             </span>
@@ -194,14 +194,14 @@ export const Forfaits: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[620px]">
               <thead>
-                <tr className="border-b border-white/[0.08] text-slate-400 font-mono">
+                <tr className="border-b border-rk-line text-slate-400 font-mono">
                   <th className="py-3 px-4 font-normal">Spécifications</th>
                   <th className="py-3 px-4 text-white font-serif text-sm">Initiation</th>
                   <th className="py-3 px-4 text-emerald-400 font-serif text-sm">Synergie (Recommandé)</th>
                   <th className="py-3 px-4 text-amber-300 font-serif text-sm">Architecture</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.05] text-slate-300">
+              <tbody className="divide-y divide-rk-line-soft text-slate-300">
                 <tr>
                   <td className="py-3.5 px-4 font-medium text-white">Frais de création</td>
                   <td className="py-3.5 px-4 font-mono">{formatCurrencyPrice(380000, currency)}</td>
@@ -254,7 +254,7 @@ export const Forfaits: React.FC = () => {
             </table>
           </div>
 
-          <div className="pt-6 mt-4 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="pt-6 mt-4 border-t border-rk-line flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-slate-400 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>Garantie d'achèvement contractuelle avec pénalités de retard à notre charge.</span>

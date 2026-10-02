@@ -33,7 +33,7 @@ export const FieldBlogSection: React.FC = () => {
   });
 
   return (
-    <section id="blog" className="py-24 bg-rk-bg relative overflow-hidden border-t border-white/[0.08]">
+    <section id="blog" className="py-24 bg-rk-bg relative overflow-hidden border-t border-rk-line">
       {/* Blueprint Grid and Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/2 -left-40 w-96 h-96 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
@@ -44,7 +44,7 @@ export const FieldBlogSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] px-3.5 py-1.5 rounded-full text-xs text-emerald-400 font-mono mb-4">
+            <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-rk-line px-3.5 py-1.5 rounded-full text-xs text-emerald-400 font-mono mb-4">
               <Camera className="w-3.5 h-3.5" />
               <span>Journal de Bord & Agents en Action • Yaoundé & Douala</span>
             </div>
@@ -68,7 +68,7 @@ export const FieldBlogSection: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                   selectedCategory === c.id
                     ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                    : 'bg-rk-panel text-slate-400 hover:text-white border border-white/[0.06]'
+                    : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
                 }`}
               >
                 {c.label}
@@ -79,7 +79,7 @@ export const FieldBlogSection: React.FC = () => {
 
         {/* Blog Post Cards Grid */}
         {filteredPosts.length === 0 ? (
-          <div className="text-center py-16 bg-rk-panel border border-white/10 rounded-3xl">
+          <div className="text-center py-16 bg-rk-panel border border-rk-line rounded-3xl">
             <Camera className="w-8 h-8 text-slate-500 mx-auto mb-3" aria-hidden="true" />
             <p className="text-sm text-slate-300">Aucun récit publié dans cette catégorie pour le moment.</p>
             <p className="text-xs text-slate-500 mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
@@ -92,7 +92,7 @@ export const FieldBlogSection: React.FC = () => {
               whileHover={{ y: -4 }}
               transition={{ duration: 0.2 }}
               onClick={() => setActiveBlogPost(post)}
-              className="bg-rk-panel border border-white/10 hover:border-emerald-500/40 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-all group flex flex-col justify-between"
+              className="bg-rk-panel border border-rk-line hover:border-emerald-500/40 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-all group flex flex-col justify-between"
             >
               <div>
                 {/* Visual Thumbnail */}
@@ -110,7 +110,7 @@ export const FieldBlogSection: React.FC = () => {
                     <span className="text-[11px] font-mono uppercase bg-black/60 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
                       {post.category_label}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
+                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-rk-line flex items-center gap-1">
                       <Clock className="w-3 h-3 text-slate-400" />
                       <span>{post.read_time}</span>
                     </span>
@@ -118,7 +118,7 @@ export const FieldBlogSection: React.FC = () => {
 
                   {/* Field Mission Badge if applicable */}
                   {post.field_spec && (
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl text-[11px] font-mono text-slate-200 flex items-center gap-2">
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-xl text-[11px] font-mono text-slate-200 flex items-center gap-2">
                       <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span className="truncate">{post.field_spec.lieu}</span>
                     </div>
@@ -153,14 +153,14 @@ export const FieldBlogSection: React.FC = () => {
               </div>
 
               {/* Card Footer Action */}
-              <div className="px-6 sm:px-7 pb-6 pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono">
+              <div className="px-6 sm:px-7 pb-6 pt-2 border-t border-rk-line-soft flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-400 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-medium">
                   <span>Consulter le rapport complet</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <div className="flex items-center gap-1.5">
                   {post.tags.slice(0, 2).map((t, idx) => (
-                    <span key={idx} className="bg-white/[0.04] text-[11px] text-slate-400 px-2 py-0.5 rounded border border-white/[0.06]">
+                    <span key={idx} className="bg-white/[0.04] text-[11px] text-slate-400 px-2 py-0.5 rounded border border-rk-line-soft">
                       #{t}
                     </span>
                   ))}

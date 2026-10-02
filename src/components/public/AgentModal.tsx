@@ -172,10 +172,10 @@ export const AgentModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-rk-surface border border-white/[0.1] rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
+            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Header with 6 Poles Tabs */}
-            <div className="bg-rk-base border-b border-white/[0.08] p-4 space-y-3">
+            <div className="bg-rk-base border-b border-rk-line p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
@@ -246,7 +246,7 @@ export const AgentModal: React.FC = () => {
                       className={`max-w-[85%] rounded-2xl p-4 ${
                         isUser
                           ? 'bg-emerald-500 text-slate-950 font-medium rounded-tr-none'
-                          : 'bg-rk-surface text-slate-200 border border-white/[0.08] rounded-tl-none font-light'
+                          : 'bg-rk-surface text-slate-200 border border-rk-line rounded-tl-none font-light'
                       }`}
                     >
                       {!isUser && (
@@ -279,13 +279,13 @@ export const AgentModal: React.FC = () => {
             )}
 
             {/* Quick Suggestions Chips */}
-            <div className="bg-rk-base px-4 py-2 border-t border-white/[0.06] overflow-x-auto flex gap-2">
+            <div className="bg-rk-base px-4 py-2 border-t border-rk-line-soft overflow-x-auto flex gap-2">
               {quickQuestions[selectedPole].map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(q)}
                   disabled={loading}
-                  className="text-[11px] font-mono text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
+                  className="text-[11px] font-mono text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-rk-line-soft px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
                 >
                   {q}
                 </button>
@@ -293,7 +293,7 @@ export const AgentModal: React.FC = () => {
             </div>
 
             {/* Bottom Actions & Input */}
-            <div className="p-4 bg-rk-surface border-t border-white/[0.08] space-y-3">
+            <div className="p-4 bg-rk-surface border-t border-rk-line space-y-3">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -307,7 +307,7 @@ export const AgentModal: React.FC = () => {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Écrivez votre message (nom, besoin, contact)..."
-                  className="flex-1 bg-rk-base border border-white/[0.08] rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  className="flex-1 bg-rk-base border border-rk-line rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
                 />
                 <button
                   type="submit"

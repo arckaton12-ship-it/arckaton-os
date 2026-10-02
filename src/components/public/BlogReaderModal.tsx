@@ -35,12 +35,12 @@ export const BlogReaderModal: React.FC = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.96 }}
           transition={{ duration: 0.25 }}
-          className="bg-rk-panel border border-white/15 rounded-3xl max-w-3xl w-full relative shadow-2xl overflow-hidden my-8 outline-none"
+          className="bg-rk-panel border border-rk-line-strong rounded-3xl max-w-3xl w-full relative shadow-2xl overflow-hidden my-8 outline-none"
         >
           {/* Close button */}
           <button
             onClick={() => setActiveBlogPost(null)}
-            className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white/80 hover:text-white p-2 rounded-full border border-white/20 transition-all cursor-pointer"
+            className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white/80 hover:text-white p-2 rounded-full border border-rk-line-bold transition-all cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" aria-hidden="true" />
@@ -61,7 +61,7 @@ export const BlogReaderModal: React.FC = () => {
               <span className="text-xs font-mono uppercase bg-emerald-500 text-slate-950 px-3 py-1 rounded-full font-bold">
                 {activeBlogPost.category_label}
               </span>
-              <span className="text-xs font-mono text-slate-200 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+              <span className="text-xs font-mono text-slate-200 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-rk-line">
                 {activeBlogPost.read_time}
               </span>
             </div>
@@ -97,19 +97,19 @@ export const BlogReaderModal: React.FC = () => {
                   <span>Fiche Technique d'Intervention Terrain</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono pt-1">
-                  <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
+                  <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
                     <span className="text-slate-400 block text-[11px]">Zone de déploiement :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.lieu}</span>
                   </div>
-                  <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
+                  <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
                     <span className="text-slate-400 block text-[11px]">Matériel déployé :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.materiel}</span>
                   </div>
-                  <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
+                  <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
                     <span className="text-slate-400 block text-[11px]">Agents mobilisés :</span>
                     <span className="text-emerald-300 font-medium">{activeBlogPost.field_spec.agents_mobilises.join(' • ')}</span>
                   </div>
-                  <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
+                  <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
                     <span className="text-slate-400 block text-[11px]">Livrables générés :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.livrables_generes}</span>
                   </div>
@@ -142,17 +142,17 @@ export const BlogReaderModal: React.FC = () => {
             </div>
 
             {/* Tags strip */}
-            <div className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center gap-2">
+            <div className="pt-4 border-t border-rk-line flex flex-wrap items-center gap-2">
               <span className="text-xs font-mono text-slate-400">Mots-clés :</span>
               {activeBlogPost.tags.map((tag, idx) => (
-                <span key={idx} className="text-xs font-mono bg-white/[0.05] border border-white/10 text-slate-300 px-2.5 py-1 rounded-lg">
+                <span key={idx} className="text-xs font-mono bg-white/[0.05] border border-rk-line text-slate-300 px-2.5 py-1 rounded-lg">
                   #{tag}
                 </span>
               ))}
             </div>
 
             {/* Conversion CTA in Modal */}
-            <div className="bg-rk-bg border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-rk-bg border border-rk-line rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="font-serif text-lg font-bold text-white">Vous souhaitez un déploiement similaire ?</h4>
                 <p className="text-xs text-slate-400 mt-0.5">Nos équipes évaluent vos besoins et interviennent sous 48h à Yaoundé ou Douala.</p>

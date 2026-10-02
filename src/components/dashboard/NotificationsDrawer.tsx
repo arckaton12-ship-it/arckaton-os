@@ -49,11 +49,11 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
         aria-modal="true"
         aria-label="Notifications Arckaton OS"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-rk-panel border-l border-white/15 h-full flex flex-col shadow-2xl outline-none animate-drawer-in"
+        className="w-full max-w-md bg-rk-panel border-l border-rk-line-strong h-full flex flex-col shadow-2xl outline-none animate-drawer-in"
       >
         
         {/* Top Header */}
-        <div className="p-5 border-b border-white/10 flex items-center justify-between bg-rk-bg">
+        <div className="p-5 border-b border-rk-line flex items-center justify-between bg-rk-bg">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
               <Bell className="w-4 h-4" />
@@ -100,7 +100,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
                 title={`Ouvrir : ${sourceLabel(n)}`}
                 className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer group ${
                   n.read
-                    ? 'bg-rk-bg/60 border-white/5 opacity-70 hover:opacity-100'
+                    ? 'bg-rk-bg/60 border-rk-line-soft opacity-70 hover:opacity-100'
                     : 'bg-rk-panel border-blue-500/30 shadow-sm hover:border-blue-400/60'
                 }`}
               >
@@ -118,7 +118,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
                   {n.message}
                 </p>
 
-                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-white/5">
+                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-rk-line-soft">
                   <span className="text-emerald-400">Pôle : {n.pole_target || n.pole}</span>
                   <span className="inline-flex items-center gap-1 text-blue-300 group-hover:text-blue-200 font-semibold">
                     {sourceLabel(n)}

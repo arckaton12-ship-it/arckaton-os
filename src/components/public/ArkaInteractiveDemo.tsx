@@ -119,10 +119,10 @@ export const ArkaInteractiveDemo: React.FC = () => {
   };
 
   return (
-    <div className="bg-rk-surface rounded-2xl border border-white/[0.08] p-6 shadow-2xl relative overflow-hidden flex flex-col space-y-5">
+    <div className="bg-rk-surface rounded-2xl border border-rk-line p-6 shadow-2xl relative overflow-hidden flex flex-col space-y-5">
       
       {/* Top Cockpit Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-rk-line gap-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs font-mono">
             POS
@@ -176,7 +176,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
 
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="bg-rk-base p-3.5 rounded-xl border border-white/[0.06]">
+        <div className="bg-rk-base p-3.5 rounded-xl border border-rk-line-soft">
           <div className="text-[11px] uppercase font-mono text-slate-400">Total Encaissé Aujourd'hui</div>
           <div className="font-serif text-lg font-bold text-emerald-400 mt-1">
             {dailySalesTotal.toLocaleString()} FCFA
@@ -186,7 +186,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-rk-base p-3.5 rounded-xl border border-white/[0.06]">
+        <div className="bg-rk-base p-3.5 rounded-xl border border-rk-line-soft">
           <div className="text-[11px] uppercase font-mono text-slate-400">Inventaire Rapide</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             12 minutes
@@ -196,7 +196,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-rk-base p-3.5 rounded-xl border border-white/[0.06] col-span-2 sm:col-span-1">
+        <div className="bg-rk-base p-3.5 rounded-xl border border-rk-line-soft col-span-2 sm:col-span-1">
           <div className="text-[11px] uppercase font-mono text-slate-400">Articles en Stock</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             {products.reduce((acc, p) => acc + p.stock, 0)} pièces
@@ -223,7 +223,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                 key={product.id}
                 onClick={() => addToCart(product)}
                 disabled={product.stock <= 0}
-                className="text-left p-3 rounded-xl bg-rk-base hover:bg-white/[0.04] border border-white/[0.06] hover:border-emerald-500/30 transition-all flex flex-col justify-between group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="text-left p-3 rounded-xl bg-rk-base hover:bg-white/[0.04] border border-rk-line-soft hover:border-emerald-500/30 transition-all flex flex-col justify-between group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <div>
                   <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
@@ -237,7 +237,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.06]">
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-rk-line-soft">
                   <span className="font-mono font-bold text-emerald-400 text-xs">
                     {product.price.toLocaleString()} F
                   </span>
@@ -251,10 +251,10 @@ export const ArkaInteractiveDemo: React.FC = () => {
         </div>
 
         {/* Right: Cash Register & Payment Ticket */}
-        <div className="md:col-span-5 bg-rk-base border border-white/[0.06] rounded-xl p-4 flex flex-col justify-between space-y-4">
+        <div className="md:col-span-5 bg-rk-base border border-rk-line-soft rounded-xl p-4 flex flex-col justify-between space-y-4">
           
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between pb-3 border-b border-rk-line-soft">
               <div className="flex items-center gap-2 text-xs font-semibold text-white">
                 <ShoppingBag className="w-4 h-4 text-emerald-400" />
                 <span>Panier de vente</span>
@@ -279,7 +279,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                 cart.map((item) => (
                   <div
                     key={item.product.id}
-                    className="flex items-center justify-between text-xs py-1.5 border-b border-white/[0.06]"
+                    className="flex items-center justify-between text-xs py-1.5 border-b border-rk-line-soft"
                   >
                     <div className="truncate pr-2">
                       <div className="text-white font-medium truncate">{item.product.name}</div>
@@ -310,7 +310,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           </div>
 
           {/* Payment Method Selector */}
-          <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+          <div className="space-y-2 pt-2 border-t border-rk-line-soft">
             <div className="text-[11px] font-mono text-slate-400">Mode d'encaissement :</div>
             <div className="grid grid-cols-3 gap-1.5 text-xs font-mono">
               <button
@@ -352,7 +352,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
           </div>
 
           {/* Total & Validate Button */}
-          <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+          <div className="space-y-2 pt-2 border-t border-rk-line-soft">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-400 font-mono">Net à payer :</span>
               <span className="font-serif text-lg font-bold text-emerald-400">
@@ -389,7 +389,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
             exit={{ opacity: 0, y: 10 }}
             className="p-4 rounded-xl bg-rk-base border border-emerald-500/30 space-y-3"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2 border-b border-rk-line-soft">
               <div className="flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-emerald-400" />
                 <span className="font-serif font-bold text-white text-xs">
@@ -406,7 +406,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                 <span>Dépôt Central Yaoundé</span>
                 <span>{lastReceipt.method}</span>
               </div>
-              <div className="divide-y divide-white/[0.04] pt-1">
+              <div className="divide-y divide-rk-line-soft pt-1">
                 {lastReceipt.items.map((item, i) => (
                   <div key={i} className="flex justify-between py-1 text-slate-200">
                     <span>{item.qty}x {item.name}</span>
@@ -414,7 +414,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between pt-2 border-t border-white/[0.06] font-bold text-white text-xs">
+              <div className="flex justify-between pt-2 border-t border-rk-line-soft font-bold text-white text-xs">
                 <span>TOTAL ENCAISSÉ :</span>
                 <span className="text-emerald-400">{lastReceipt.total.toLocaleString()} FCFA</span>
               </div>

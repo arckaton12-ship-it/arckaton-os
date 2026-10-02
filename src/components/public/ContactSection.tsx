@@ -48,7 +48,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-28 bg-rk-base relative border-t border-white/[0.08] scroll-mt-20">
+    <section id="contact" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
@@ -72,7 +72,7 @@ export const ContactSection: React.FC = () => {
                 href={OFFICIAL_KNOWLEDGE.agency.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 p-5 rounded-2xl bg-rk-surface border border-white/[0.08] hover:border-emerald-500/30 transition-all group"
+                className="flex items-center gap-4 p-5 rounded-2xl bg-rk-surface border border-rk-line hover:border-emerald-500/30 transition-all group"
               >
                 <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
                   <Phone className="w-5 h-5" />
@@ -86,7 +86,7 @@ export const ContactSection: React.FC = () => {
 
               <a
                 href={`mailto:${OFFICIAL_KNOWLEDGE.agency.email}`}
-                className="flex items-center gap-4 p-5 rounded-2xl bg-rk-surface border border-white/[0.08] hover:border-white/[0.16] transition-all group"
+                className="flex items-center gap-4 p-5 rounded-2xl bg-rk-surface border border-rk-line hover:border-rk-line-strong transition-all group"
               >
                 <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
                   <Mail className="w-5 h-5" />
@@ -98,7 +98,7 @@ export const ContactSection: React.FC = () => {
                 </div>
               </a>
 
-              <div className="flex items-center gap-4 p-5 rounded-2xl bg-rk-surface border border-white/[0.08]">
+              <div className="flex items-center gap-4 p-5 rounded-2xl bg-rk-surface border border-rk-line">
                 <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
                   <MapPin className="w-5 h-5" />
                 </div>
@@ -113,7 +113,7 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Direct Message Form */}
           <div className="lg:col-span-7">
-            <div className="bg-rk-surface border border-white/[0.08] rounded-2xl p-8 sm:p-10 relative">
+            <div className="bg-rk-surface border border-rk-line rounded-2xl p-8 sm:p-10 relative">
               
               {!submitted ? (
                 <form onSubmit={handleSubmit} className="space-y-5">

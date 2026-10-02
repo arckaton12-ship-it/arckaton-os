@@ -208,7 +208,7 @@ export const OrgChart: React.FC = () => {
     <div className="space-y-6 animate-fadeIn pb-12">
       
       {/* Cyber Header & Telemetry Summary */}
-      <div className="bg-rk-panel border border-white/10 p-6 sm:p-8 rounded-3xl relative overflow-hidden">
+      <div className="bg-rk-panel border border-rk-line p-6 sm:p-8 rounded-3xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500/[0.05] rounded-full blur-3xl pointer-events-none" />
 
@@ -230,7 +230,7 @@ export const OrgChart: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             {/* View Mode Toggle */}
-            <div className="bg-rk-inset border border-white/10 p-1 rounded-xl flex items-center gap-1">
+            <div className="bg-rk-inset border border-rk-line p-1 rounded-xl flex items-center gap-1">
               <button
                 onClick={() => setViewMode('nodal')}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
@@ -267,7 +267,7 @@ export const OrgChart: React.FC = () => {
         </div>
 
         {/* Compteurs : uniquement des valeurs réellement calculées */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/[0.08]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-rk-line">
           <CompteurHud libelle="Postes pourvus" valeur={`${pourvusCount} / ${postes.length}`} />
           <CompteurHud libelle="Postes vacants" valeur={String(ouvertsCount)} accent="amber" />
           <CompteurHud libelle="Échanges tracés" valeur={String(dataTransfers.length)} accent="emerald" />
@@ -280,7 +280,7 @@ export const OrgChart: React.FC = () => {
         <div className="space-y-6">
           
           {/* Main Visual Hierarchy Canvas */}
-          <div className="bg-rk-chrome border border-white/10 rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+          <div className="bg-rk-chrome border border-rk-line rounded-3xl p-6 sm:p-8 relative overflow-hidden">
             {/* Background Grid Pattern */}
             <div className="absolute inset-0 bg-blueprint-grid opacity-20 pointer-events-none" />
 
@@ -316,7 +316,7 @@ export const OrgChart: React.FC = () => {
                     {p.description}
                   </p>
 
-                  <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono">
+                  <div className="mt-4 pt-3 border-t border-rk-line flex items-center justify-between text-[11px] font-mono">
                     <span className="text-slate-400">Charge : {p.charge_estimee}</span>
                     <span className="text-emerald-400 flex items-center gap-1">
                       Détails <ArrowRight className="w-3 h-3" />
@@ -344,7 +344,7 @@ export const OrgChart: React.FC = () => {
                     type="button"
                     whileHover={{ scale: 1.02 }}
                     onClick={() => setActivePoste(p)}
-                    className="text-left bg-rk-panel border border-white/15 hover:border-blue-400/60 rounded-2xl p-4 cursor-pointer transition-all relative group"
+                    className="text-left bg-rk-panel border border-rk-line-strong hover:border-blue-400/60 rounded-2xl p-4 cursor-pointer transition-all relative group"
                   >
                     <div className="flex items-center justify-between mb-2 gap-2">
                       <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
@@ -358,7 +358,7 @@ export const OrgChart: React.FC = () => {
                       {p.titulaire}
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <div className="mt-3 pt-2.5 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-slate-400">
                       <span>Charge : {p.charge_estimee}</span>
                       <span className="text-slate-300 group-hover:text-white">Détails →</span>
                     </div>
@@ -403,7 +403,7 @@ export const OrgChart: React.FC = () => {
                           className={`text-left rounded-xl p-3.5 border cursor-pointer transition-all ${
                             isOpen
                               ? 'bg-amber-500/5 border-amber-500/30 hover:border-amber-400'
-                              : 'bg-rk-bg border-white/10 hover:border-white/20'
+                              : 'bg-rk-bg border-rk-line hover:border-rk-line-bold'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1.5 gap-2">
@@ -433,7 +433,7 @@ export const OrgChart: React.FC = () => {
                     key={p.id}
                     type="button"
                     onClick={() => setActivePoste(p)}
-                    className="text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-rk-bg border border-white/10 text-slate-300 hover:border-white/25"
+                    className="text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-rk-bg border border-rk-line text-slate-300 hover:border-rk-line-bold"
                   >
                     {p.titre}
                   </button>
@@ -457,7 +457,7 @@ export const OrgChart: React.FC = () => {
                   type="button"
                   whileHover={{ scale: 1.01 }}
                   onClick={() => setActivePoste(p)}
-                  className="text-left rounded-xl p-3.5 border border-dashed border-white/20 bg-transparent hover:border-white/35 cursor-pointer transition-all"
+                  className="text-left rounded-xl p-3.5 border border-dashed border-rk-line-bold bg-transparent hover:border-rk-line-bold cursor-pointer transition-all"
                 >
                   <div className="text-xs font-semibold text-white">{p.titre}</div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">{p.titulaire}</div>
@@ -471,7 +471,7 @@ export const OrgChart: React.FC = () => {
           </div>
 
           {/* TELEMETRY FEED : LAST DATA TRANSFERS TRACER */}
-          <div className="bg-rk-panel border border-white/10 rounded-3xl p-6 sm:p-8">
+          <div className="bg-rk-panel border border-rk-line rounded-3xl p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <div className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 mb-1">
@@ -482,7 +482,7 @@ export const OrgChart: React.FC = () => {
                   Télémétrie des Flux & Transferts de Données Inter-Membres
                 </h3>
               </div>
-              <span className="text-xs font-mono text-slate-400 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.08] self-start sm:self-auto">
+              <span className="text-xs font-mono text-slate-400 bg-white/[0.04] px-3 py-1 rounded-full border border-rk-line self-start sm:self-auto">
                 {dataTransfers.length} paquets archivés
               </span>
             </div>
@@ -493,7 +493,7 @@ export const OrgChart: React.FC = () => {
                 return (
                   <div
                     key={dt.id}
-                    className="bg-rk-bg border border-white/[0.06] hover:border-white/[0.14] rounded-2xl p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                    className="bg-rk-bg border border-rk-line-soft hover:border-rk-line-strong rounded-2xl p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-start gap-3">
                       <div className={`p-2 rounded-xl border ${poleColor.bg} ${poleColor.border} text-emerald-400 flex-shrink-0 mt-0.5`}>
@@ -535,7 +535,7 @@ export const OrgChart: React.FC = () => {
       {viewMode === 'matrix' && (
         <div className="space-y-6">
           {/* Filters */}
-          <div className="bg-rk-panel border border-white/10 p-4 rounded-2xl space-y-4">
+          <div className="bg-rk-panel border border-rk-line p-4 rounded-2xl space-y-4">
             <div>
               <span className="text-[11px] font-mono text-slate-400 block mb-2">Filtrer par Phase de Croissance :</span>
               <div className="flex flex-wrap gap-2">
@@ -544,7 +544,7 @@ export const OrgChart: React.FC = () => {
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                     selectedPhase === 'all'
                       ? 'bg-blue-600 text-white font-bold'
-                      : 'bg-rk-bg text-slate-400 hover:text-white border border-white/5'
+                      : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
                   }`}
                 >
                   Toutes les Phases (17)
@@ -556,7 +556,7 @@ export const OrgChart: React.FC = () => {
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                       selectedPhase === ph
                         ? 'bg-blue-600 text-white font-bold'
-                        : 'bg-rk-bg text-slate-400 hover:text-white border border-white/5'
+                        : 'bg-rk-bg text-slate-400 hover:text-white border border-rk-line-soft'
                     }`}
                   >
                     Phase {ph}
@@ -576,7 +576,7 @@ export const OrgChart: React.FC = () => {
                   <div
                     key={p.id}
                     onClick={() => setActivePoste(p)}
-                    className="bg-rk-panel border border-white/10 hover:border-white/25 rounded-2xl p-5 cursor-pointer transition-all"
+                    className="bg-rk-panel border border-rk-line hover:border-rk-line-bold rounded-2xl p-5 cursor-pointer transition-all"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded border ${colors.bg} ${colors.border} ${colors.text}`}>
@@ -607,7 +607,7 @@ export const OrgChart: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-rk-panel border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl overflow-y-auto max-h-[90vh] outline-none"
+              className="bg-rk-panel border border-rk-line-strong rounded-3xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl overflow-y-auto max-h-[90vh] outline-none"
             >
               <button
                 onClick={() => setActivePoste(null)}
@@ -627,7 +627,7 @@ export const OrgChart: React.FC = () => {
               <h3 className="font-serif text-2xl font-bold text-white">{activePoste.titre}</h3>
               <div className="text-sm font-mono text-emerald-400 mt-1">Titulaire : {activePoste.titulaire}</div>
 
-              <div className="mt-4 p-4 rounded-2xl bg-rk-bg border border-white/[0.06] text-xs text-slate-300 font-light leading-relaxed">
+              <div className="mt-4 p-4 rounded-2xl bg-rk-bg border border-rk-line-soft text-xs text-slate-300 font-light leading-relaxed">
                 {activePoste.description}
               </div>
 
@@ -639,7 +639,7 @@ export const OrgChart: React.FC = () => {
                 {getPosteTasks(activePoste.titulaire).length > 0 ? (
                   <div className="space-y-2">
                     {getPosteTasks(activePoste.titulaire).map((t) => (
-                      <div key={t.id} className="bg-rk-bg border border-white/[0.06] p-3 rounded-xl flex items-center justify-between text-xs">
+                      <div key={t.id} className="bg-rk-bg border border-rk-line-soft p-3 rounded-xl flex items-center justify-between text-xs">
                         <span className="text-white font-medium">{t.titre || t.title}</span>
                         <span className="text-[11px] font-mono text-emerald-400 uppercase">{t.statut || t.status}</span>
                       </div>
@@ -652,7 +652,7 @@ export const OrgChart: React.FC = () => {
                 )}
               </div>
 
-              <div className="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between">
+              <div className="mt-8 pt-4 border-t border-rk-line flex items-center justify-between">
                 <span className="text-xs font-mono text-slate-400">Charge CPU estimée : {activePoste.charge_estimee}</span>
                 <button
                   onClick={() => {
@@ -686,7 +686,7 @@ export const OrgChart: React.FC = () => {
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-rk-panel border border-blue-500/30 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl outline-none"
             >
-              <div className="flex items-start justify-between gap-4 p-6 border-b border-white/10">
+              <div className="flex items-start justify-between gap-4 p-6 border-b border-rk-line">
                 <div>
                   <div className="flex items-center gap-2 text-blue-400 text-xs font-mono mb-1.5">
                     <Terminal className="w-4 h-4" />
@@ -709,13 +709,13 @@ export const OrgChart: React.FC = () => {
                 </button>
               </div>
 
-              <div className="px-6 py-3 border-b border-white/10 flex items-center gap-2 flex-wrap">
+              <div className="px-6 py-3 border-b border-rk-line flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] font-mono text-slate-300 uppercase">Filtrer par membre</span>
                 <input
                   value={consoleFilter}
                   onChange={(e) => setConsoleFilter(e.target.value)}
                   placeholder="Nom du membre…"
-                  className="flex-1 min-w-[160px] bg-rk-bg border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-400"
+                  className="flex-1 min-w-[160px] bg-rk-bg border border-rk-line rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-400"
                 />
                 {consoleFilter && (
                   <button
@@ -748,7 +748,7 @@ export const OrgChart: React.FC = () => {
                       <div
                         key={f.id}
                         className={`rounded-2xl border transition-colors ${
-                          isOpen ? 'border-blue-400/50 bg-rk-panel' : 'border-white/10 bg-rk-bg hover:border-white/20'
+                          isOpen ? 'border-blue-400/50 bg-rk-panel' : 'border-rk-line bg-rk-bg hover:border-rk-line-bold'
                         }`}
                       >
                         <button
@@ -783,7 +783,7 @@ export const OrgChart: React.FC = () => {
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/10">
+                              <div className="px-4 pb-4 pt-1 space-y-3 border-t border-rk-line">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-slate-300">
                                   <div className="bg-black/25 rounded-lg px-3 py-2">
                                     <div className="text-slate-400">Émetteur</div>
@@ -794,7 +794,7 @@ export const OrgChart: React.FC = () => {
                                     <div className="text-white">{f.to_member_name} — {f.to_role}</div>
                                   </div>
                                 </div>
-                                <div className="bg-rk-inset rounded-lg px-3.5 py-3 border border-white/10">
+                                <div className="bg-rk-inset rounded-lg px-3.5 py-3 border border-rk-line">
                                   <div className="text-[11px] font-mono text-slate-400 mb-1">Contenu de l'échange</div>
                                   <p className="text-xs text-slate-100 leading-relaxed whitespace-pre-wrap">
                                     {f.payload_summary}
@@ -816,13 +816,13 @@ export const OrgChart: React.FC = () => {
                 )}
               </div>
 
-              <div className="p-4 border-t border-white/10 flex items-center justify-between gap-3">
+              <div className="p-4 border-t border-rk-line flex items-center justify-between gap-3">
                 <p className="text-[11px] text-slate-300">
                   Journal local à l'appareil, alimenté par les actions réelles des membres.
                 </p>
                 <button
                   onClick={() => setIsConsole(false)}
-                  className="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-4 py-2 rounded-xl text-xs font-medium cursor-pointer"
+                  className="bg-white/10 hover:bg-white/20 text-white border border-rk-line px-4 py-2 rounded-xl text-xs font-medium cursor-pointer"
                 >
                   Fermer
                 </button>

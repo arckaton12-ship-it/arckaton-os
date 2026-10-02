@@ -17,6 +17,8 @@
   --color-rk-inset: #070b14;
   --color-rk-line: rgba(255, 255, 255, 0.1);
   --color-rk-line-soft: rgba(255, 255, 255, 0.06);
+  --color-rk-line-strong: rgba(255, 255, 255, 0.16);
+  --color-rk-line-bold: rgba(255, 255, 255, 0.24);
   --color-rk-text: #f1f5f9;
   --color-rk-muted: #94a3b8;
   --color-rk-accent: #10b981;
@@ -276,6 +278,8 @@ body.theme-light,
   --color-rk-inset: #f1f5f9;
   --color-rk-line: #e2e8f0;
   --color-rk-line-soft: #eef2f7;
+  --color-rk-line-strong: #cbd5e1;
+  --color-rk-line-bold: #94a3b8;
   --color-rk-text: #0f172a;
   --color-rk-muted: #475569;
   --color-rk-focus: #047857;

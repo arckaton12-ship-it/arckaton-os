@@ -25,7 +25,7 @@ export const Hero: React.FC = () => {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="flex items-center justify-center mb-6"
         >
-          <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.1] px-4 py-1.5 rounded-full text-xs text-slate-300 font-mono">
+          <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-rk-line px-4 py-1.5 rounded-full text-xs text-slate-300 font-mono">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>Agence Digitale & Éditeur Logiciel • Yaoundé & Partout dans le Monde</span>
           </div>
@@ -61,7 +61,7 @@ export const Hero: React.FC = () => {
 
             <button
               onClick={() => setIsTrialModalOpen(true)}
-              className="w-full sm:w-auto bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border border-white/[0.12] px-6 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm cursor-pointer"
+              className="w-full sm:w-auto bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border border-rk-line px-6 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-slate-200" />
               <span>Tester ARKA-PME (30j gratuit)</span>
@@ -69,7 +69,7 @@ export const Hero: React.FC = () => {
 
             <button
               onClick={() => setIsAgentModalOpen(true)}
-              className="w-full sm:w-auto bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/[0.08] px-5 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm cursor-pointer"
+              className="w-full sm:w-auto bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-rk-line px-5 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>Conseiller IA</span>
@@ -77,7 +77,7 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Clean Metric Badges Strip */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 max-w-3xl mx-auto border-t border-white/[0.08]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 max-w-3xl mx-auto border-t border-rk-line">
             <div className="text-center sm:text-left space-y-0.5">
               <div className="font-serif text-2xl font-bold text-white tracking-tight">30 jours</div>
               <div className="text-xs text-slate-400">Essai complet ARKA-PME sans engagement</div>
@@ -103,7 +103,7 @@ export const Hero: React.FC = () => {
           className="mt-16 max-w-5xl mx-auto space-y-6"
         >
           {/* Architectural System Header Banner */}
-          <div className="relative rounded-2xl overflow-hidden border border-white/[0.12] bg-rk-surface shadow-2xl group">
+          <div className="relative rounded-2xl overflow-hidden border border-rk-line bg-rk-surface shadow-2xl group">
             <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
               {/* Left Details */}
               <div className="lg:col-span-6 p-6 sm:p-8 space-y-4 z-10">
@@ -118,9 +118,9 @@ export const Hero: React.FC = () => {
                   Au-delà d'une vitrine, un écosystème technique résilient réunissant caisse POS hors-ligne, tunnel e-commerce MoMo et activations studio terrain à Yaoundé et Douala.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1 text-[11px] font-mono text-slate-400">
-                  <span className="bg-white/[0.04] border border-white/[0.08] px-2.5 py-1 rounded-md">99.9% Uptime</span>
-                  <span className="bg-white/[0.04] border border-white/[0.08] px-2.5 py-1 rounded-md">MTN / Orange Direct</span>
-                  <span className="bg-white/[0.04] border border-white/[0.08] px-2.5 py-1 rounded-md">Offline-First Engine</span>
+                  <span className="bg-white/[0.04] border border-rk-line px-2.5 py-1 rounded-md">99.9% Uptime</span>
+                  <span className="bg-white/[0.04] border border-rk-line px-2.5 py-1 rounded-md">MTN / Orange Direct</span>
+                  <span className="bg-white/[0.04] border border-rk-line px-2.5 py-1 rounded-md">Offline-First Engine</span>
                 </div>
               </div>
 
@@ -133,17 +133,17 @@ export const Hero: React.FC = () => {
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-3 right-3 bg-rk-base/80 backdrop-blur-md border border-white/[0.1] px-3 py-1 rounded-lg text-[11px] font-mono text-emerald-400">
+                <div className="absolute bottom-3 right-3 bg-rk-base/80 backdrop-blur-md border border-rk-line px-3 py-1 rounded-lg text-[11px] font-mono text-emerald-400">
                   Système Central ARCKATON
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.12] bg-rk-surface shadow-2xl overflow-hidden">
+          <div className="rounded-2xl border border-rk-line bg-rk-surface shadow-2xl overflow-hidden">
             
             {/* Window Top Bar */}
-            <div className="bg-rk-chrome px-4 py-3 flex flex-wrap items-center justify-between border-b border-white/[0.08] gap-3">
+            <div className="bg-rk-chrome px-4 py-3 flex flex-wrap items-center justify-between border-b border-rk-line gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
@@ -156,7 +156,7 @@ export const Hero: React.FC = () => {
               </div>
 
               {/* Interactive Cockpit Tabs */}
-              <div className="flex items-center gap-1.5 bg-rk-base p-1 rounded-xl border border-white/[0.08]">
+              <div className="flex items-center gap-1.5 bg-rk-base p-1 rounded-xl border border-rk-line">
                 <button
                   onClick={() => setActiveCockpitTab('sales')}
                   className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
@@ -192,7 +192,7 @@ export const Hero: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setMode('dashboard')}
-                  className="text-xs font-medium text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-3 py-1.5 rounded-lg transition-colors border border-white/[0.08]"
+                  className="text-xs font-medium text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-3 py-1.5 rounded-lg transition-colors border border-rk-line"
                 >
                   Ouvrir l'OS &rarr;
                 </button>
@@ -212,26 +212,26 @@ export const Hero: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Chiffre d'Affaires du Jour</div>
                         <div className="font-serif text-2xl font-bold text-white">+125 000 FCFA</div>
                         <div className="text-xs text-emerald-400 font-medium">18 transactions enregistrées</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Mobile Money (MTN + Orange)</div>
                         <div className="font-serif text-2xl font-bold text-white">78 500 FCFA</div>
                         <div className="text-xs text-slate-400">62% du volume total de la journée</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Synchronisation Cloud</div>
                         <div className="font-serif text-2xl font-bold text-emerald-400">100% En règle</div>
                         <div className="text-xs text-slate-400">Boutique Yaoundé Bastos & Kotto</div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
+                    <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft flex items-center justify-between text-xs text-slate-300">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         <span>Mode caisse rapide actif : encaissement sans interruption même en coupure de réseau.</span>
@@ -251,26 +251,26 @@ export const Hero: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Articles en Stock</div>
                         <div className="font-serif text-2xl font-bold text-white">1 420 références</div>
                         <div className="text-xs text-slate-400">Réparties sur 2 dépôts</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Durée d'Inventaire</div>
                         <div className="font-serif text-2xl font-bold text-amber-400">12 minutes</div>
                         <div className="text-xs text-slate-400">Gain de temps de 93% vs carnet papier</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Alertes Réapprovisionnement</div>
                         <div className="font-serif text-2xl font-bold text-white">3 articles</div>
                         <div className="text-xs text-amber-400 font-medium">Bons de commande pré-remplis</div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
+                    <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft flex items-center justify-between text-xs text-slate-300">
                       <div className="flex items-center gap-2">
                         <Boxes className="w-4 h-4 text-amber-400" />
                         <span>Traçabilité complète des entrées et sorties pour stopper les disparitions de marchandises.</span>
@@ -290,26 +290,26 @@ export const Hero: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Sorties Terrain Mensuelles</div>
                         <div className="font-serif text-2xl font-bold text-white">9 sessions / mois</div>
                         <div className="text-xs text-slate-400">Incluses dans le Forfait Synergie</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Livrables Vidéo & Photo</div>
                         <div className="font-serif text-2xl font-bold text-blue-400">12 capsules HD</div>
                         <div className="text-xs text-slate-400">Montage professionnel & validation BAT</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] space-y-1">
+                      <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft space-y-1">
                         <div className="text-xs text-slate-400 font-mono">Prochaine Captation</div>
                         <div className="font-serif text-2xl font-bold text-white">Demain 10h</div>
                         <div className="text-xs text-emerald-400 font-medium">Boutique Maison Kotto (Yaoundé)</div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-rk-surface border border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
+                    <div className="p-4 rounded-xl bg-rk-surface border border-rk-line-soft flex items-center justify-between text-xs text-slate-300">
                       <div className="flex items-center gap-2">
                         <Camera className="w-4 h-4 text-blue-400" />
                         <span>Créatifs et vidéastes sur place pour nourrir vos réseaux sociaux et vos campagnes pub.</span>

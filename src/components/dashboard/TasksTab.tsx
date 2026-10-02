@@ -98,7 +98,7 @@ export const TasksTab: React.FC = () => {
     <div className="space-y-6 animate-fadeIn">
       
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-rk-panel border border-white/10 p-5 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-rk-panel border border-rk-line p-5 rounded-2xl">
         <div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
             <span>Gestion des Tâches Opérationnelles</span>
@@ -129,7 +129,7 @@ export const TasksTab: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-colors cursor-pointer ${
               selectedPole === 'all'
                 ? 'bg-white text-slate-950 font-bold'
-                : 'bg-rk-panel text-slate-400 hover:text-white border border-white/5'
+                : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
             }`}
           >
             Tous les Pôles
@@ -141,7 +141,7 @@ export const TasksTab: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-colors cursor-pointer ${
                 selectedPole === p
                   ? 'bg-purple-600 text-white font-bold'
-                  : 'bg-rk-panel text-slate-400 hover:text-white border border-white/5'
+                  : 'bg-rk-panel text-slate-400 hover:text-white border border-rk-line-soft'
               }`}
             >
               {p}
@@ -153,7 +153,7 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+          className="bg-rk-panel border border-rk-line rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
         >
           <option value="all">Tous les statuts</option>
           <option value="a_faire">À faire</option>
@@ -166,7 +166,7 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
-          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+          className="bg-rk-panel border border-rk-line rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
         >
           <option value="all">Tous les projets</option>
           {projets.map((p) => (
@@ -178,7 +178,7 @@ export const TasksTab: React.FC = () => {
         <select
           value={selectedMember}
           onChange={(e) => setSelectedMember(e.target.value)}
-          className="bg-rk-panel border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none ml-auto"
+          className="bg-rk-panel border border-rk-line rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none ml-auto"
         >
           <option value="all">Tous les membres</option>
           {membersList.map((m) => (
@@ -190,7 +190,7 @@ export const TasksTab: React.FC = () => {
       {/* Tasks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTasks.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-slate-400 bg-rk-panel rounded-2xl border border-white/5">
+          <div className="col-span-full text-center py-12 text-slate-400 bg-rk-panel rounded-2xl border border-rk-line-soft">
             Aucune tâche trouvée pour cette combinaison de filtres.
           </div>
         ) : (
@@ -206,12 +206,12 @@ export const TasksTab: React.FC = () => {
                     ? 'border-emerald-500/20 opacity-75'
                     : isUrgent
                     ? 'border-rose-500/40 shadow-sm shadow-rose-500/10'
-                    : 'border-white/10 hover:border-white/20'
+                    : 'border-rk-line hover:border-rk-line-bold'
                 }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono uppercase bg-white/5 text-slate-300 px-2.5 py-0.5 rounded border border-white/5">
+                    <span className="text-[11px] font-mono uppercase bg-white/5 text-slate-300 px-2.5 py-0.5 rounded border border-rk-line-soft">
                       {t.pole}
                     </span>
 
@@ -238,7 +238,7 @@ export const TasksTab: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-white/5 space-y-3">
+                <div className="pt-4 mt-4 border-t border-rk-line-soft space-y-3">
                   {t.project_name && (
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-300 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2 py-1">
                       <FolderKanban className="w-3 h-3" />
@@ -285,7 +285,7 @@ export const TasksTab: React.FC = () => {
                         (t.status || t.statut) === 'termine' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
                         (t.status || t.statut) === 'en_cours' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
                         (t.status || t.statut) === 'revue' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
-                        'bg-slate-800 text-slate-400 border-white/10'
+                        'bg-slate-800 text-slate-400 border-rk-line'
                       }`}
                     >
                       <option value="a_faire">À faire</option>
@@ -311,9 +311,9 @@ export const TasksTab: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Ajouter une tâche opérationnelle"
-            className="rk-panel border-white/15 w-full max-w-md shadow-2xl p-6 space-y-4 outline-none animate-modal-in"
+            className="rk-panel border-rk-line-strong w-full max-w-md shadow-2xl p-6 space-y-4 outline-none animate-modal-in"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-center justify-between border-b border-rk-line pb-3">
               <h3 className="font-serif text-lg font-bold text-white">Ajouter une Tâche Opérationnelle</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -333,7 +333,7 @@ export const TasksTab: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex : Intégrer le paiement MTN MoMo pour un client"
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export const TasksTab: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Consignes précises, liens ou livrables attendus..."
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white resize-none"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white resize-none"
                 />
               </div>
 
@@ -358,7 +358,7 @@ export const TasksTab: React.FC = () => {
                       setPole(newP);
                       setAssignedTo(poleManagers[newP]);
                     }}
-                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-rk-line rounded-xl px-2 py-2 text-white"
                   >
                     <option value="Direction">Direction</option>
                     <option value="Tech">Tech</option>
@@ -374,7 +374,7 @@ export const TasksTab: React.FC = () => {
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value as any)}
-                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
+                    className="w-full bg-rk-bg border border-rk-line rounded-xl px-2 py-2 text-white"
                   >
                     <option value="basse">Basse</option>
                     <option value="normale">Normale</option>
@@ -391,7 +391,7 @@ export const TasksTab: React.FC = () => {
                     list="task-members"
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
-                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white"
                   />
                   <datalist id="task-members">
                     {membersList.map((m) => <option key={m} value={m} />)}
@@ -405,7 +405,7 @@ export const TasksTab: React.FC = () => {
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
                     placeholder="Ex: Demain 17h"
-                    className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white"
                   />
                 </div>
               </div>
@@ -415,7 +415,7 @@ export const TasksTab: React.FC = () => {
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-2 py-2 text-white"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-2 py-2 text-white"
                 >
                   <option value="">Aucun projet (tâche transverse)</option>
                   {projets.map((p) => (

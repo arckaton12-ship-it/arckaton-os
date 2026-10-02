@@ -131,13 +131,13 @@ export const InternalChat: React.FC = () => {
   };
 
   return (
-    <div className="bg-rk-panel border border-white/10 rounded-3xl overflow-hidden flex flex-col md:flex-row h-[calc(100vh-180px)] min-h-[550px] animate-fadeIn">
+    <div className="bg-rk-panel border border-rk-line rounded-3xl overflow-hidden flex flex-col md:flex-row h-[calc(100vh-180px)] min-h-[550px] animate-fadeIn">
       
       {/* Channels Sidebar */}
-      <div className="w-full md:w-64 bg-rk-bg border-r border-white/10 flex flex-col justify-between">
+      <div className="w-full md:w-64 bg-rk-bg border-r border-rk-line flex flex-col justify-between">
         
         <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center justify-between border-b border-rk-line pb-3">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-blue-400" />
               <h3 className="font-serif text-sm font-bold text-white">Canaux Agence</h3>
@@ -184,7 +184,7 @@ export const InternalChat: React.FC = () => {
         </div>
 
         {/* User presence footer */}
-        <div className="p-3 border-t border-white/10 bg-rk-inset flex items-center gap-2.5">
+        <div className="p-3 border-t border-rk-line bg-rk-inset flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-[11px] font-mono font-bold text-blue-300">
             {user.name.split(' ').map(n => n[0]).join('')}
           </div>
@@ -203,7 +203,7 @@ export const InternalChat: React.FC = () => {
       <div className="flex-1 flex flex-col justify-between bg-rk-panel">
         
         {/* Channel Header */}
-        <div className="p-4 border-b border-white/10 bg-rk-chrome flex items-center justify-between">
+        <div className="p-4 border-b border-rk-line bg-rk-chrome flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-blue-400" />
             <div>
@@ -279,7 +279,7 @@ export const InternalChat: React.FC = () => {
                       <div className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                         isMe
                           ? 'bg-blue-600 text-white rounded-tr-none'
-                          : 'bg-rk-bg text-slate-200 border border-white/10 rounded-tl-none'
+                          : 'bg-rk-bg text-slate-200 border border-rk-line rounded-tl-none'
                       }`}>
                         {m.content}
                       </div>
@@ -291,7 +291,7 @@ export const InternalChat: React.FC = () => {
                           }}
                           title="Supprimer ce message"
                           aria-label="Supprimer ce message"
-                          className="absolute -top-2 right-0 opacity-0 group-hover/bulle:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-md bg-rk-bg border border-white/10 text-slate-400 hover:text-red-400 hover:border-red-500/40"
+                          className="absolute -top-2 right-0 opacity-0 group-hover/bulle:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-md bg-rk-bg border border-rk-line text-slate-400 hover:text-red-400 hover:border-red-500/40"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -305,8 +305,8 @@ export const InternalChat: React.FC = () => {
         </div>
 
         {/* Message Input Form */}
-        <form onSubmit={handleSend} className="p-4 border-t border-white/10 bg-rk-chrome">
-          <div className="flex items-center gap-2 bg-rk-bg border border-white/10 rounded-2xl px-4 py-2 focus-within:border-blue-500 transition-colors">
+        <form onSubmit={handleSend} className="p-4 border-t border-rk-line bg-rk-chrome">
+          <div className="flex items-center gap-2 bg-rk-bg border border-rk-line rounded-2xl px-4 py-2 focus-within:border-blue-500 transition-colors">
             <input
               type="text"
               value={content}
@@ -338,7 +338,7 @@ export const InternalChat: React.FC = () => {
             aria-label="Simulateur d'échange multi-membres"
             className="bg-rk-panel border border-amber-500/25 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden outline-none animate-modal-in"
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-rk-line">
               <div>
                 <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
                   <Users className="w-4 h-4 text-amber-400" />
@@ -363,7 +363,7 @@ export const InternalChat: React.FC = () => {
                 <select
                   value={channel}
                   onChange={(e) =>  setChannel( e.target.value)}
-                  className="w-full bg-rk-bg border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-xs text-white"
                 >
                   {channels.map((c) => (
                     <option key={c.id} value={c.id}>#{c.name}</option>
@@ -381,7 +381,7 @@ export const InternalChat: React.FC = () => {
                       className={`text-left p-3 rounded-xl border transition-colors cursor-pointer ${
                         simScenario === s.id
                           ? 'border-amber-400/50 bg-amber-500/10'
-                          : 'border-white/10 bg-rk-bg hover:border-white/20'
+                          : 'border-rk-line bg-rk-bg hover:border-rk-line-bold'
                       }`}
                     >
                       <div className="text-xs font-semibold text-white">{s.label}</div>
@@ -415,7 +415,7 @@ export const InternalChat: React.FC = () => {
                           className={`px-2.5 py-1.5 rounded-lg text-[11px] font-mono border transition-colors cursor-pointer ${
                             active
                               ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
-                              : 'bg-rk-bg border-white/10 text-slate-300 hover:border-white/25'
+                              : 'bg-rk-bg border-rk-line text-slate-300 hover:border-rk-line-bold'
                           }`}
                         >
                           {m.name} · {m.pole}
