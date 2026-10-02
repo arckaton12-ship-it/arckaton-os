@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Projet, ProjectMilestone, FieldVisit, Pole } from '../../types';
 import { POLES_INFO } from '../../data/mockData';
 import { ProductionTabSkeleton } from './DashboardSkeleton';
@@ -64,6 +65,7 @@ export const ProjectsProductionTab: React.FC = () => {
     osMembers,
     isDataFetching
   } = useApp();
+  const { success } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPoleFilter, setSelectedPoleFilter] = useState<string>('all');
@@ -131,6 +133,7 @@ export const ProjectsProductionTab: React.FC = () => {
     setExpandedProjectId(created.id);
     setIsCreatingProject(false);
     setNewProject((p) => ({ ...p, client_name: '', client_code: '', service: '', chef_de_projet: '', client_phone: '', client_email: '', forfait: '', deadline: '' }));
+    success(`Projet « ${created.name} » créé.`);
   };
 
   // New milestone form state
@@ -165,6 +168,7 @@ export const ProjectsProductionTab: React.FC = () => {
     const notes = editingNotes[projectId];
     if (notes !== undefined) {
       updateProjectNotes(projectId, notes);
+      success('Notes internes enregistrées.');
     }
   };
 
@@ -182,6 +186,7 @@ export const ProjectsProductionTab: React.FC = () => {
     setNewMilestoneEcheance('');
     setNewMilestoneDesc('');
     setIsAddingMilestone(false);
+    success('Jalon ajouté au projet.');
   };
 
   const handleCreateVisit = (projectId: string, totalVisits: number) => {
@@ -200,6 +205,7 @@ export const ProjectsProductionTab: React.FC = () => {
     setNewVisitDate('');
     setNewVisitObjectif('');
     setIsAddingVisit(false);
+    success('Sortie terrain planifiée.');
   };
 
   return (
@@ -590,7 +596,7 @@ export const ProjectsProductionTab: React.FC = () => {
                               <div className="flex items-center gap-1.5 self-end sm:self-auto flex-shrink-0">
                                 <button
                                   type="button"
-                                  onClick={() => updateProjectMilestone(project.id, m.id, 'en_attente')}
+                                  onClick={() => { updateProjectMilestone(project.id, m.id, 'en_attente'); success(`Jalon « ${m.titre} » remis en attente.`); }}
                                   className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors ${
                                     m.statut === 'en_attente'
                                       ? 'bg-slate-700 text-white font-bold'
@@ -602,7 +608,7 @@ export const ProjectsProductionTab: React.FC = () => {
 
                                 <button
                                   type="button"
-                                  onClick={() => updateProjectMilestone(project.id, m.id, 'en_cours')}
+                                  onClick={() => { updateProjectMilestone(project.id, m.id, 'en_cours'); success(`Jalon « ${m.titre} » démarré.`); }}
                                   className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors ${
                                     m.statut === 'en_cours'
                                       ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 font-bold'
@@ -614,7 +620,7 @@ export const ProjectsProductionTab: React.FC = () => {
 
                                 <button
                                   type="button"
-                                  onClick={() => updateProjectMilestone(project.id, m.id, 'valide')}
+                                  onClick={() => { updateProjectMilestone(project.id, m.id, 'valide'); success(`Jalon « ${m.titre} » validé.`); }}
                                   className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors flex items-center gap-1 ${
                                     m.statut === 'valide'
                                       ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Pole, Task, TaskStatus } from '../../types';
 import { 
   CheckSquare, 
@@ -20,6 +21,7 @@ import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const TasksTab: React.FC = () => {
   const { tasks, addTask, updateTaskStatus, remindTask, projets, osMembers } = useApp();
+  const { success } = useToast();
 
   const [selectedPole, setSelectedPole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -78,6 +80,7 @@ export const TasksTab: React.FC = () => {
     setTitle('');
     setDescription('');
     setIsModalOpen(false);
+    success('Tâche créée et affectée au pôle.');
   };
 
   // Responsable de chaque pôle, déduit de l'annuaire réel des membres.
@@ -264,7 +267,7 @@ export const TasksTab: React.FC = () => {
 
                   {!isCompleted && (
                     <button
-                      onClick={() => remindTask(t.id)}
+                      onClick={() => { remindTask(t.id); success(`Rappel envoyé pour « ${t.title || t.titre} ».`); }}
                       aria-label={`Envoyer un rappel pour la tâche « ${t.title || t.titre} »`}
                       className="w-full flex items-center justify-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-lg px-2 py-1.5 transition-colors cursor-pointer"
                     >

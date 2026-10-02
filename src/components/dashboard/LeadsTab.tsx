@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Lead, Pole } from '../../types';
 import { TableRowSkeleton } from './DashboardSkeleton';
 import { 
@@ -22,6 +23,7 @@ import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const LeadsTab: React.FC = () => {
   const { leads, updateLeadStatus, addLead, addTask, isDataFetching, osMembers } = useApp();
+  const { success } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -84,6 +86,7 @@ export const LeadsTab: React.FC = () => {
     setNewEmail('');
     setNewNotes('');
     setIsCreateModalOpen(false);
+    success('Lead créé et ajouté au pipeline.');
   };
 
   const handleCreateTaskFromLead = (lead: Lead) => {
@@ -97,7 +100,7 @@ export const LeadsTab: React.FC = () => {
       assigned_to: osMembers.find((m) => m.pole === lead.pole_assigned)?.name,
       due_date: 'Sous 48h'
     });
-    alert(`Tâche d'onboarding créée avec succès dans le Pôle ${lead.pole_assigned} !`);
+    success(`Tâche d'onboarding créée dans le Pôle ${lead.pole_assigned}.`);
   };
 
   return (
@@ -239,7 +242,18 @@ export const LeadsTab: React.FC = () => {
                       <td className="py-3.5 px-4">
                         <select
                           value={l.statut}
-                          onChange={(e) => updateLeadStatus(l.id, e.target.value as any)}
+                          onChange={(e) => {
+                            const statut = e.target.value;
+                            updateLeadStatus(l.id, statut as any);
+                            const labels: Record<string, string> = {
+                              nouveau: 'Nouveau',
+                              contacte: 'Contacté',
+                              devis_envoye: 'Devis envoyé',
+                              converti: 'Converti (client)',
+                              archive: 'Archivé',
+                            };
+                            success(`Dossier ${l.name} : ${labels[statut] || statut}.`);
+                          }}
                           className={`text-xs font-mono px-2.5 py-1 rounded-lg border focus:outline-none cursor-pointer ${
                             l.statut === 'nouveau' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
                             l.statut === 'contacte' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :

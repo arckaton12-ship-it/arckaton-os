@@ -7,6 +7,7 @@ import React from 'react';
 import { MotionConfig } from 'motion/react';
 import { AuthProvider } from './contexts/AuthContext';
 import { AppProvider, useApp } from './contexts/AppContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { PublicSite } from './components/public/PublicSite';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 
@@ -25,11 +26,13 @@ function MainRouter() {
 export default function App() {
   return (
     <MotionConfig reducedMotion="user">
-      <AuthProvider>
-        <AppProvider>
-          <MainRouter />
-        </AppProvider>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AppProvider>
+            <MainRouter />
+          </AppProvider>
+        </AuthProvider>
+      </ToastProvider>
     </MotionConfig>
   );
 }

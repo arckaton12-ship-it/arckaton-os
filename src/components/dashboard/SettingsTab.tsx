@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Settings, ShieldCheck, Database, Globe, RefreshCw, CheckCircle2, Loader2, AlertTriangle, WifiOff, Sparkles, Sun, Moon, Palette } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE, FORFAITS_DATA } from '../../data/mockData';
 import { apiRequest } from '../../utils/api';
@@ -11,6 +12,7 @@ interface HealthState {
 
 export const SettingsTab: React.FC = () => {
   const { leads, tasks, projets, isRealDataMode, purgeDemoData, restoreDemoData, theme, setTheme } = useApp();
+  const { success } = useToast();
 
   const [health, setHealth] = useState<HealthState | null>(null);
   const [healthError, setHealthError] = useState(false);
@@ -92,6 +94,7 @@ export const SettingsTab: React.FC = () => {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Enregistrement impossible');
       setSaved(true);
+      success('Coordonnées de l\'agence enregistrées.');
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       setSaveError(err.message || 'Enregistrement impossible');
@@ -368,7 +371,7 @@ export const SettingsTab: React.FC = () => {
         <p className="text-xs text-slate-400 leading-relaxed">
           Les données fictives de démonstration (projets, leads, tâches, notifications, messagerie, agenda,
           rapports IA, réalisations, témoignages, articles) sont retirées de cet appareil. Vos données réelles
-          (leads reçus via le site, membres, projets et devis enregistrés sur Supabase) sont conservées.
+          (leads reçus via le site, membres, projets et devis enregistrés dans la base PostgreSQL) sont conservées.
         </p>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">

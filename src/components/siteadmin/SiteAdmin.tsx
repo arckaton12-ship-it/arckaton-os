@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
+import { useToast } from '../../contexts/ToastContext';
 import { BlogPost, ForfaitData, Realisation, Temoignage } from '../../types';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 import { 
@@ -10,7 +11,6 @@ import {
   Plus, 
   Edit3, 
   Trash2, 
-  CheckCircle2, 
   Lock, 
   Save,
   Megaphone,
@@ -25,7 +25,6 @@ import {
   Star,
   FolderKanban
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { REALISATION_CATEGORIES } from '../../data/categories';
 
 export const SiteAdmin: React.FC = () => {
@@ -54,7 +53,7 @@ export const SiteAdmin: React.FC = () => {
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'announcement' | 'hero' | 'forfaits' | 'blog' | 'contact' | 'realisations' | 'temoignages'>('announcement');
-  const [saveToast, setSaveToast] = useState<string | null>(null);
+  const { success: triggerToast } = useToast();
 
   // Announcement state form
   const [announcementForm, setAnnouncementForm] = useState(siteConfig.announcement);
@@ -128,11 +127,6 @@ export const SiteAdmin: React.FC = () => {
     text: '',
     metrics: '',
   });
-
-  const triggerToast = (msg: string) => {
-    setSaveToast(msg);
-    setTimeout(() => setSaveToast(null), 3000);
-  };
 
   const handleSaveAnnouncement = (e: React.FormEvent) => {
     e.preventDefault();
@@ -312,21 +306,6 @@ export const SiteAdmin: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
-      
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {saveToast && (
-          <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            className="fixed top-4 left-4 right-4 sm:left-auto sm:top-6 sm:right-6 z-50 bg-emerald-500 text-slate-950 px-5 py-3 rounded-2xl font-mono text-xs font-bold shadow-2xl flex items-center justify-center gap-2"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{saveToast}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Header */}
       <div className="bg-[#0b1329] border border-white/10 p-6 sm:p-8 rounded-3xl relative overflow-hidden">
