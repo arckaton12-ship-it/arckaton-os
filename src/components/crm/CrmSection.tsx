@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Lead, LeadStatus, Pole, POLE_COLORS } from '../../types';
+import { Lead, LeadStatus, POLE_COLORS } from '../../types';
 import { 
   Users, 
   Plus, 
@@ -14,9 +14,14 @@ import {
   DollarSign, 
   Search,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  LayoutGrid,
+  Table2,
+  UserX
 } from 'lucide-react';
 import { InvoiceModal } from './InvoiceModal';
+import { CrmTable } from './CrmTable';
+import { STATUTS } from './leadStatus';
 import { CrmSectionSkeleton } from '../dashboard/DashboardSkeleton';
 
 export const CrmSection: React.FC = () => {
@@ -44,15 +49,13 @@ export const CrmSection: React.FC = () => {
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
 
-  const statusLabels: Record<LeadStatus, { label: string; color: string }> = {
-    nouveau: { label: 'Nouveau Lead', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-    contacte: { label: 'Contact Établi', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
-    qualifie: { label: 'Besoins Qualifiés', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-    devis_envoye: { label: 'Devis Transmis', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' },
-    converti: { label: 'Client Signé ðŸŽ‰', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
-    archive: { label: 'Archivé', color: 'bg-slate-700 text-rk-muted border-slate-600' },
-    perdu: { label: 'Sans Suite', color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' }
-  };
+  // Vue Cartes (par defaut) ou Tableau pro, memorisee d'une session a l'autre.
+  const [vue, setVue] = useState<'cartes' | 'tableau'>(() =>
+    localStorage.getItem('arckaton_crm_vue') === 'tableau' ? 'tableau' : 'cartes'
+  );
+  useEffect(() => localStorage.setItem('arckaton_crm_vue', vue), [vue]);
+
+  const statusLabels = STATUTS;
 
   const filteredLeads = leads.filter((l) => {
     const matchesStatus = selectedStatus === 'all' || l.statut === selectedStatus;
@@ -70,6 +73,11 @@ export const CrmSection: React.FC = () => {
     } catch (e) {
       alert("Erreur lors de la conversion du lead.");
     }
+  };
+
+  // Changement de statut groupe depuis le tableau (actions groupees).
+  const handleBulkStatus = (ids: string[], status: LeadStatus) => {
+    ids.forEach((id) => updateLeadStatus(id, status));
   };
 
   return (
@@ -113,13 +121,14 @@ export const CrmSection: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par nom, téléphone, type de projet..."
-            className="w-full bg-rk-panel border border-rk-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
+            className="w-full bg-rk-panel border border-rk-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-rk-muted focus:outline-none focus:border-blue-400"
           />
         </div>
 
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
+          aria-label="Filtrer par statut"
           className="bg-rk-panel border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none w-full sm:w-auto"
         >
           <option value="all">Tous les statuts</option>
@@ -129,19 +138,71 @@ export const CrmSection: React.FC = () => {
           <option value="devis_envoye">Devis envoyé</option>
           <option value="converti">Convertis (Clients)</option>
         </select>
+
+        <div
+          role="group"
+          aria-label="Mode d'affichage"
+          className="flex items-center gap-1 bg-rk-panel border border-rk-line rounded-xl p-1 shrink-0"
+        >
+          <button
+            type="button"
+            onClick={() => setVue('cartes')}
+            aria-pressed={vue === 'cartes'}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+              vue === 'cartes' ? 'bg-blue-600 text-white' : 'text-rk-text-secondary hover:text-white'
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Cartes</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setVue('tableau')}
+            aria-pressed={vue === 'tableau'}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+              vue === 'tableau' ? 'bg-blue-600 text-white' : 'text-rk-text-secondary hover:text-white'
+            }`}
+          >
+            <Table2 className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Tableau</span>
+          </button>
+        </div>
       </div>
 
       {/* Leads List */}
       {isDataFetching ? (
         <CrmSectionSkeleton />
+      ) : leads.length === 0 ? (
+        <div className="text-center py-16 px-6 bg-rk-panel rounded-2xl border border-rk-line-soft">
+          <UserX className="w-8 h-8 text-rk-muted mx-auto mb-3" aria-hidden="true" />
+          <p className="text-white font-semibold">Aucun prospect pour l'instant</p>
+          <p className="text-xs text-rk-muted mt-1">
+            Les demandes du site public et du conseiller IA apparaîtront ici automatiquement.
+          </p>
+        </div>
+      ) : filteredLeads.length === 0 ? (
+        <div className="text-center py-16 px-6 bg-rk-panel rounded-2xl border border-rk-line-soft">
+          <Search className="w-8 h-8 text-rk-muted mx-auto mb-3" aria-hidden="true" />
+          <p className="text-white font-semibold">Aucun résultat pour ces filtres</p>
+          <p className="text-xs text-rk-muted mt-1">Élargissez la recherche ou réinitialisez les filtres.</p>
+          <button
+            type="button"
+            onClick={() => { setSearch(''); setSelectedStatus('all'); }}
+            className="mt-4 bg-white/5 hover:bg-white/10 text-rk-text border border-rk-line px-3.5 py-1.5 rounded-xl text-xs cursor-pointer"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      ) : vue === 'tableau' ? (
+        <CrmTable
+          leads={filteredLeads}
+          onOpenInvoice={(lead, type) => setActiveModal({ lead, type })}
+          onConvert={handleConvert}
+          onBulkStatus={handleBulkStatus}
+        />
       ) : (
         <div className="space-y-3">
-          {filteredLeads.length === 0 ? (
-          <div className="text-center py-12 text-rk-muted bg-rk-panel rounded-2xl border border-rk-line-soft">
-            Aucun prospect ne correspond à ces critères.
-          </div>
-        ) : (
-          filteredLeads.map((l) => {
+          {filteredLeads.map((l) => {
             const stInfo = statusLabels[l.statut] || statusLabels.nouveau;
             const poleColor = POLE_COLORS[l.pole_assigned] || POLE_COLORS.Tech;
 
@@ -287,10 +348,9 @@ export const CrmSection: React.FC = () => {
 
               </div>
             );
-          })
-        )}
-      </div>
-    )}
+          })}
+        </div>
+      )}
 
       {/* Devis / facture */}
       {activeModal && (
