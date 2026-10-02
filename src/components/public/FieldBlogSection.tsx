@@ -78,6 +78,13 @@ export const FieldBlogSection: React.FC = () => {
         </div>
 
         {/* Blog Post Cards Grid */}
+        {filteredPosts.length === 0 ? (
+          <div className="text-center py-16 bg-[#0b1329] border border-white/10 rounded-3xl">
+            <Camera className="w-8 h-8 text-slate-500 mx-auto mb-3" aria-hidden="true" />
+            <p className="text-sm text-slate-300">Aucun récit publié dans cette catégorie pour le moment.</p>
+            <p className="text-xs text-slate-500 mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {filteredPosts.map((post) => (
             <motion.article
@@ -162,6 +169,7 @@ export const FieldBlogSection: React.FC = () => {
             </motion.article>
           ))}
         </div>
+        )}
 
       </div>
     </section>

@@ -150,6 +150,16 @@ export const DashboardLayout: React.FC = () => {
         </div>
       </div>
 
+      {/* Fond assombri derrière la barre latérale sur mobile : un clic
+          n'importe où ferme le menu. */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <aside
         className={`fixed md:sticky top-0 z-40 h-screen w-64 bg-[#09122a] border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
