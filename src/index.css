@@ -28,6 +28,22 @@
   }
 }
 
+/* Respect des preferences systeme : on neutralise les animations et le
+   defilement fluide pour les personnes sensibles au mouvement (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .font-serif {
   font-family: var(--font-serif);
 }

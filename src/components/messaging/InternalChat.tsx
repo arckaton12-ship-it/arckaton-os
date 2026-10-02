@@ -286,7 +286,9 @@ export const InternalChat: React.FC = () => {
                       {parMoi && (
                         <button
                           type="button"
-                          onClick={() => deleteMessage(m.id)}
+                          onClick={() => {
+                            if (window.confirm('Supprimer ce message ?')) deleteMessage(m.id);
+                          }}
                           title="Supprimer ce message"
                           aria-label="Supprimer ce message"
                           className="absolute -top-2 right-0 opacity-0 group-hover/bulle:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-md bg-[#070c1e] border border-white/10 text-slate-400 hover:text-red-400 hover:border-red-500/40"

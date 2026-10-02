@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { MotionConfig } from 'motion/react';
 import { AuthProvider } from './contexts/AuthContext';
 import { AppProvider, useApp } from './contexts/AppContext';
 import { PublicSite } from './components/public/PublicSite';
@@ -23,10 +24,12 @@ function MainRouter() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <MainRouter />
-      </AppProvider>
-    </AuthProvider>
+    <MotionConfig reducedMotion="user">
+      <AuthProvider>
+        <AppProvider>
+          <MainRouter />
+        </AppProvider>
+      </AuthProvider>
+    </MotionConfig>
   );
 }
