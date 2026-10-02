@@ -49,6 +49,29 @@ export const DashboardLayout: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
+  // Sections repliables de la barre laterale : l'utilisateur peut masquer
+  // celles qu'il n'utilise pas. L'etat est memorise ; par defaut tout est
+  // ouvert pour ne jamais cacher une entree par surprise.
+  const [sectionsOuvertes, setSectionsOuvertes] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('arckaton_sidebar_sections') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const basculerSection = (id: string) => {
+    setSectionsOuvertes((prev) => {
+      const suivant = { ...prev, [id]: !(prev[id] ?? true) };
+      try {
+        localStorage.setItem('arckaton_sidebar_sections', JSON.stringify(suivant));
+      } catch {
+        // Stockage indisponible : le repli restera valable pour la session.
+      }
+      return suivant;
+    });
+  };
+
   // Raccourci universel de la palette de commandes (Ctrl/Cmd + K).
   useEffect(() => {
     const surRaccourci = (e: KeyboardEvent) => {
@@ -105,20 +128,40 @@ export const DashboardLayout: React.FC = () => {
     return <PoleDashboard />;
   }
 
+  // Badges volontairement sobres : seul le compteur de projets est dynamique
+  // et utile. Les mentions decoratives (« Ventes », « Boss »...) alourdissaient
+  // la barre sans rien apprendre.
   const navItems = [
     { id: 'overview' as const, label: "Vue d'ensemble", icon: LayoutDashboard, badge: null, adminOnly: false },
-    { id: 'projects' as const, label: "Projets & Production", icon: FolderKanban, badge: projets.length.toString(), adminOnly: false },
-    { id: 'orgchart' as const, label: "Organigramme (17 Postes)", icon: Users, badge: "Équipe", adminOnly: false },
+    { id: 'projects' as const, label: "Projets & Production", icon: FolderKanban, badge: projets.length ? projets.length.toString() : null, adminOnly: false },
+    { id: 'orgchart' as const, label: "Organigramme (17 Postes)", icon: Users, badge: null, adminOnly: false },
     { id: 'tasks' as const, label: "Tableau Kanban", icon: CheckSquare, badge: null, adminOnly: false },
-    { id: 'crm' as const, label: "CRM & Devis / Ventes", icon: Briefcase, badge: "Ventes", adminOnly: false },
-    { id: 'messaging' as const, label: "Messagerie Interne", icon: MessageSquare, badge: "Direct", adminOnly: false },
-    { id: 'copilot' as const, label: "Copilote IA Stratégique", icon: Sparkles, badge: "Spécial", adminOnly: false },
-    { id: 'siteadmin' as const, label: "Gestion Site (/site CMS)", icon: FileEdit, badge: "CMS", adminOnly: false },
-    { id: 'members' as const, label: "Membres & Habilitations", icon: ShieldCheck, badge: "Boss", adminOnly: true },
+    { id: 'crm' as const, label: "CRM & Devis / Ventes", icon: Briefcase, badge: null, adminOnly: false },
+    { id: 'messaging' as const, label: "Messagerie Interne", icon: MessageSquare, badge: null, adminOnly: false },
+    { id: 'copilot' as const, label: "Copilote IA Stratégique", icon: Sparkles, badge: null, adminOnly: false },
+    { id: 'siteadmin' as const, label: "Gestion Site (/site CMS)", icon: FileEdit, badge: null, adminOnly: false },
+    { id: 'members' as const, label: "Membres & Habilitations", icon: ShieldCheck, badge: null, adminOnly: true },
     { id: 'settings' as const, label: "Paramètres & Grille", icon: Settings, badge: null, adminOnly: false },
   ].filter((item) => !item.adminOnly || isAdmin);
 
   const currentLabel = navItems.find((item) => item.id === activeTab)?.label ?? "Vue d'ensemble";
+
+  // Regroupement thematique de la navigation : moins de bruit, entrees
+  // repliables. Une section vide (droits insuffisants) est omit.
+  const sections: { id: string; label: string; items: typeof navItems }[] = (
+    [
+      { id: 'pilotage', label: 'Pilotage', ids: ['overview', 'projects', 'tasks', 'copilot'] },
+      { id: 'clients', label: 'Clients', ids: ['crm', 'messaging'] },
+      { id: 'organisation', label: 'Organisation', ids: ['orgchart', 'members'] },
+      { id: 'configuration', label: 'Configuration', ids: ['siteadmin', 'settings'] },
+    ] as { id: string; label: string; ids: string[] }[]
+  )
+    .map((section) => ({
+      id: section.id,
+      label: section.label,
+      items: navItems.filter((item) => section.ids.includes(item.id)),
+    }))
+    .filter((section) => section.items.length > 0);
 
   const breadcrumb = (
     <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-xs font-mono">
@@ -277,48 +320,72 @@ export const DashboardLayout: React.FC = () => {
             </button>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-1" aria-label="Sections du cockpit">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              const isSpecial = item.id === 'copilot';
+          {/* Navigation Links groupées en sections repliables */}
+          <nav className="space-y-3" aria-label="Sections du cockpit">
+            {sections.map((section) => {
+              const ouverte = sectionsOuvertes[section.id] ?? true;
+              const contientActif = section.items.some((item) => item.id === activeTab);
 
               return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setIsSidebarOpen(false);
-                  }}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
-                    isActive
-                      ? isSpecial
-                        ? 'bg-gradient-to-r from-emerald-500/25 to-blue-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                        : 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                      : isSpecial
-                      ? 'text-emerald-300/90 hover:bg-emerald-500/10 border border-emerald-500/20'
-                      : 'text-rk-text-secondary hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon aria-hidden="true" className={`w-4 h-4 ${isActive ? 'text-white' : isSpecial ? 'text-emerald-400' : 'text-rk-muted'}`} />
-                    <span>{item.label}</span>
-                  </div>
+                <div key={section.id}>
+                  <button
+                    type="button"
+                    onClick={() => basculerSection(section.id)}
+                    aria-expanded={ouverte}
+                    className={`w-full flex items-center justify-between px-2 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer ${
+                      contientActif ? 'text-rk-text-secondary' : 'text-rk-muted hover:text-rk-text-secondary'
+                    }`}
+                  >
+                    <span>{section.label}</span>
+                    <ChevronRight
+                      aria-hidden="true"
+                      className={`w-3 h-3 transition-transform ${ouverte ? 'rotate-90' : ''}`}
+                    />
+                  </button>
 
-                  {item.badge && (
-                    <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-md ${
-                      isSpecial
-                        ? 'bg-gradient-to-r from-emerald-400 to-amber-300 text-slate-950 font-bold'
-                        : item.badge === 'CMS'
-                        ? 'bg-purple-500/20 text-purple-300'
-                        : 'bg-blue-500/20 text-blue-300'
-                    }`}>
-                      {item.badge}
-                    </span>
+                  {ouverte && (
+                    <div className="space-y-1 mt-1.5">
+                      {section.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.id;
+                        const isSpecial = item.id === 'copilot';
+
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              setActiveTab(item.id);
+                              setIsSidebarOpen(false);
+                            }}
+                            aria-current={isActive ? 'page' : undefined}
+                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                              isActive
+                                ? isSpecial
+                                  ? 'bg-gradient-to-r from-emerald-500/25 to-blue-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                                  : 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                                : isSpecial
+                                ? 'text-emerald-300/90 hover:bg-emerald-500/10 border border-emerald-500/20'
+                                : 'text-rk-text-secondary hover:bg-white/5 hover:text-white'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon aria-hidden="true" className={`w-4 h-4 ${isActive ? 'text-white' : isSpecial ? 'text-emerald-400' : 'text-rk-muted'}`} />
+                              <span>{item.label}</span>
+                            </div>
+
+                            {item.badge && (
+                              <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-md ${
+                                isActive ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-300'
+                              }`}>
+                                {item.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </nav>
