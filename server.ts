@@ -2232,6 +2232,8 @@ Tu es le Conseiller Digital Officiel de l'agence Arckaton à Yaoundé (Cameroun,
 Arckaton livre des "systèmes digitaux complets" pour PME africaines et internationales : sites premium, e-commerce Mobile Money (MTN/Orange), identité, marketing et le logiciel SaaS ARKA-PME (gestion stock/ventes/clients).
 
 RÈGLES CAPITALES STRICTES :
+0. Tu parles TOUJOURS au visiteur comme à un client ou à un prospect, jamais comme à un collègue ou à un membre de l'équipe. Tu ES le conseiller d'Arckaton face au public : tu ne fais pas partie de l'équipe interne. Tu ne dis donc jamais « je prends en charge votre demande », « je transmets à l'équipe technique » ou « en tant que Direction/Tech/Créatif... » comme si tu étais un service interne. Tu proposes plutôt de mettre le client en relation avec l'équipe (« notre équipe vous répond sous 24h », « un chef de projet vous accompagnera »).
+0bis. Ne révèle jamais l'organisation interne (les 6 pôles, les rôles, les coulisses). Ne cite pas de nom de pôle comme étant ton identité.
 1. Tu ne dois JAMAIS inventer de prix, de tarif sur mesure ou de chiffre financier non officiel.
 2. Tu ne donnes PAS de prix directement pour un devis personnalisé : tu présentes les 3 forfaits de base officiels (leurs noms et ce qu'ils incluent) et tu orientes toujours le client vers le formulaire de devis interactif multi-étapes pour chiffrage humain par l'équipe.
 3. Les 3 forfaits officiels sont :
@@ -2280,7 +2282,7 @@ Le digital n'a pas de frontières : nous accompagnons les entrepreneurs locaux c
 Nos modalités standard prévoient un acompte au démarrage du projet et le solde à la livraison après validation. À noter : le budget publicitaire des campagnes reste toujours distinct de nos honoraires.`;
   }
 
-  return `Bonjour ! En tant que conseiller du pôle **${pole || 'Arckaton'}**, je suis à votre écoute pour concevoir votre système digital complet (site vitrine UX/UI, e-commerce Mobile Money MTN/Orange, identité visuelle, ou le logiciel SaaS ARKA-PME).
+  return `Bonjour ! Je suis le conseiller d'Arckaton, à votre écoute pour concevoir votre système digital complet (site vitrine UX/UI, e-commerce Mobile Money MTN/Orange, identité visuelle, ou le logiciel SaaS ARKA-PME).
 
 Quelle est votre activité et quel objectif souhaitez-vous atteindre en priorité ? Vous pouvez également demander directement une simulation via notre formulaire de devis interactif.`;
 }
@@ -2437,7 +2439,10 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, scope: 'ai
       try {
         const fullPrompt = [
           history ? `Historique recent :\n${history}` : '',
-          `Pole sollicite : ${pole}`,
+          // `pole` est une categorie interne de routage : elle ne doit pas
+          // devenir l'identite du conseiller (le modele repondait sinon
+          // « En tant que Direction, je prends en charge... » a un client).
+          `Theme de la demande (categorie interne, a ne jamais citer ni utiliser comme identite) : ${pole}`,
           `Client : ${message}`,
         ].filter(Boolean).join('\n\n');
 
@@ -3558,6 +3563,10 @@ export const __sanitizeForPrompt = sanitizeForPrompt;
 // Exporte pour tester que le repli « base de connaissances » varie selon la
 // question et l'etat du cockpit (correctif du copilote qui repetait).
 export const __reponseBaseConnaissances = reponseBaseConnaissances;
+
+// Exporte pour verifier que le repli public parle bien au client (et non
+// comme un membre de l'equipe ou l'identite d'un pole interne).
+export const __generateSmartFallbackResponse = generateSmartFallbackResponse;
 
 /**
  * Regle de desactivation des plafonds, extraite pour etre testee.

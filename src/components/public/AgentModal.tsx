@@ -48,7 +48,10 @@ export const AgentModal: React.FC = () => {
         body: JSON.stringify({
           message: text,
           pole: selectedPole,
-          conversationHistory: newMessages.slice(-6)
+          // Le serveur lit `history` (et non `conversationHistory`) : sans ce
+          // nom, l'historique n'était jamais transmis et le conseiller
+          // oubliait le fil de la conversation.
+          history: newMessages.slice(-6)
         })
       });
 
@@ -222,7 +225,7 @@ export const AgentModal: React.FC = () => {
                     >
                       {!isUser && (
                         <div className="text-[11px] font-mono text-emerald-400 mb-1">
-                          Réponse Pôle {m.pole || 'Direction'}
+                          Conseiller Arckaton
                         </div>
                       )}
                       <div>{m.text}</div>
@@ -236,7 +239,7 @@ export const AgentModal: React.FC = () => {
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   </div>
-                  <span>L'agent consulte la méthode du Pôle {selectedPole}...</span>
+                  <span>Le conseiller prépare votre réponse...</span>
                 </div>
               )}
               <div ref={messagesEndRef} />

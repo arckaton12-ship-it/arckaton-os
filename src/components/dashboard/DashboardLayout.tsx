@@ -106,19 +106,18 @@ export const DashboardLayout: React.FC = () => {
 
   const breadcrumb = (
     <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-xs font-mono">
-      <button
-        type="button"
-        onClick={() => goToTab('overview')}
-        className={
-          activeTab === 'overview'
-            ? 'text-slate-300 cursor-default'
-            : 'text-slate-400 hover:text-white transition-colors cursor-pointer'
-        }
-      >
-        Cockpit
-      </button>
-      {activeTab !== 'overview' && (
+      {activeTab === 'overview' ? (
+        <span className="text-slate-300">Cockpit</span>
+      ) : (
         <>
+          <button
+            type="button"
+            onClick={() => goToTab('overview')}
+            className="flex items-center gap-1.5 text-slate-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Retour au Cockpit</span>
+          </button>
           <ChevronRight className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
           <span className="text-white font-semibold truncate max-w-[220px]" aria-current="page">
             {currentLabel}
