@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Lead, Projet } from '../../types';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { Printer, X, ShieldCheck, Save, Loader2, CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react';
@@ -68,6 +69,15 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
     window.addEventListener('keydown', surTouche);
     return () => window.removeEventListener('keydown', surTouche);
   }, [onClose]);
+
+  // En impression, on n'imprime QUE le document. La modale est placee dans un
+  // portail hors de #root (voir le return) et marque le body : le reste de
+  // l'application (dashboard) est alors masque. Sans cela, Ctrl+P sortait les
+  // pages de l'OS en plus du devis.
+  useEffect(() => {
+    document.body.classList.add('rk-print-invoice');
+    return () => document.body.classList.remove('rk-print-invoice');
+  }, []);
 
   // Le lead n'a pas de budget : la prestation est saisie a la main plutot
   // qu'inventee a partir d'une comparaison de chaines de caracteres.
@@ -170,8 +180,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
   const inputClass =
     'w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none print:hidden';
 
-  return (
-    <div className="invoice-modal fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-backdrop-in overflow-auto">
+  return createPortal(
+    <div className="invoice-modal rk-print-portal fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-backdrop-in overflow-auto">
       <div
         ref={dialogRef}
         tabIndex={-1}
@@ -509,6 +519,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ lead, projet, type, 
           <DocumentLegalFooter />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

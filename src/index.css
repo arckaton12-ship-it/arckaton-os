@@ -472,6 +472,23 @@ html.dark .text-slate-500 {
 
 /* Impression : neutralise les fonds sombres non imprimables */
 @media print {
+  /* Un devis/facture est ouvert : on n'imprime QUE le document.
+     La modale est montee dans un portail (.rk-print-portal) place hors de
+     #root et marque le body. Sans ce masquage, Ctrl+P sortait l'application
+     entiere (dashboard) puis le document : jusqu'a 3 pages. */
+  body.rk-print-invoice > *:not(.rk-print-portal) {
+    display: none !important;
+  }
+  body.rk-print-invoice > .rk-print-portal {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
   /* On masque le chrome de l'application (en-tete, pied, navigation,
      boutons) mais PAS l'en-tete ni le pied du document : ceux-ci portent
      des classes dediees et doivent s'imprimer. */
