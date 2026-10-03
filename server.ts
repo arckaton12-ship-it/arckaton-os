@@ -3532,8 +3532,32 @@ function ageEnJours(iso: unknown): number {
   return Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
 }
 
-async function buildCockpitDigest(member: MemberRow): Promise<CockpitDigest | null> {
-  const sb = getSupabase();
+// Sous-ensemble de la couche donnees utilise par le digest du copilote.
+// L'injection (`couche`) suit le meme motif que `queryContentItems` : elle
+// permet de verifier le cloisonnement Direction / pole sans base reelle, en
+// observant les contraintes reellement posees sur la requete. Sans cela, un
+// `.eq('pole', ...)` supprime resterait invisible dans les tests.
+interface CockpitQuery {
+  select: (colonnes?: string, options?: { count?: string; head?: boolean }) => CockpitQuery;
+  eq: (cle: string, valeur: unknown) => CockpitQuery;
+  neq: (cle: string, valeur: unknown) => CockpitQuery;
+  in: (cle: string, valeurs: unknown[]) => CockpitQuery;
+  orChamps: (branches: { colonne: string; valeur: unknown }[]) => CockpitQuery;
+  order: (cle: string, options?: { ascending?: boolean }) => CockpitQuery;
+  limit: (n: number) => CockpitQuery;
+  then: <T>(
+    onFulfilled: (value: { data: unknown[] | null; error: { message: string } | null }) => T
+  ) => Promise<T>;
+}
+interface CockpitCouche {
+  from: (table: string) => CockpitQuery;
+}
+
+async function buildCockpitDigest(
+  member: MemberRow,
+  couche: CockpitCouche | null = getSupabase() as unknown as CockpitCouche | null
+): Promise<CockpitDigest | null> {
+  const sb = couche;
   if (!sb) return null;
   try {
     const estDirection = member.role === 'admin' || member.poste_id === 'p1';
@@ -4007,6 +4031,11 @@ export const __reponseBaseConnaissances = reponseBaseConnaissances;
 // l'interdiction absolue d'inventer des actions (« lecture seule »).
 export const __formaterDigestCopilote = formaterDigestCopilote;
 export const __construireInstructionCopilote = construireInstructionCopilote;
+
+// Exporte pour verifier le cloisonnement reel du cockpit : la Direction lit
+// tout (coordonnees comprises), un membre reste borne a son pole et ne recoit
+// jamais les coordonnees des prospects.
+export const __buildCockpitDigest = buildCockpitDigest;
 
 // Exporte pour tester la detection d'un contact laisse a l'agent public,
 // seule condition de persistance d'une demande issue du site.
