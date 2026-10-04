@@ -84,7 +84,7 @@ export const Header: React.FC = () => {
               <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white whitespace-nowrap">
                 arckaton<span className="text-emerald-400">.</span>
               </span>
-              <span className="text-[11px] tracking-wider text-rk-muted font-mono mt-0.5 truncate">
+              <span className="text-xs tracking-wider text-rk-muted font-mono mt-0.5 truncate">
                 SYSTÈMES DIGITAUX · YAOUNDÉ
               </span>
             </div>
@@ -141,7 +141,7 @@ export const Header: React.FC = () => {
             >
               <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
                 <div>
-                  <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-rk-muted mb-3">Navigation</p>
+                  <p className="text-xs font-mono uppercase tracking-[0.2em] text-rk-muted mb-3">Navigation</p>
                   <ul className="space-y-1">
                     {NAV_ITEMS.map((item) => (
                       <li key={item.id}>
@@ -153,7 +153,7 @@ export const Header: React.FC = () => {
                             <span>{item.label}</span>
                             {item.badge && (
                               <span
-                                className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                                className={`text-xs font-mono px-2 py-0.5 rounded-full border ${
                                   item.badgeTone === 'amber'
                                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/25'
                                     : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25'
@@ -172,7 +172,7 @@ export const Header: React.FC = () => {
                             <span>{item.label}</span>
                             {item.badge && (
                               <span
-                                className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                                className={`text-xs font-mono px-2 py-0.5 rounded-full border ${
                                   item.badgeTone === 'amber'
                                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/25'
                                     : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25'

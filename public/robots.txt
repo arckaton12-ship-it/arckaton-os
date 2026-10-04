@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://arckaton-os.onrender.com/sitemap.xml

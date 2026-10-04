@@ -2,9 +2,11 @@ import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Star, Quote, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const Testimonials: React.FC = () => {
   const { temoignages } = useApp();
+  const onCarouselKey = useCarouselKeyboard();
 
   if (temoignages.length === 0) return null;
 
@@ -27,7 +29,13 @@ export const Testimonials: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible">
+        <div
+          role="region"
+          aria-label="Témoignages clients — faire défiler avec les flèches gauche et droite"
+          tabIndex={0}
+          onKeyDown={onCarouselKey}
+          className="flex gap-4 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible"
+        >
           {temoignages.map((t, idx) => (
             <motion.div
               key={t.id}
@@ -49,11 +57,11 @@ export const Testimonials: React.FC = () => {
 
               <div className="pt-6 mt-4 border-t border-rk-line-soft">
                 <div className="font-serif text-base font-bold text-white">{t.author}</div>
-                <div className="text-[11px] font-mono text-rk-muted">
+                <div className="text-xs font-mono text-rk-muted">
                   {t.role} — {t.company}
                 </div>
                 {t.metrics && (
-                  <div className="mt-2 flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg w-fit">
+                  <div className="mt-2 flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg w-fit">
                     <TrendingUp className="w-3 h-3" />
                     {t.metrics}
                   </div>

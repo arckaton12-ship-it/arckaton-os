@@ -107,7 +107,7 @@ export const Hero: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
               {/* Left Details */}
               <div className="lg:col-span-6 p-6 sm:p-8 space-y-4 z-10">
-                <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-[11px] font-mono text-emerald-400">
+                <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-mono text-emerald-400">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Architecture Intégrée Arckaton v2.4</span>
                 </div>
@@ -117,7 +117,7 @@ export const Hero: React.FC = () => {
                 <p className="text-xs sm:text-sm text-rk-text-secondary font-light leading-relaxed">
                   Au-delà d'une vitrine, un écosystème technique résilient réunissant caisse POS hors-ligne, tunnel e-commerce MoMo et activations studio terrain à Yaoundé et Douala.
                 </p>
-                <div className="flex flex-wrap gap-2 pt-1 text-[11px] font-mono text-rk-muted">
+                <div className="flex flex-wrap gap-2 pt-1 text-xs font-mono text-rk-muted">
                   <span className="bg-white/[0.04] border border-rk-line px-2.5 py-1 rounded-md">99.9% Uptime</span>
                   <span className="bg-white/[0.04] border border-rk-line px-2.5 py-1 rounded-md">MTN / Orange Direct</span>
                   <span className="bg-white/[0.04] border border-rk-line px-2.5 py-1 rounded-md">Offline-First Engine</span>
@@ -136,7 +136,7 @@ export const Hero: React.FC = () => {
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-3 right-3 bg-rk-base/80 backdrop-blur-md border border-rk-line px-3 py-1 rounded-lg text-[11px] font-mono text-emerald-400">
+                <div className="absolute bottom-3 right-3 bg-rk-base/80 backdrop-blur-md border border-rk-line px-3 py-1 rounded-lg text-xs font-mono text-emerald-400">
                   Système Central ARCKATON
                 </div>
               </div>

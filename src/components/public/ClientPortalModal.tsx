@@ -116,7 +116,7 @@ export const ClientPortalModal: React.FC = () => {
                     <h3 className="font-serif text-lg font-bold text-white">
                       Espace Client & Suivi de Projet
                     </h3>
-                    <span className="text-[11px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <span className="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
                       En Direct
                     </span>
                   </div>
@@ -139,7 +139,7 @@ export const ClientPortalModal: React.FC = () => {
             {currentProject && (
             <div className="px-6 py-3 bg-rk-base/80 border-b border-rk-line-soft flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
               <div className="flex items-center gap-2 overflow-x-auto text-xs py-1">
-                <span className="text-rk-muted font-mono text-[11px] whitespace-nowrap">Projets actifs :</span>
+                <span className="text-rk-muted font-mono text-xs whitespace-nowrap">Projets actifs :</span>
                 {projets.map((p) => {
                   const code = p.client_code || p.id;
                   const isSelected = (currentProject?.client_code === code) || (currentProject?.id === p.id);
@@ -153,7 +153,7 @@ export const ClientPortalModal: React.FC = () => {
                           : 'bg-white/[0.04] hover:bg-white/[0.08] text-rk-text-secondary border border-rk-line-soft'
                       }`}
                     >
-                      {p.client_name} <span className="font-mono opacity-75 text-[11px]">({code})</span>
+                      {p.client_name} <span className="font-mono opacity-75 text-xs">({code})</span>
                     </button>
                   );
                 })}
@@ -195,7 +195,7 @@ export const ClientPortalModal: React.FC = () => {
                   Arckaton OS &gt; Production &amp; Pilotage. Le client pourra alors suivre ses
                   jalons, valider ses BAT et déposer ses demandes d'ajustement.
                 </p>
-                <p className="text-[11px] text-rk-muted font-mono">
+                <p className="text-xs text-rk-muted font-mono">
                   Source de données : Supabase (table projects) — synchronisation en temps réel
                 </p>
                 <button
@@ -351,7 +351,7 @@ export const ClientPortalModal: React.FC = () => {
                                     <h5 className="font-semibold text-white text-sm">
                                       {milestone.titre}
                                     </h5>
-                                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
+                                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
                                       isDone
                                         ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                         : isCurrent
@@ -365,7 +365,7 @@ export const ClientPortalModal: React.FC = () => {
                                     {milestone.description || "Livrable contractuel inclus dans votre forfait."}
                                   </p>
                                   {milestone.echeance && (
-                                    <div className="text-[11px] font-mono text-rk-muted mt-1 flex items-center gap-1">
+                                    <div className="text-xs font-mono text-rk-muted mt-1 flex items-center gap-1">
                                       <Clock className="w-3 h-3 text-rk-muted" />
                                       <span>Échéance visée : {milestone.echeance}</span>
                                     </div>
@@ -441,7 +441,7 @@ export const ClientPortalModal: React.FC = () => {
                           <span className="text-xs font-mono text-emerald-400 font-bold">
                             SESSION #{visit.numero}
                           </span>
-                          <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
+                          <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
                             visit.statut === 'livree'
                               ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                               : visit.statut === 'en_montage'
@@ -501,11 +501,11 @@ export const ClientPortalModal: React.FC = () => {
                                 : 'bg-blue-500/5 border-blue-500/20 mr-6 sm:mr-12'
                             }`}
                           >
-                            <div className="flex items-center justify-between text-[11px]">
+                            <div className="flex items-center justify-between text-xs">
                               <span className={`font-bold ${isClient ? 'text-emerald-400' : 'text-blue-400'}`}>
                                 {fb.auteur} {isClient ? '(Client)' : '(Équipe Arckaton)'}
                               </span>
-                              <span className="font-mono text-rk-muted text-[11px]">{fb.date}</span>
+                              <span className="font-mono text-rk-muted text-xs">{fb.date}</span>
                             </div>
                             <p className="text-rk-text leading-relaxed font-light">
                               {fb.message}
@@ -569,7 +569,7 @@ export const ClientPortalModal: React.FC = () => {
                     />
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-rk-muted font-mono">
+                      <span className="text-xs text-rk-muted font-mono">
                         Transmis en temps réel au Pôle Client et Tech
                       </span>
 

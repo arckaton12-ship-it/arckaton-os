@@ -51,7 +51,7 @@ export const ContactSection: React.FC = () => {
     <section id="contact" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
           
           {/* Left Agency Info */}
           <div className="lg:col-span-5 space-y-8">
@@ -80,7 +80,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <div className="text-xs font-mono text-rk-muted">WhatsApp & Téléphone Officiel</div>
                   <div className="text-base font-semibold text-white mt-0.5">{OFFICIAL_KNOWLEDGE.agency.phone}</div>
-                  <div className="text-[11px] text-emerald-400 font-mono">Réponse sous 2h ouvrées</div>
+                  <div className="text-xs text-emerald-400 font-mono">Réponse sous 2h ouvrées</div>
                 </div>
               </a>
 
@@ -94,7 +94,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <div className="text-xs font-mono text-rk-muted">Courriel Professionnel</div>
                   <div className="text-base font-semibold text-white mt-0.5">{OFFICIAL_KNOWLEDGE.agency.email}</div>
-                  <div className="text-[11px] text-rk-muted font-mono">Devis formels & cahiers des charges</div>
+                  <div className="text-xs text-rk-muted font-mono">Devis formels & cahiers des charges</div>
                 </div>
               </a>
 
@@ -105,7 +105,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <div className="text-xs font-mono text-rk-muted">Bureau Principal</div>
                   <div className="text-base font-semibold text-white mt-0.5">{OFFICIAL_KNOWLEDGE.agency.location}</div>
-                  <div className="text-[11px] text-rk-muted font-mono">Accueil sur rendez-vous</div>
+                  <div className="text-xs text-rk-muted font-mono">Accueil sur rendez-vous</div>
                 </div>
               </div>
             </div>
@@ -113,7 +113,7 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Direct Message Form */}
           <div className="lg:col-span-7">
-            <div className="bg-rk-surface border border-rk-line rounded-2xl p-8 sm:p-10 relative">
+            <div className="bg-rk-surface border border-rk-line rounded-2xl p-6 sm:p-10 relative">
               
               {!submitted ? (
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -128,25 +128,27 @@ export const ContactSection: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div>
-                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
+                      <label htmlFor="contact-nom" className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Votre nom ou entreprise *
                       </label>
                       <input
+                        id="contact-nom"
                         type="text"
                         required
                         autoComplete="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex : M. Ebanda / Société X"
-                        className="w-full rk-input px-4 py-3 text-xs"
+                        className="w-full rk-input px-4 py-3 text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
+                      <label htmlFor="contact-tel" className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Numéro WhatsApp * (avec indicatif)
                       </label>
                       <input
+                        id="contact-tel"
                         type="tel"
                         required
                         inputMode="tel"
@@ -154,48 +156,51 @@ export const ContactSection: React.FC = () => {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+237 681 46 29 82"
-                        className="w-full rk-input px-4 py-3 text-xs"
+                        className="w-full rk-input px-4 py-3 text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
+                      <label htmlFor="contact-email" className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Email professionnel
                       </label>
                       <input
+                        id="contact-email"
                         type="email"
                         autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="contact@entreprise.com"
-                        className="w-full rk-input px-4 py-3 text-xs"
+                        className="w-full rk-input px-4 py-3 text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
+                      <label htmlFor="contact-pays" className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                         Pays / Ville d'exercice
                       </label>
                       <input
+                        id="contact-pays"
                         type="text"
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
                         placeholder="Ex : Cameroun, Gabon, France..."
-                        className="w-full rk-input px-4 py-3 text-xs"
+                        className="w-full rk-input px-4 py-3 text-sm"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
+                    <label htmlFor="contact-projet" className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                       Projet ou forfait souhaité
                     </label>
                     <select
+                      id="contact-projet"
                       value={projectType}
                       onChange={(e) => setProjectType(e.target.value)}
-                      className="w-full rk-input px-4 py-3 text-xs"
+                      className="w-full rk-input px-4 py-3 text-sm"
                     >
                       <option value="Site web vitrine UX/UI (Forfait Synergie)">Site vitrine UX/UI (Forfait Synergie 750k FCFA)</option>
                       <option value="E-commerce & Mobile Money (Forfait Architecture)">E-commerce & Mobile Money MTN/Orange (2,9M FCFA)</option>
@@ -207,15 +212,16 @@ export const ContactSection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-rk-text-secondary mb-1.5">
+                    <label htmlFor="contact-message" className="block text-xs font-mono text-rk-text-secondary mb-1.5">
                       Précisions sur votre besoin
                     </label>
                     <textarea
+                      id="contact-message"
                       rows={3}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Décrivez brièvement vos objectifs, vos délais et vos attentes..."
-                      className="w-full rk-input px-4 py-3 text-xs"
+                      className="w-full rk-input px-4 py-3 text-sm"
                     />
                   </div>
 
@@ -237,13 +243,13 @@ export const ContactSection: React.FC = () => {
                         </>
                       )}
                     </button>
-                    <p className="text-[11px] text-center text-rk-muted font-mono mt-2.5">
+                    <p className="text-xs text-center text-rk-muted font-mono mt-2.5">
                       Réponse garantie sous 24h ouvrées • Aucun engagement financier initial
                     </p>
                   </div>
                 </form>
               ) : (
-                <div className="text-center py-10 space-y-6">
+                <div className="text-center py-10 space-y-6" role="status" aria-live="polite">
                   <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-7 h-7" />
                   </div>

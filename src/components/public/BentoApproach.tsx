@@ -64,21 +64,21 @@ export const BentoApproach: React.FC = () => {
               {/* Technical Badges Row */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3.5 rounded-xl bg-rk-base border border-rk-line-soft space-y-1">
-                  <div className="text-[11px] text-rk-muted font-mono">Mobile Money</div>
+                  <div className="text-xs text-rk-muted font-mono">Mobile Money</div>
                   <div className="text-sm font-semibold text-white">MTN & Orange</div>
-                  <div className="text-[11px] text-emerald-400">0% d'échec de passerelle</div>
+                  <div className="text-xs text-emerald-400">0% d'échec de passerelle</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-rk-base border border-rk-line-soft space-y-1">
-                  <div className="text-[11px] text-rk-muted font-mono">Mode Hybride</div>
+                  <div className="text-xs text-rk-muted font-mono">Mode Hybride</div>
                   <div className="text-sm font-semibold text-white">Offline First</div>
-                  <div className="text-[11px] text-rk-muted">Sync automatique dès reconnexion</div>
+                  <div className="text-xs text-rk-muted">Sync automatique dès reconnexion</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-rk-base border border-rk-line-soft space-y-1">
-                  <div className="text-[11px] text-rk-muted font-mono">Volume Consolidé</div>
+                  <div className="text-xs text-rk-muted font-mono">Volume Consolidé</div>
                   <div className="text-sm font-semibold text-emerald-400">12,8M FCFA</div>
-                  <div className="text-[11px] text-rk-muted">Gérés sans perte de caisse</div>
+                  <div className="text-xs text-rk-muted">Gérés sans perte de caisse</div>
                 </div>
               </div>
 
@@ -198,7 +198,7 @@ export const BentoApproach: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0f1523]/80 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute bottom-2 left-2 text-[11px] font-mono text-blue-300 bg-rk-base/80 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1.5">
+                  <div className="absolute bottom-2 left-2 text-xs font-mono text-blue-300 bg-rk-base/80 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1.5">
                     <Film className="w-3 h-3 text-blue-400" />
                     <span>Caméra Cinéma & Éclairage Mobile</span>
                   </div>
@@ -285,7 +285,7 @@ export const BentoApproach: React.FC = () => {
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 right-3 bg-rk-base/85 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-lg text-[11px] font-mono text-rk-text-secondary flex items-center gap-2">
+              <div className="absolute bottom-3 right-3 bg-rk-base/85 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-lg text-xs font-mono text-rk-text-secondary flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>Interconnexion Opérationnelle Active</span>
               </div>

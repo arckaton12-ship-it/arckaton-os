@@ -42,7 +42,7 @@ export const BlueprintModal: React.FC = () => {
                   <h3 className="font-serif text-lg font-bold text-white">
                     Fiche Cadre & Méthode Opérationnelle
                   </h3>
-                  <span className="text-[11px] font-mono bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  <span className="text-xs font-mono bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20">
                     Officiel v2.4
                   </span>
                 </div>
@@ -193,15 +193,15 @@ export const BlueprintModal: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-emerald-400">&lt; 2h</div>
-                    <div className="text-[11px] text-rk-muted font-mono mt-1">Délai Réponse Support</div>
+                    <div className="text-xs text-rk-muted font-mono mt-1">Délai Réponse Support</div>
                   </div>
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-emerald-400">100%</div>
-                    <div className="text-[11px] text-rk-muted font-mono mt-1">Propriété Intellectuelle Client</div>
+                    <div className="text-xs text-rk-muted font-mono mt-1">Propriété Intellectuelle Client</div>
                   </div>
                   <div className="p-4 rounded-xl bg-rk-inset border border-rk-line-soft">
                     <div className="font-serif text-2xl font-bold text-amber-400">5% / sem</div>
-                    <div className="text-[11px] text-rk-muted font-mono mt-1">Pénalité Contractuelle Retard</div>
+                    <div className="text-xs text-rk-muted font-mono mt-1">Pénalité Contractuelle Retard</div>
                   </div>
                 </div>
 
@@ -277,7 +277,7 @@ export const BlueprintModal: React.FC = () => {
 
           {/* Bottom Actions */}
           <div className="p-4 sm:p-6 border-t border-rk-line bg-rk-inset flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-[11px] font-mono text-rk-muted text-center sm:text-left">
+            <div className="text-xs font-mono text-rk-muted text-center sm:text-left">
               Arckaton • Immeuble Mimboman, Yaoundé • WhatsApp +237 681 46 29 82
             </div>
 

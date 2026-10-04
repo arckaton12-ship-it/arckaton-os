@@ -3,10 +3,12 @@ import { useApp } from '../../contexts/AppContext';
 import { TrendingUp, Star, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { REALISATION_CATEGORIES, getCategoryLabel } from '../../data/categories';
+import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const Realisations: React.FC = () => {
   const { realisations, setIsQuoteModalOpen } = useApp();
   const [filter, setFilter] = useState<string>('all');
+  const onCarouselKey = useCarouselKeyboard();
 
   const filteredCases = filter === 'all' ? realisations : realisations.filter(c => c.category === filter);
 
@@ -26,7 +28,7 @@ export const Realisations: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-4">
           <div className="text-xs font-mono uppercase tracking-widest text-emerald-400">
             Preuves & Résultats Vérifiables
           </div>
@@ -38,12 +40,13 @@ export const Realisations: React.FC = () => {
           </p>
 
           {/* Filter Pills */}
-          <div className="pt-4 flex items-center justify-center gap-2">
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-2">
             {filters.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                aria-pressed={filter === tab.id}
+                className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   filter === tab.id
                     ? 'bg-white/[0.1] text-white border border-rk-line-strong'
                     : 'text-rk-muted hover:text-rk-text border border-transparent'
@@ -56,7 +59,13 @@ export const Realisations: React.FC = () => {
         </div>
 
         {/* Case Studies Grid (carrousel au doigt sur mobile) */}
-        <div className="flex gap-4 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible">
+        <div
+          role="region"
+          aria-label="Réalisations — faire défiler avec les flèches gauche et droite"
+          tabIndex={0}
+          onKeyDown={onCarouselKey}
+          className="flex gap-4 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible"
+        >
           {realisations.length === 0 && (
             <div className="w-full lg:col-span-full text-center py-16 text-sm text-rk-muted">
               Les études de cas sont en cours de publication par l'équipe Arckaton.
@@ -70,7 +79,7 @@ export const Realisations: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className="snap-start shrink-0 w-[86%] sm:w-[68%] lg:w-auto bg-rk-surface rounded-2xl border border-rk-line p-8 flex flex-col justify-between hover:border-rk-line-strong transition-all duration-300 group"
+                className="snap-start shrink-0 w-[86%] sm:w-[68%] lg:w-auto bg-rk-surface rounded-2xl border border-rk-line p-6 sm:p-8 flex flex-col justify-between hover:border-rk-line-strong transition-all duration-300 group"
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -97,7 +106,7 @@ export const Realisations: React.FC = () => {
                     <div className="text-xs font-medium text-rk-text">
                       {cs.mainMetricLabel}
                     </div>
-                    <div className="text-[11px] text-rk-muted">
+                    <div className="text-xs text-rk-muted">
                       {cs.subMetric}
                     </div>
                   </div>

@@ -15,9 +15,11 @@ import {
   SlidersHorizontal 
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const FieldBlogSection: React.FC = () => {
   const { blogPosts, setActiveBlogPost } = useApp();
+  const onCarouselKey = useCarouselKeyboard();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categories = [
@@ -86,7 +88,13 @@ export const FieldBlogSection: React.FC = () => {
             <p className="text-xs text-rk-muted mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
           </div>
         ) : (
-        <div className="flex gap-5 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible">
+        <div
+          role="region"
+          aria-label="Billets et retours terrain — faire défiler avec les flèches gauche et droite"
+          tabIndex={0}
+          onKeyDown={onCarouselKey}
+          className="flex gap-5 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible"
+        >
           {filteredPosts.map((post) => (
             <motion.article
               key={post.id}
@@ -109,10 +117,10 @@ export const FieldBlogSection: React.FC = () => {
 
                   {/* Top Badges */}
                   <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                    <span className="text-[11px] font-mono uppercase bg-black/60 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
+                    <span className="text-xs font-mono uppercase bg-black/60 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
                       {post.category_label}
                     </span>
-                    <span className="text-[11px] font-mono text-rk-text-secondary bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-rk-line flex items-center gap-1">
+                    <span className="text-xs font-mono text-rk-text-secondary bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-rk-line flex items-center gap-1">
                       <Clock className="w-3 h-3 text-rk-muted" />
                       <span>{post.read_time}</span>
                     </span>
@@ -120,7 +128,7 @@ export const FieldBlogSection: React.FC = () => {
 
                   {/* Field Mission Badge if applicable */}
                   {post.field_spec && (
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-xl text-[11px] font-mono text-rk-text flex items-center gap-2">
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md border border-rk-line px-3 py-1.5 rounded-xl text-xs font-mono text-rk-text flex items-center gap-2">
                       <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span className="truncate">{post.field_spec.lieu}</span>
                     </div>
@@ -128,7 +136,7 @@ export const FieldBlogSection: React.FC = () => {
 
                   {/* Client ROI Badge if applicable */}
                   {post.client_quote && (
-                    <div className="absolute bottom-4 left-4 right-4 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-xl text-[11px] font-mono text-emerald-300 flex items-center gap-2">
+                    <div className="absolute bottom-4 left-4 right-4 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-mono text-emerald-300 flex items-center gap-2">
                       <TrendingUp className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span className="truncate font-semibold">{post.client_quote.metrics}</span>
                     </div>
@@ -162,7 +170,7 @@ export const FieldBlogSection: React.FC = () => {
                 </span>
                 <div className="flex items-center gap-1.5">
                   {post.tags.slice(0, 2).map((t, idx) => (
-                    <span key={idx} className="bg-white/[0.04] text-[11px] text-rk-muted px-2 py-0.5 rounded border border-rk-line-soft">
+                    <span key={idx} className="bg-white/[0.04] text-xs text-rk-muted px-2 py-0.5 rounded border border-rk-line-soft">
                       #{t}
                     </span>
                   ))}

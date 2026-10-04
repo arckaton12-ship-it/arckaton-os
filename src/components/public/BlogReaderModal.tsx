@@ -101,19 +101,19 @@ export const BlogReaderModal: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono pt-1">
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-rk-muted block text-[11px]">Zone de déploiement :</span>
+                    <span className="text-rk-muted block text-xs">Zone de déploiement :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.lieu}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-rk-muted block text-[11px]">Matériel déployé :</span>
+                    <span className="text-rk-muted block text-xs">Matériel déployé :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.materiel}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-rk-muted block text-[11px]">Agents mobilisés :</span>
+                    <span className="text-rk-muted block text-xs">Agents mobilisés :</span>
                     <span className="text-emerald-300 font-medium">{activeBlogPost.field_spec.agents_mobilises.join(' • ')}</span>
                   </div>
                   <div className="bg-white/[0.03] p-3 rounded-xl border border-rk-line-soft">
-                    <span className="text-rk-muted block text-[11px]">Livrables générés :</span>
+                    <span className="text-rk-muted block text-xs">Livrables générés :</span>
                     <span className="text-white font-medium">{activeBlogPost.field_spec.livrables_generes}</span>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ export const BlogReaderModal: React.FC = () => {
                 <div className="mt-4 pt-3 border-t border-emerald-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="text-xs font-bold text-white">{activeBlogPost.client_quote.author}</div>
-                    <div className="text-[11px] font-mono text-rk-muted">{activeBlogPost.client_quote.role} • {activeBlogPost.client_quote.company}</div>
+                    <div className="text-xs font-mono text-rk-muted">{activeBlogPost.client_quote.role} • {activeBlogPost.client_quote.company}</div>
                   </div>
                   <div className="bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 rounded-xl text-xs font-mono text-emerald-300 font-bold self-start sm:self-auto">
                     {activeBlogPost.client_quote.metrics}

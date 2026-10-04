@@ -23,7 +23,7 @@ export const ConversionBar: React.FC = () => {
     : undefined;
 
   const actionBase =
-    'flex flex-col items-center justify-center gap-1 rounded-xl py-2.5 text-[11px] font-medium transition-colors cursor-pointer';
+    'flex flex-col items-center justify-center gap-1 rounded-xl py-2.5 text-xs font-medium transition-colors cursor-pointer';
 
   return (
     <>

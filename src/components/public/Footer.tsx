@@ -29,7 +29,7 @@ export const Footer: React.FC = () => {
             <p className="text-xs text-rk-muted leading-relaxed font-sans">
               On ne livre pas un site. On livre un système digital complet. Agence digitale et éditeur du logiciel SaaS ARKA-PME pour PME africaines et internationales.
             </p>
-            <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px]">
+            <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs">
               <Globe className="w-3.5 h-3.5" />
               <span>Livraison partout dans le monde ðŸŒ</span>
             </div>
@@ -83,7 +83,7 @@ export const Footer: React.FC = () => {
               </div>
               {/* Rattachement à la société mère : le siège et les
                   identifiants affichés sont ceux de SLOMAH SARL. */}
-              <div className="pt-1 text-[11px] text-rk-muted font-mono leading-relaxed">
+              <div className="pt-1 text-xs text-rk-muted font-mono leading-relaxed">
                 {OFFICIAL_KNOWLEDGE.letterhead.agencyName} est {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}, siège social à {OFFICIAL_KNOWLEDGE.letterhead.parentLocation}.<br />
                 RC : {OFFICIAL_KNOWLEDGE.letterhead.rc} — NIU : {OFFICIAL_KNOWLEDGE.letterhead.niu}
               </div>
@@ -92,7 +92,7 @@ export const Footer: React.FC = () => {
             <div className="pt-2">
               <button
                 onClick={() => setMode('dashboard')}
-                className="text-[11px] font-mono text-rk-muted hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="text-xs font-mono text-rk-muted hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Espace réservé aux membres habilités"
               >
                 <LayoutDashboard className="w-3 h-3" />
@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-rk-muted text-[11px] font-mono">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-rk-muted text-xs font-mono">
           <div className="flex flex-wrap items-center gap-2">
             <span>
               &copy; {new Date().getFullYear()} {OFFICIAL_KNOWLEDGE.letterhead.agencyName}, {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}. Tous droits réservés.

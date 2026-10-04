@@ -130,11 +130,11 @@ export const ArkaInteractiveDemo: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-serif font-bold text-white text-sm">Simulateur Caisse ARKA-PME</span>
-              <span className="text-[11px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
                 Interactif
               </span>
             </div>
-            <div className="text-[11px] font-mono text-rk-muted font-light">
+            <div className="text-xs font-mono text-rk-muted font-light">
               Testez une vente réelle en caisse tactile
             </div>
           </div>
@@ -177,31 +177,31 @@ export const ArkaInteractiveDemo: React.FC = () => {
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="bg-rk-base p-3.5 rounded-xl border border-rk-line-soft">
-          <div className="text-[11px] uppercase font-mono text-rk-muted">Total Encaissé Aujourd'hui</div>
+          <div className="text-xs uppercase font-mono text-rk-muted">Total Encaissé Aujourd'hui</div>
           <div className="font-serif text-lg font-bold text-emerald-400 mt-1">
             {dailySalesTotal.toLocaleString()} FCFA
           </div>
-          <div className="text-[11px] text-rk-muted mt-0.5">
+          <div className="text-xs text-rk-muted mt-0.5">
             {dailySalesCount} ventes validées
           </div>
         </div>
 
         <div className="bg-rk-base p-3.5 rounded-xl border border-rk-line-soft">
-          <div className="text-[11px] uppercase font-mono text-rk-muted">Inventaire Rapide</div>
+          <div className="text-xs uppercase font-mono text-rk-muted">Inventaire Rapide</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             12 minutes
           </div>
-          <div className="text-[11px] text-emerald-400 mt-0.5">
+          <div className="text-xs text-emerald-400 mt-0.5">
             Zéro écart de caisse
           </div>
         </div>
 
         <div className="bg-rk-base p-3.5 rounded-xl border border-rk-line-soft col-span-2 sm:col-span-1">
-          <div className="text-[11px] uppercase font-mono text-rk-muted">Articles en Stock</div>
+          <div className="text-xs uppercase font-mono text-rk-muted">Articles en Stock</div>
           <div className="font-serif text-lg font-bold text-white mt-1">
             {products.reduce((acc, p) => acc + p.stock, 0)} pièces
           </div>
-          <div className="text-[11px] text-rk-muted mt-0.5">
+          <div className="text-xs text-rk-muted mt-0.5">
             Décompte instantané
           </div>
         </div>
@@ -226,7 +226,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                 className="text-left p-3 rounded-xl bg-rk-base hover:bg-white/[0.04] border border-rk-line-soft hover:border-emerald-500/30 transition-all flex flex-col justify-between group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <div>
-                  <div className="flex items-center justify-between text-[11px] font-mono text-rk-muted mb-1">
+                  <div className="flex items-center justify-between text-xs font-mono text-rk-muted mb-1">
                     <span>{product.category}</span>
                     <span className={product.stock < 10 ? 'text-amber-400' : 'text-rk-muted'}>
                       Stock : {product.stock}
@@ -262,7 +262,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
               {cart.length > 0 && (
                 <button
                   onClick={clearCart}
-                  className="text-[11px] text-rk-muted hover:text-rose-400 transition-colors cursor-pointer"
+                  className="text-xs text-rk-muted hover:text-rose-400 transition-colors cursor-pointer"
                 >
                   Vider
                 </button>
@@ -283,7 +283,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
                   >
                     <div className="truncate pr-2">
                       <div className="text-white font-medium truncate">{item.product.name}</div>
-                      <div className="text-[11px] text-rk-muted font-mono">
+                      <div className="text-xs text-rk-muted font-mono">
                         {item.product.price.toLocaleString()} F × {item.quantity}
                       </div>
                     </div>
@@ -311,12 +311,12 @@ export const ArkaInteractiveDemo: React.FC = () => {
 
           {/* Payment Method Selector */}
           <div className="space-y-2 pt-2 border-t border-rk-line-soft">
-            <div className="text-[11px] font-mono text-rk-muted">Mode d'encaissement :</div>
+            <div className="text-xs font-mono text-rk-muted">Mode d'encaissement :</div>
             <div className="grid grid-cols-3 gap-1.5 text-xs font-mono">
               <button
                 type="button"
                 onClick={() => setPaymentMethod('mtn')}
-                className={`py-1.5 px-2 rounded-lg text-center border transition-all cursor-pointer text-[11px] ${
+                className={`py-1.5 px-2 rounded-lg text-center border transition-all cursor-pointer text-xs ${
                   paymentMethod === 'mtn'
                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 font-bold'
                     : 'bg-white/[0.04] text-rk-muted border-transparent hover:text-white'
@@ -328,7 +328,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setPaymentMethod('orange')}
-                className={`py-1.5 px-2 rounded-lg text-center border transition-all cursor-pointer text-[11px] ${
+                className={`py-1.5 px-2 rounded-lg text-center border transition-all cursor-pointer text-xs ${
                   paymentMethod === 'orange'
                     ? 'bg-orange-500/15 text-orange-300 border-orange-500/40 font-bold'
                     : 'bg-white/[0.04] text-rk-muted border-transparent hover:text-white'
@@ -340,7 +340,7 @@ export const ArkaInteractiveDemo: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setPaymentMethod('especes')}
-                className={`py-1.5 px-2 rounded-lg text-center border transition-all cursor-pointer text-[11px] ${
+                className={`py-1.5 px-2 rounded-lg text-center border transition-all cursor-pointer text-xs ${
                   paymentMethod === 'especes'
                     ? 'bg-blue-500/15 text-blue-300 border-blue-500/40 font-bold'
                     : 'bg-white/[0.04] text-rk-muted border-transparent hover:text-white'
@@ -396,12 +396,12 @@ export const ArkaInteractiveDemo: React.FC = () => {
                   Ticket de Caisse ARKA-PME #{lastReceipt.number}
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                 Validé ({lastReceipt.timestamp})
               </span>
             </div>
 
-            <div className="font-mono text-[11px] text-rk-text-secondary space-y-1">
+            <div className="font-mono text-xs text-rk-text-secondary space-y-1">
               <div className="flex justify-between text-rk-muted">
                 <span>Dépôt Central Yaoundé</span>
                 <span>{lastReceipt.method}</span>
@@ -421,12 +421,12 @@ export const ArkaInteractiveDemo: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between pt-1">
-              <span className="text-[11px] text-rk-muted font-mono">
+              <span className="text-xs text-rk-muted font-mono">
                 Stock & caisse synchronisés avec le tableau de bord
               </span>
               <button
                 onClick={() => setLastReceipt(null)}
-                className="text-[11px] text-rk-muted hover:text-white underline cursor-pointer"
+                className="text-xs text-rk-muted hover:text-white underline cursor-pointer"
               >
                 Fermer
               </button>

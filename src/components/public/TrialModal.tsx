@@ -93,7 +93,7 @@ export const TrialModal: React.FC = () => {
                   <h3 className="font-serif text-lg font-bold text-white">
                     Démarrer l'essai ARKA-PME (30 jours)
                   </h3>
-                  <p className="text-[11px] text-rk-muted font-mono">
+                  <p className="text-xs text-rk-muted font-mono">
                     100% gratuit • Sans engagement • Sans carte bancaire
                   </p>
                 </div>
@@ -115,15 +115,15 @@ export const TrialModal: React.FC = () => {
                   <div className="grid grid-cols-3 gap-2 pb-2">
                     <div className="p-2.5 rounded-xl bg-rk-base border border-rk-line-soft text-center">
                       <Clock className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
-                      <div className="text-[11px] font-mono text-white">Actif en 2h</div>
+                      <div className="text-xs font-mono text-white">Actif en 2h</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-rk-base border border-rk-line-soft text-center">
                       <WifiOff className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-                      <div className="text-[11px] font-mono text-white">100% Offline</div>
+                      <div className="text-xs font-mono text-white">100% Offline</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-rk-base border border-rk-line-soft text-center">
                       <Smartphone className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                      <div className="text-[11px] font-mono text-white">MoMo & Orange</div>
+                      <div className="text-xs font-mono text-white">MoMo & Orange</div>
                     </div>
                   </div>
 
@@ -203,7 +203,7 @@ export const TrialModal: React.FC = () => {
                         </>
                       )}
                     </button>
-                    <p className="text-[11px] text-center text-rk-muted font-mono mt-2.5">
+                    <p className="text-xs text-center text-rk-muted font-mono mt-2.5">
                       Nos techniciens préparent votre base de test personnalisée sous 2h.
                     </p>
                   </div>

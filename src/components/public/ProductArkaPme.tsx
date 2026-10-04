@@ -137,7 +137,7 @@ export const ProductArkaPme: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0c1322]/80 via-transparent to-transparent pointer-events-none" />
-                  <span className="absolute bottom-2 left-2 text-[9px] font-mono bg-black/60 backdrop-blur-sm text-emerald-400 px-2 py-0.5 rounded">
+                  <span className="absolute bottom-2 left-2 text-xs font-mono bg-black/60 backdrop-blur-sm text-emerald-400 px-2 py-0.5 rounded">
                     Format Tablette & POS
                   </span>
                 </div>
@@ -149,7 +149,7 @@ export const ProductArkaPme: React.FC = () => {
                   <p className="text-xs text-rk-text-secondary font-light leading-relaxed">
                     Déployable sur vos tablettes Android, iPad, ordinateurs de caisse ou smartphones déjà en place dans votre commerce. Compatible avec imprimantes thermiques Bluetooth et tiroirs-caisses standard.
                   </p>
-                  <div className="flex items-center gap-3 pt-1 text-[11px] font-mono text-rk-muted">
+                  <div className="flex items-center gap-3 pt-1 text-xs font-mono text-rk-muted">
                     <span className="text-emerald-400">✓ Ticket MoMo instantané</span>
                     <span>•</span>
                     <span>100% Hors-Ligne</span>

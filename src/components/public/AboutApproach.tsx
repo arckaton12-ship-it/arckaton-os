@@ -51,11 +51,11 @@ export const AboutApproach: React.FC = () => {
               <div className="pt-4 border-t border-rk-line flex items-center justify-between">
                 <div>
                   <div className="font-medium text-white text-sm">Mme Clarisse Mbida</div>
-                  <div className="text-[11px] font-mono text-rk-muted uppercase tracking-wider mt-0.5">
+                  <div className="text-xs font-mono text-rk-muted uppercase tracking-wider mt-0.5">
                     Fondatrice Maison Kotto • Cliente Forfait Architecture
                   </div>
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                   Résultat certifié
                 </span>
               </div>

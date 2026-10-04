@@ -5,6 +5,7 @@ import { X, Send, Sparkles, Bot, ArrowUpRight, CheckCircle2, FileText, Loader2 }
 import { POLES_INFO } from '../../data/mockData';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
+import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const AgentModal: React.FC = () => {
   const { 
@@ -28,6 +29,7 @@ export const AgentModal: React.FC = () => {
   const [reportGenerated, setReportGenerated] = useState(false);
   const [savingReport, setSavingReport] = useState(false);
   const [captureNotice, setCaptureNotice] = useState(false);
+  const onCarouselKey = useCarouselKeyboard();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
 
@@ -187,11 +189,11 @@ export const AgentModal: React.FC = () => {
                   <div>
                     <h3 className="font-serif text-base font-bold text-white flex items-center gap-2">
                       <span>Conseiller IA Arckaton</span>
-                      <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                         Officiel 6 Pôles
                       </span>
                     </h3>
-                    <p className="text-[11px] text-rk-muted font-light">
+                    <p className="text-xs text-rk-muted font-light">
                       Posez vos questions techniques, artistiques ou tarifaires en direct.
                     </p>
                   </div>
@@ -254,7 +256,7 @@ export const AgentModal: React.FC = () => {
                       }`}
                     >
                       {!isUser && (
-                        <div className="text-[11px] font-mono text-emerald-400 mb-1">
+                        <div className="text-xs font-mono text-emerald-400 mb-1">
                           Conseiller Arckaton
                         </div>
                       )}
@@ -276,20 +278,26 @@ export const AgentModal: React.FC = () => {
             </div>
 
             {captureNotice && (
-              <div className="no-print mx-4 mb-1 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-300">
+              <div className="no-print mx-4 mb-1 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
                 <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Votre demande a bien été transmise à l'équipe Arckaton, qui vous recontacte sous 24h.</span>
               </div>
             )}
 
             {/* Quick Suggestions Chips */}
-            <div className="bg-rk-base px-4 py-2 border-t border-rk-line-soft overflow-x-auto no-scrollbar rk-snap flex gap-2">
+            <div
+              role="region"
+              aria-label="Questions suggérées — faire défiler avec les flèches gauche et droite"
+              tabIndex={0}
+              onKeyDown={onCarouselKey}
+              className="bg-rk-base px-4 py-2 border-t border-rk-line-soft overflow-x-auto no-scrollbar rk-snap flex gap-2"
+            >
               {quickQuestions[selectedPole].map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(q)}
                   disabled={loading}
-                  className="text-[11px] font-mono text-rk-text-secondary hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-rk-line-soft px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
+                  className="text-xs font-mono text-rk-text-secondary hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-rk-line-soft px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer flex-shrink-0"
                 >
                   {q}
                 </button>

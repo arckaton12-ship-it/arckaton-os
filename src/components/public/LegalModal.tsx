@@ -292,12 +292,12 @@ export const LegalModal: React.FC = () => {
 
           {/* Pied */}
           <div className="px-5 sm:px-7 py-4 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
-            <span className="text-[11px] font-mono text-rk-muted">
+            <span className="text-xs font-mono text-rk-muted">
               Dernière révision : {new Date().toLocaleDateString('fr-FR')}
             </span>
             <a
               href={`mailto:${A.email}?subject=${encodeURIComponent('Demande relative à mes données')}`}
-              className="text-[11px] font-mono font-semibold text-emerald-700 hover:underline"
+              className="text-xs font-mono font-semibold text-emerald-700 hover:underline"
             >
               Exercer un droit sur mes données
             </a>

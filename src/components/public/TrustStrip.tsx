@@ -37,7 +37,7 @@ export const TrustStrip: React.FC = () => {
             {elements.map((el) => (
               <div key={el.libelle} className="text-center md:text-left">
                 <div className="font-serif text-2xl font-bold text-emerald-400 tracking-tight">{el.valeur}</div>
-                <div className="text-[11px] text-rk-muted">{el.libelle}</div>
+                <div className="text-xs text-rk-muted">{el.libelle}</div>
               </div>
             ))}
           </div>
@@ -45,7 +45,7 @@ export const TrustStrip: React.FC = () => {
 
         <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-2">
           {engagements.map(({ Icone, texte }) => (
-            <span key={texte} className="inline-flex items-center gap-2 text-[11px] font-mono text-rk-muted">
+            <span key={texte} className="inline-flex items-center gap-2 text-xs font-mono text-rk-muted">
               <Icone className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
               {texte}
             </span>

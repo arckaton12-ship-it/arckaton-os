@@ -132,7 +132,7 @@ export const QuoteModal: React.FC = () => {
                     {step === 3 && "Étape 3 : Vos Coordonnées"}
                     {step === 4 && "Demande Transmise !"}
                   </h3>
-                  <p className="text-[11px] text-rk-muted font-mono">
+                  <p className="text-xs text-rk-muted font-mono">
                     {step <= 3 ? `Configurateur interactif de devis` : `Votre dossier est transmis à la direction`}
                   </p>
                 </div>
@@ -172,7 +172,7 @@ export const QuoteModal: React.FC = () => {
                             <span>{opt.label}</span>
                             {projectType === opt.id && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                           </div>
-                          <div className="text-[11px] text-rk-muted mt-1 leading-snug font-light">
+                          <div className="text-xs text-rk-muted mt-1 leading-snug font-light">
                             {opt.desc}
                           </div>
                         </button>
@@ -261,7 +261,7 @@ export const QuoteModal: React.FC = () => {
                         </button>
                       ))}
                     </div>
-                    <p className="text-[11px] text-rk-muted mt-2 font-mono">
+                    <p className="text-xs text-rk-muted mt-2 font-mono">
                       * Note : Nous ajustons les livrables pour respecter précisément votre enveloppe.
                     </p>
                   </div>
