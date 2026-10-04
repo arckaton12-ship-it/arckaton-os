@@ -6,7 +6,9 @@ import { submitPublicLead } from '../../utils/publicLead';
 import { motion } from 'motion/react';
 
 export const ContactSection: React.FC = () => {
-  const { addLead } = useApp();
+  // `addLead` n'est volontairement plus utilise ici : il poste deja vers
+  // /api/leads, et c'est `submitPublicLead` qui assure la persistance et le
+  // repli WhatsApp (un seul envoi par formulaire).
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -37,9 +39,11 @@ export const ContactSection: React.FC = () => {
     };
 
     try {
-      const { whatsappLink: waUrl } = addLead({ ...payload, statut: 'nouveau', pole_assigned: 'Direction' });
+      // Un seul envoi : c'est `submitPublicLead` qui persiste. `addLead` ne
+      // fait que l'affichage local et poste deja lui-meme vers /api/leads :
+      // l'appeler aussi creerait deux leads pour un meme formulaire.
       const result = await submitPublicLead(payload);
-      setGeneratedWaLink(result.whatsappLink || waUrl);
+      setGeneratedWaLink(result.whatsappLink);
       setSaved(result.saved);
     } catch {
       setGeneratedWaLink('');

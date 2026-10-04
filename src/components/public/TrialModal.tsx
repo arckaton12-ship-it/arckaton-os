@@ -6,7 +6,7 @@ import { submitPublicLead } from '../../utils/publicLead';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const TrialModal: React.FC = () => {
-  const { isTrialModalOpen, setIsTrialModalOpen, addLead } = useApp();
+  const { isTrialModalOpen, setIsTrialModalOpen } = useApp();
 
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
@@ -44,9 +44,10 @@ export const TrialModal: React.FC = () => {
     };
 
     try {
-      const { whatsappLink: wa } = addLead({ ...payload, statut: 'nouveau', pole_assigned: 'Tech' });
+      // Un seul envoi : `submitPublicLead` persiste. `addLead` poste deja
+      // vers /api/leads, l'appeler ici creait deux leads pour un meme essai.
       const result = await submitPublicLead(payload);
-      setWhatsappLink(result.whatsappLink || wa);
+      setWhatsappLink(result.whatsappLink);
       setSaved(result.saved);
     } catch {
       setWhatsappLink('');

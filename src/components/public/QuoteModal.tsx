@@ -7,7 +7,7 @@ import { submitPublicLead } from '../../utils/publicLead';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const QuoteModal: React.FC = () => {
-  const { isQuoteModalOpen, setIsQuoteModalOpen, addLead, currency } = useApp();
+  const { isQuoteModalOpen, setIsQuoteModalOpen, currency } = useApp();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -64,9 +64,10 @@ export const QuoteModal: React.FC = () => {
     };
 
     try {
-      const { whatsappLink: waUrl } = addLead({ ...payload, statut: 'nouveau', pole_assigned: 'Direction' });
+      // Un seul envoi : `submitPublicLead` persiste. `addLead` poste deja
+      // vers /api/leads, l'appeler ici creait deux leads pour un meme devis.
       const result = await submitPublicLead(payload);
-      setWhatsappLink(result.whatsappLink || waUrl);
+      setWhatsappLink(result.whatsappLink);
       setSaved(result.saved);
     } catch {
       setWhatsappLink('');
