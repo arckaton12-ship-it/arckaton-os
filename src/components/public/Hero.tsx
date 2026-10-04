@@ -130,6 +130,9 @@ export const Hero: React.FC = () => {
                   src={heroSystemCubeImg} 
                   alt="Système Central Arckaton en 3D Isométrique" 
                   referrerPolicy="no-referrer"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />

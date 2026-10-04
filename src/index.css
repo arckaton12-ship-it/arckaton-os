@@ -317,7 +317,7 @@ body.theme-light,
   --rk-accent: #047857;
 
   /* Memes jetons, exposes a Tailwind : surcharger --color-rk-* suffit
-     a faire basculer les utilitaires bg-rk-*/border-rk-* en Mode Jour. */
+     a faire basculer les utilitaires rk (fond, bordure) en Mode Jour. */
   --color-rk-bg: #f8fafc;
   --color-rk-base: #f8fafc;
   --color-rk-chrome: #ffffff;

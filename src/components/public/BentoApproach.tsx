@@ -193,6 +193,8 @@ export const BentoApproach: React.FC = () => {
                     src={fieldProductionCamImg} 
                     alt="Équipement de captation cinéma terrain Arckaton"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0f1523]/80 via-transparent to-transparent pointer-events-none" />
@@ -278,6 +280,8 @@ export const BentoApproach: React.FC = () => {
                 src={polesNetworkHubImg} 
                 alt="Architecture topologique des 6 pôles opérationnels Arckaton"
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c1322] via-transparent to-transparent pointer-events-none" />

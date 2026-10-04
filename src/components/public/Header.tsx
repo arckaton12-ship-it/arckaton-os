@@ -76,21 +76,21 @@ export const Header: React.FC = () => {
       {/* Barre supérieure épurée : marque + CTA + burger */}
       <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-rk-base/90 border-b border-rk-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
-          <a href="#" onClick={close} className="flex items-center gap-3 group shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-serif text-xl font-bold text-slate-950 transition-transform duration-300 group-hover:scale-105">
+          <a href="#" onClick={close} className="flex items-center gap-3 group min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-serif text-xl font-bold text-slate-950 transition-transform duration-300 group-hover:scale-105 shrink-0">
               A
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white">
+            <div className="flex flex-col leading-none min-w-0">
+              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white whitespace-nowrap">
                 arckaton<span className="text-emerald-400">.</span>
               </span>
-              <span className="text-[11px] tracking-wider text-rk-muted font-mono mt-0.5">
+              <span className="text-[11px] tracking-wider text-rk-muted font-mono mt-0.5 truncate">
                 SYSTÈMES DIGITAUX · YAOUNDÉ
               </span>
             </div>
           </a>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <a
               href="tel:+237681462982"
               className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-rk-text hover:text-white px-3 py-2 rounded-xl border border-rk-line bg-white/[0.04] hover:bg-white/[0.08] transition-all"
@@ -101,9 +101,9 @@ export const Header: React.FC = () => {
 
             <button
               onClick={() => setIsQuoteModalOpen(true)}
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
             >
-              <span>Devis gratuit</span>
+              <span>Devis<span className="hidden sm:inline"> gratuit</span></span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
 

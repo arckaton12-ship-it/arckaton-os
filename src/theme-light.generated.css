@@ -89,10 +89,12 @@
    lisibilite. Les modifier ternirait les boutons colores, qui en
    dependent pour leur contraste. */
 
-/* Les boutons accents gardent un texte lisible */
+/* Les boutons accents : sur emerald-500, un texte blanc ne donne que
+   2.6:1 (echec WCAG AA). On retablit le texte fonce prevu a l'origine
+   (text-slate-950), soit ~7:1 de contraste sur emerald-500. */
 .theme-light .bg-emerald-500,
 .theme-light .bg-emerald-600 {
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 /* Les controles natifs suivent le theme */
