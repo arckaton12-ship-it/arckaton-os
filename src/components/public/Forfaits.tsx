@@ -10,7 +10,7 @@ export const Forfaits: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   return (
-    <section id="forfaits" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
+    <section id="forfaits" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

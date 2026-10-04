@@ -3,14 +3,14 @@ import { useApp } from '../../contexts/AppContext';
 import { Laptop, Palette, Rocket, CheckCircle2, ArrowRight, ShieldCheck, Smartphone, Camera, TrendingUp, Network, Film } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { motion } from 'motion/react';
-import fieldProductionCamImg from '../../assets/images/field_production_cam_1789213222736.jpg';
-import polesNetworkHubImg from '../../assets/images/poles_network_hub_1789213238339.jpg';
+import fieldProductionCamImg from '../../assets/images/field_production_cam_1789213222736.webp';
+import polesNetworkHubImg from '../../assets/images/poles_network_hub_1789213238339.webp';
 
 export const BentoApproach: React.FC = () => {
   const { openAgentWithPole } = useApp();
 
   return (
-    <section className="py-28 bg-rk-base relative border-t border-rk-line overflow-hidden">
+    <section className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line overflow-hidden">
       {/* Blueprint grid and ambient glow */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute -top-40 right-10 w-96 h-96 bg-purple-500/[0.05] rounded-full blur-3xl pointer-events-none" />

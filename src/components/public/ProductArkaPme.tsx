@@ -3,13 +3,13 @@ import { useApp } from '../../contexts/AppContext';
 import { Play, Clock, WifiOff, Smartphone, Boxes, ArrowUpRight, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 import { ArkaInteractiveDemo } from './ArkaInteractiveDemo';
 import { motion } from 'motion/react';
-import arkaPosTerminalImg from '../../assets/images/arka_pos_terminal_1789213210031.jpg';
+import arkaPosTerminalImg from '../../assets/images/arka_pos_terminal_1789213210031.webp';
 
 export const ProductArkaPme: React.FC = () => {
   const { setIsTrialModalOpen, setIsQuoteModalOpen } = useApp();
 
   return (
-    <section id="produit" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
+    <section id="produit" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-emerald-500/[0.05] rounded-full blur-3xl pointer-events-none" />
@@ -50,7 +50,7 @@ export const ProductArkaPme: React.FC = () => {
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-serif text-lg font-bold text-white">Inventaire complet en 12 minutes</h4>
+                  <h3 className="font-serif text-lg font-bold text-white">Inventaire complet en 12 minutes</h3>
                   <p className="text-xs text-rk-text-secondary mt-1 leading-relaxed font-light">
                     Testé et validé chez Districash Nord sur 12 000 références. Rapprochement automatique des écarts de caisse en fin de vacation.
                   </p>
@@ -68,7 +68,7 @@ export const ProductArkaPme: React.FC = () => {
                   <WifiOff className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-serif text-lg font-bold text-white">Résistant aux coupures de réseau</h4>
+                  <h3 className="font-serif text-lg font-bold text-white">Résistant aux coupures de réseau</h3>
                   <p className="text-xs text-rk-text-secondary mt-1 leading-relaxed font-light">
                     Mode hybride intelligent : encaissez et vendez en continu sans internet. Vos données se synchronisent automatiquement dès le retour du signal.
                   </p>
@@ -86,7 +86,7 @@ export const ProductArkaPme: React.FC = () => {
                   <Smartphone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-serif text-lg font-bold text-white">Mobile Money MTN & Orange direct</h4>
+                  <h3 className="font-serif text-lg font-bold text-white">Mobile Money MTN & Orange direct</h3>
                   <p className="text-xs text-rk-text-secondary mt-1 leading-relaxed font-light">
                     Encaissement direct en caisse. Chaque transaction par MoMo ou Orange Money est validée immédiatement et imprimée sur ticket de caisse.
                   </p>

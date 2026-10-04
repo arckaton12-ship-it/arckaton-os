@@ -48,7 +48,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
+    <section id="contact" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">

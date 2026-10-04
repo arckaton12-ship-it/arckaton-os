@@ -660,4 +660,18 @@ html.theme-light .bg-emerald-500\/10,
   }
 }
 
+/* Carrousels mobiles du site public : defilement au doigt avec snap et
+   barre de defilement masquee. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.rk-snap {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Header } from './Header';
+import { SectionNav } from './SectionNav';
+import { BackToTop } from './BackToTop';
 import { Hero } from './Hero';
 import { TrustStrip } from './TrustStrip';
 import { ConversionBar } from './ConversionBar';
@@ -29,6 +31,9 @@ export const PublicSite: React.FC = () => {
       {/* Top Fixed Header */}
       <Header />
 
+      {/* Navigation mobile collee (chips de sections) */}
+      <SectionNav />
+
       {/* Main Public Content */}
       <main className="flex-1 pb-20 lg:pb-0">
         <Hero />
@@ -57,6 +62,7 @@ export const PublicSite: React.FC = () => {
 
       {/* Points de conversion permanents (barre mobile, WhatsApp) */}
       <ConversionBar />
+      <BackToTop />
     </div>
   );
 };

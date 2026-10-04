@@ -37,9 +37,9 @@ export const Footer: React.FC = () => {
 
           {/* Col 2: Solutions */}
           <div className="space-y-3">
-            <h4 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
+            <h2 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
               Systèmes & Solutions
-            </h4>
+            </h2>
             <ul className="space-y-2">
               <li><a href="#produit" className="hover:text-emerald-400 transition-colors">Logiciel ARKA-PME (30j gratuit)</a></li>
               <li><a href="#forfaits" className="hover:text-emerald-400 transition-colors">Forfait Initiation (380k FCFA)</a></li>
@@ -51,9 +51,9 @@ export const Footer: React.FC = () => {
 
           {/* Col 3: Expertises */}
           <div className="space-y-3">
-            <h4 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
+            <h2 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
               Pôles d'Expertise
-            </h4>
+            </h2>
             <ul className="space-y-2">
               <li><span className="text-blue-400">Pôle Tech :</span> Web & Architecture SaaS</li>
               <li><span className="text-purple-400">Pôle Studio :</span> Direction Artistique & Identité</li>
@@ -65,9 +65,9 @@ export const Footer: React.FC = () => {
 
           {/* Col 4: Contact & Direct OS Access */}
           <div className="space-y-4">
-            <h4 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
+            <h2 className="font-serif text-sm font-semibold text-white uppercase tracking-wider">
               Agence & Coordonnées
-            </h4>
+            </h2>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400" />

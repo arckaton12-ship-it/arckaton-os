@@ -18,7 +18,7 @@ export const Realisations: React.FC = () => {
   ];
 
   return (
-    <section id="realisations" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
+    <section id="realisations" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Atmospheric Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[450px] bg-gradient-to-b from-emerald-500/[0.05] via-transparent to-transparent pointer-events-none blur-3xl" />
@@ -55,10 +55,10 @@ export const Realisations: React.FC = () => {
           </div>
         </div>
 
-        {/* Case Studies Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Case Studies Grid (carrousel au doigt sur mobile) */}
+        <div className="flex gap-4 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible">
           {realisations.length === 0 && (
-            <div className="col-span-full text-center py-16 text-sm text-rk-muted">
+            <div className="w-full lg:col-span-full text-center py-16 text-sm text-rk-muted">
               Les études de cas sont en cours de publication par l'équipe Arckaton.
             </div>
           )}
@@ -70,7 +70,7 @@ export const Realisations: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className="bg-rk-surface rounded-2xl border border-rk-line p-8 flex flex-col justify-between hover:border-rk-line-strong transition-all duration-300 group"
+                className="snap-start shrink-0 w-[86%] sm:w-[68%] lg:w-auto bg-rk-surface rounded-2xl border border-rk-line p-8 flex flex-col justify-between hover:border-rk-line-strong transition-all duration-300 group"
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">

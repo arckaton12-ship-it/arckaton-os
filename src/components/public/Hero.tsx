@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { ArrowUpRight, Sparkles, ShieldCheck, TrendingUp, Star, CheckCircle2, Play, Boxes, Smartphone, Camera, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import heroSystemCubeImg from '../../assets/images/arckaton_system_cube_1789213196858.jpg';
+import heroSystemCubeImg from '../../assets/images/arckaton_system_cube_1789213196858.webp';
 
 export const Hero: React.FC = () => {
   const { setIsQuoteModalOpen, setIsAgentModalOpen, setIsTrialModalOpen, setMode } = useApp();
   const [activeCockpitTab, setActiveCockpitTab] = useState<'sales' | 'inventory' | 'field'>('sales');
 
   return (
-    <section className="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden bg-rk-base">
+    <section className="relative pt-12 pb-16 sm:pt-16 sm:pb-24 md:pt-24 md:pb-32 overflow-hidden bg-rk-base">
       {/* Subtle Radial Ambient Lighting & Blueprint Grid */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-35 pointer-events-none" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-gradient-to-b from-emerald-500/[0.09] via-blue-500/[0.03] to-transparent pointer-events-none blur-2xl" />
@@ -111,9 +111,9 @@ export const Hero: React.FC = () => {
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Architecture Intégrée Arckaton v2.4</span>
                 </div>
-                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
                   L'Infrastructure Complète de votre Croissance
-                </h3>
+                </h2>
                 <p className="text-xs sm:text-sm text-rk-text-secondary font-light leading-relaxed">
                   Au-delà d'une vitrine, un écosystème technique résilient réunissant caisse POS hors-ligne, tunnel e-commerce MoMo et activations studio terrain à Yaoundé et Douala.
                 </p>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { BlogPost } from '../../types';
+import { SmartImage } from '../ui/SmartImage';
 import { 
   Camera, 
   ArrowRight, 
@@ -33,7 +34,7 @@ export const FieldBlogSection: React.FC = () => {
   });
 
   return (
-    <section id="blog" className="py-24 bg-rk-bg relative overflow-hidden border-t border-rk-line">
+    <section id="blog" className="py-16 sm:py-24 bg-rk-bg relative overflow-hidden border-t border-rk-line">
       {/* Blueprint Grid and Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-25 pointer-events-none" />
       <div className="absolute top-1/2 -left-40 w-96 h-96 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
@@ -85,24 +86,23 @@ export const FieldBlogSection: React.FC = () => {
             <p className="text-xs text-rk-muted mt-1">Les rapports de terrain apparaîtront ici dès leur publication.</p>
           </div>
         ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="flex gap-5 overflow-x-auto no-scrollbar rk-snap snap-x -mx-4 px-4 pb-3 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible">
           {filteredPosts.map((post) => (
             <motion.article
               key={post.id}
               whileHover={{ y: -4 }}
               transition={{ duration: 0.2 }}
               onClick={() => setActiveBlogPost(post)}
-              className="bg-rk-panel border border-rk-line hover:border-emerald-500/40 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-all group flex flex-col justify-between"
+              className="snap-start shrink-0 w-[86%] sm:w-[70%] md:w-auto bg-rk-panel border border-rk-line hover:border-emerald-500/40 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-all group flex flex-col justify-between"
             >
               <div>
                 {/* Visual Thumbnail */}
                 <div className="relative h-60 w-full overflow-hidden bg-slate-900">
-                  <img
+                  <SmartImage
                     src={post.image}
                     alt={post.title}
                     referrerPolicy="no-referrer"
-                    loading="lazy"
-                    decoding="async"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 420px"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0b1329] via-[#0b1329]/30 to-transparent" />

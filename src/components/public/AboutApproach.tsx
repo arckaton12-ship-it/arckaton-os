@@ -8,7 +8,7 @@ export const AboutApproach: React.FC = () => {
   const { setIsQuoteModalOpen, setIsAgentModalOpen } = useApp();
 
   return (
-    <section id="apropos" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
+    <section id="apropos" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
       {/* Blueprint Grid & Lighting */}
       <div className="absolute inset-0 bg-blueprint-grid opacity-20 pointer-events-none" />
       <div className="absolute -bottom-24 right-1/4 w-80 h-80 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />

@@ -44,7 +44,7 @@ export const Faq: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
+    <section id="faq" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -112,9 +112,9 @@ export const Faq: React.FC = () => {
         {/* Bottom prompt to AI agent */}
         <div className="mt-12 text-center p-6 rounded-2xl bg-rk-surface border border-rk-line flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-left">
-            <h4 className="font-serif text-base font-bold text-white">
+            <h3 className="font-serif text-base font-bold text-white">
               Une autre question spécifique à votre secteur ?
-            </h4>
+            </h3>
             <p className="text-xs text-rk-muted mt-0.5">
               Consultez notre agent interactif entraîné sur l'ensemble de notre méthode.
             </p>

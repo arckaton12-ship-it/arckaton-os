@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { SmartImage } from '../ui/SmartImage';
 import { 
   X, 
   MapPin, 
@@ -48,12 +49,12 @@ export const BlogReaderModal: React.FC = () => {
 
           {/* Hero Banner */}
           <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-slate-900">
-            <img
+            <SmartImage
               src={activeBlogPost.image}
               alt={activeBlogPost.title}
               referrerPolicy="no-referrer"
-              loading="lazy"
-              decoding="async"
+              priority
+              sizes="(max-width: 768px) 100vw, 768px"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0b1329] via-[#0b1329]/40 to-transparent" />
@@ -156,7 +157,7 @@ export const BlogReaderModal: React.FC = () => {
             {/* Conversion CTA in Modal */}
             <div className="bg-rk-bg border border-rk-line rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h4 className="font-serif text-lg font-bold text-white">Vous souhaitez un déploiement similaire ?</h4>
+                <h3 className="font-serif text-lg font-bold text-white">Vous souhaitez un déploiement similaire ?</h3>
                 <p className="text-xs text-rk-muted mt-0.5">Nos équipes évaluent vos besoins et interviennent sous 48h à Yaoundé ou Douala.</p>
               </div>
               <button
