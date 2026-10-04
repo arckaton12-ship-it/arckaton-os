@@ -117,7 +117,7 @@ export const QuoteModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative outline-none"
+            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-2xl max-h-[90dvh] overflow-y-auto shadow-2xl relative outline-none"
           >
             {/* Modal Top Bar */}
             <div className="sticky top-0 bg-rk-surface/95 backdrop-blur-md px-6 py-5 border-b border-rk-line flex items-center justify-between z-10">

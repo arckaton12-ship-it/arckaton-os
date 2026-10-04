@@ -29,7 +29,7 @@ export const BlueprintModal: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25 }}
-          className="relative w-full max-w-4xl bg-rk-surface border border-rk-line rounded-3xl shadow-2xl overflow-hidden text-rk-text flex flex-col max-h-[90vh] outline-none"
+          className="relative w-full max-w-4xl bg-rk-surface border border-rk-line rounded-3xl shadow-2xl overflow-hidden text-rk-text flex flex-col max-h-[90dvh] outline-none"
         >
           {/* Top Bar */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-rk-line bg-rk-inset">

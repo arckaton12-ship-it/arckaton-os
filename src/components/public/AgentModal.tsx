@@ -29,10 +29,13 @@ export const AgentModal: React.FC = () => {
   const [savingReport, setSavingReport] = useState(false);
   const [captureNotice, setCaptureNotice] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    // Defile le conteneur de messages (pas la page derriere la modale).
+    const el = messagesScrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  }, [messages, loading]);
 
   const handleSend = async (textToSend?: string) => {
     const text = textToSend || inputText;
@@ -172,7 +175,7 @@ export const AgentModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
+            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-2xl h-[90dvh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Header with 6 Poles Tabs */}
             <div className="bg-rk-base border-b border-rk-line p-4 space-y-3">
@@ -204,7 +207,7 @@ export const AgentModal: React.FC = () => {
               </div>
 
               {/* 6 Poles selector pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
                 {poleOptions.map((pole) => {
                   const isActive = selectedPole === pole;
                   const info = POLES_INFO[pole];
@@ -212,6 +215,7 @@ export const AgentModal: React.FC = () => {
                     <button
                       key={pole}
                       onClick={() => setSelectedPole(pole)}
+                      aria-pressed={isActive}
                       className={`px-3 py-1.5 rounded-lg font-mono text-xs whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                         isActive
                           ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
@@ -226,7 +230,7 @@ export const AgentModal: React.FC = () => {
             </div>
 
             {/* Conversation Message List */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-rk-base">
+            <div ref={messagesScrollRef} aria-live="polite" className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-rk-base">
               {messages.map((m, idx) => {
                 const isUser = m.role === 'user';
                 return (
@@ -254,7 +258,7 @@ export const AgentModal: React.FC = () => {
                           Conseiller Arckaton
                         </div>
                       )}
-                      <div>{m.text}</div>
+                      <div className="whitespace-pre-wrap">{m.text}</div>
                     </div>
                   </div>
                 );
@@ -279,7 +283,7 @@ export const AgentModal: React.FC = () => {
             )}
 
             {/* Quick Suggestions Chips */}
-            <div className="bg-rk-base px-4 py-2 border-t border-rk-line-soft overflow-x-auto flex gap-2">
+            <div className="bg-rk-base px-4 py-2 border-t border-rk-line-soft overflow-x-auto no-scrollbar rk-snap flex gap-2">
               {quickQuestions[selectedPole].map((q, idx) => (
                 <button
                   key={idx}

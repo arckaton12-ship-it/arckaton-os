@@ -69,7 +69,7 @@ export const TrialModal: React.FC = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto"
         >
           <motion.div 
             ref={dialogRef}
@@ -81,7 +81,7 @@ export const TrialModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
-            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden relative outline-none"
+            className="bg-rk-surface border border-rk-line rounded-2xl w-full max-w-xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden relative outline-none"
           >
             {/* Header */}
             <div className="bg-rk-base px-6 py-5 border-b border-rk-line flex items-center justify-between">
@@ -108,7 +108,7 @@ export const TrialModal: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-6 sm:p-8">
+            <div className="p-6 sm:p-8 overflow-y-auto">
               {!submitted ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Three Guarantee Badges */}

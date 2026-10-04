@@ -92,7 +92,7 @@ export const LegalModal: React.FC = () => {
           </div>
 
           {/* Contenu */}
-          <div className="px-5 sm:px-7 py-6 text-sm text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto space-y-6">
+          <div className="px-5 sm:px-7 py-6 text-sm text-slate-700 leading-relaxed max-h-[70dvh] overflow-y-auto space-y-6">
             {tab === 'mentions' ? (
               <>
                 <section className="space-y-2">
