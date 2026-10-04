@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { X, Play, CheckCircle2, Clock, WifiOff, Smartphone, MessageSquare, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { submitPublicLead } from '../../utils/publicLead';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const TrialModal: React.FC = () => {
@@ -15,6 +16,7 @@ export const TrialModal: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [whatsappLink, setWhatsappLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const activities = [
     'Boutique de détail & Prêt-à-porter',
@@ -25,31 +27,32 @@ export const TrialModal: React.FC = () => {
     'Autre activité commerciale'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyName || !phone || isSubmitting) return;
     setIsSubmitting(true);
 
-    try {
-      const { whatsappLink: wa } = addLead({
-        name: companyName,
-        phone,
-        email,
-        project_type: `ARKA-PME (essai 30j) — ${activity}`,
-        budget: 'Essai Gratuit 30 Jours',
-        message: `DEMANDE D'ESSAI ARKA-PME 30 JOURS SANS ENGAGEMENT. Activité : ${activity}. Ville : ${city}. Téléphone : ${phone}.`,
-        source: 'site_v2_trial',
-        statut: 'nouveau',
-        pole_assigned: 'Tech',
-        country: city,
-      });
+    const payload = {
+      name: companyName,
+      phone,
+      email,
+      project_type: `ARKA-PME (essai 30j) — ${activity}`,
+      budget: 'Essai Gratuit 30 Jours',
+      message: `DEMANDE D'ESSAI ARKA-PME 30 JOURS SANS ENGAGEMENT. Activité : ${activity}. Ville : ${city}. Téléphone : ${phone}.`,
+      source: 'site_v2_trial',
+      country: city,
+    };
 
-      setWhatsappLink(wa);
-      window.setTimeout(() => {
-        setSubmitted(true);
-        setIsSubmitting(false);
-      }, 400);
+    try {
+      const { whatsappLink: wa } = addLead({ ...payload, statut: 'nouveau', pole_assigned: 'Tech' });
+      const result = await submitPublicLead(payload);
+      setWhatsappLink(result.whatsappLink || wa);
+      setSaved(result.saved);
     } catch {
+      setWhatsappLink('');
+      setSaved(false);
+    } finally {
+      setSubmitted(true);
       setIsSubmitting(false);
     }
   };
@@ -215,10 +218,21 @@ export const TrialModal: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-serif text-2xl font-bold text-white">
-                      Demande d'accès confirmée !
+                      {saved ? "Demande d'accès confirmée !" : 'Demande prête à être envoyée'}
                     </h4>
                     <p className="text-xs sm:text-sm text-rk-text-secondary max-w-md mx-auto font-light leading-relaxed">
-                      Votre compte d'évaluation pour <strong className="text-white">{companyName}</strong> est en cours d'initialisation sur le serveur ARKA-PME.
+                      {saved ? (
+                        <>
+                          Votre demande a bien été enregistrée pour{' '}
+                          <strong className="text-white">{companyName}</strong> : nos techniciens vous recontactent
+                          sous 2h pour activer vos identifiants de test.
+                        </>
+                      ) : (
+                        <>
+                          Nous n'avons pas pu enregistrer votre demande automatiquement. Utilisez le bouton
+                          WhatsApp ci-dessous pour nous la transmettre.
+                        </>
+                      )}
                     </p>
                   </div>
 

@@ -27,7 +27,7 @@ export const AboutApproach: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3.5 py-1 rounded-full border border-emerald-500/20">
               <MapPin className="w-3.5 h-3.5" />
-              <span>Yaoundé, Mimboman • Rayonnement International ðŸŒ</span>
+              <span>Yaoundé, Mimboman • Rayonnement International 🌍</span>
             </div>
 
             <div className="space-y-4">

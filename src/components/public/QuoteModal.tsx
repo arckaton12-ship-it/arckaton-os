@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import { X, ArrowRight, ArrowLeft, CheckCircle2, MessageSquare, Send, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatCurrencyPrice } from '../../utils/currency';
+import { submitPublicLead } from '../../utils/publicLead';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const QuoteModal: React.FC = () => {
@@ -27,6 +28,7 @@ export const QuoteModal: React.FC = () => {
 
   const [whatsappLink, setWhatsappLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const handleClose = () => {
     setIsQuoteModalOpen(false);
@@ -35,7 +37,7 @@ export const QuoteModal: React.FC = () => {
 
   const dialogRef = useDialogA11y<HTMLDivElement>(isQuoteModalOpen, handleClose);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone || isSubmitting) return;
 
@@ -50,27 +52,28 @@ export const QuoteModal: React.FC = () => {
 - Entreprise : ${companyName || 'Particulier / Projet'}
 - Localisation : ${location}`;
 
-    try {
-      const { whatsappLink: waUrl } = addLead({
-        name,
-        email,
-        phone,
-        project_type: projectType,
-        budget: budgetRange,
-        message: structuredMessage,
-        source: 'site_v2_devis',
-        statut: 'nouveau',
-        pole_assigned: 'Direction',
-        country: location,
-      });
+    const payload = {
+      name,
+      email,
+      phone,
+      project_type: projectType,
+      budget: budgetRange,
+      message: structuredMessage,
+      source: 'site_v2_devis',
+      country: location,
+    };
 
-      setWhatsappLink(waUrl);
-      window.setTimeout(() => {
-        setIsSubmitting(false);
-        setStep(4);
-      }, 400);
+    try {
+      const { whatsappLink: waUrl } = addLead({ ...payload, statut: 'nouveau', pole_assigned: 'Direction' });
+      const result = await submitPublicLead(payload);
+      setWhatsappLink(result.whatsappLink || waUrl);
+      setSaved(result.saved);
     } catch {
+      setWhatsappLink('');
+      setSaved(false);
+    } finally {
       setIsSubmitting(false);
+      setStep(4);
     }
   };
 
@@ -133,7 +136,7 @@ export const QuoteModal: React.FC = () => {
                     {step === 4 && "Demande Transmise !"}
                   </h3>
                   <p className="text-xs text-rk-muted font-mono">
-                    {step <= 3 ? `Configurateur interactif de devis` : `Votre dossier est transmis à la direction`}
+                    {step <= 3 ? `Configurateur interactif de devis` : saved ? `Votre dossier est transmis à la direction` : `Votre dossier est prêt à être envoyé`}
                   </p>
                 </div>
               </div>
@@ -435,7 +438,16 @@ export const QuoteModal: React.FC = () => {
                       Votre demande est entre de bonnes mains !
                     </h3>
                     <p className="text-xs sm:text-sm text-rk-text-secondary max-w-md mx-auto leading-relaxed font-light">
-                      Merci <strong className="text-white">{name}</strong>. Nos équipes ont bien reçu votre projet pour <strong className="text-emerald-400">{projectType}</strong>. Votre dossier a été transmis à la direction dans Arckaton OS.
+                      Merci <strong className="text-white">{name}</strong>.{' '}
+                      {saved ? (
+                        <>
+                          Nous avons bien reçu votre projet pour <strong className="text-emerald-400">{projectType}</strong>. Votre dossier est transmis à la direction dans Arckaton OS.
+                        </>
+                      ) : (
+                        <>
+                          Nous n'avons pas pu enregistrer votre projet automatiquement. Utilisez le bouton WhatsApp ci-dessous pour nous le transmettre sans délai.
+                        </>
+                      )}
                     </p>
                   </div>
 

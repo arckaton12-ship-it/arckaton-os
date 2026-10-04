@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Send, Phone, Mail, MapPin, CheckCircle2, MessageSquare, ArrowRight, Loader2 } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
+import { submitPublicLead } from '../../utils/publicLead';
 import { motion } from 'motion/react';
 
 export const ContactSection: React.FC = () => {
@@ -15,34 +16,36 @@ export const ContactSection: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [generatedWaLink, setGeneratedWaLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  //ledemande est-elle reellement partie sur le serveur ? On ne promet rien
+  // quand ce n'est pas le cas : le visiteur bascule alors sur WhatsApp.
+  const [saved, setSaved] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone || isSubmitting) return;
     setIsSubmitting(true);
 
-    try {
-      const { whatsappLink } = addLead({
-        name,
-        email,
-        phone,
-        project_type: projectType,
-        budget: 'Sur devis',
-        message: message || 'Prise de contact directe depuis le site.',
-        source: 'site_v2',
-        statut: 'nouveau',
-        pole_assigned: 'Direction',
-        country,
-      });
+    const payload = {
+      name,
+      email,
+      phone,
+      project_type: projectType,
+      budget: 'Sur devis',
+      message: message || 'Prise de contact directe depuis le site.',
+      source: 'site_v2',
+      country,
+    };
 
-      setGeneratedWaLink(whatsappLink);
-      // Petit delai volontaire : le bouton affiche « Envoi en cours… » et un
-      // double clic ne peut pas creer deux prospects.
-      window.setTimeout(() => {
-        setSubmitted(true);
-        setIsSubmitting(false);
-      }, 400);
+    try {
+      const { whatsappLink: waUrl } = addLead({ ...payload, statut: 'nouveau', pole_assigned: 'Direction' });
+      const result = await submitPublicLead(payload);
+      setGeneratedWaLink(result.whatsappLink || waUrl);
+      setSaved(result.saved);
     } catch {
+      setGeneratedWaLink('');
+      setSaved(false);
+    } finally {
+      setSubmitted(true);
       setIsSubmitting(false);
     }
   };
@@ -255,10 +258,22 @@ export const ContactSection: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-serif text-2xl font-bold text-white">
-                      Message bien reçu !
+                      {saved ? 'Message bien reçu !' : 'Message prêt à envoyer'}
                     </h4>
                     <p className="text-xs text-rk-text-secondary max-w-md mx-auto leading-relaxed">
-                      Merci <strong className="text-white">{name}</strong>. Nos équipes ont bien enregistré votre demande pour <strong className="text-emerald-400">{projectType}</strong>. Votre dossier est désormais visible dans Arckaton OS.
+                      Merci <strong className="text-white">{name}</strong>.{' '}
+                      {saved ? (
+                        <>
+                          Votre demande pour <strong className="text-emerald-400">{projectType}</strong> est
+                          enregistrée : elle est visible dans Arckaton OS et notre équipe vous recontacte sous 24h
+                          ouvrées.
+                        </>
+                      ) : (
+                        <>
+                          Nous n'avons pas pu enregistrer votre demande automatiquement. Cliquez ci-dessous pour
+                          l'envoyer directement à notre WhatsApp : elle sera traitée comme les autres.
+                        </>
+                      )}
                     </p>
                   </div>
 

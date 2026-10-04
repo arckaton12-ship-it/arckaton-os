@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs">
               <Globe className="w-3.5 h-3.5" />
-              <span>Livraison partout dans le monde ðŸŒ</span>
+              <span>Livraison partout dans le monde 🌍</span>
             </div>
           </div>
 
