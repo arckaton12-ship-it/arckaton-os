@@ -252,7 +252,7 @@ describe('P0.5b — CSP de production', () => {
   // faisait passer le test au vert sans avoir verifie quoi que ce soit. En
   // CI, `npm run build` precede volontairement `npm test` pour que le
   // fichier existe.
-  it('autorise Google Fonts et interdit le script inline', async () => {
+  it('interdit Google Fonts, garde Unsplash et bloque le script inline', async () => {
     const { readFileSync, existsSync, statSync } = await import('node:fs');
     const { resolve } = await import('node:path');
 
@@ -268,11 +268,22 @@ describe('P0.5b — CSP de production', () => {
     ).toBeGreaterThanOrEqual(statSync(resolve('server.ts')).mtimeMs);
 
     const src = readFileSync(chemin, 'utf8');
-    // Origines reellement utilisees par le front, verifiees dans index.html.
-    expect(src).toContain('https://fonts.googleapis.com');
-    expect(src).toContain('https://fonts.gstatic.com');
-    expect(src).toContain('https://images.unsplash.com');
-    expect(src).toContain("script-src 'self'");
+    // On ne controle que les directives de la CSP : esbuild conserve les
+    // commentaires de `server.ts` dans le bundle, donc chercher une origine
+    // dans tout le fichier peut reussir grace a un commentaire sans que la
+    // directive soit ouverte.
+    const directives = (src.match(/"(?:default-src|style-src|font-src|img-src|script-src|connect-src|frame-ancestors|base-uri|form-action)[^"]*"/g) || []).join('\n');
+
+    // Polices auto-hebergees (`src/fonts.css`) : la CSP ne doit plus ouvrir
+    // les yeux sur les serveurs de polices de Google. Une autorisation
+    // residuelle passerait sans que personne ne la remarque, jusqu'au jour ou
+    // une requete part vers un service tiers.
+    expect(directives).toContain("font-src 'self' data:");
+    expect(directives).not.toContain('fonts.googleapis.com');
+    expect(directives).not.toContain('fonts.gstatic.com');
+    // Les visuels du blog sont toujours charges depuis Unsplash.
+    expect(directives).toContain('https://images.unsplash.com');
+    expect(directives).toContain("script-src 'self'");
   });
 
   it('n autorise pas de script inline dans la directive script-src', async () => {

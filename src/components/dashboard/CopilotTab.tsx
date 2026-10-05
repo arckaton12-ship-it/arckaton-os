@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { 
   Sparkles, 
@@ -17,9 +17,10 @@ import {
 } from 'lucide-react';
 import { AgentReport } from '../../types';
 import { ReportPreviewSkeleton, ChatResponseSkeleton } from './DashboardSkeleton';
+import { AiMarkdown } from '../ui/AiMarkdown';
 
 export const CopilotTab: React.FC = () => {
-  const { leads, tasks, agentReports, addAgentReport, currentUser, projets, chiffreAffairesReel } = useApp();
+  const { leads, tasks, agentReports, addAgentReport, currentUser, projets, chiffreAffairesReel, pendingCopilotTask, clearCopilotTask } = useApp();
 
   const [generatingReport, setGeneratingReport] = useState(false);
   const [selectedReport, setSelectedReport] = useState<AgentReport | null>(agentReports[0] || null);
@@ -41,41 +42,45 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
     setGeneratingReport(true);
 
     try {
-      const res = await fetch('/api/ai/generate-report', {
+      // Le contexte n'est PAS transmis par le navigateur : la route
+      // `/api/ai/strategic-report` le reconstruit elle-même depuis la base,
+      // borné à la portée du membre. Le client ne fait que demander un
+      // rapport. L'ancien appel à `/api/ai/generate-report` envoyait bien
+      // `leadsContext` et `tasksContext`, mais cette route les ignore et
+      // renvoie un texte générique : le bouton affichait un rapport vide,
+      // puis une liste de recommandations écrite en dur dans ce fichier
+      // (Forfait Synergie, Mobile Money v2, Maison Kotto), donc inventée.
+      const token = localStorage.getItem('arckaton_os_token');
+      const res = await fetch('/api/ai/strategic-report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pole: 'Direction',
-          leadsContext: leads.map(l => ({
-            name: l.name,
-            project: l.project_type,
-            budget: l.budget,
-            statut: l.statut,
-            country: l.country
-          })),
-          tasksContext: tasks.map(t => ({
-            title: t.title,
-            pole: t.pole,
-            status: t.status,
-            priority: t.priority
-          }))
-        })
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({})
       });
 
       const data = await res.json();
-      
+
+      // Sans ce contrôle, une erreur du serveur (clé IA absente, 401, 500)
+      // produisait un rapport vide : `summary` undefined, aucun message
+      // d'erreur, et l'utilisateur avait l'impression d'un bouton mort.
+      if (!res.ok) {
+        throw new Error(data?.error || `Serveur indisponible (${res.status})`);
+      }
+      if (!data.summary) throw new Error('Rapport vide');
+
       const newReport: AgentReport = {
         id: `report-${Date.now()}`,
-        title: data.title || `Rapport Stratégique Hebdomadaire — ${new Date().toLocaleDateString('fr-FR')}`,
+        title: data.title || `Rapport Stratégique — ${new Date().toLocaleDateString('fr-FR')}`,
         pole: 'Direction',
-        lead_name: 'Audit Global Pipeline & Opérations',
+        lead_name: 'Synthèse automatique de l\'OS',
         summary: data.summary,
-        recommendations: data.recommendations || [
-          'Relancer en priorité les 3 prospects ayant demandé le Forfait Synergie sur WhatsApp',
-          'Accélérer la validation du module Mobile Money v2 par le Pôle Tech',
-          'Planifier la captation vidéo de jeudi pour Maison Kotto (Pôle Créatif)'
-        ],
-        forfait_recommande: data.forfait_recommande || 'Synergie (750k FCFA)',
+        // Aucune recommandation de secours : une liste de secours signale ce
+        // que le serveur n'a pas su produire, elle ne la complète pas par des
+        // recommendations inventées.
+        recommendations: data.recommendations || [],
+        forfait_recommande: data.forfait_recommande || '—',
         created_at: new Date().toISOString()
       };
 
@@ -113,6 +118,15 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
       setGeneratingReport(false);
     }
   };
+
+  // Le bouton « Générer un Rapport IA (1 clic) » de l'onglet Vue d'ensemble
+  // dépose une demande ici avant de naviguer. On la consomme et on la remet à
+  // zéro, sinon le rapport se régénérerait à chaque affichage de l'onglet.
+  useEffect(() => {
+    if (pendingCopilotTask !== 'rapport') return;
+    clearCopilotTask();
+    void handleGenerateReport();
+  }, [pendingCopilotTask, clearCopilotTask]);
 
   // Copilot Chat Handler
   const handleSendChat = async (presetText?: string) => {
@@ -318,9 +332,12 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">
                       Synthèse Exécutive :
                     </span>
-                    <p className="whitespace-pre-line bg-rk-panel p-3.5 rounded-xl border border-rk-line-soft">
-                      {selectedReport.summary}
-                    </p>
+                    {/* Même rendu que le chat : si le modèle a mis un peu de
+                        Markdown dans sa synthèse, il ne doit pas s'afficher
+                        sous forme d'astérisques bruts. */}
+                    <div className="bg-rk-panel p-3.5 rounded-xl border border-rk-line-soft">
+                      <AiMarkdown text={selectedReport.summary} />
+                    </div>
                   </div>
 
                   <div className="space-y-1.5 pt-1">
@@ -398,13 +415,30 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                       }`}
                     >
                       <div
-                        className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
+                        className={`max-w-[88%] rounded-2xl text-xs sm:text-sm leading-relaxed ${
                           isUser
-                            ? 'bg-blue-600 text-white rounded-tr-none font-medium'
-                            : 'bg-rk-panel text-rk-text border border-rk-line rounded-tl-none'
+                            ? 'bg-blue-600 text-white rounded-tr-md px-4 py-2.5 font-medium shadow-sm'
+                            : 'bg-rk-panel text-rk-text border border-rk-line-soft border-l-2 border-l-emerald-500/50 rounded-tl-md px-4 py-3 shadow-sm'
                         }`}
                       >
-                        <p className="whitespace-pre-line">{m.text}</p>
+                        {!isUser && (
+                          <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-rk-line-soft">
+                            <Sparkles className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400 font-mono text-[0.75rem] font-semibold uppercase tracking-wider">
+                              Copilote
+                            </span>
+                          </div>
+                        )}
+                        {isUser ? (
+                          <p className="whitespace-pre-wrap">{m.text}</p>
+                        ) : (
+                          <AiMarkdown
+                            text={m.text}
+                            strongClass="text-emerald-300 font-bold"
+                            headingClass="text-white font-semibold"
+                            bulletClass="bg-emerald-400"
+                          />
+                        )}
                       </div>
                     </div>
                   );

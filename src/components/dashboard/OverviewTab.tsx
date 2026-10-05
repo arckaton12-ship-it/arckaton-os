@@ -39,6 +39,7 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
     isDataFetching,
     lastSyncTime,
     refreshDashboardData,
+    requestCopilotTask,
     quotes,
     chiffreAffairesReel,
     osMembers
@@ -132,7 +133,13 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </button>
 
           <button
-            onClick={() => onSelectTab('copilot')}
+            onClick={() => {
+              // Le bouton doit déclencher la génération, pas seulement changer
+              // d'onglet : c'était un simple `onSelectTab('copilot')`, ce qui
+              // ouvrait un copilote vide et donnait l'impression d'un bug.
+              requestCopilotTask('rapport');
+              onSelectTab('copilot');
+            }}
             className="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 font-semibold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer"
           >
             <Sparkles className="w-4 h-4" />

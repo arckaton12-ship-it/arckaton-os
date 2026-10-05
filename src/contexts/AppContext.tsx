@@ -266,6 +266,14 @@ interface AppContextType {
   lastSyncTime: string;
   refreshDashboardData: () => Promise<void>;
 
+  // Demande d'action transmise au Copilote depuis un autre onglet. Le bouton
+  // « Générer un Rapport IA (1 clic) » ne faisait que naviguer vers l'onglet
+  // copilote : le rapport n'était jamais demandé. La demande passe donc par le
+  // contexte, faute de quoi les deux composants ne se parlent pas.
+  pendingCopilotTask: 'rapport' | null;
+  requestCopilotTask: (task: 'rapport') => void;
+  clearCopilotTask: () => void;
+
   // CMS Contenu temps réel (supabase via serveur)
   realisations: Realisation[];
   updateRealisation: (id: string, data: Partial<Realisation>) => void;
@@ -777,7 +785,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // Identité des messages/actions du dashboard calquée sur la session réelle
-  const { member } = useAuth();
+  const { member, isAuthenticated } = useAuth();
   useEffect(() => {
     if (member) {
       setCurrentUser({
@@ -821,8 +829,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Data fetching & synchronization state
   const [isDataFetching, setIsDataFetching] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('En direct');
+  const [pendingCopilotTask, setPendingCopilotTask] = useState<'rapport' | null>(null);
 
-  const refreshDashboardData = async () => {
+  // Le copilote consomme la demande et la remet à zéro : sans cela, la
+  // génération se relancerait à chaque remontée de l'onglet.
+  const requestCopilotTask = useCallback((task: 'rapport') => setPendingCopilotTask(task), []);
+  const clearCopilotTask = useCallback(() => setPendingCopilotTask(null), []);
+
+  // Mémorisée : l'effet de chargement ci-dessous en dépend, et une fonction
+  // recréée à chaque rendu le relancerait en boucle.
+  const refreshDashboardData = useCallback(async () => {
     setIsDataFetching(true);
     try {
       // Ces quatre routes exigent une session valide. Elles passent par
@@ -884,7 +900,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setLastSyncTime(formatted);
       setIsDataFetching(false);
     }
-  };
+  }, []);
+
+  // Les données de l'OS appartiennent au serveur, pas au navigateur. Ce
+  // chargement manquait : chaque membre ne voyait que le cache local de son
+  // propre poste. Un compte créé depuis un autre appareil — donc sans cache —
+  // affichait zéro prospect et zéro client, ce qui donne l'impression que les
+  // données ne sont pas partagées entre membres. La déconnexion purgeant ces
+  // clés, le cache ne pouvait pas non plus servir de secours : il fallait
+  // interroger l'API à l'ouverture de session.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    void refreshDashboardData();
+  }, [isAuthenticated, refreshDashboardData]);
 
   const openClientPortal = (code?: string) => {
     if (code) {
@@ -2067,8 +2095,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     isLegalModalOpen,
     setIsLegalModalOpen,
         isDataFetching,
-        lastSyncTime,
-        refreshDashboardData,
+    lastSyncTime,
+    refreshDashboardData,
+    pendingCopilotTask,
+    requestCopilotTask,
+    clearCopilotTask,
         realisations,
         updateRealisation,
         addRealisation,

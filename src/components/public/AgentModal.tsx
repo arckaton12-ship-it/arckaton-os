@@ -6,6 +6,7 @@ import { POLES_INFO } from '../../data/mockData';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
+import { AiMarkdown } from '../ui/AiMarkdown';
 
 export const AgentModal: React.FC = () => {
   const { 
@@ -249,18 +250,29 @@ export const AgentModal: React.FC = () => {
                     )}
 
                     <div
-                      className={`max-w-[85%] rounded-2xl p-4 ${
+                      className={`max-w-[88%] rounded-2xl text-xs sm:text-sm leading-relaxed ${
                         isUser
-                          ? 'bg-emerald-500 text-slate-950 font-medium rounded-tr-none'
-                          : 'bg-rk-surface text-rk-text border border-rk-line rounded-tl-none font-light'
+                          ? 'bg-emerald-500 text-slate-950 font-medium rounded-tr-md px-4 py-2.5 shadow-sm'
+                          : 'bg-rk-surface text-rk-text border border-rk-line-soft rounded-tl-md border-l-2 border-l-emerald-500/50 px-4 py-3 shadow-sm'
                       }`}
                     >
                       {!isUser && (
-                        <div className="text-xs font-mono text-emerald-400 mb-1">
-                          Conseiller Arckaton
+                        <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-rk-line-soft">
+                          <span className="text-emerald-400 font-mono text-[0.75rem] font-semibold uppercase tracking-wider">
+                            Conseiller Arckaton
+                          </span>
                         </div>
                       )}
-                      <div className="whitespace-pre-wrap">{m.text}</div>
+                      {isUser ? (
+                        <div className="whitespace-pre-wrap">{m.text}</div>
+                      ) : (
+                        <AiMarkdown
+                          text={m.text}
+                          strongClass="text-emerald-300 font-bold"
+                          headingClass="text-white font-semibold"
+                          bulletClass="bg-emerald-400"
+                        />
+                      )}
                     </div>
                   </div>
                 );

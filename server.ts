@@ -113,8 +113,18 @@ if (process.env.NODE_ENV === 'production') {
         // Vite compile les styles dans le bundle, mais Tailwind injecte
         // aussi des styles inline au runtime : 'unsafe-inline' est requis
         // pour style-src. Il ne l'est PAS pour script-src.
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' data: https://fonts.gstatic.com",
+        //
+        // Aucune origine Google : les polices sont auto-hebergees
+        // (`src/fonts.css`, 6 WOFF2 latin). Autoriser les serveurs de polices
+        // de Google laissait CSP ouvrir les yeux sur un service tiers dont le
+        // front ne fait plus aucune requete.
+        // Les noms de domaine sont volontairement absents de ce commentaire :
+        // `tests/security.p0.test.ts` verifie leur absence dans le bundle
+        // compile, commentaire compris.
+        "style-src 'self' 'unsafe-inline'",
+        "font-src 'self' data:",
+        // Unsplash reste requis : les visuels du blog sont charges depuis
+        // cette origine (`src/data/blogAndTelemetryData.ts`).
         "img-src 'self' data: blob: https://images.unsplash.com",
         "script-src 'self'",
         // Le front n'appelle que des URL same-origin via le proxy /api.
@@ -2251,7 +2261,19 @@ RÈGLES CAPITALES STRICTES :
 1. Tu ne dois JAMAIS inventer de prix, de tarif, de chiffre, de statistique ni d'adresse. Tu t'appuies EXCLUSIVEMENT sur le CONTENU OFFICIEL PUBLIÉ ci-dessous. Si une information n'y figure pas, dis-le honnêtement et oriente vers le formulaire de devis ou un contact humain.
 2. Tu ne donnes PAS de prix pour un devis personnalisé : tu présentes uniquement les forfaits officiels listés dans le contenu, puis tu orientes vers le formulaire de devis interactif multi-étapes pour un chiffrage humain.
 
-Ton style : Professionnel, chaleureux, concis, orienté conseil et conversion. Réponds en français soigné.
+Ton style : Professionnel, chaleureux, oriente conseil et conversion. Reponds en francais soigne.
+
+FORMAT ET LONGUEUR (regles strictes) :
+- Reponse par defaut : 2 a 4 phrases, 60 mots maximum. La reponse doit tenir en un coup d'oeil, sans defilement.
+- Commence directement par la reponse. Jamais de preambule (« Bonjour ! », « Voici ce que je peux vous dire », « Excellent »).
+- Ne repete jamais la question du visiteur.
+- Mets en forme, ce n'est pas optionnel :
+  * Entoure d'**asterisques** le chiffre, le nom ou l'action decisive (au plus 2 par reponse).
+  * Si la reponse comporte 2 a 4 elements, utilise une liste a puces « - ».
+  * N'utilise un titre « ### » que si la reponse est vraiment structuree en plusieurs parties.
+- La profondeur doit etre DEMANDEE. Par defaut, tu donnes la synthese et tu t'arretes. Tu ne developpes, tu ne detailingues et tu n'ajoutes ni contexte ni historique que si le visiteur le demande explicitement (« detaille », « explique », « pourquoi », « comment », « etapes », « en profondeur », « dis-m'en plus »). Idem pour une question technique ou tarifaire : la reponse directe d'abord.
+- Un emoji pertinent est bienvenu, un seul par reponse, en debut ou en fin de message. Pas de range d'emojis, pas d'emoji dans chaque phrase.
+- Si la question est vague, pose UNE question de clarification au lieu de developper un long discours.
 `;
 
 // Met en texte, pour le prompt, le contenu REELLEMENT publie sur le site
@@ -2683,6 +2705,178 @@ app.post("/api/ai/agent-chat", rateLimit({ windowMs: 60_000, max: 10, scope: 'ai
     res.status(500).json({ error: "Erreur traitement chat" });
   }
 });
+
+// Rapport strategique « 1 clic » du copilote OS.
+//
+// Route distincte de `/api/ai/generate-report`, qui sert aux rapports de
+// conversation du conseiller public : celle-ci ignore le contexte OS et
+// renvoie un texte generique. Le bouton « Generer un Rapport IA (1 clic) » ne
+// demandait donc rien au modele et affichait des recommandations ecrites en
+// dur dans l'interface, inventees.
+//
+// Ici le contexte est reconstruit par le serveur depuis la base
+// (`buildCockpitDigest`), borne a la portee du membre : le client n'envoie
+// aucun chiffre, il ne fait que demander un rapport.
+function construireInstructionRapportStrategique(nom: string, role: string, digest: CockpitDigest): string {
+  const c = digest.counts;
+  const chiffres = [
+    `prospects : ${c.leads}`,
+    `taches ouvertes : ${c.openTasks} (${c.lateTasks} en retard)`,
+    `devis actifs : ${c.activeQuotes}`,
+    `projets : ${c.projects}`,
+    `membres : ${c.members}`,
+    `encaissement : ${digest.caEncaisse} FCFA`,
+  ].join(' | ');
+
+  return `Tu rediges le rapport strategique d'Arckaton OS pour ${nom} (role ${role}).
+Tu n'as AUCUNE action a executer : tu rediges un constat et des recommandations.
+
+${formaterDigestCopilote(digest)}
+
+[Chiffres cles] ${chiffres}
+
+Regles de redaction :
+- Resume : 3 a 5 phrases, 90 mots maximum, lu en diagonale. Va droit au fait, pas de preambule.
+- 3 a 5 recommandations, une phrase chacune, dans le perimetre du membre. Termine chacune par le lieu d'action dans l'OS (CRM, Taches, Production, Devis, Parametres).
+- N'invente aucun nom, montant, date ni statut : uniquement le contexte ci-dessus. Si une donnee manque, ecris « non renseigne ».
+- Un emoji pertinent au maximum dans le resume.
+
+Reponds STRICTEMENT avec cet objet JSON, sans texte autour :
+{"titre":"...","resume":"...","recommandations":["...","..."],"pointsCles":["...","..."],"forfait":"..."}`;
+}
+
+interface RapportStrategique {
+  titre: string;
+  resume: string;
+  recommandations: string[];
+  pointsCles: string[];
+  forfait: string;
+}
+
+/**
+ * Isole l'objet JSON renvoye par le modele.
+ *
+ * Les modeles entourent parfois la sortie de texte ou de fences Markdown. On
+ * extrait donc le premier objet, puis on valide champ par champ : un champ
+ * absent ou du mauvais type est abandonne plutot que de deviner. Retourner
+ * `null` force l'appelant a basculer sur le repli honnete.
+ */
+function extraireRapportStrategique(texteModele: string): RapportStrategique | null {
+  const debut = texteModele.indexOf('{');
+  const fin = texteModele.lastIndexOf('}');
+  if (debut === -1 || fin <= debut) return null;
+
+  let brut: unknown;
+  try {
+    brut = JSON.parse(texteModele.slice(debut, fin + 1));
+  } catch {
+    return null;
+  }
+  if (!brut || typeof brut !== 'object' || Array.isArray(brut)) return null;
+
+  const objet = brut as Record<string, unknown>;
+  const liste = (v: unknown, max: number): string[] =>
+    Array.isArray(v)
+      ? v
+          .filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+          .slice(0, max)
+          .map((x) => cleanStr(x, 300))
+      : [];
+
+  const resume = cleanStr(objet.resume, 900);
+  if (!resume) return null;
+
+  return {
+    titre: cleanStr(objet.titre, 160) || 'Rapport strategique',
+    resume,
+    recommandations: liste(objet.recommandations, 6),
+    pointsCles: liste(objet.pointsCles, 6),
+    forfait: cleanStr(objet.forfait, 120) || '—',
+  };
+}
+
+/** Repli honnete : etat reel de l'OS, sans commentaire invente. */
+function construireRapportDeSecours(digest: CockpitDigest): RapportStrategique {
+  const c = digest.counts;
+  const aRelancer = digest.leadsARelancer.slice(0, 3).map((l) => `${l.nom} (${l.statut}, ${l.ageJours} j)`);
+  const recommandations: string[] = [];
+
+  recommandations.push(
+    aRelancer.length
+      ? `Relancer ces prospects depuis leur fiche CRM : ${aRelancer.join(', ')}.`
+      : 'Aucun prospect en attente : suivre les devis envoyes non signes (onglet Devis).'
+  );
+  if (c.lateTasks > 0) {
+    recommandations.push(`Traiter les ${c.lateTasks} tache(s) en retard dans l'onglet Taches, en priorite haute.`);
+  } else {
+    recommandations.push('Aucune tache en retard : controler les echeances de la semaine a venir.');
+  }
+  if (c.activeQuotes > 0) {
+    recommandations.push(`Relancer les ${c.activeQuotes} devis actif(s) sans reponse du client (onglet Devis).`);
+  }
+
+  return {
+    titre: 'Etat des operations',
+    resume:
+      `${c.leads} prospect(s) au pipeline, dont ${aRelancer.length} a relancer sans avancee. ` +
+      `${c.openTasks} tache(s) ouverte(s), ${c.lateTasks} en retard. ` +
+      `${c.activeQuotes} devis actif(s), ${c.projects} projet(s) en cours. ` +
+      `Encaissement enregistre : ${digest.caEncaisse.toLocaleString('fr-FR')} FCFA.`,
+    recommandations,
+    pointsCles: [`${c.leads} prospects`, `${c.openTasks} taches ouvertes`, `${c.activeQuotes} devis actifs`],
+    forfait: '—',
+  };
+}
+
+app.post(
+  "/api/ai/strategic-report",
+  requireAuth,
+  rateLimit({ windowMs: 60_000, max: 6, scope: 'ai:strategic-report', message: 'Trop de rapports demandes. Reessayez dans une minute.' }),
+  async (req: AuthReq, res) => {
+    try {
+      const digest = await buildCockpitDigest(req.member!);
+      const ai = getGeminiClient();
+      const nom = req.member?.name || 'le Boss';
+      const role = req.member?.role || 'membre';
+
+      // L'interface consomme un contrat en anglais (`summary`,
+      // `recommendations`) ; les helpers restent en francais comme le reste du
+      // fichier. La traduction est donc explicite ici, plutot que de renvoyer
+      // deux formes de la meme cle.
+      const date = new Date().toLocaleDateString('fr-FR');
+      const repondre = (r: RapportStrategique, source: string, aiEnabled: boolean) =>
+        res.json({
+          title: `${r.titre} — ${date}`,
+          summary: r.resume,
+          recommendations: r.recommandations,
+          keyPoints: r.pointsCles,
+          forfait_recommande: r.forfait,
+          source,
+          aiEnabled,
+        });
+
+      if (ai) {
+        try {
+          const { texte: text } = await generateWithFallback(ai, {
+            systemInstruction: construireInstructionRapportStrategique(nom, role, digest),
+            contents: [{ role: 'user', parts: [{ text: 'Redige le rapport strategique de la semaine.' }] }],
+          });
+
+          const rapport = extraireRapportStrategique(text);
+          if (rapport) return repondre(rapport, 'gemini', true);
+          console.warn('Rapport strategique : reponse JSON illisible, repli sur le digest.');
+        } catch (err) {
+          console.warn('Rapport strategique : appel modele echoue, repli sur le digest.', err);
+        }
+      }
+
+      return repondre(construireRapportDeSecours(digest), ai ? 'repli' : 'indisponible', false);
+    } catch (err) {
+      console.error('Rapport strategique error:', err);
+      res.status(500).json({ error: 'Erreur generation du rapport' });
+    }
+  }
+);
 
 // Generate conversation report for Arckaton OS Dashboard
 // Génération de rapport : utilisée par le copilote OS (authentifié) ET par
@@ -3778,7 +3972,18 @@ Regles absolues :
 - N'invente aucun nom, telephone, email, montant, date ni statut. Utilise uniquement le contexte ci-dessus. Si une donnee manque, dis-le et indique l'onglet a ouvrir (CRM, Taches, Messagerie).
 - Tu as acces a tout ton perimetre : prospects, taches, devis, projets en production et equipe. Quand une coordonnee (telephone/email) figure dans le contexte, tu peux la communiquer ; sinon, renvoie vers la fiche CRM.
 - Si la question porte sur un rendez-vous demande via le site, regarde « Derniers contacts arrives par le conseiller IA du site » ; si le contact n'y figure pas, dis que la demande n'est pas enregistree et propose de la saisir.
-- Reponds en francais, 100 a 150 mots, tourne vers la rentabilite et la qualite operationnelle.`;
+
+FORMAT ET LONGUEUR (regles strictes) :
+- Par defaut : 3 a 5 phrases, 90 mots maximum, structures pour etre lus en diagonale. Un pavé de prose est un defaut.
+- Commence par la reponse ou par le chiffre cle. Jamais de preambule (« Bonjour ! », « Voici », « Pas mal ! »).
+- Mets en forme, ce n'est pas optionnel :
+  * **Astérisques** autour du chiffre, du nom ou de la décision qui compte (2 par réponse au maximum).
+  * Listes à puces « - » dès qu'il y a 2 à 4 éléments (actions prioritaires, prospects à relancer, chiffres).
+  * Titre « ### » uniquement si la réponse est réellement structurée en parties.
+- La profondeur doit être DEMANDÉE. Tu donnes la synthèse et tu t'arrêtes. Tu ne développes un raisonnement, un historique ou un plan d'action détaillé que si le membre le demande explicitement (« détaille », « explique », « pourquoi », « comment », « étapes », « en profondeur »). Une question de suivi sur un chiffre est une demande de profondeur.
+- Un emoji pertinent, un seul par réponse. Pas d'emoji sur chaque ligne.
+- Si la question est trop large, propose deux axes au lieu de tout couvrir.
+- Reponds en francais, tourne vers la rentabilite et la qualite operationnelle.`;
 }
 
 // Repli « base de connaissances » quand Gemini est indisponible.
@@ -4031,6 +4236,15 @@ export const __reponseBaseConnaissances = reponseBaseConnaissances;
 // l'interdiction absolue d'inventer des actions (« lecture seule »).
 export const __formaterDigestCopilote = formaterDigestCopilote;
 export const __construireInstructionCopilote = construireInstructionCopilote;
+
+// Exports pour tester le rapport « 1 clic » : construction du prompt a partir du
+// digest reel, extraction defensive du JSON du modele, et repli honete quand
+// l'IA est indisponible. Le bouton affichait des recommandations inventees
+// ecrites en dur dans l'interface : ces tests verrouillent l'absence de toute
+// valeur non issue du digest.
+export const __construireInstructionRapportStrategique = construireInstructionRapportStrategique;
+export const __extraireRapportStrategique = extraireRapportStrategique;
+export const __construireRapportDeSecours = construireRapportDeSecours;
 
 // Exporte pour verifier le cloisonnement reel du cockpit : la Direction lit
 // tout (coordonnees comprises), un membre reste borne a son pole et ne recoit
