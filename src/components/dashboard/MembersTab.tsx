@@ -268,24 +268,24 @@ export const MembersTab: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-white text-sm">{m.name}</span>
-                        <span className="text-[11px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">
+                        <span className="text-xs font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">
                           {ROLE_LABELS[m.role] || m.role}
                         </span>
-                        <span className={`text-[11px] font-mono py-0.5 px-2 rounded border ${poleColor.bg} ${poleColor.border} ${poleColor.text}`}>
+                        <span className={`text-xs font-mono py-0.5 px-2 rounded border ${poleColor.bg} ${poleColor.border} ${poleColor.text}`}>
                           {POLES_INFO[m.pole]?.name || m.pole}
                         </span>
                       </div>
-                      <div className="text-[11px] font-mono text-rk-muted mt-1">
+                      <div className="text-xs font-mono text-rk-muted mt-1">
                         {m.email} • {m.poste_titre || 'Poste à définir'}
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {(m.permissions || []).map((p) => (
-                          <span key={p} className="text-[9px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                          <span key={p} className="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                             perm:{p}
                           </span>
                         ))}
                         {m.role === 'admin' && (
-                          <span className="text-[9px] font-mono bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20">
+                          <span className="text-xs font-mono bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20">
                             toutes permissions
                           </span>
                         )}
@@ -294,7 +294,7 @@ export const MembersTab: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2 self-end lg:self-auto">
-                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded ${m.active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded ${m.active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
                       {m.active ? 'ACTIF' : 'DÉSACTIVÉ'}
                     </span>
                     <button
@@ -353,7 +353,7 @@ export const MembersTab: React.FC = () => {
                   <span className="text-white">{a.action}</span>
                   <span className="text-rk-muted"> ({a.kind}/{a.ref})</span>
                 </div>
-                <span className="text-[11px] font-mono text-rk-muted flex-shrink-0">{fmtDate(a.created_at)}</span>
+                <span className="text-xs font-mono text-rk-muted flex-shrink-0">{fmtDate(a.created_at)}</span>
               </div>
             ))}
           </div>

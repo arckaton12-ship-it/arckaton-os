@@ -29,7 +29,7 @@ function MainRouter() {
       ) : (
         <React.Suspense
           fallback={
-            <div className="min-h-screen flex items-center justify-center bg-rk-base text-rk-muted text-sm">
+            <div className="min-h-dvh flex items-center justify-center bg-rk-base text-rk-muted text-sm">
               Chargement de l'espace de travail…
             </div>
           }

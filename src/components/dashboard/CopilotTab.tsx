@@ -282,7 +282,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <h4 className="font-serif text-base font-bold text-white">
                       {selectedReport.title}
                     </h4>
-                    <div className="flex items-center gap-2 text-[11px] font-mono text-rk-muted mt-1">
+                    <div className="flex items-center gap-2 text-xs font-mono text-rk-muted mt-1">
                       <span>Pôle : {selectedReport.pole}</span>
                       <span>•</span>
                       <span>{new Date(selectedReport.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -308,14 +308,14 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                 </div>
 
                 {copied && (
-                  <div className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md">
+                  <div className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md">
                     ✓ Rapport copié dans le presse-papiers !
                   </div>
                 )}
 
                 <div className="space-y-3 text-xs text-rk-text-secondary leading-relaxed">
                   <div className="space-y-1">
-                    <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
+                    <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">
                       Synthèse Exécutive :
                     </span>
                     <p className="whitespace-pre-line bg-rk-panel p-3.5 rounded-xl border border-rk-line-soft">
@@ -324,7 +324,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                   </div>
 
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-[11px] font-mono uppercase tracking-widest text-amber-300 font-bold">
+                    <span className="text-xs font-mono uppercase tracking-widest text-amber-300 font-bold">
                       Recommandations Prioritaires :
                     </span>
                     <ul className="space-y-2">
@@ -366,7 +366,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
                     <h3 className="font-serif text-lg font-bold text-white">
                       Copilote Décisionnel
                     </h3>
-                    <p className="text-[11px] text-rk-muted font-mono">
+                    <p className="text-xs text-rk-muted font-mono">
                       Conseiller IA interne • Branché sur votre base en temps réel
                     </p>
                   </div>
@@ -376,7 +376,7 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
               </div>
 
               {aiEnabled === false && (
-                <div className="flex items-start gap-2.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-[11px] text-amber-200">
+                <div className="flex items-start gap-2.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-xs text-amber-200">
                   <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                   <span>
                     <strong className="font-semibold">IA non configurée.</strong> Le copilote répond actuellement
@@ -415,13 +415,13 @@ const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
 
               {/* Quick Prompts */}
               <div className="space-y-1.5 pt-1">
-                <span className="text-[11px] font-mono text-rk-muted">Questions stratégiques rapides :</span>
+                <span className="text-xs font-mono text-rk-muted">Questions stratégiques rapides :</span>
                 <div className="flex flex-wrap gap-1.5">
                   {quickCopilotPrompts.map((p, i) => (
                     <button
                       key={i}
                       onClick={() => handleSendChat(p)}
-                      className="text-[11px] bg-white/5 hover:bg-white/10 text-rk-text-secondary px-2.5 py-1 rounded-lg border border-rk-line-soft transition-colors cursor-pointer"
+                      className="text-xs bg-white/5 hover:bg-white/10 text-rk-text-secondary px-2.5 py-1 rounded-lg border border-rk-line-soft transition-colors cursor-pointer"
                     >
                       {p}
                     </button>

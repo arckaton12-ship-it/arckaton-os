@@ -131,7 +131,7 @@ export const InternalChat: React.FC = () => {
   };
 
   return (
-    <div className="bg-rk-panel border border-rk-line rounded-3xl overflow-hidden flex flex-col md:flex-row h-[calc(100vh-180px)] min-h-[550px] animate-fadeIn">
+    <div className="bg-rk-panel border border-rk-line rounded-3xl overflow-hidden flex flex-col md:flex-row h-[calc(100dvh-180px)] min-h-[550px] animate-fadeIn">
       
       {/* Channels Sidebar */}
       <div className="w-full md:w-64 bg-rk-bg border-r border-rk-line flex flex-col justify-between">
@@ -142,7 +142,7 @@ export const InternalChat: React.FC = () => {
               <MessageSquare className="w-4 h-4 text-blue-400" />
               <h3 className="font-serif text-sm font-bold text-white">Canaux Agence</h3>
             </div>
-            <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
+            <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Direct
             </span>
@@ -173,7 +173,7 @@ export const InternalChat: React.FC = () => {
                   </div>
 
                   {ch.pole && (
-                    <span className={`text-[9px] px-1.5 py-0.2 rounded ${poleColor?.bg} ${poleColor?.text}`}>
+                    <span className={`text-xs px-1.5 py-0.2 rounded ${poleColor?.bg} ${poleColor?.text}`}>
                       {ch.pole.slice(0, 4)}
                     </span>
                   )}
@@ -185,12 +185,12 @@ export const InternalChat: React.FC = () => {
 
         {/* User presence footer */}
         <div className="p-3 border-t border-rk-line bg-rk-inset flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-[11px] font-mono font-bold text-blue-300">
+          <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-xs font-mono font-bold text-blue-300">
             {user.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div className="text-left overflow-hidden">
             <div className="text-xs font-semibold text-white truncate">{user.name}</div>
-            <div className="text-[11px] font-mono text-emerald-400 truncate flex items-center gap-1">
+            <div className="text-xs font-mono text-emerald-400 truncate flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-emerald-400" />
               <span>En ligne • {user.poste_titre || user.role}</span>
             </div>
@@ -210,12 +210,12 @@ export const InternalChat: React.FC = () => {
               <h4 className="font-serif text-sm font-bold text-white flex items-center gap-2">
                 <span>{currentChannelInfo.name}</span>
                 {currentChannelInfo.pole && (
-                  <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${POLE_COLORS[currentChannelInfo.pole].bg} ${POLE_COLORS[currentChannelInfo.pole].text} ${POLE_COLORS[currentChannelInfo.pole].border}`}>
+                  <span className={`text-xs font-mono px-2 py-0.5 rounded border ${POLE_COLORS[currentChannelInfo.pole].bg} ${POLE_COLORS[currentChannelInfo.pole].text} ${POLE_COLORS[currentChannelInfo.pole].border}`}>
                     Pôle {currentChannelInfo.pole}
                   </span>
                 )}
               </h4>
-              <p className="text-[11px] text-rk-muted font-mono">
+              <p className="text-xs text-rk-muted font-mono">
                 {currentChannelInfo.desc}
               </p>
             </div>
@@ -224,14 +224,14 @@ export const InternalChat: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSimOpen(true)}
-              className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-300 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-300 transition-colors cursor-pointer"
               title="Simuler un échange entre plusieurs membres pour tester les flux"
             >
               <Users className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Simuler un échange multi-membres</span>
               <span className="sm:hidden">Simuler</span>
             </button>
-            <div className="text-[11px] font-mono text-rk-muted hidden md:flex items-center gap-2">
+            <div className="text-xs font-mono text-rk-muted hidden md:flex items-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Chiffrement Interne Arckaton OS</span>
             </div>
@@ -244,7 +244,7 @@ export const InternalChat: React.FC = () => {
             <div className="h-full flex flex-col items-center justify-center text-center p-8 text-rk-muted space-y-2">
               <MessageSquare className="w-8 h-8 opacity-40 text-blue-400" />
               <p className="text-xs font-mono">Aucun message dans ce canal pour l'instant.</p>
-              <p className="text-[11px] text-rk-muted">Soyez le premier à poster une note de service ou une mise à jour d'équipe.</p>
+              <p className="text-xs text-rk-muted">Soyez le premier à poster une note de service ou une mise à jour d'équipe.</p>
             </div>
           ) : (
             channelMessages.map((m) => {
@@ -269,10 +269,10 @@ export const InternalChat: React.FC = () => {
                   </div>
 
                   <div className={`space-y-1 max-w-[80%] ${isMe ? 'text-right' : 'text-left'}`}>
-                    <div className="flex items-center gap-2 text-[11px] font-mono">
+                    <div className="flex items-center gap-2 text-xs font-mono">
                       <span className="font-bold text-white">{m.sender_name}</span>
-                      <span className="text-[11px] text-rk-muted">({m.sender_role})</span>
-                      <span className="text-[11px] text-rk-muted">{m.created_at}</span>
+                      <span className="text-xs text-rk-muted">({m.sender_role})</span>
+                      <span className="text-xs text-rk-muted">{m.created_at}</span>
                     </div>
 
                     <div className="group/bulle relative">
@@ -344,7 +344,7 @@ export const InternalChat: React.FC = () => {
                   <Users className="w-4 h-4 text-amber-400" />
                   Simuler un échange multi-membres
                 </h3>
-                <p className="text-[11px] text-rk-muted font-mono mt-0.5">
+                <p className="text-xs text-rk-muted font-mono mt-0.5">
                   Vérifie la circulation des flux entre pôles (la console de l'organigramme recording automatiquement)
                 </p>
               </div>
@@ -359,7 +359,7 @@ export const InternalChat: React.FC = () => {
 
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-[11px] font-mono text-rk-text-secondary uppercase mb-2">Canal de destination</label>
+                <label className="block text-xs font-mono text-rk-text-secondary uppercase mb-2">Canal de destination</label>
                 <select
                   value={channel}
                   onChange={(e) =>  setChannel( e.target.value)}
@@ -372,7 +372,7 @@ export const InternalChat: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono text-rk-text-secondary uppercase mb-2">Scénario</label>
+                <label className="block text-xs font-mono text-rk-text-secondary uppercase mb-2">Scénario</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SIM_SCENARIOS.map((s) => (
                     <button
@@ -385,18 +385,18 @@ export const InternalChat: React.FC = () => {
                       }`}
                     >
                       <div className="text-xs font-semibold text-white">{s.label}</div>
-                      <div className="text-[11px] text-rk-muted mt-0.5 leading-snug">{s.hint}</div>
+                      <div className="text-xs text-rk-muted mt-0.5 leading-snug">{s.hint}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono text-rk-text-secondary uppercase mb-2">
+                <label className="block text-xs font-mono text-rk-text-secondary uppercase mb-2">
                   Membres participants ({simParticipants.length} sélectionné(s))
                 </label>
                 {osMembers.length === 0 ? (
-                  <p className="text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                  <p className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
                     Aucun membre enregistré pour le moment. Ajoutez votre équipe dans l'onglet Équipe : les participants
                     apparaîtront ici automatiquement.
                   </p>
@@ -412,7 +412,7 @@ export const InternalChat: React.FC = () => {
                               prev.includes(m.name) ? prev.filter((n) => n !== m.name) : [...prev, m.name]
                             )
                           }
-                          className={`px-2.5 py-1.5 rounded-lg text-[11px] font-mono border transition-colors cursor-pointer ${
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-mono border transition-colors cursor-pointer ${
                             active
                               ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
                               : 'bg-rk-bg border-rk-line text-rk-text-secondary hover:border-rk-line-bold'
@@ -427,7 +427,7 @@ export const InternalChat: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-mono text-rk-muted">
+                <span className="text-xs font-mono text-rk-muted">
                   {previewSteps.length} message(s) seront générés en alternance
                 </span>
                 <div className="flex items-center gap-2">

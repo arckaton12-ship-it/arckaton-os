@@ -114,7 +114,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-mono text-rk-muted flex items-center gap-1.5">
+        <span className="text-xs font-mono text-rk-muted flex items-center gap-1.5">
           <ImageIcon className="w-3.5 h-3.5 text-purple-300" />
           Preuves terrain ({medias.length})
         </span>
@@ -122,7 +122,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+          className="text-xs font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
         >
           {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
           <span>{uploading ? 'Envoi…' : 'Ajouter'}</span>
@@ -137,12 +137,12 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ projectRef, visitId 
         />
       </div>
 
-      {error && <p className="text-[11px] text-rose-300">{error}</p>}
+      {error && <p className="text-xs text-rose-300">{error}</p>}
 
       {loading && medias.length === 0 ? (
-        <p className="text-[11px] text-rk-muted font-mono">Chargement de la galerie…</p>
+        <p className="text-xs text-rk-muted font-mono">Chargement de la galerie…</p>
       ) : medias.length === 0 ? (
-        <p className="text-[11px] text-rk-muted font-mono">Aucune preuve pour cette sortie.</p>
+        <p className="text-xs text-rk-muted font-mono">Aucune preuve pour cette sortie.</p>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
           {medias.map((m) => (

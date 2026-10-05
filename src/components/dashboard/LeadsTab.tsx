@@ -183,7 +183,7 @@ export const LeadsTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[750px]">
             <thead>
-              <tr className="border-b border-rk-line bg-rk-bg text-rk-muted font-mono text-[11px]">
+              <tr className="border-b border-rk-line bg-rk-bg text-rk-muted font-mono text-xs">
                 <th className="py-3 px-4">Client / Entreprise</th>
                 <th className="py-3 px-4">Système Demandé</th>
                 <th className="py-3 px-4">Pôle Attribué</th>
@@ -223,23 +223,23 @@ export const LeadsTab: React.FC = () => {
                       {/* Name & Origin */}
                       <td className="py-3.5 px-4">
                         <div className="font-semibold text-white">{l.name}</div>
-                        <div className="text-[11px] text-rk-muted flex items-center gap-1.5 mt-0.5">
+                        <div className="text-xs text-rk-muted flex items-center gap-1.5 mt-0.5">
                           <Globe className="w-3 h-3 text-rk-muted" />
                           <span>{l.country || 'Cameroun'}</span>
                           <span>•</span>
-                          <span className="font-mono text-[11px]">{new Date(l.created_at).toLocaleDateString()}</span>
+                          <span className="font-mono text-xs">{new Date(l.created_at).toLocaleDateString()}</span>
                         </div>
                       </td>
 
                       {/* Project & Budget */}
                       <td className="py-3.5 px-4">
                         <div className="font-medium text-rk-text">{l.project_type}</div>
-                        <div className="text-[11px] text-emerald-400 font-mono mt-0.5">{l.budget}</div>
+                        <div className="text-xs text-emerald-400 font-mono mt-0.5">{l.budget}</div>
                       </td>
 
                       {/* Pole */}
                       <td className="py-3.5 px-4">
-                        <span className="font-mono text-[11px] bg-white/5 px-2.5 py-1 rounded border border-rk-line-soft text-rk-text-secondary">
+                        <span className="font-mono text-xs bg-white/5 px-2.5 py-1 rounded border border-rk-line-soft text-rk-text-secondary">
                           {l.pole_assigned}
                         </span>
                       </td>
@@ -331,7 +331,7 @@ export const LeadsTab: React.FC = () => {
             <div className="flex items-center justify-between border-b border-rk-line pb-4">
               <div>
                 <h3 className="font-serif text-lg font-bold text-white">{activeLeadModal.name}</h3>
-                <span className="text-[11px] font-mono text-emerald-400">{activeLeadModal.project_type}</span>
+                <span className="text-xs font-mono text-emerald-400">{activeLeadModal.project_type}</span>
               </div>
               <button
                 onClick={() => setActiveLeadModal(null)}
@@ -345,19 +345,19 @@ export const LeadsTab: React.FC = () => {
             <div className="space-y-3 text-xs text-rk-text-secondary">
               <div className="grid grid-cols-2 gap-2 bg-rk-bg p-3 rounded-xl border border-rk-line-soft">
                 <div>
-                  <span className="text-[11px] font-mono text-rk-muted block">Téléphone :</span>
+                  <span className="text-xs font-mono text-rk-muted block">Téléphone :</span>
                   <span className="text-white font-semibold">{activeLeadModal.phone}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-rk-muted block">Email :</span>
+                  <span className="text-xs font-mono text-rk-muted block">Email :</span>
                   <span className="text-white">{activeLeadModal.email || 'Non renseigné'}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-rk-muted block">Budget :</span>
+                  <span className="text-xs font-mono text-rk-muted block">Budget :</span>
                   <span className="text-emerald-400 font-mono font-semibold">{activeLeadModal.budget}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-rk-muted block">Pôle :</span>
+                  <span className="text-xs font-mono text-rk-muted block">Pôle :</span>
                   <span className="text-blue-400 font-mono">{activeLeadModal.pole_assigned}</span>
                 </div>
               </div>

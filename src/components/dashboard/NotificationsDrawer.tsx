@@ -60,7 +60,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
             </div>
             <div>
               <h3 className="font-serif text-base font-bold text-white">Notifications Arckaton OS</h3>
-              <p className="text-[11px] text-rk-muted font-mono">
+              <p className="text-xs text-rk-muted font-mono">
                 {notifications.filter(n => !n.read).length} non lues
               </p>
             </div>
@@ -70,7 +70,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
             {notifications.length > 0 && (
               <button
                 onClick={clearNotifications}
-                className="text-[11px] text-rk-muted hover:text-white font-mono px-2 py-1"
+                className="text-xs text-rk-muted hover:text-white font-mono px-2 py-1"
               >
                 Tout effacer
               </button>
@@ -109,7 +109,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-500' : 'bg-blue-400 animate-pulse'}`} />
                     <span className="text-xs font-semibold text-white">{n.title}</span>
                   </div>
-                  <span className="text-[11px] font-mono text-rk-muted flex-shrink-0">
+                  <span className="text-xs font-mono text-rk-muted flex-shrink-0">
                     {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -118,7 +118,7 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
                   {n.message}
                 </p>
 
-                <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-rk-muted pt-2 border-t border-rk-line-soft">
+                <div className="mt-3 flex items-center justify-between text-xs font-mono text-rk-muted pt-2 border-t border-rk-line-soft">
                   <span className="text-emerald-400">Pôle : {n.pole_target || n.pole}</span>
                   <span className="inline-flex items-center gap-1 text-blue-300 group-hover:text-blue-200 font-semibold">
                     {sourceLabel(n)}

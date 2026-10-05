@@ -101,7 +101,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({ leads, onOpenInvoice, onConv
       <th
         scope="col"
         aria-sort={actif ? (tri.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
-        className={`text-left font-mono text-[11px] uppercase tracking-wide text-rk-muted ${classe ?? ''}`}
+        className={`text-left font-mono text-xs uppercase tracking-wide text-rk-muted ${classe ?? ''}`}
       >
         <button
           type="button"
@@ -122,7 +122,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({ leads, onOpenInvoice, onConv
       {/* Barre d'options : densite, taille de page, actions groupees */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-[11px] font-mono text-rk-muted flex items-center gap-1.5">
+          <label className="text-xs font-mono text-rk-muted flex items-center gap-1.5">
             <span>Densité</span>
             <select
               value={densite}
@@ -133,7 +133,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({ leads, onOpenInvoice, onConv
               <option value="compact">Compacte</option>
             </select>
           </label>
-          <label className="text-[11px] font-mono text-rk-muted flex items-center gap-1.5">
+          <label className="text-xs font-mono text-rk-muted flex items-center gap-1.5">
             <span>Lignes</span>
             <select
               value={taille}
@@ -202,7 +202,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({ leads, onOpenInvoice, onConv
               {enTete('statut', 'Statut')}
               {enTete('budget', 'Budget')}
               {enTete('created_at', 'Créé le')}
-              <th scope="col" className="px-3 text-right font-mono text-[11px] uppercase tracking-wide text-rk-muted">
+              <th scope="col" className="px-3 text-right font-mono text-xs uppercase tracking-wide text-rk-muted">
                 Actions
               </th>
             </tr>
@@ -228,18 +228,18 @@ export const CrmTable: React.FC<CrmTableProps> = ({ leads, onOpenInvoice, onConv
                   </td>
                   <td className={`${cellule} font-semibold text-white`}>
                     <div className="truncate max-w-[200px]">{l.name}</div>
-                    <div className="text-[11px] font-mono text-rk-muted">{l.phone}</div>
+                    <div className="text-xs font-mono text-rk-muted">{l.phone}</div>
                   </td>
                   <td className={`${cellule} text-rk-text-secondary`}>
                     <div className="truncate max-w-[220px]">{l.project_type}</div>
                   </td>
                   <td className={cellule}>
-                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${pole.bg} ${pole.text} ${pole.border}`}>
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded border ${pole.bg} ${pole.text} ${pole.border}`}>
                       {l.pole_assigned}
                     </span>
                   </td>
                   <td className={cellule}>
-                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full border whitespace-nowrap ${stInfo.color}`}>
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full border whitespace-nowrap ${stInfo.color}`}>
                       {stInfo.label}
                     </span>
                   </td>

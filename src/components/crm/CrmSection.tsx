@@ -226,7 +226,7 @@ export const CrmSection: React.FC = () => {
                       <div className="font-serif text-base font-bold text-white flex items-center gap-2">
                         <span>{l.name}</span>
                         {l.country && (
-                          <span className="text-[11px] font-mono text-rk-muted bg-white/5 px-2 py-0.2 rounded">
+                          <span className="text-xs font-mono text-rk-muted bg-white/5 px-2 py-0.2 rounded">
                             {l.country}
                           </span>
                         )}
@@ -243,11 +243,11 @@ export const CrmSection: React.FC = () => {
 
                   {/* Status & Pole badges */}
                   <div className="flex items-center gap-2 self-start sm:self-auto">
-                    <span className={`text-[11px] font-mono px-2.5 py-1 rounded-full border ${stInfo.color}`}>
+                    <span className={`text-xs font-mono px-2.5 py-1 rounded-full border ${stInfo.color}`}>
                       {stInfo.label}
                     </span>
 
-                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}>
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded border ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}>
                       Pôle {l.pole_assigned}
                     </span>
                   </div>
@@ -256,7 +256,7 @@ export const CrmSection: React.FC = () => {
                 {/* Project details & Message */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                   <div className="md:col-span-2 space-y-1">
-                    <span className="text-[11px] font-mono uppercase text-rk-muted">Projet demandé :</span>
+                    <span className="text-xs font-mono uppercase text-rk-muted">Projet demandé :</span>
                     <div className="font-semibold text-white text-sm">{l.project_type}</div>
                     {l.message && (
                       <p className="text-rk-text-secondary bg-rk-bg p-3 rounded-xl border border-rk-line-soft leading-relaxed mt-1">
@@ -266,14 +266,14 @@ export const CrmSection: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[11px] font-mono uppercase text-rk-muted">Budget / Forfait envisagé :</span>
+                    <span className="text-xs font-mono uppercase text-rk-muted">Budget / Forfait envisagé :</span>
                     <div className="font-serif text-sm font-bold text-emerald-400">
                       {l.budget || 'À cadrer lors du devis'}
                     </div>
 
                     {/* Status switcher */}
                     <div className="pt-2">
-                      <span className="text-[11px] font-mono text-rk-muted block mb-1">Changer l'état :</span>
+                      <span className="text-xs font-mono text-rk-muted block mb-1">Changer l'état :</span>
                       <select
                         value={l.statut}
                         onChange={(e) => updateLeadStatus(l.id, e.target.value as LeadStatus)}
@@ -324,7 +324,7 @@ export const CrmSection: React.FC = () => {
 
                     {/* Dernier document enregistre pour ce lead */}
                     {savedQuoteRef && lastQuoteByLead[l.id] === savedQuoteRef && (
-                      <span className="text-[11px] font-mono text-emerald-300 flex items-center gap-1">
+                      <span className="text-xs font-mono text-emerald-300 flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" /> {savedQuoteRef} enregistré
                       </span>
                     )}
@@ -340,7 +340,7 @@ export const CrmSection: React.FC = () => {
                       <span>Convertir en Projet Client</span>
                     </button>
                   ) : (
-                    <span className="text-emerald-400 font-mono text-[11px] flex items-center gap-1">
+                    <span className="text-emerald-400 font-mono text-xs flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Dossier Projet Actif</span>
                     </span>

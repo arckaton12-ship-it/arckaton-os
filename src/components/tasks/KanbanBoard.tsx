@@ -261,7 +261,7 @@ export const KanbanBoard: React.FC = () => {
         <div className="flex items-center gap-2 mb-3">
           <Users className="w-4 h-4 text-blue-400" />
           <h3 className="font-serif text-sm font-bold text-white">Charge de travail par membre</h3>
-          <span className="text-[11px] font-mono text-rk-muted">
+          <span className="text-xs font-mono text-rk-muted">
             {workload.length} membre{workload.length > 1 ? 's' : ''} sur des tâches
           </span>
         </div>
@@ -283,16 +283,16 @@ export const KanbanBoard: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">
-                    <span className="text-[11px] font-bold text-white truncate">{w.name}</span>
-                    <span className={`text-[8px] font-mono px-1 py-0.5 rounded ${c.bg} ${c.text} shrink-0`}>
+                    <span className="text-xs font-bold text-white truncate">{w.name}</span>
+                    <span className={`text-xs font-mono px-1 py-0.5 rounded ${c.bg} ${c.text} shrink-0`}>
                       {w.pole}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-1.5 mt-1.5">
                     <span className="text-lg font-mono font-bold text-white leading-none">{w.ouvertes}</span>
-                    <span className="text-[9px] font-mono text-rk-muted">ouvertes</span>
+                    <span className="text-xs font-mono text-rk-muted">ouvertes</span>
                     {w.enRetard > 0 && (
-                      <span className="text-[9px] font-mono text-rose-300 font-bold ml-auto">
+                      <span className="text-xs font-mono text-rose-300 font-bold ml-auto">
                         {w.enRetard} en retard
                       </span>
                     )}
@@ -334,7 +334,7 @@ export const KanbanBoard: React.FC = () => {
               }}
               onDragLeave={() => setDragOver((d) => (d === col.id ? null : d))}
               onDrop={() => onDrop(col.id)}
-              className={`bg-rk-chrome border rounded-2xl flex flex-col max-h-[calc(100vh-260px)] min-h-[400px] transition-colors ${
+              className={`bg-rk-chrome border rounded-2xl flex flex-col max-h-[calc(100dvh-260px)] min-h-[400px] transition-colors ${
                 isTarget ? 'border-blue-500/70 bg-blue-950/20' : 'border-rk-line'
               }`}
             >
@@ -342,7 +342,7 @@ export const KanbanBoard: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${col.dot}`} />
                   <h3 className="font-serif text-sm font-bold text-white">{col.title}</h3>
-                  <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${col.badge}`}>{colTasks.length}</span>
+                  <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${col.badge}`}>{colTasks.length}</span>
                 </div>
               </div>
 
@@ -378,13 +378,13 @@ export const KanbanBoard: React.FC = () => {
                           <div className="flex items-center gap-1.5 min-w-0">
                             <GripVertical className="w-3 h-3 text-rk-muted shrink-0 cursor-grab" />
                             <span
-                              className={`text-[9px] font-mono px-1.5 py-0.5 rounded border shrink-0 ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}
+                              className={`text-xs font-mono px-1.5 py-0.5 rounded border shrink-0 ${poleColor.bg} ${poleColor.text} ${poleColor.border}`}
                             >
                               {t.pole}
                             </span>
                           </div>
                           <span
-                            className={`text-[9px] font-mono px-1.5 py-0.5 rounded shrink-0 ${
+                            className={`text-xs font-mono px-1.5 py-0.5 rounded shrink-0 ${
                               priority === 'urgente'
                                 ? 'bg-rose-500/20 text-rose-300 font-bold'
                                 : priority === 'haute'
@@ -399,14 +399,14 @@ export const KanbanBoard: React.FC = () => {
                         <div>
                           <h4 className="font-serif text-xs font-bold text-white leading-snug">{titreOf(t)}</h4>
                           {t.description && (
-                            <p className="text-[11px] text-rk-text-secondary mt-1 line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-rk-text-secondary mt-1 line-clamp-2 leading-relaxed">
                               {t.description}
                             </p>
                           )}
                         </div>
 
                         {t.project_name && (
-                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-2 py-1">
+                          <div className="flex items-center gap-1.5 text-xs font-mono text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-2 py-1">
                             <Briefcase className="w-3 h-3 shrink-0" />
                             <span className="truncate">
                               {t.project_code ? `${t.project_code} · ` : ''}
@@ -415,7 +415,7 @@ export const KanbanBoard: React.FC = () => {
                           </div>
                         )}
 
-                        <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-[11px] font-mono text-rk-muted">
+                        <div className="pt-2 border-t border-rk-line-soft flex items-center justify-between text-xs font-mono text-rk-muted">
                           <div
                             className={`flex items-center gap-1.5 truncate max-w-[130px] ${
                               assigneeOf(t) ? '' : 'text-amber-300/80'
@@ -444,7 +444,7 @@ export const KanbanBoard: React.FC = () => {
                                 ? `Déjà relancée ${t.relances} fois — relancer à nouveau`
                                 : 'Relancer le membre assigné'
                             }
-                            className="p-1 rounded bg-white/5 hover:bg-amber-500/20 text-rk-muted hover:text-amber-300 text-[11px] flex items-center gap-0.5 cursor-pointer"
+                            className="p-1 rounded bg-white/5 hover:bg-amber-500/20 text-rk-muted hover:text-amber-300 text-xs flex items-center gap-0.5 cursor-pointer"
                           >
                             <Bell className="w-3 h-3" />
                             <span className="hidden sm:inline">Relancer</span>
@@ -455,7 +455,7 @@ export const KanbanBoard: React.FC = () => {
                             {prevSt && (
                               <button
                                 onClick={() => updateTaskStatus(t.id, prevSt)}
-                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white text-[11px] flex items-center gap-0.5 cursor-pointer"
+                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white text-xs flex items-center gap-0.5 cursor-pointer"
                                 title="Déplacer vers l'étape précédente"
                               >
                                 <ChevronLeft className="w-3 h-3" />
@@ -464,7 +464,7 @@ export const KanbanBoard: React.FC = () => {
                             {nextSt && (
                               <button
                                 onClick={() => updateTaskStatus(t.id, nextSt)}
-                                className="p-1 rounded bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 text-[11px] flex items-center gap-0.5 cursor-pointer"
+                                className="p-1 rounded bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 text-xs flex items-center gap-0.5 cursor-pointer"
                                 title="Avancer vers l'étape suivante"
                               >
                                 <span className="hidden sm:inline">Suivant</span>
@@ -585,7 +585,7 @@ export const KanbanBoard: React.FC = () => {
               <div>
                 <label className="block text-rk-text-secondary font-mono mb-1">Assigné à</label>
                 {osMembers.length === 0 ? (
-                  <p className="text-[11px] text-amber-300 bg-amber-500/5 border border-amber-500/20 rounded-xl px-3 py-2 font-mono">
+                  <p className="text-xs text-amber-300 bg-amber-500/5 border border-amber-500/20 rounded-xl px-3 py-2 font-mono">
                     Aucun membre enregistré : ajoutez votre équipe dans l'onglet Équipe pour pouvoir assigner des tâches.
                   </p>
                 ) : (

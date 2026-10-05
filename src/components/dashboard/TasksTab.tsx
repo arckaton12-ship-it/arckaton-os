@@ -215,11 +215,11 @@ export const TasksTab: React.FC = () => {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono uppercase bg-white/5 text-rk-text-secondary px-2.5 py-0.5 rounded border border-rk-line-soft">
+                    <span className="text-xs font-mono uppercase bg-white/5 text-rk-text-secondary px-2.5 py-0.5 rounded border border-rk-line-soft">
                       {t.pole}
                     </span>
 
-                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
                       t.priority === 'urgente' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
                       t.priority === 'normale' ? 'bg-blue-500/20 text-blue-300' :
                       'bg-slate-700 text-rk-muted'
@@ -244,13 +244,13 @@ export const TasksTab: React.FC = () => {
 
                 <div className="pt-4 mt-4 border-t border-rk-line-soft space-y-3">
                   {t.project_name && (
-                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-300 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2 py-1">
+                    <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-300 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2 py-1">
                       <FolderKanban className="w-3 h-3" />
                       <span>{t.project_name}{t.project_code ? ` (${t.project_code})` : ''}</span>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between text-[11px] font-mono text-rk-muted">
+                  <div className="flex items-center justify-between text-xs font-mono text-rk-muted">
                     <div className="flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-rk-muted" />
                       <span>{t.assigned_to || t.assignee_name || 'Non assignée'}</span>
@@ -264,7 +264,7 @@ export const TasksTab: React.FC = () => {
                   </div>
 
                   {isCompleted && t.completed_at && (
-                    <div className="text-[11px] font-mono text-emerald-300">
+                    <div className="text-xs font-mono text-emerald-300">
                       Achevée le {new Date(t.completed_at).toLocaleString('fr-FR')}
                     </div>
                   )}
@@ -273,7 +273,7 @@ export const TasksTab: React.FC = () => {
                     <button
                       onClick={() => { remindTask(t.id); success(`Rappel envoyé pour « ${t.title || t.titre} ».`); }}
                       aria-label={`Envoyer un rappel pour la tâche « ${t.title || t.titre} »`}
-                      className="w-full flex items-center justify-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-lg px-2 py-1.5 transition-colors cursor-pointer"
+                      className="w-full flex items-center justify-center gap-1.5 text-xs font-mono text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-lg px-2 py-1.5 transition-colors cursor-pointer"
                     >
                       <Bell className="w-3 h-3" aria-hidden="true" />
                       <span>Relancer{t.relances ? ` (${t.relances})` : ''}</span>

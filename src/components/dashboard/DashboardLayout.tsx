@@ -109,7 +109,7 @@ export const DashboardLayout: React.FC = () => {
   // Session réelle : chargement, puis login requis
   if (loading) {
     return (
-      <div className="min-h-screen bg-rk-bg flex items-center justify-center">
+      <div className="min-h-dvh bg-rk-bg flex items-center justify-center">
         <div className="text-rk-muted text-sm font-mono flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
           Arckaton OS — Vérification de la session…
@@ -219,7 +219,7 @@ export const DashboardLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-rk-bg text-rk-text flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-dvh bg-rk-bg text-rk-text flex flex-col md:flex-row font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Mobile Top Header */}
       <div className="md:hidden bg-rk-chrome border-b border-rk-line p-4 flex items-center justify-between sticky top-0 z-30">
@@ -258,7 +258,7 @@ export const DashboardLayout: React.FC = () => {
           >
             <Bell className="w-4 h-4" aria-hidden="true" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[11px] text-white font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-xs text-white font-bold flex items-center justify-center">
                 {unreadCount}
               </span>
             )}
@@ -286,7 +286,7 @@ export const DashboardLayout: React.FC = () => {
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 z-40 h-screen w-64 bg-rk-chrome border-r border-rk-line flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed md:sticky top-0 z-40 h-dvh w-64 bg-rk-chrome border-r border-rk-line flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
@@ -304,7 +304,7 @@ export const DashboardLayout: React.FC = () => {
                     OS
                   </span>
                 </div>
-                <div className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
+                <div className="text-xs font-mono text-emerald-400 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Cockpit Production</span>
                 </div>
@@ -332,7 +332,7 @@ export const DashboardLayout: React.FC = () => {
                     type="button"
                     onClick={() => basculerSection(section.id)}
                     aria-expanded={ouverte}
-                    className={`w-full flex items-center justify-between px-2 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-2 py-1 text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer ${
                       contientActif ? 'text-rk-text-secondary' : 'text-rk-muted hover:text-rk-text-secondary'
                     }`}
                   >
@@ -374,7 +374,7 @@ export const DashboardLayout: React.FC = () => {
                             </div>
 
                             {item.badge && (
-                              <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-md ${
+                              <span className={`text-xs font-mono px-1.5 py-0.2 rounded-md ${
                                 isActive ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-300'
                               }`}>
                                 {item.badge}
@@ -398,11 +398,11 @@ export const DashboardLayout: React.FC = () => {
           <div className="p-2.5 rounded-xl bg-white/5 border border-rk-line-soft">
             <div className="flex items-center justify-between">
               <div className="text-xs font-bold text-white truncate">{user.name}</div>
-              <span className="text-[9px] font-mono uppercase bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded">
+              <span className="text-xs font-mono uppercase bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded">
                 {role}
               </span>
             </div>
-            <div className="text-[11px] font-mono text-rk-muted truncate mt-0.5">
+            <div className="text-xs font-mono text-rk-muted truncate mt-0.5">
               {user.poste_titre} • Pôle {user.pole}
             </div>
           </div>
@@ -439,18 +439,18 @@ export const DashboardLayout: React.FC = () => {
             >
               <Search className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Rechercher</span>
-              <kbd className="font-mono text-[10px] border border-rk-line-soft rounded px-1.5 py-0.5">⌘K</kbd>
+              <kbd className="font-mono text-xs border border-rk-line-soft rounded px-1.5 py-0.5">⌘K</kbd>
             </button>
 
             {/* Session Membre */}
             <div className="flex items-center gap-2 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
                 <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
-                <div className="text-[11px] font-mono text-rk-muted mt-0.5">{role}</div>
+                <div className="text-xs font-mono text-rk-muted mt-0.5">{role}</div>
               </div>
               <button
                 onClick={logout}
-                className="text-[11px] font-mono text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                className="text-xs font-mono text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer"
                 title="Se déconnecter"
               >
                 Déconnexion
@@ -466,7 +466,7 @@ export const DashboardLayout: React.FC = () => {
             >
               <Bell className="w-4 h-4" aria-hidden="true" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[11px] text-white font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-xs text-white font-bold flex items-center justify-center">
                   {unreadCount}
                 </span>
               )}

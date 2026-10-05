@@ -408,10 +408,10 @@ export const ProjectsProductionTab: React.FC = () => {
                         <h3 className="font-serif text-lg font-bold text-white">
                           {project.client_name}
                         </h3>
-                        <span className="text-[11px] font-mono bg-white/5 text-rk-muted px-2 py-0.5 rounded-full border border-rk-line">
+                        <span className="text-xs font-mono bg-white/5 text-rk-muted px-2 py-0.5 rounded-full border border-rk-line">
                           {project.client_code || project.id}
                         </span>
-                        <span className="text-[11px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
+                        <span className="text-xs font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
                           Pôle {project.pole}
                         </span>
                       </div>
@@ -588,7 +588,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                     {m.description}
                                   </div>
                                   {m.echeance && (
-                                    <div className="text-[11px] font-mono text-rk-muted mt-0.5">
+                                    <div className="text-xs font-mono text-rk-muted mt-0.5">
                                       Échéance : {m.echeance}
                                     </div>
                                   )}
@@ -600,7 +600,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => { updateProjectMilestone(project.id, m.id, 'en_attente'); success(`Jalon « ${m.titre} » remis en attente.`); }}
-                                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors ${
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors ${
                                     m.statut === 'en_attente'
                                       ? 'bg-slate-700 text-white font-bold'
                                       : 'bg-white/5 text-rk-muted hover:text-white'
@@ -612,7 +612,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => { updateProjectMilestone(project.id, m.id, 'en_cours'); success(`Jalon « ${m.titre} » démarré.`); }}
-                                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors ${
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors ${
                                     m.statut === 'en_cours'
                                       ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 font-bold'
                                       : 'bg-white/5 text-rk-muted hover:text-white'
@@ -624,7 +624,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => { updateProjectMilestone(project.id, m.id, 'valide'); success(`Jalon « ${m.titre} » validé.`); }}
-                                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-colors flex items-center gap-1 ${
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors flex items-center gap-1 ${
                                     m.statut === 'valide'
                                       ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
                                       : 'bg-white/5 text-rk-muted hover:text-white'
@@ -721,7 +721,7 @@ export const ProjectsProductionTab: React.FC = () => {
                       {fieldVisits.length === 0 ? (
                         <div className="py-6 px-4 rounded-2xl border border-dashed border-purple-500/25 bg-purple-500/5 text-center">
                           <p className="text-xs font-mono text-purple-300">Aucune sortie terrain planifiee pour ce projet.</p>
-                          <p className="text-[11px] text-rk-muted mt-1">
+                          <p className="text-xs text-rk-muted mt-1">
                             Programmez une captation : chaque session suit son cycle planifiee → realisee → montage → livree.
                           </p>
                         </div>
@@ -738,7 +738,7 @@ export const ProjectsProductionTab: React.FC = () => {
                               <span className="font-mono text-purple-400 font-bold">
                                 Session #{v.numero}
                               </span>
-                              <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
+                              <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
                                 v.statut === 'livree'
                                   ? 'bg-emerald-500/20 text-emerald-300'
                                   : v.statut === 'en_montage'
@@ -755,7 +755,7 @@ export const ProjectsProductionTab: React.FC = () => {
                               {v.objectif}
                             </div>
 
-                            <div className="text-rk-muted font-mono text-[11px] pt-1 border-t border-rk-line-soft">
+                            <div className="text-rk-muted font-mono text-xs pt-1 border-t border-rk-line-soft">
                               <div>Lieu : {v.lieu} • Date : {v.date}</div>
                               <div>Intervenant : {v.intervenant || 'Non affecte'}</div>
                             </div>
@@ -768,7 +768,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                 <div className="flex justify-end">
                                   <button
                                     onClick={() => updateProjectFieldVisit(project.id, v.id, { statut: nextStatut })}
-                                    className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer"
+                                    className="text-xs font-mono px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 transition-colors cursor-pointer"
                                   >
                                     {VISIT_STATUT_LABEL[nextStatut]}
                                   </button>

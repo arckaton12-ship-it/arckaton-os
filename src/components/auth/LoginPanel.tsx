@@ -83,7 +83,7 @@ export const LoginPanel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-rk-bg text-rk-text flex items-center justify-center p-4 font-sans">
+    <div className="min-h-dvh bg-rk-bg text-rk-text flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="bg-rk-panel border border-rk-line rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.05] rounded-full blur-3xl pointer-events-none" />
@@ -110,19 +110,19 @@ export const LoginPanel: React.FC = () => {
                   Configuration initiale — Création du Directeur (admin)
                 </span>
                 <div>
-                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Nom complet</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Nom complet</label>
                   <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Email professionnel</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Email professionnel</label>
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Mot de passe initial</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Mot de passe initial</label>
                   <input type="text" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1">Téléphone (optionnel)</label>
+                  <label className="block text-xs font-mono text-rk-muted uppercase mb-1">Téléphone (optionnel)</label>
                   <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-rk-bg border border-rk-line rounded-xl p-2.5 text-sm text-white" />
                 </div>
                 {error && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl px-4 py-3">{error}</div>}
@@ -136,7 +136,7 @@ export const LoginPanel: React.FC = () => {
             {needsBoot !== true && (
               <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1.5">Email professionnel</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Email professionnel</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-rk-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
@@ -151,7 +151,7 @@ export const LoginPanel: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono text-rk-muted uppercase mb-1.5">Mot de passe</label>
+                <label className="block text-xs font-mono text-rk-muted uppercase mb-1.5">Mot de passe</label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-rk-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
@@ -182,7 +182,7 @@ export const LoginPanel: React.FC = () => {
             </form>
             )}
 
-            <div className="flex items-center justify-between pt-2 text-[11px] font-mono text-rk-muted">
+            <div className="flex items-center justify-between pt-2 text-xs font-mono text-rk-muted">
               <span className="flex items-center gap-1.5">
                 {bootChecked ? (
                   <>

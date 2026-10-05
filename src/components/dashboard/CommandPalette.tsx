@@ -121,7 +121,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
             placeholder="Rechercher une section ou une action…"
             className="flex-1 bg-transparent border-0 outline-none py-4 text-sm text-rk-text placeholder:text-rk-muted"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono text-rk-muted border border-rk-line-soft rounded px-1.5 py-0.5">
+          <kbd className="hidden sm:inline-flex items-center gap-1 text-xs font-mono text-rk-muted border border-rk-line-soft rounded px-1.5 py-0.5">
             <CornerDownLeft className="w-3 h-3" aria-hidden="true" />
             <span>Entrée</span>
           </kbd>
@@ -135,7 +135,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
           )}
           {groupes.map((groupe) => (
             <li key={groupe.nom} role="presentation">
-              <p className="px-4 pt-3 pb-1 text-[11px] font-mono uppercase tracking-wider text-rk-muted">
+              <p className="px-4 pt-3 pb-1 text-xs font-mono uppercase tracking-wider text-rk-muted">
                 {groupe.nom}
               </p>
               <ul role="presentation">
@@ -160,7 +160,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                       />
                       <span className="flex-1 truncate">{item.label}</span>
                       {item.hint && (
-                        <span className={`text-[11px] font-mono ${estActif ? 'text-white/80' : 'text-rk-muted'}`}>
+                        <span className={`text-xs font-mono ${estActif ? 'text-white/80' : 'text-rk-muted'}`}>
                           {item.hint}
                         </span>
                       )}

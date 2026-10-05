@@ -593,7 +593,7 @@ export const SiteAdmin: React.FC = () => {
                     type="text"
                     value={heroForm.stat_1_label}
                     onChange={(e) => setHeroForm({ ...heroForm, stat_1_label: e.target.value })}
-                    className="w-full bg-transparent text-rk-muted text-[11px]"
+                    className="w-full bg-transparent text-rk-muted text-xs"
                   />
                 </div>
 
@@ -608,7 +608,7 @@ export const SiteAdmin: React.FC = () => {
                     type="text"
                     value={heroForm.stat_2_label}
                     onChange={(e) => setHeroForm({ ...heroForm, stat_2_label: e.target.value })}
-                    className="w-full bg-transparent text-rk-muted text-[11px]"
+                    className="w-full bg-transparent text-rk-muted text-xs"
                   />
                 </div>
 
@@ -623,7 +623,7 @@ export const SiteAdmin: React.FC = () => {
                     type="text"
                     value={heroForm.stat_3_label}
                     onChange={(e) => setHeroForm({ ...heroForm, stat_3_label: e.target.value })}
-                    className="w-full bg-transparent text-rk-muted text-[11px]"
+                    className="w-full bg-transparent text-rk-muted text-xs"
                   />
                 </div>
               </div>
@@ -658,7 +658,7 @@ export const SiteAdmin: React.FC = () => {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-mono text-emerald-400 uppercase font-bold">Forfait #{f.number}</span>
                       {f.recommended && (
-                        <span className="text-[11px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
+                        <span className="text-xs font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
                           Recommandé
                         </span>
                       )}
@@ -818,10 +818,10 @@ export const SiteAdmin: React.FC = () => {
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                      <span className="text-xs font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                         {post.category_label}
                       </span>
-                      <span className="text-[11px] font-mono text-rk-muted">{post.date}</span>
+                      <span className="text-xs font-mono text-rk-muted">{post.date}</span>
                     </div>
                     <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{post.title}</h4>
                     <span className="text-xs text-rk-muted font-mono">Auteur : {post.author_name}</span>
@@ -1027,10 +1027,10 @@ export const SiteAdmin: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-xs font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                       {r.categoryLabel}
                     </span>
-                    <span className="text-[11px] font-mono text-rk-muted">{r.forfait}</span>
+                    <span className="text-xs font-mono text-rk-muted">{r.forfait}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{r.name}</h4>
                   <div className="text-xs text-rk-muted mt-1 font-mono">
@@ -1186,8 +1186,8 @@ export const SiteAdmin: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">5/5</span>
-                    <span className="text-[11px] font-mono text-rk-muted">{t.metrics || '—'}</span>
+                    <span className="text-xs font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">5/5</span>
+                    <span className="text-xs font-mono text-rk-muted">{t.metrics || '—'}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">
                     {t.author} <span className="text-emerald-400 font-normal">— {t.company}</span>

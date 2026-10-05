@@ -32,7 +32,7 @@ export const DocumentLetterhead: React.FC<{ compact?: boolean }> = ({ compact })
           <div className="text-[10.5px] font-semibold tracking-wide" style={{ color: GREEN }}>
             {L.taglineLine1} · {L.taglineLine2}
           </div>
-          <div className="text-[10px] text-rk-muted mt-0.5">
+          <div className="text-xs text-rk-muted mt-0.5">
             {L.relationship} de {L.parentName}
           </div>
         </div>
@@ -65,7 +65,7 @@ export const DocumentLetterhead: React.FC<{ compact?: boolean }> = ({ compact })
  * donc jamais recouvrir le contenu.
  */
 export const DocumentLegalFooter: React.FC = () => (
-  <footer className="invoice-legal mt-6 border-t border-slate-200 pt-3 text-[9px] leading-relaxed text-rk-muted">
+  <footer className="invoice-legal mt-6 border-t border-slate-200 pt-3 text-xs leading-relaxed text-rk-muted">
     <div className="font-semibold text-slate-700">
       {L.agencyName} — {L.relationship} de {L.parentName}
     </div>

@@ -31,16 +31,16 @@ export const RoleSwitcher: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2.5 bg-rk-panel hover:bg-white/10 border border-rk-line px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer"
       >
-        <div className="w-6 h-6 rounded-lg bg-blue-600/30 border border-blue-400/40 flex items-center justify-center font-mono font-bold text-[11px] text-blue-300">
+        <div className="w-6 h-6 rounded-lg bg-blue-600/30 border border-blue-400/40 flex items-center justify-center font-mono font-bold text-xs text-blue-300">
           {user.name.split(' ').map(n => n[0]).join('')}
         </div>
         
         <div className="text-left hidden sm:block">
           <div className="text-xs font-semibold text-white leading-none">{user.name}</div>
-          <div className="text-[11px] font-mono text-rk-muted mt-0.5">{user.poste_titre}</div>
+          <div className="text-xs font-mono text-rk-muted mt-0.5">{user.poste_titre}</div>
         </div>
 
-        <span className={`text-[11px] font-mono px-2 py-0.5 rounded-md border ${roleLabels[role]?.badgeColor || ''}`}>
+        <span className={`text-xs font-mono px-2 py-0.5 rounded-md border ${roleLabels[role]?.badgeColor || ''}`}>
           {roleLabels[role]?.label}
         </span>
 
@@ -56,12 +56,12 @@ export const RoleSwitcher: React.FC = () => {
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span className="font-serif text-sm font-bold text-white">Sélection du Profil & Rôle</span>
               </div>
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                 RLS Actif
               </span>
             </div>
 
-            <p className="text-[11px] text-rk-muted leading-relaxed">
+            <p className="text-xs text-rk-muted leading-relaxed">
               Basculez entre les rôles de l'architecture Arckaton OS pour tester les permissions et vues spécifiques.
             </p>
 
@@ -86,11 +86,11 @@ export const RoleSwitcher: React.FC = () => {
                     <div>
                       <div className="font-semibold text-white flex items-center gap-2">
                         <span>{p.name}</span>
-                        <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded border ${rInfo?.badgeColor}`}>
+                        <span className={`text-xs font-mono px-1.5 py-0.2 rounded border ${rInfo?.badgeColor}`}>
                           {p.role}
                         </span>
                       </div>
-                      <div className="text-[11px] text-rk-muted font-mono mt-0.5">
+                      <div className="text-xs text-rk-muted font-mono mt-0.5">
                         {p.poste_titre} • Pôle {p.pole}
                       </div>
                     </div>
@@ -101,7 +101,7 @@ export const RoleSwitcher: React.FC = () => {
               })}
             </div>
 
-            <div className="pt-2 border-t border-rk-line text-[11px] font-mono text-rk-muted flex items-center justify-between">
+            <div className="pt-2 border-t border-rk-line text-xs font-mono text-rk-muted flex items-center justify-between">
               <span>Sécurité : Isolation Multi-rôles</span>
               <span className="text-emerald-400">Certifié Arckaton</span>
             </div>
