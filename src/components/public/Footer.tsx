@@ -1,10 +1,10 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Phone, Mail, MapPin, Globe, LayoutDashboard, ArrowUp } from 'lucide-react';
+import { Phone, Mail, MapPin, Globe, ArrowUp } from 'lucide-react';
 import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 
 export const Footer: React.FC = () => {
-  const { setMode, setIsLegalModalOpen } = useApp();
+  const { setIsLegalModalOpen } = useApp();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -87,17 +87,6 @@ export const Footer: React.FC = () => {
                 {OFFICIAL_KNOWLEDGE.letterhead.agencyName} est {OFFICIAL_KNOWLEDGE.letterhead.relationship.toLowerCase()} de {OFFICIAL_KNOWLEDGE.letterhead.parentName}, siège social à {OFFICIAL_KNOWLEDGE.letterhead.parentLocation}.<br />
                 RC : {OFFICIAL_KNOWLEDGE.letterhead.rc} — NIU : {OFFICIAL_KNOWLEDGE.letterhead.niu}
               </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                onClick={() => setMode('dashboard')}
-                className="text-xs font-mono text-rk-muted hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer"
-                title="Espace réservé aux membres habilités"
-              >
-                <LayoutDashboard className="w-3 h-3" />
-                <span>Arckaton OS — Espace Membres</span>
-              </button>
             </div>
           </div>
 

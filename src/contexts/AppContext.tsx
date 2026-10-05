@@ -406,7 +406,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return found?.phone ? [found.phone] : [];
   }, []);
 
-  const [mode, setMode] = useState<'public' | 'dashboard'>('public');
+  // L'OS est l'espace de travail des membres d'Arckaton, pas celui des
+  // visiteurs : aucun lien public n'y conduit. On y entre par son URL directe
+  // (`/os`), que les membres mettront en favori. Le chemin n'est pas un secret
+  // — la protection reste l'authentification cote serveur.
+  const [mode, setMode] = useState<'public' | 'dashboard'>(() =>
+    typeof window !== 'undefined' && /^\/os(\/|$)/.test(window.location.pathname)
+      ? 'dashboard'
+      : 'public'
+  );
   const [dashboardTab, setDashboardTab] = useState<string>('home');
   const [currentUser, setCurrentUser] = useState<UserProfile>(PLACEHOLDER_PROFILE);
 

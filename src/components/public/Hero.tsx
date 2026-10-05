@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import heroSystemCubeImg from '../../assets/images/arckaton_system_cube_1789213196858.webp';
 
 export const Hero: React.FC = () => {
-  const { setIsQuoteModalOpen, setIsAgentModalOpen, setIsTrialModalOpen, setMode } = useApp();
+  const { setIsQuoteModalOpen, setIsAgentModalOpen, setIsTrialModalOpen } = useApp();
   const [activeCockpitTab, setActiveCockpitTab] = useState<'sales' | 'inventory' | 'field'>('sales');
 
   return (
@@ -189,15 +189,6 @@ export const Hero: React.FC = () => {
                   }`}
                 >
                   Sorties Terrain
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setMode('dashboard')}
-                  className="text-xs font-medium text-rk-text-secondary hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-3 py-1.5 rounded-lg transition-colors border border-rk-line"
-                >
-                  Ouvrir l'OS &rarr;
                 </button>
               </div>
             </div>
