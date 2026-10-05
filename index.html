@@ -50,10 +50,15 @@
         ]
       }
     </script>
-    <!-- Fonts: Fraunces (serif display), Inter (sans), DM Mono, Space Grotesk -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Fonts: Fraunces (serif), Inter (sans), DM Mono, Syne (display).
+         Auto-hebergees et limitees au sous-ensemble latin : plus aucune CSS
+         tierce qui bloque le rendu, plus aucune requete vers un tiers. Les
+         quatre faces les plus utilisees sont prefetchees pour ne pas attendre
+         le fichier principal. -->
+    <link rel="preload" href="/fonts/inter-1ZL7.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/syne-BL9A.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/fraunces-9TeA.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/dm-mono-qQBA.woff2" as="font" type="font/woff2" crossorigin>
   </head>
   <body class="bg-rk-bg text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-300">
     <div id="root"></div>

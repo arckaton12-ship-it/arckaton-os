@@ -13,6 +13,24 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          // Le chunk public depasse le seuil d'alerte de Vite. Le decouper ne
+          // fait pas gagner des octets au premier affichage (le total telecharge
+          // est identique), mais il isole des dependances qui changent rarely :
+          // une correction de React ou de Motion ne condamne plus le cache du
+          // code de l'OS, et le Navigateur peut_paralleliser le telechargement.
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return undefined;
+            if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'react';
+            if (/[\\/]node_modules[\\/](motion|motion-dom|motion-utils|framer-motion)[\\/]/.test(id)) return 'motion';
+            if (/[\\/]node_modules[\\/]lucide-react[\\/]/.test(id)) return 'icons';
+            return undefined;
+          },
+        },
+      },
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.

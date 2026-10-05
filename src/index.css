@@ -1,3 +1,6 @@
+/* Polices auto-hebergees (voir src/fonts.css). Doit rester en tete de feuille :
+   un @import CSS n'est valide qu'avant toute autre regle. */
+@import "./fonts.css";
 @import "tailwindcss";
 
 /* =========================================================
