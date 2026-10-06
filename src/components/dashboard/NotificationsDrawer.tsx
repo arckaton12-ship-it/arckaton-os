@@ -18,6 +18,7 @@ const sourceLabel = (n: { link?: string; type?: string }): string => {
   if (n.link === '/members') return 'Membres & Habilitations';
   if (n.link === '/crm') return 'CRM & Devis';
   if (n.link === '/siteadmin') return 'Gestion du site';
+  if (n.link === '/agenda' || n.type === 'rdv') return 'Agenda & Rendez-vous';
   return 'Vue d’ensemble';
 };
 

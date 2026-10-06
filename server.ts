@@ -16,6 +16,7 @@ import { GoogleGenAI } from "@google/genai";
 // et `contentVisibility` restent la seule source de verite. Voir
 // migrations/001_roles.sql pour pourquoi il n'y a pas de RLS.
 import { from as dbFrom, query as dbQuery, isUniqueViolation, violatedConstraint, enLignes, enLigne } from "./src/db/adapter";
+import { appliquerMigrationsAuDemarrage } from "./src/db/migrate";
 import {
   emettreJetons,
   verifierJetonAcces,
@@ -2975,17 +2976,8 @@ app.post(
 
     // Le pole est deduit du type de projet, jamais accepte tel quel : un
     // visiteur public ne doit pas pouvoir router son lead vers un pole interne.
-    let poleAssigned = 'Direction';
-    const pType = cleanProjectType.toLowerCase();
-    if (pType.includes('e-commerce') || pType.includes('arka') || pType.includes('mobile money') || pType.includes('tech')) {
-      poleAssigned = 'Tech';
-    } else if (pType.includes('logo') || pType.includes('identité') || pType.includes('créat') || pType.includes('visuel')) {
-      poleAssigned = 'Creatif';
-    } else if (pType.includes('seo') || pType.includes('vitrine') || pType.includes('marketing') || pType.includes('ads')) {
-      poleAssigned = 'Digital';
-    } else if (pType.includes('terrain') || pType.includes('compte') || pType.includes('formation')) {
-      poleAssigned = 'Client';
-    }
+    // (regle partagee avec /api/appointments : deduirePolePublique)
+    const poleAssigned = deduirePolePublique(cleanProjectType);
 
     // Identifiant applicatif genere par le serveur : le client ne fournit plus
     // client_ref, avec lequel il pouvait ecraser ou inhiber une ligne de la file.
@@ -3098,6 +3090,542 @@ app.patch("/api/leads/:ref", requireAuth, async (req: AuthReq, res) => {
   } catch (err: any) {
     console.error("Erreur mise a jour lead:", err);
     res.status(500).json({ error: "Erreur mise a jour lead" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+//  Rendez-vous & notifications internes
+//
+//  Parcours : un visiteur du conseiller public demande un rendez-vous. Le
+//  serveur derive le pole, cree un lead, reserve le creneau (statut
+//  `demande`), puis replit une notification par destinataire (le siege et le
+//  pole concerne). La confirmation appartient a la direction, jamais au
+//  conseiller : visiter /api/ai/agent-chat pour la regle cote IA.
+//
+//  Regle de fond (tests/schema.constraints.test.ts + ici) :
+//    - le creneau est propose par l'agence, pas choisi librement par le
+//      visiteur ; l'unicite par pole est posee en base (index partiel),
+//      pas dans un test-then-insert non atomique ;
+//    - aucune colonne du corps de requete n'est fiable : nombres, dates et
+//      pole passent tous par des validateurs purs exportes ;
+//    - mode degrade (base absente) : le POST persiste en memoire pour que
+//      l'endpoint reste testable sans base, comme `/api/leads`.
+// ---------------------------------------------------------------------------
+
+type StatutRdv = 'demande' | 'confirme' | 'annule' | 'realise';
+
+interface StoredAppointment {
+  rdv_ref: string;
+  lead_ref: string | null;
+  idempotence_key: string | null;
+  pole: string;
+  motif: string;
+  debut_utc: string;
+  duree_min: number;
+  nom: string;
+  telephone: string;
+  email: string;
+  source: string;
+  statut: StatutRdv;
+  consentement_at: string | null;
+  cree_le: string;
+  maj_le: string;
+}
+
+const appointmentsStore: StoredAppointment[] = [];
+
+const STATUTS_RDV: StatutRdv[] = ['demande', 'confirme', 'annule', 'realise'];
+const ACTIONS_RDV: Record<string, StatutRdv> = {
+  confirmer: 'confirme',
+  annuler: 'annule',
+  realiser: 'realise',
+};
+// Le siege (role admin), la direction commerciale et le pole concerne sont
+// notifies. Un deuxieme admin du pole ne recoit pas de doublon (Set).
+export function destinatairesNotifRdv(
+  membres: Array<{ id: string; role: string; pole: string; active: boolean }>,
+  poleRdv: string
+): string[] {
+  const cibles = membres
+    .filter(
+      (m) => m.active && (m.role === 'admin' || m.pole === 'Direction' || m.pole === poleRdv)
+    )
+    .map((m) => m.id);
+  return [...new Set(cibles)];
+}
+
+const FUSEAU_DOUALA_UTC = 60; // minutes ; Africa/Douala = UTC+1, sans DST.
+
+// Un rendez-vous doit tomber dans les horaires publics de l'agence :
+// lundi-vendredi, 08:00-18:30 heure locale, sur des creneaux de 30 min.
+export function estHeureOuvrable(debut_utc: string | number | Date, dureeMin = 30): boolean {
+  const d = new Date(debut_utc);
+  if (Number.isNaN(d.getTime())) return false;
+  const douala = new Date(d.getTime() + FUSEAU_DOUALA_UTC * 60_000);
+  const jour = douala.getUTCDay();
+  if (jour === 0 || jour === 6) return false;
+  const minutesJour = douala.getUTCHours() * 60 + douala.getUTCMinutes();
+  if (minutesJour % 30 !== 0) return false;
+  if (minutesJour < 8 * 60) return false;
+  // Le creneau doit se terminer avant 18:30 (dernier depart a 18:00).
+  if (minutesJour + dureeMin > 18 * 60 + 30) return false;
+  return true;
+}
+
+// Liste des prochains creneaux ouverts, alignes sur la demi-heure, jours
+// ouvrables uniquement, tous strictement dans le futur avec un delai minimum.
+// C'est cette liste que le conseiller propose : il ne choisit jamais un
+// creneau hors de PMA, et le serveur revandique la meme regle a l'acceptation.
+export function genererCreneauxDisponibles(
+  aPartirDe: Date,
+  opts: { dureeMin?: number; joursOuvrables?: number; delaiMin?: number } = {}
+): Date[] {
+  const dureeMin = opts.dureeMin ?? 30;
+  const joursOuvrables = opts.joursOuvrables ?? 10;
+  const delaiMin = opts.delaiMin ?? 60;
+  const departMs = aPartirDe.getTime() + delaiMin * 60_000;
+  const creneaux: Date[] = [];
+  let trouves = 0;
+  for (let i = 0; trouves < joursOuvrables && i < joursOuvrables * 2 + 7; i++) {
+    const jour = new Date(
+      Date.UTC(aPartirDe.getUTCFullYear(), aPartirDe.getUTCMonth(), aPartirDe.getUTCDate() + i)
+    );
+    if (jour.getUTCDay() === 0 || jour.getUTCDay() === 6) continue;
+    trouves++;
+    // 08:00 Douala = 07:00 UTC (journee identique en date), dernier depart 18:00 = 17:00 UTC.
+    for (let h = 7; h <= 17; h++) {
+      for (const min of [0, 30]) {
+        const t = jour.getTime() + (h * 60 + min) * 60_000;
+        // Strictement apres le delai : un creneau a exactement une heure
+        // serait refuse par validerDemandeRdv (« a plus d une heure »).
+        if (t > departMs) creneaux.push(new Date(t));
+      }
+    }
+  }
+  return creneaux;
+}
+
+// Le pole est deduit du besoin exprime, jamais accepte tel quel depuis la
+// requete : un visiteur ne doit pas pouvoir router son rendez-vous vers un
+// pole interne. Meme regle que pour /api/leads (voir plus haut).
+export function deduirePolePublique(texte: string): string {
+  const t = texte.toLowerCase();
+  if (t.includes('e-commerce') || t.includes('arka') || t.includes('mobile money') || t.includes('tech')) {
+    return 'Tech';
+  }
+  if (t.includes('logo') || t.includes('identité') || t.includes('créat') || t.includes('visuel')) {
+    return 'Creatif';
+  }
+  if (t.includes('seo') || t.includes('vitrine') || t.includes('marketing') || t.includes('ads')) {
+    return 'Digital';
+  }
+  if (t.includes('terrain') || t.includes('compte') || t.includes('formation')) {
+    return 'Client';
+  }
+  return 'Direction';
+}
+
+export interface DemandeRdvPropre {
+  nom: string;
+  telephone: string;
+  email: string;
+  motif: string;
+  debut_utc: Date;
+  duree_min: number;
+  cle_idempotence: string | null;
+  consentement_at: Date | null;
+  source: string;
+}
+
+export interface DemandeRdvValidee {
+  ok: boolean;
+  erreurs: string[];
+  propre: DemandeRdvPropre | null;
+}
+
+const DELAI_MIN_RDV_MS = 60 * 60_000; // un creneau ne se prend pas a 2 minutes pres
+
+export function validerDemandeRdv(input: unknown): DemandeRdvValidee {
+  const b = (typeof input === 'object' && input !== null ? input : {}) as Record<string, unknown>;
+  const nom = cleanStr(b.nom, 160);
+  const telephone = cleanStr(b.telephone, 32);
+  const email = cleanStr(b.email, 160).toLowerCase();
+  const motif = cleanStr(b.motif, 300);
+  const cle_idempotence = cleanStr(b.cle_idempotence, 64) || null;
+  const source = cleanStr(b.source, 60) || 'site_public';
+
+  const erreurs: string[] = [];
+  if (nom.length < 2) erreurs.push('Nom requis.');
+  const chiffres = telephone.replace(/\D/g, '');
+  if (!/^\+?\d{8,15}$/.test(telephone.replace(/[\s().-]/g, ''))) {
+    if (chiffres.length < 8 || chiffres.length > 15) erreurs.push('Numéro de téléphone invalide.');
+  }
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) erreurs.push("Adresse email invalide.");
+
+  let debut_utc: Date;
+  try {
+    debut_utc = new Date(String(b.debut_utc ?? ''));
+    if (Number.isNaN(debut_utc.getTime())) throw new Error('invalide');
+  } catch {
+    debut_utc = new Date(NaN);
+  }
+  if (Number.isNaN(debut_utc.getTime())) {
+    erreurs.push('Date de rendez-vous invalide.');
+  } else {
+    if (!estHeureOuvrable(debut_utc)) erreurs.push('Créneau hors horaires de l’agence.');
+    if (debut_utc.getTime() <= Date.now() + DELAI_MIN_RDV_MS) {
+      erreurs.push('Choisissez un créneau à plus d’une heure.');
+    }
+  }
+
+  const duree_min = Math.round(Number(b.duree_min) || 30);
+  if (!Number.isFinite(duree_min) || duree_min < 5 || duree_min > 480) {
+    erreurs.push('Durée du rendez-vous invalide.');
+  }
+
+  if (b.consentement !== true) {
+    erreurs.push('Consentement requis pour être recontacté(e).');
+  }
+
+  if (erreurs.length > 0) {
+    return { ok: false, erreurs, propre: null };
+  }
+
+  return {
+    ok: true,
+    erreurs,
+    propre: {
+      nom,
+      telephone,
+      email,
+      motif,
+      debut_utc: debut_utc as Date,
+      duree_min,
+      cle_idempotence,
+      // Le consentement est enregistre pour prouver l'acceptation (loi
+      // 2024/017 du 23/12/2024, art. 41) : ce n'est pas une case a cocher
+      // pour la forme, c'est une trace d'audit.
+      consentement_at: new Date(),
+      source,
+    },
+  };
+}
+
+export function rdvToApi(r: StoredAppointment) {
+  return {
+    rdv_ref: r.rdv_ref,
+    lead_ref: r.lead_ref,
+    pole: r.pole,
+    motif: r.motif,
+    debut_utc: r.debut_utc,
+    duree_min: r.duree_min,
+    nom: r.nom,
+    telephone: r.telephone,
+    email: r.email,
+    source: r.source,
+    statut: r.statut,
+    cree_le: r.cree_le,
+  };
+}
+
+async function lireAppointmentParRef(ref: string): Promise<StoredAppointment | null> {
+  const sb = getSupabase();
+  if (!sb) return appointmentsStore.find((a) => a.rdv_ref === ref) ?? null;
+  const res = await sb.from('appointments').select('*').eq('rdv_ref', ref).maybeSingle();
+  return enLigne<StoredAppointment>(res.data);
+}
+
+app.post("/api/appointments",
+  rateLimit({
+    windowMs: 60_000,
+    max: 5,
+    scope: 'appointments:create',
+    message: 'Trop de demandes de rendez-vous. Réessayez dans une minute.',
+  }),
+  async (req, res) => {
+    try {
+      const { ok, erreurs, propre } = validerDemandeRdv(req.body);
+      if (!ok) return res.status(400).json({ error: erreurs.join(' ') });
+
+      const sb = getSupabase();
+      const maintenant = new Date();
+      const rdvRef = `rdv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const leadRef = `lead-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const pole = deduirePolePublique(propre!.motif || propre!.nom);
+
+      // Idempotence : un rejeu du meme POST (reseau, double clic) doit
+      // retourner la ligne existante, pas creer un second rendez-vous.
+      if (propre!.cle_idempotence) {
+        if (sb) {
+          const deja = enLigne<StoredAppointment>(
+            (
+              await sb
+                .from('appointments')
+                .select('*')
+                .eq('idempotence_key', propre!.cle_idempotence)
+                .maybeSingle()
+            ).data
+          );
+          if (deja) return res.json({ success: true, rdv: rdvToApi(deja) });
+        } else {
+          const deja = appointmentsStore.find(
+            (a) => a.idempotence_key === propre!.cle_idempotence
+          );
+          if (deja) return res.json({ success: true, rdv: rdvToApi(deja) });
+        }
+      }
+
+      // Un creneau deja pris (demande ou confirme) est refuse avant la
+      // creation du lead : pas de prospect fantome pour un creneau perdu.
+      if (sb) {
+        const occupe = enLigne<StoredAppointment>(
+          (
+            await sb
+              .from('appointments')
+              .select('*')
+              .eq('debut_utc', propre!.debut_utc.toISOString())
+              .eq('pole', pole)
+              .maybeSingle()
+          ).data
+        );
+        if (occupe && occupe.statut !== 'annule') {
+          return res.status(409).json({
+            error: 'Ce créneau vient d’être pris. Choisissez une autre proposition.',
+            creneaux: genererCreneauxDisponibles(maintenant, { dureeMin: propre!.duree_min }),
+          });
+        }
+      } else {
+        const occupe = appointmentsStore.find(
+          (a) => a.debut_utc === propre!.debut_utc.toISOString() && a.pole === pole
+        );
+        if (occupe && occupe.statut !== 'annule') {
+          return res.status(409).json({
+            error: 'Ce créneau vient d’être pris. Choisissez une autre proposition.',
+            creneaux: genererCreneauxDisponibles(maintenant, { dureeMin: propre!.duree_min }),
+          });
+        }
+      }
+
+      // Le rendez-vous cree son lead : le prospect doit remonter au CRM,
+      // meme si le rendez-vous est ensuite annule.
+      const newLead: StoredLead = {
+        id: leadRef,
+        name: propre!.nom,
+        email: propre!.email,
+        phone: propre!.telephone,
+        project_type: propre!.motif || 'Prise de rendez-vous',
+        budget: 'Sur devis',
+        message: `Rendez-vous demandé pour le ${new Date(propre!.debut_utc.getTime() + FUSEAU_DOUALA_UTC * 60_000).toISOString().slice(0, 16).replace('T', ' ')} (${pole}).`,
+        source: 'site_public_rdv',
+        statut: 'nouveau',
+        notes: '',
+        pole_assigned: pole,
+        country: 'Cameroun / International',
+        created_at: 'À l\'instant',
+      };
+      const persisted = await persistLead({ ...newLead, client_ref: leadRef });
+
+      const rdv: StoredAppointment = {
+        rdv_ref: rdvRef,
+        lead_ref: leadRef,
+        idempotence_key: propre!.cle_idempotence,
+        pole,
+        motif: propre!.motif,
+        debut_utc: propre!.debut_utc.toISOString(),
+        duree_min: propre!.duree_min,
+        nom: propre!.nom,
+        telephone: propre!.telephone,
+        email: propre!.email,
+        source: propre!.source,
+        statut: 'demande',
+        consentement_at: propre!.consentement_at!.toISOString(),
+        cree_le: maintenant.toISOString(),
+        maj_le: maintenant.toISOString(),
+      };
+
+      let erreurDb: unknown = null;
+      if (sb) {
+        const { error } = await sb.from('appointments').insert({
+          rdv_ref: rdvRef,
+          lead_ref: leadRef,
+          idempotence_key: propre!.cle_idempotence,
+          pole,
+          motif: rdv.motif,
+          debut_utc: rdv.debut_utc,
+          duree_min: rdv.duree_min,
+          nom: rdv.nom,
+          telephone: rdv.telephone,
+          email: rdv.email,
+          source: rdv.source,
+          statut: 'demande',
+          consentement_at: rdv.consentement_at,
+        });
+        erreurDb = error || null;
+      }
+
+      if (erreurDb) {
+        if (isUniqueViolation(erreurDb) && violatedConstraint(erreurDb) === 'appointments_creneau_pris') {
+          return res.status(409).json({
+            error: 'Ce créneau vient d’être pris. Choisissez une autre proposition.',
+            creneaux: genererCreneauxDisponibles(maintenant, { dureeMin: propre!.duree_min }),
+          });
+        }
+        if (isUniqueViolation(erreurDb)) {
+          // Rejeu concurrent : l'autre requete a gagne, on renvoie sa ligne.
+          const gagnant = await lireAppointmentParRef(rdvRef);
+          if (gagnant) return res.json({ success: true, rdv: rdvToApi(gagnant) });
+        }
+        console.error('Erreur insertion rendez-vous:', erreurDb);
+        return res.status(500).json({ error: 'Erreur enregistrement du rendez-vous' });
+      }
+
+      if (!sb) {
+        appointmentsStore.unshift(rdv);
+      }
+
+      // Fan-out des notifications : un poste par destinataire. En mode
+      // degrade, la base des membres est indisponible : on ne notifie pas,
+      // le rendez-vous reste visible dans l'agenda de l'OS.
+      if (sb) {
+        const { data: membres, error: errMembres } = await sb
+          .from('members')
+          .select('id, role, pole, active');
+        if (!errMembres) {
+          const cibles = destinatairesNotifRdv(
+            enLignes<{ id: string; role: string; pole: string; active: boolean }>(membres),
+            pole
+          );
+          if (cibles.length > 0) {
+            const lignes = cibles.map((destId) => ({
+              dest_id: destId,
+              type: 'rdv' as const,
+              titre: `Nouveau rendez-vous — ${pole}`,
+              corps: `${rdv.nom} · ${new Date(rdv.debut_utc).toISOString().slice(0, 16).replace('T', ' ')}, ${rdv.duree_min} min`,
+              ref: rdvRef,
+              lien: '/os?onglet=agenda',
+            }));
+            const { error: errNotif } = await sb.from('notifications').insert(lignes);
+            if (errNotif) console.warn('notification insert:', errNotif.message);
+          }
+        }
+      }
+
+      res.status(201).json({
+        success: true,
+        rdv: rdvToApi(rdv),
+        lead_ref: leadRef,
+        persisted,
+      });
+    } catch (err: any) {
+      console.error('Erreur rendez-vous:', err);
+      res.status(500).json({ error: 'Erreur enregistrement du rendez-vous' });
+    }
+  }
+);
+
+app.get("/api/appointments", requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.json({ appointments: appointmentsStore.map(rdvToApi) });
+
+  try {
+    const membre = req.member!;
+    // Le siege et la direction lisent tout ; un membre du pole ne lit que
+    // son pole. C'est la meme cage que /api/tasks.
+    const voitTout = membre.role === 'admin' || membre.pole === 'Direction';
+    let chaine = sb.from('appointments').select('*').order('debut_utc', { ascending: true });
+    if (!voitTout) chaine = chaine.eq('pole', membre.pole);
+
+    const statutFiltre = cleanStr(req.query.statut, 20);
+    if (STATUTS_RDV.includes(statutFiltre as StatutRdv)) {
+      chaine = chaine.eq('statut', statutFiltre);
+    }
+    const fin = cleanStr(req.query.jusqu_a, 40);
+    if (fin) chaine = chaine.lt('debut_utc', new Date(fin).toISOString());
+
+    const { data } = await chaine.limit(200);
+    res.json({ appointments: enLignes<StoredAppointment>(data).map(rdvToApi) });
+  } catch (err) {
+    console.error('Erreur liste rendez-vous:', err);
+    res.status(500).json({ error: 'Erreur lecture des rendez-vous' });
+  }
+});
+
+app.patch("/api/appointments/:ref", requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
+
+  try {
+    const action = cleanStr((req.body || {}).action, 20);
+    const statut = ACTIONS_RDV[action];
+    if (!statut) return res.status(400).json({ error: 'Action invalide (confirmer, annuler, realiser).' });
+
+    const existant = await lireAppointmentParRef(req.params.ref);
+    if (!existant) return res.status(404).json({ error: 'Rendez-vous introuvable' });
+
+    const membre = req.member!;
+    const estDirection = membre.role === 'admin' || membre.pole === 'Direction';
+    // La confirmation est un acte de la direction : le pole Technique ou
+    // un simple membre ne peut pas l'ouvrir (regle posee cote IA aussi).
+    if (action === 'confirmer' && !estDirection) {
+      return res.status(403).json({ error: 'Seule la direction confirme un rendez-vous.' });
+    }
+    if (!estDirection && membre.pole !== existant.pole && membre.role !== 'admin') {
+      return res.status(403).json({ error: 'Hors de votre périmètre.' });
+    }
+
+    const { data, error } = await sb
+      .from('appointments')
+      .update({ statut, maj_le: new Date().toISOString() })
+      .eq('rdv_ref', req.params.ref)
+      .select('*')
+      .maybeSingle();
+    if (error) throw error;
+
+    const rdv = enLigne<StoredAppointment>(data);
+    await logActivity(membre, 'update', 'rdv', req.params.ref, { action, statut });
+    res.json({ success: true, rdv: rdv ? rdvToApi(rdv) : null });
+  } catch (err: any) {
+    console.error('Erreur mise a jour rendez-vous:', err);
+    res.status(500).json({ error: 'Erreur mise a jour du rendez-vous' });
+  }
+});
+
+app.get("/api/notifications", requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.json({ notifications: [] });
+
+  try {
+    const { data } = await sb
+      .from('notifications')
+      .select('*')
+      .eq('dest_id', req.member!.id)
+      .order('cree_le', { ascending: false })
+      .limit(50);
+    res.json({ notifications: enLignes(data) });
+  } catch (err) {
+    console.error('Erreur lecture notifications:', err);
+    res.status(500).json({ error: 'Erreur lecture des notifications' });
+  }
+});
+
+app.post("/api/notifications/:id/lu", requireAuth, async (req: AuthReq, res) => {
+  const sb = getSupabase();
+  if (!sb) return res.status(503).json({ error: 'Base de données non configurée' });
+
+  try {
+    const { data, error } = await sb
+      .from('notifications')
+      .update({ lu_le: new Date().toISOString() })
+      .eq('id', req.params.id)
+      .eq('dest_id', req.member!.id)
+      .select('*')
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Notification introuvable' });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Erreur marquage notification:', err);
+    res.status(500).json({ error: 'Erreur marquage notification' });
   }
 });
 
@@ -4194,6 +4722,27 @@ async function startServer() {
     });
   }
 
+  // Migrations manquantes avant l'ouverture du port. Sans cela, une
+  // table ajoutee dans `migrations/` n'arrivait jamais sur la base de
+  // production (aucun chemin de migration vers Render postgres), et
+  // l'endpoint qui la cible repondait 500 en silence apres deploiement.
+  const migrations = await appliquerMigrationsAuDemarrage();
+  if (migrations.saute) {
+    console.warn(`[migration] non executees (${migrations.saute})`);
+  }
+  if (migrations.appliquees.length > 0) {
+    console.log(
+      `[migration] ${migrations.appliquees.length} appliquee(s) : ${migrations.appliquees.join(', ')}`
+    );
+  }
+  if (migrations.enErreur) {
+    // Erreur loguee en clair mais pas d'arret : le serveur doit
+    // repondre et la rendre visible plutot que de boucler dans un
+    // redemarrage. L'endpoint concerné repondra 500 tant que la
+    // migration n'a pas passe.
+    console.error(`[migration] ECHEC : ${migrations.enErreur}`);
+  }
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
     startWhatsAppWorker();
@@ -4245,6 +4794,17 @@ export const __construireInstructionCopilote = construireInstructionCopilote;
 export const __construireInstructionRapportStrategique = construireInstructionRapportStrategique;
 export const __extraireRapportStrategique = extraireRapportStrategique;
 export const __construireRapportDeSecours = construireRapportDeSecours;
+
+// Exportes pour tester la reservation de rendez-vous : pole deduit du besoin,
+// horaires d'ouverture publics, generation des creneaux proposes par l'agence,
+// validation stricte de la demande (une demande incomplète est refusee), et le
+// ciblage des notifications (siege + direction + pole concerne). Les routes
+// /api/appointments s'appuient sur ces pures fonctions.
+export const __deduirePolePublique = deduirePolePublique;
+export const __estHeureOuvrable = estHeureOuvrable;
+export const __genererCreneauxDisponibles = genererCreneauxDisponibles;
+export const __validerDemandeRdv = validerDemandeRdv;
+export const __destinatairesNotifRdv = destinatairesNotifRdv;
 
 // Exporte pour verifier le cloisonnement reel du cockpit : la Direction lit
 // tout (coordonnees comprises), un membre reste borne a son pole et ne recoit

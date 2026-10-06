@@ -1,4 +1,4 @@
-import { ForfaitData, Poste, Task, Lead, AgentReport, AppNotification, ChannelMessage, CalendarEvent, Projet, UserProfile, Realisation, Temoignage } from '../types';
+import { ForfaitData, Poste, Task, Lead, AgentReport, AppNotification, ChannelMessage, Projet, UserProfile, Realisation, Temoignage } from '../types';
 
 export const OFFICIAL_KNOWLEDGE = {
   agency: {
@@ -211,39 +211,6 @@ export const INITIAL_REPORTS: AgentReport[] = [];
 export const INITIAL_NOTIFICATIONS: AppNotification[] = [];
 
 export const INITIAL_MESSAGES: ChannelMessage[] = [];
-
-export const INITIAL_EVENTS: CalendarEvent[] = [
-  {
-    id: 'ev-1',
-    title: 'Sortie Terrain 1/9 — Shooting Maison Kotto',
-    description: 'Captation visuelle des ateliers de fabrication et portraits de l\'équipe dirigeante.',
-    start_date: '2026-09-14 09:00',
-    end_date: '2026-09-14 14:00',
-    event_type: 'terrain',
-    pole: 'Creatif',
-    lieu: 'Atelier Kotto, Yaoundé'
-  },
-  {
-    id: 'ev-2',
-    title: 'Livraison Définitive & Formation 2h Districash',
-    description: 'Mise en ligne du portail consolidé 12 000 références et formation des chefs de rayon.',
-    start_date: '2026-09-17 15:00',
-    end_date: '2026-09-17 17:00',
-    event_type: 'launch',
-    pole: 'Tech',
-    lieu: 'Visioconférence Google Meet'
-  },
-  {
-    id: 'ev-3',
-    title: 'Comité de Direction & Pilotage Hebdo',
-    description: 'Analyse des leads du site web v2, état des conversions et trésorerie agence.',
-    start_date: '2026-09-19 11:00',
-    end_date: '2026-09-19 12:30',
-    event_type: 'meeting',
-    pole: 'Direction',
-    lieu: 'Salle de réunion Arckaton Mimboman'
-  }
-];
 
 // Les projets sont créés depuis les leads ou saisis manuellement.
 export const INITIAL_PROJETS: Projet[] = [];

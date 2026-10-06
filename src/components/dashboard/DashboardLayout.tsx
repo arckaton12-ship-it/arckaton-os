@@ -20,7 +20,8 @@ import {
   Briefcase,
   FolderKanban,
   Search,
-  LogOut
+  LogOut,
+  CalendarDays
 } from 'lucide-react';
 import { CommandPalette, type PaletteItem } from './CommandPalette';
 import { OverviewTab } from './OverviewTab';
@@ -35,6 +36,7 @@ import { SettingsTab } from './SettingsTab';
 import { NotificationsDrawer } from './NotificationsDrawer';
 import { MembersTab } from './MembersTab';
 import { PoleDashboard } from './PoleDashboard';
+import { AgendaTab } from './AgendaTab';
 import { LoginPanel } from '../auth/LoginPanel';
 
 export const DashboardLayout: React.FC = () => {
@@ -42,7 +44,7 @@ export const DashboardLayout: React.FC = () => {
   const { user, role, isSiteEditor, isAdmin, logout, isAuthenticated, loading } = useAuth();
 
   const [activeTab, setActiveTab] = useState<
-    | 'overview' | 'projects' | 'orgchart' | 'tasks' | 'crm' | 'messaging' | 'copilot' | 'siteadmin' | 'settings' | 'members'
+    | 'overview' | 'projects' | 'orgchart' | 'tasks' | 'crm' | 'agenda' | 'messaging' | 'copilot' | 'siteadmin' | 'settings' | 'members'
   >('overview');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -84,11 +86,16 @@ export const DashboardLayout: React.FC = () => {
     return () => window.removeEventListener('keydown', surRaccourci);
   }, []);
 
-  // Navigation centralisee : sidebar, notifications, vue d'ensemble
+  // Navigation centralisee : sidebar, notifications, vue d'ensemble. Les
+  // liens internes serveur arrivent parfois sous forme d'URL (`/os?onglet=agenda`)
+  // : on extrait alors le nom de l'onglet cible.
   const goToTab = (t: string) => {
+    const cible = t.includes('?') ? t.split('?')[1].replace('onglet=', '') : t;
     const alias: Record<string, typeof activeTab> = {
       leads: 'crm',
       crm: 'crm',
+      agenda: 'agenda',
+      rdv: 'agenda',
       projects: 'projects',
       tasks: 'tasks',
       kanban: 'tasks',
@@ -100,7 +107,7 @@ export const DashboardLayout: React.FC = () => {
       siteadmin: 'siteadmin',
       overview: 'overview',
     };
-    setActiveTab(alias[t] || 'overview');
+    setActiveTab(alias[cible] || 'overview');
     setIsSidebarOpen(false);
   };
 
@@ -137,6 +144,7 @@ export const DashboardLayout: React.FC = () => {
     { id: 'orgchart' as const, label: "Organigramme (17 Postes)", icon: Users, badge: null, adminOnly: false },
     { id: 'tasks' as const, label: "Tableau Kanban", icon: CheckSquare, badge: null, adminOnly: false },
     { id: 'crm' as const, label: "CRM & Devis / Ventes", icon: Briefcase, badge: null, adminOnly: false },
+    { id: 'agenda' as const, label: "Agenda & RDV", icon: CalendarDays, badge: null, adminOnly: false },
     { id: 'messaging' as const, label: "Messagerie Interne", icon: MessageSquare, badge: null, adminOnly: false },
     { id: 'copilot' as const, label: "Copilote IA Stratégique", icon: Sparkles, badge: null, adminOnly: false },
     { id: 'siteadmin' as const, label: "Gestion Site (/site CMS)", icon: FileEdit, badge: null, adminOnly: false },
@@ -151,7 +159,7 @@ export const DashboardLayout: React.FC = () => {
   const sections: { id: string; label: string; items: typeof navItems }[] = (
     [
       { id: 'pilotage', label: 'Pilotage', ids: ['overview', 'projects', 'tasks', 'copilot'] },
-      { id: 'clients', label: 'Clients', ids: ['crm', 'messaging'] },
+      { id: 'clients', label: 'Clients', ids: ['crm', 'agenda', 'messaging'] },
       { id: 'organisation', label: 'Organisation', ids: ['orgchart', 'members'] },
       { id: 'configuration', label: 'Configuration', ids: ['siteadmin', 'settings'] },
     ] as { id: string; label: string; ids: string[] }[]
@@ -493,6 +501,7 @@ export const DashboardLayout: React.FC = () => {
           {activeTab === 'orgchart' && <OrgChart />}
           {activeTab === 'tasks' && <KanbanBoard />}
           {activeTab === 'crm' && <CrmSection />}
+          {activeTab === 'agenda' && <AgendaTab />}
           {activeTab === 'messaging' && <InternalChat />}
           {activeTab === 'copilot' && <CopilotTab />}
           {activeTab === 'siteadmin' && <SiteAdmin />}

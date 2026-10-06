@@ -369,7 +369,7 @@ export const SettingsTab: React.FC = () => {
         </h3>
 
         <p className="text-xs text-rk-muted leading-relaxed">
-          Les données fictives de démonstration (projets, leads, tâches, notifications, messagerie, agenda,
+          Les données fictives de démonstration (projets, leads, tâches, notifications, messagerie,
           rapports IA, réalisations, témoignages, articles) sont retirées de cet appareil. Vos données réelles
           (leads reçus via le site, membres, projets et devis enregistrés dans la base PostgreSQL) sont conservées.
         </p>

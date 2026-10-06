@@ -39,7 +39,7 @@ import {
   INITIAL_DATA_TRANSFERS,
 } from '../data/blogAndTelemetryData';
 import { useAuth } from './AuthContext';
-import { apiRequest } from '../utils/api';
+import { apiRequest, apiWrite } from '../utils/api';
 import { normaliserTache, TacheServeur } from '../utils/tasks';
 
 // Helpers de synchronisation serveur (persistance Supabase côté Express)
@@ -76,6 +76,19 @@ const mapServerReport = (row: any): AgentReport => ({
   created_at: row.created_at || new Date().toISOString(),
   status: (row.status as AgentReport['status']) || 'non_traite',
   messages_count: row.messages_count ?? 1,
+});
+
+// Le journal serveur est la reference (fan-out par destinataire) : les
+// notifications liees a l'utilisateur courant sont rechargees ci-dessous.
+const mapServerNotification = (row: any): AppNotification => ({
+  id: row.id,
+  title: row.titre || 'Notification Arckaton OS',
+  message: row.corps || '',
+  type: (row.type === 'lead' ? 'lead' : 'system') as AppNotification['type'],
+  read: Boolean(row.lu_le),
+  link: row.lien || undefined,
+  created_at: row.cree_le || new Date().toISOString(),
+  pole: (row.pole as Pole) || 'Direction',
 });
 
 const mapServerProject = (row: any): Projet => ({
@@ -436,6 +449,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [messages, setMessages] = useState<ChannelMessage[]>(() => readSeeds<ChannelMessage>('arckaton_messages', INITIAL_MESSAGES));
 
   const [notifications, setNotifications] = useState<AppNotification[]>(() => readSeeds<AppNotification>('arckaton_notifications', INITIAL_NOTIFICATIONS));
+
+  // Identifiants du journal serveur (uuid) : reconnus pour marquer comme lu
+  // en ligne et eviter de renvoyer un doublon a chaque relevage.
+  const serverNotificationsRef = useRef<Set<string>>(new Set());
 
   const [projets, setProjets] = useState<Projet[]>(() => readSeeds<Projet>('arckaton_projets', INITIAL_PROJETS));
 
@@ -836,6 +853,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const requestCopilotTask = useCallback((task: 'rapport') => setPendingCopilotTask(task), []);
   const clearCopilotTask = useCallback(() => setPendingCopilotTask(null), []);
 
+  // Relève le journal des notifications du membre courant et fusionne les
+  // entrées serveur en tête (le badge et le tiroir comptent `read`).
+  const fusionnerNotificationsServeurs = useCallback(async () => {
+    const res = await apiRequest<any>('/api/notifications').catch(() => null);
+    if (!res || !Array.isArray(res.notifications)) return;
+    const serveurs = res.notifications.map(mapServerNotification);
+    const idsServeur = new Set(serveurs.map((n) => n.id));
+    serverNotificationsRef.current = idsServeur;
+    setNotifications((prev) => [
+      ...serveurs,
+      ...prev.filter((n) => !idsServeur.has(n.id)),
+    ]);
+  }, []);
+
   // Mémorisée : l'effet de chargement ci-dessous en dépend, et une fonction
   // recréée à chaque rendu le relancerait en boucle.
   const refreshDashboardData = useCallback(async () => {
@@ -892,6 +923,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setProjets((prev) => [...serverProjects, ...prev.filter((p) => !serverIds.has(p.id))]);
         }
       }
+
+      // Le journal des notifications est releve en parallele du chargement.
+      void fusionnerNotificationsServeurs();
     } catch (err) {
       console.warn('Synchronisation dashboard échouée, données locales conservées:', err);
     } finally {
@@ -900,7 +934,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setLastSyncTime(formatted);
       setIsDataFetching(false);
     }
-  }, []);
+  }, [fusionnerNotificationsServeurs]);
 
   // Les données de l'OS appartiennent au serveur, pas au navigateur. Ce
   // chargement manquait : chaque membre ne voyait que le cache local de son
@@ -913,6 +947,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isAuthenticated) return;
     void refreshDashboardData();
   }, [isAuthenticated, refreshDashboardData]);
+
+  // Le journal serveur ne pousse pas d'événement vers le poste : on relève
+  // la liste à intervalle court pour tenir le badge et le tiroir à jour
+  // (un nouveau rendez-vous réservé côté site apparaît quasiment en direct).
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const horloge = window.setInterval(() => {
+      void fusionnerNotificationsServeurs();
+    }, 30_000);
+    return () => window.clearInterval(horloge);
+  }, [isAuthenticated, fusionnerNotificationsServeurs]);
 
   const openClientPortal = (code?: string) => {
     if (code) {
@@ -1892,10 +1937,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Notification Handler
   const markNotificationRead = (id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    // Entrée du journal serveur : on la marque aussi en ligne, sans bloquer
+    // l'interface si la demande échoue (le prochain relevage rattrapera).
+    if (serverNotificationsRef.current.has(id)) {
+      void apiWrite(`/api/notifications/${encodeURIComponent(id)}/lu`, 'POST').catch(() => {});
+    }
   };
 
   const clearNotifications = () => {
-    setNotifications([]);
+    const idsServeur = [...serverNotificationsRef.current];
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    for (const id of idsServeur) {
+      void apiWrite(`/api/notifications/${encodeURIComponent(id)}/lu`, 'POST').catch(() => {});
+    }
   };
 
   const addAgentReport = (reportData: Partial<AgentReport>) => {

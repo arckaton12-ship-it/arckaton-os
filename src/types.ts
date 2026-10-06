@@ -152,18 +152,6 @@ export interface ForfaitData {
 export type ThemeMode = 'dark' | 'light';
 export type Currency = 'XAF' | 'EUR' | 'USD';
 
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  event_type: 'deadline' | 'meeting' | 'launch' | 'terrain' | 'other';
-  color?: string;
-  pole: Pole;
-  lieu?: string;
-}
-
 export interface ProjectMilestone {
   id: string;
   titre: string;

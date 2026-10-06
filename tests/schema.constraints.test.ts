@@ -14,6 +14,7 @@
 //
 // necessite la base reelle : `npm run test:db`.
 import { describe, it, expect, afterAll } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { query, closePool, enLignes, estColonneJsonb } from '../src/db/adapter';
 
 const baseConfiguree =
@@ -158,6 +159,7 @@ describe.skipIf(!baseConfiguree)('contraintes du schema', () => {
       'members', 'member_credentials', 'content_items', 'activity_log',
       'tasks', 'messages', 'leads', 'agent_reports', 'whatsapp_outbox',
       'projects', 'quotes', 'app_settings', 'project_media',
+      'appointments', 'notifications',
     ];
     for (const t of accordees) {
       expect(connues).toContain(t);
@@ -183,9 +185,91 @@ describe.skipIf(!baseConfiguree)('contraintes du schema', () => {
     expect(enLignes<{ confdeltype: string }>(fk)[0]?.confdeltype).toBe('c');
   });
 
+  it('un creneau de rendez-vous actif ne peut etre pris qu une fois par pole', async () => {
+    // C'est la contrainte qui rend la reservation correcte : deux
+    // visiteurs qui demandent la meme heure pour le meme pole ne
+    // doivent pas pouvoir coexister. L'index est partiel pour que
+    // les rendez-vous annules ou realises restent dans l'historique
+    // sans bloquer le creneau.
+    const { data } = await query(
+      `SELECT indexdef FROM pg_indexes WHERE indexname = 'appointments_creneau_pris'`
+    );
+    const def = String(enLignes<{ indexdef: string }>(data)[0]?.indexdef ?? '');
+    expect(def).toContain('UNIQUE');
+    expect(def).toContain('debut_utc');
+    expect(def).toContain('pole');
+    expect(def).toMatch(/WHERE/i);
+    expect(def).toContain('demande');
+    expect(def).toContain('confirme');
+  });
+
+  it('le statut dun rendez-vous est ferme par un CHECK', async () => {
+    // Sans CHECK, un libelle libre (`'En attente'`) passerait au
+    // travers des filtres d'agenda qui comparent a des chaines
+    // connues, et le rendez-vous disparaitrait du compteur.
+    const { data } = await query(
+      `SELECT pg_get_constraintdef(oid) AS def
+       FROM pg_constraint
+       WHERE conrelid = 'appointments'::regclass AND contype = 'c'`
+    );
+    const defs = enLignes<{ def: string }>(data).map((r) => r.def);
+    const statut = defs.find((d) => d.includes('statut'));
+    expect(statut).toContain('demande');
+    expect(statut).toContain('confirme');
+    expect(statut).toContain('annule');
+    expect(statut).toContain('realise');
+  });
+
+  it('la cle didempotence dun rendez-vous est unique', async () => {
+    // Un rejeu de POST (reseau, double clic) doit retourner la
+    // ligne existante, pas creer un second rendez-vous. L'index est
+    // partiel : plusieurs rendez-vous sans cle restent admis.
+    const { data } = await query(
+      `SELECT indexdef FROM pg_indexes WHERE indexname = 'appointments_idempotence_key'`
+    );
+    const def = String(enLignes<{ indexdef: string }>(data)[0]?.indexdef ?? '');
+    expect(def).toContain('UNIQUE');
+    expect(def).toMatch(/WHERE/i);
+    expect(def).toContain('IS NOT NULL');
+  });
+
+  it('une notification nest jamais orpheline', async () => {
+    // Le badge de l'OS compte des lignes : si la destination
+    // disparait (membre supprime), les notifications partent avec
+    // lui plutot que de rester comptees sans destinataire.
+    const { data } = await query(
+      `SELECT confdeltype FROM pg_constraint
+       WHERE conrelid = 'notifications'::regclass AND contype = 'f'`
+    );
+    expect(enLignes<{ confdeltype: string }>(data)[0]?.confdeltype).toBe('c');
+  });
+
   // Ferme le pool pour ne pas laisser de connexion ouverte en fin de
   // suite, sinon vitest signale une sortie en attente.
   afterAll(async () => {
     await closePool();
+  });
+});
+
+// ---------------------------------------------------------------------------
+//  Controles statiques : ils tournent SANS base de donnees, ce qui les rend
+//  utiles dans `npm test` (les tests ci-dessus sont ignores sans DATABASE_URL).
+// ---------------------------------------------------------------------------
+describe('migration 004 (statique)', () => {
+  const sql = readFileSync('migrations/004_rdv_notifications.sql', 'utf8');
+
+  it('les deux nouvelles tables sont accordees au role applicatif', () => {
+    // Un oubli de GRANT ne casse rien au build : il ne se revele
+    // qu'en 500 sur la prod, une fois decale. C'est le meme piege
+    // que la derive auditee ci-dessus, mais testable sans base.
+    expect(sql).toMatch(/GRANT[\s\S]*appointments,\s*notifications\s*TO arckaton_app/);
+  });
+
+  it('aucune colonne jsonb nest ajoutee', () => {
+    // `src/db/adapter.ts` maintient une liste figee des colonnes
+    // jsonb : ajouter un jsonb ici exigerait de la completer, sous
+    // peine d'une serialisation silencieusement fausse.
+    expect(estColonneJsonb('appointments', 'motif')).toBe(false);
+    expect(estColonneJsonb('notifications', 'corps')).toBe(false);
   });
 });
