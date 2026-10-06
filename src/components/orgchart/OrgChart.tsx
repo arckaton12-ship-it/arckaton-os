@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { POSTES_DATA } from '../../data/mockData';
-import { Poste, Pole, POLE_COLORS, DataTransferEvent } from '../../types';
+import { Poste, Pole, POLE_COLORS } from '../../types';
+import { DATA_TYPE_LABELS } from '../../utils/dataFlux';
+import FluxMap from './FluxMap';
 import { 
   Users, 
   Briefcase, 
@@ -27,16 +29,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
-
-const DATA_TYPE_LABELS: Record<DataTransferEvent['data_type'], string> = {
-  specs_tech: 'Spécifications techniques',
-  ordre_terrain: 'Ordre de mission terrain',
-  webhook_momo: 'Webhook paiement (MoMo / Orange Money)',
-  bat_validation: 'Validation jalon & BAT client',
-  rapport_perf: 'Rapport performance / ROI',
-  patch_offline: 'Patch moteur offline',
-  securite: 'Sécurité & audit',
-};
 
 // ── Éléments de lecture de l'organigramme ──────────────────────────────
 
@@ -105,7 +97,7 @@ const CompteurHud: React.FC<{
 export const OrgChart: React.FC = () => {
   const { dataTransfers, tasks, osMembers } = useApp();
 
-  const [viewMode, setViewMode] = useState<'nodal' | 'matrix'>('nodal');
+  const [viewMode, setViewMode] = useState<'nodal' | 'matrix' | 'flux'>('nodal');
   const [selectedPole, setSelectedPole] = useState<Pole | 'all'>('all');
   const [selectedPhase, setSelectedPhase] = useState<number | 'all'>('all');
   const [activePoste, setActivePoste] = useState<Poste | null>(null);
@@ -252,6 +244,17 @@ export const OrgChart: React.FC = () => {
               >
                 <Layers className="w-4 h-4" />
                 <span>Matrice des postes</span>
+              </button>
+              <button
+                onClick={() => setViewMode('flux')}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
+                  viewMode === 'flux'
+                    ? 'bg-purple-600 text-white font-semibold'
+                    : 'text-rk-muted hover:text-slate-700'
+                }`}
+              >
+                <Activity className="w-4 h-4" />
+                <span>Flux</span>
               </button>
             </div>
 
@@ -594,6 +597,9 @@ export const OrgChart: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* VIEW MODE 3 : FLUX TEMPS RÉEL */}
+      {viewMode === 'flux' && <FluxMap membres={osMembers} transferts={dataTransfers} />}
 
       {/* MODAL 1 : NODE DETAIL INSPECTOR */}
       <AnimatePresence>

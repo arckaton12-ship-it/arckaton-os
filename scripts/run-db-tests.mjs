@@ -52,6 +52,7 @@ const fils = spawn(
     'tests/auth.jwt.test.ts',
     'tests/schema.constraints.test.ts',
     'tests/migrate.demarrage.test.ts',
+    'tests/client-portal.test.ts',
   ],
   { stdio: 'inherit', env, shell: false, cwd: fileURLToPath(new URL('..', import.meta.url)) }
 );

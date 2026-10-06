@@ -19,6 +19,7 @@ import {
 import { POLES_INFO } from '../../data/mockData';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 import { EmptyState } from '../ui/EmptyState';
+import CountdownBadge from '../ui/CountdownBadge';
 
 export const TasksTab: React.FC = () => {
   const { tasks, addTask, updateTaskStatus, remindTask, projets, osMembers } = useApp();
@@ -38,6 +39,7 @@ export const TasksTab: React.FC = () => {
   const [priority, setPriority] = useState<'basse' | 'normale' | 'urgente'>('normale');
   const [assignedTo, setAssignedTo] = useState('');
   const [dueDate, setDueDate] = useState('Vendredi 18h');
+  const [dateLimite, setDateLimite] = useState('');
   const [taskProjectId, setTaskProjectId] = useState<string>('');
 
   // Membres réellement affectés (déduits des tâches existantes)
@@ -73,6 +75,7 @@ export const TasksTab: React.FC = () => {
       assigned_to: assignedTo,
       assignee_name: assignedTo,
       due_date: dueDate,
+      date_limite: dateLimite || undefined,
       project_id: project?.id,
       project_code: project?.client_code,
       project_name: project?.client_name,
@@ -263,6 +266,12 @@ export const TasksTab: React.FC = () => {
                     )}
                   </div>
 
+                  {(t.date_limite && !isCompleted) && (
+                    <div className="flex justify-end">
+                      <CountdownBadge dateLimite={t.date_limite} compact />
+                    </div>
+                  )}
+
                   {isCompleted && t.completed_at && (
                     <div className="text-xs font-mono text-emerald-300">
                       Achevée le {new Date(t.completed_at).toLocaleString('fr-FR')}
@@ -412,6 +421,18 @@ export const TasksTab: React.FC = () => {
                     className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-rk-text-secondary font-mono mb-1">
+                  Date limite machine (décompte) <span className="text-rk-muted">— optionnel</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={dateLimite}
+                  onChange={(e) => setDateLimite(e.target.value)}
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white"
+                />
               </div>
 
               <div>

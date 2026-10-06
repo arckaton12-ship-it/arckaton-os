@@ -8,6 +8,7 @@ import {
   CheckCircle2, Clock, TriangleAlert, Loader2
 } from 'lucide-react';
 import { EmptyState } from '../ui/EmptyState';
+import CountdownBadge from '../ui/CountdownBadge';
 
 export const PoleDashboard: React.FC = () => {
   const { member, logout, user } = useAuth();
@@ -181,6 +182,9 @@ export const PoleDashboard: React.FC = () => {
                   <Clock className="w-3 h-3" />
                   <span>{p.deadline}</span>
                 </div>
+                <div className="mt-1.5">
+                  <CountdownBadge dateLimite={p.date_limite} prefixe="Délai" compact />
+                </div>
               </div>
             ))}
           </div>
@@ -214,6 +218,9 @@ export const PoleDashboard: React.FC = () => {
                       </div>
                       <div className="text-xs font-mono text-rk-muted mt-1">
                         {t.assignee_name || t.assigned_to} • {t.poste_titre} • échéance : {t.date_echeance || t.due_date || '—'}
+                      </div>
+                      <div className="mt-1">
+                        <CountdownBadge dateLimite={t.date_limite} compact />
                       </div>
                       {expanded && t.description && (
                         <p className="text-xs text-rk-text-secondary mt-2 leading-relaxed">{t.description}</p>

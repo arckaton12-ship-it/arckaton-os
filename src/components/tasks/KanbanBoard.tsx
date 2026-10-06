@@ -16,6 +16,7 @@ import {
   FilterX
 } from 'lucide-react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
+import CountdownBadge from '../ui/CountdownBadge';
 const COLUMNS: Array<{ id: TaskStatus; title: string; color: string; badge: string; dot: string }> = [
   { id: 'a_faire', title: 'À Faire', color: 'border-slate-600', badge: 'bg-slate-700 text-rk-text-secondary', dot: 'bg-slate-500' },
   { id: 'en_cours', title: 'En Cours', color: 'border-blue-500/50', badge: 'bg-blue-500/20 text-blue-300', dot: 'bg-blue-500' },
@@ -47,6 +48,7 @@ export const KanbanBoard: React.FC = () => {
   const [assigneeId, setAssigneeId] = useState<string>('');
   const [projectId, setProjectId] = useState<string>('');
   const [dateEcheance, setDateEcheance] = useState(todayISO());
+  const [dateLimite, setDateLimite] = useState('');
 
   const statusOf = (t: Task): TaskStatus => t.statut || t.status || 'a_faire';
   const titreOf = (t: Task) => t.titre || t.title || 'Tâche sans titre';
@@ -121,7 +123,8 @@ export const KanbanBoard: React.FC = () => {
       project_code: project?.client_code,
       project_name: project?.name,
       date_echeance: dateEcheance || undefined,
-      due_date: dateEcheance || undefined
+      due_date: dateEcheance || undefined,
+      date_limite: dateLimite || undefined
     } as any);
 
     setTitre('');
@@ -426,12 +429,17 @@ export const KanbanBoard: React.FC = () => {
                             <span className="truncate">{assigneeOf(t) || 'Non assigné'}</span>
                           </div>
 
-                          {echeanceOf(t) && (
+                          {(echeanceOf(t) || t.date_limite) && (
                             <div
-                              className={`flex items-center gap-1 shrink-0 ${late ? 'text-rose-300 font-bold' : 'text-amber-300'}`}
+                              className={`flex items-center gap-2 shrink-0 flex-wrap justify-end ${
+                                late ? 'text-rose-300 font-bold' : 'text-amber-300'
+                              }`}
                             >
-                              <Clock className="w-3 h-3" />
-                              <span>{echeanceOf(t).slice(0, 10)}</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{echeanceOf(t).slice(0, 10)}</span>
+                              </span>
+                              <CountdownBadge dateLimite={t.date_limite} compact />
                             </div>
                           )}
                         </div>
@@ -615,6 +623,18 @@ export const KanbanBoard: React.FC = () => {
                   type="date"
                   value={dateEcheance}
                   onChange={(e) => setDateEcheance(e.target.value)}
+                  className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-rk-text-secondary font-mono mb-1">
+                  Décompte (date limite machine) <span className="text-rk-muted">— optionnel</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={dateLimite}
+                  onChange={(e) => setDateLimite(e.target.value)}
                   className="w-full bg-rk-bg border border-rk-line rounded-xl px-3 py-2 text-white"
                 />
               </div>

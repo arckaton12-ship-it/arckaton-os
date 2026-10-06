@@ -63,6 +63,9 @@ export interface Task {
   poste_titre?: string;
   date_echeance?: string;
   due_date?: string;
+  // Date machine ISO 8601 pour le décompte jours+heures, indépendante du
+  // libellé libre `echeance` (« Sous 3 jours ») qui reste affiché tel quel.
+  date_limite?: string;
   created_at?: string;
   // Rattachement au projet actif + suivi de complétion
   project_id?: string;
@@ -162,6 +165,7 @@ export interface ProjectMilestone {
   titre: string;
   statut: 'en_attente' | 'en_cours' | 'soumis_client' | 'valide';
   echeance?: string;
+  date_limite?: string;
   livrable_url?: string;
   description?: string;
 }
@@ -213,6 +217,9 @@ export interface Projet {
   pole: Pole;
   budget_estime: string;
   deadline: string;
+  date_limite?: string;
+  /** Code d'accès à 6 chiffres de l'Espace Client (généré à la validation du devis). */
+  client_secret?: string;
   deliverables: string[];
   score: number;
   statut: 'brouillon' | 'qualifie' | 'en_cours' | 'livre' | 'annule';
@@ -240,6 +247,10 @@ export interface DataTransferEvent {
   data_type: 'specs_tech' | 'ordre_terrain' | 'webhook_momo' | 'bat_validation' | 'rapport_perf' | 'patch_offline' | 'securite';
   payload_summary: string;
   timestamp: string;
+  /** Date ISO 8601 machine, pour le filtrage Jour/Semaine/Mois/Année.
+   * Absent sur les anciens enregistrements (seed) : ils n'apparaissent
+   * que dans la vue « Tout ». */
+  timestamp_iso?: string;
   status: 'en_cours' | 'livre' | 'verifie';
   clearance_level: 'ALPHA-1' | 'BETA-2' | 'CONFIDENTIEL' | 'PUBLIC';
   hash: string;

@@ -336,6 +336,8 @@ interface StoredProject {
   forfait?: string;
   budget_estime?: string;
   deadline?: string;
+  date_limite?: string;
+  client_secret?: string;
   progression?: number;
   sorties_terrain_effectuees?: number;
   sorties_terrain_total?: number;
@@ -375,6 +377,8 @@ function projectRow(p: StoredProject) {
     forfait: p.forfait || '',
     budget_estime: p.budget_estime || '',
     deadline: p.deadline || '',
+    date_limite: p.date_limite || '',
+    client_secret: p.client_secret || '',
     progression: Number.isFinite(p.progression) ? Number(p.progression) : 0,
     sorties_terrain_effectuees: Number(p.sorties_terrain_effectuees || 0),
     sorties_terrain_total: Number(p.sorties_terrain_total || 0),
@@ -1741,6 +1745,7 @@ interface TaskRow {
   cree_par?: string | null;
   cree_par_nom?: string | null;
   echeance?: string;
+  date_limite?: string;
   relances?: number;
   dernier_relance_at?: string | null;
   termine_at?: string | null;
@@ -1835,6 +1840,7 @@ app.post('/api/tasks', requireAuth, async (req: AuthReq, res) => {
       cree_par: m.id,
       cree_par_nom: m.name,
       echeance: String(req.body.echeance || req.body.due || ''),
+      date_limite: String(req.body.date_limite || ''),
       termine_at: statut === 'termine' ? new Date().toISOString() : null,
     };
     const { data, error } = await sb.from('tasks').insert(ligne).select('*').single();
@@ -1882,6 +1888,9 @@ app.patch('/api/tasks/:id', requireAuth, async (req: AuthReq, res) => {
     if (req.body.priorite || req.body.priority) patch.priorite = req.body.priorite || req.body.priority;
     if (req.body.echeance !== undefined || req.body.due !== undefined) {
       patch.echeance = String(req.body.echeance ?? req.body.due ?? '');
+    }
+    if (req.body.date_limite !== undefined) {
+      patch.date_limite = String(req.body.date_limite ?? '');
     }
     if (req.body.assigne_nom !== undefined || req.body.assigne !== undefined) {
       patch.assigne_nom = req.body.assigne_nom ?? req.body.assigne ?? null;
@@ -3788,6 +3797,8 @@ app.patch("/api/projects/:ref", requireAuth, async (req: AuthReq, res) => {
       if (!Number.isFinite(n)) return res.status(400).json({ error: 'sorties_terrain_effectuees invalide' });
       patch.sorties_terrain_effectuees = Math.max(0, Math.round(n));
     }
+    if (body.date_limite !== undefined) patch.date_limite = String(body.date_limite || '');
+    if (body.client_secret !== undefined) patch.client_secret = String(body.client_secret || '');
     if (Object.keys(patch).length === 0) {
       return res.status(400).json({ error: 'Aucun champ modifiable fourni' });
     }
@@ -4132,8 +4143,25 @@ app.patch("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) =>
       .select('*')
       .maybeSingle();
     if (error) throw error;
-    if (!data) return res.status(404).json({ error: "Devis introuvable" });
-    res.json({ success: true, quote: data });
+
+    const ligne = enLigne<{
+      quote_ref: string;
+      status: string;
+      client_secret?: string | null;
+      project_ref?: string | null;
+      client_phone?: string | null;
+    }>(data);
+    if (!ligne) return res.status(404).json({ error: "Devis introuvable" });
+
+    // Un devis accepte ouvre le compte client : le serveur genere le code
+    // d'acces (6 chiffres) et le pousse sur le devis et le projet lie, si un
+    // projet existe deja. L'interface peut ainsi le communiquer au client.
+    let client_secret: string | null = ligne.client_secret || null;
+    if (ligne.status === 'accepte' && !client_secret) {
+      client_secret = await __assurerCompteClient(sb, ligne);
+    }
+
+    res.json({ success: true, quote: ligne, ...(client_secret ? { client_secret } : {}) });
   } catch (err: any) {
     console.error("Erreur mise a jour devis:", err);
     res.status(500).json({ error: "Erreur mise a jour devis" });
@@ -4152,6 +4180,112 @@ app.delete("/api/quotes/:ref", requirePerm('admin'), async (req: AuthReq, res) =
     res.status(500).json({ error: "Erreur suppression devis" });
   }
 });
+
+// ------------------------------------------------------------
+// Compte client (Espace Client & BAT)
+//
+// A la validation d'un devis, le serveur genere un code d'acces a 6
+// chiffres (`client_secret`), stocke sur le devis et sur le projet lie.
+// L'agence le transmet de vive voix ou par WhatsApp. Le visiteur n'a plus
+// qu'a donner son telephoe et ce code pour ouvrir son espace.
+//
+// Ce endpoint public ne verifie QUE ce couple (telephone + code), jamais
+// les donnees metier : c'est une porte etroite, pas une API de lecture.
+// ------------------------------------------------------------
+app.post("/api/client-portal/access", async (req, res) => {
+  try {
+    const body = req.body || {};
+    const telephone = String(body.phone || '').trim();
+    const code = String(body.code || '').trim();
+    if (!telephone) return res.status(400).json({ error: 'Votre numéro est requis' });
+    if (!/^\d{6}$/.test(code)) return res.status(400).json({ error: 'Code d\'accès invalide (6 chiffres)' });
+
+    const sb = getSupabase();
+    if (!sb) return res.status(503).json({ error: 'Base de donnees non configuree' });
+
+    const digits = telephone.replace(/[^\d]/g, '');
+    const fins = digits.slice(-9);
+
+    const { data: projets, error } = await sb
+      .from('projects')
+      .select('*')
+      .like('client_phone', `%${fins}`)
+      .limit(20);
+    if (error) throw error;
+    const projet = (projets || []).find((p: any) => p.client_secret === code);
+    if (!projet) {
+      // Petite temporisation : le code fait 6 chiffres, on ne veut pas
+      // qu'une boucle locale devine plus vite que ce que l'humain tape.
+      await new Promise((r) => setTimeout(r, 350));
+      return res.status(401).json({ error: 'Code d\'accès invalide pour ce numéro. Relisez le code reçu de votre chef de projet.' });
+    }
+
+    res.json({
+      success: true,
+      project: {
+        project_ref: projet.project_ref,
+        client_code: projet.client_code,
+        client_name: projet.client_name,
+        service: projet.service,
+        chef_de_projet: projet.chef_de_projet,
+        forfait: projet.forfait,
+        budget_estime: projet.budget_estime,
+        statut: projet.statut,
+        progression: Number(projet.progression || 0),
+        deadline: projet.deadline || '',
+        date_limite: projet.date_limite || '',
+        sorties_terrain_total: Number(projet.sorties_terrain_total || 0),
+        sorties_terrain_effectuees: Number(projet.sorties_terrain_effectuees || 0),
+        sorties_terrain: projet.sorties_terrain || [],
+        jalons: projet.jalons || [],
+        feedbacks: projet.feedbacks || [],
+      },
+    });
+  } catch (err: any) {
+    console.error("Erreur acces portail client:", err);
+    res.status(500).json({ error: "Erreur d'acces au portail, reessayez" });
+  }
+});
+
+// Genere et enregistre le code d'acces client d'un devis accepte.
+// Retrouve le projet lie (par reference puis par telephone) pour y porter
+// le code aussi, et le stocke sur le devis lui-meme.
+export async function __assurerCompteClient(sb: any, quote: any): Promise<string | null> {
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+
+  const sur = async (table: string, filtre: Record<string, unknown>, colonne = 'client_secret') => {
+    const { data, error } = await sb
+      .from(table)
+      .update({ [colonne]: code })
+      .match(filtre)
+      .select('*')
+      .limit(1);
+    if (error) console.warn('client_secret non enregistre (' + table + '):', error.message);
+    return data && data[0] ? data[0] : null;
+  };
+
+  // 1) Le devis accepte porte le code, quoi qu'il arrive.
+  const misAJour = await sur('quotes', { quote_ref: quote.quote_ref });
+  // 2) Le projet lie le porte aussi, si un projet existe deja.
+  let projet = null;
+  if (quote.project_ref) {
+    const { data } = await sb.from('projects').select('project_ref').eq('project_ref', quote.project_ref).maybeSingle();
+    if (data) projet = data;
+  }
+  if (!projet) {
+    const tel = String(quote.client_phone || '').replace(/[^\d]/g, '').slice(-9);
+    if (tel) {
+      const { data } = await sb.from('projects').select('project_ref').like('client_phone', `%${tel}`).limit(1);
+      if (data && data[0]) projet = data[0];
+    }
+  }
+  if (projet && !misAJour) {
+    const { error } = await sb.from('projects').update({ client_secret: code }).eq('project_ref', projet.project_ref);
+    if (error) console.warn('client_secret non porte au projet:', error.message);
+  }
+
+  return code;
+}
 
 // ------------------------------------------------------------
 // Parametres de l'agence

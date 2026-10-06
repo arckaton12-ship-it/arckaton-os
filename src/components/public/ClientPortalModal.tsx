@@ -1,11 +1,42 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { Projet } from '../../types';
+import { apiRequest } from '../../utils/api';
 import { 
   X, CheckCircle2, Clock, MessageSquare, Camera,
-  Send, Search, Phone, Calendar, FolderKanban
+  Send, Search, Phone, Calendar, FolderKanban, KeyRound, ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
+import CountdownBadge from '../ui/CountdownBadge';
+
+/** Les champs renvoyés par POST /api/client-portal/access sont volontairement
+ * restreints (pas de notes internes, pas d'email, pas de libellés métier). */
+const portailServerToProjet = (r: Record<string, unknown>): Projet => ({
+  id: String(r.project_ref || ''),
+  client_code: r.client_code ? String(r.client_code) : undefined,
+  name: String(r.client_name || 'Client'),
+  client_name: String(r.client_name || 'Client'),
+  client_phone: undefined,
+  service: String(r.service || ''),
+  forfait: r.forfait ? String(r.forfait) : undefined,
+  pole: 'Client',
+  budget_estime: String(r.budget_estime || ''),
+  deadline: String(r.deadline || ''),
+  date_limite: r.date_limite ? String(r.date_limite) : undefined,
+  score: 0,
+  statut: (r.statut as Projet['statut']) || 'en_cours',
+  progression: Number(r.progression || 0),
+  chef_de_projet: r.chef_de_projet ? String(r.chef_de_projet) : undefined,
+  sorties_terrain_total: Number(r.sorties_terrain_total || 0),
+  sorties_terrain_effectuees: Number(r.sorties_terrain_effectuees || 0),
+  sorties_terrain: Array.isArray(r.sorties_terrain) ? (r.sorties_terrain as Projet['sorties_terrain']) : [],
+  jalons: Array.isArray(r.jalons) ? (r.jalons as Projet['jalons']) : [],
+  feedbacks: Array.isArray(r.feedbacks) ? (r.feedbacks as Projet['feedbacks']) : [],
+  deliverables: [],
+  notes_internes: '',
+  created_at: new Date().toISOString(),
+});
 
 export const ClientPortalModal: React.FC = () => {
   const { 
@@ -15,7 +46,8 @@ export const ClientPortalModal: React.FC = () => {
     activeClientProjectCode, 
     setActiveClientProjectCode,
     updateProjectMilestone,
-    addProjectFeedback
+    addProjectFeedback,
+    mode
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'avancement' | 'terrain' | 'messages'>('avancement');
@@ -24,10 +56,21 @@ export const ClientPortalModal: React.FC = () => {
   const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
   const [searchCode, setSearchCode] = useState('');
 
-  const currentProject = projets.find(
+  // Portail public : le client a été invité, il s'identifie (téléphone + code
+  // à 6 chiffres reçu à la validation de son devis). En session interne, le
+  // portail reste libre d'accès (vue staff), sans gate.
+  const ouvertEnPublic = mode === 'public';
+  const [telephone, setTelephone] = useState('');
+  const [codePortail, setCodePortail] = useState('');
+  const [erreurAcces, setErreurAcces] = useState<string | null>(null);
+  const [accesCharge, setAccesCharge] = useState(false);
+  const [portailProjet, setPortailProjet] = useState<Projet | null>(null);
+
+  const rechercheProjet = projets.find(
     p => (p.client_code && p.client_code.toLowerCase() === activeClientProjectCode?.toLowerCase()) ||
          p.id === activeClientProjectCode
   ) || projets[0];
+  const currentProject = ouvertEnPublic ? portailProjet : rechercheProjet;
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchCode.trim()) return;
@@ -47,8 +90,37 @@ export const ClientPortalModal: React.FC = () => {
     }
   };
 
+  const enLectureSeule = ouvertEnPublic && !!currentProject;
+
+  const handleAcces = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!telephone.trim()) {
+      setErreurAcces('Saisissez le numéro que vous avez communiqué à l\'agence.');
+      return;
+    }
+    if (!/^\d{6}$/.test(codePortail)) {
+      setErreurAcces('Le code d\'accès est composé de 6 chiffres.');
+      return;
+    }
+    setErreurAcces(null);
+    setAccesCharge(true);
+    try {
+      const r = await apiRequest<{ success: boolean; project: Record<string, unknown> }>('/api/client-portal/access', {
+        method: 'POST',
+        body: JSON.stringify({ phone: telephone, code: codePortail }),
+      });
+      setPortailProjet(portailServerToProjet(r.project));
+      setActionSuccessMessage(`Bienvenue ${String(r.project.client_name)} ! Votre espace est ouvert.`);
+      setTimeout(() => setActionSuccessMessage(null), 4000);
+    } catch (err) {
+      setErreurAcces(err instanceof Error ? err.message : 'Accès refusé, réessayez.');
+    } finally {
+      setAccesCharge(false);
+    }
+  };
+
   const handleValidateMilestone = (milestoneId: string, milestoneTitle: string) => {
-    if (!currentProject) return;
+    if (!currentProject || enLectureSeule) return;
     updateProjectMilestone(currentProject.id, milestoneId, 'valide');
     addProjectFeedback(currentProject.id, {
       auteur: currentProject.client_name,
@@ -62,7 +134,7 @@ export const ClientPortalModal: React.FC = () => {
 
   const handleSendFeedback = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedbackText.trim() || !currentProject) return;
+    if (!feedbackText.trim() || !currentProject || enLectureSeule) return;
 
     addProjectFeedback(currentProject.id, {
       auteur: currentProject.client_name,
@@ -135,8 +207,9 @@ export const ClientPortalModal: React.FC = () => {
               </button>
             </div>
 
-            {/* Search & Switcher Bar */}
-            {currentProject && (
+            {/* Search & Switcher Bar (session interne uniquement : côté
+                public, le client n'arrive que sur SON projet via son code) */}
+            {!ouvertEnPublic && currentProject && (
             <div className="px-6 py-3 bg-rk-base/80 border-b border-rk-line-soft flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
               <div className="flex items-center gap-2 overflow-x-auto text-xs py-1">
                 <span className="text-rk-muted font-mono text-xs whitespace-nowrap">Projets actifs :</span>
@@ -181,8 +254,81 @@ export const ClientPortalModal: React.FC = () => {
               </div>
             )}
 
+            {/* Porte d'entrée du portail public : téléphone + code 6 chiffres */}
+            {ouvertEnPublic && !portailProjet && (
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-14 space-y-5 bg-rk-base/50">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center">
+                  <KeyRound className="w-7 h-7 text-emerald-400" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-serif text-xl font-bold text-white">
+                    Votre espace client, protégé
+                  </h4>
+                  <p className="text-xs text-rk-text-secondary font-light max-w-md leading-relaxed">
+                    À la validation de votre devis, notre équipe vous a communiqué
+                    un code à 6 chiffres. Saisissez-le avec votre numéro pour ouvrir
+                    le suivi de votre projet : avancement, BAT et livrables.
+                  </p>
+                </div>
+
+                <form onSubmit={handleAcces} className="w-full max-w-sm space-y-3">
+                  <div className="text-left">
+                    <label htmlFor="tel-portail" className="block text-xs font-mono text-rk-muted mb-1">
+                      Votre numéro (celui communiqué à l'agence)
+                    </label>
+                    <input
+                      id="tel-portail"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={telephone}
+                      onChange={(e) => setTelephone(e.target.value)}
+                      placeholder="+237 6XX XX XX XX"
+                      className="w-full bg-rk-surface border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted focus:outline-none focus:border-emerald-500/50"
+                    />
+                  </div>
+
+                  <div className="text-left">
+                    <label htmlFor="code-portail" className="block text-xs font-mono text-rk-muted mb-1">
+                      Code d'accès (6 chiffres)
+                    </label>
+                    <input
+                      id="code-portail"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      value={codePortail}
+                      onChange={(e) => setCodePortail(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="••••••"
+                      className="w-full bg-rk-surface border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white font-mono tracking-[0.4em] placeholder:text-rk-muted focus:outline-none focus:border-emerald-500/50"
+                    />
+                  </div>
+
+                  {erreurAcces && (
+                    <div className="flex items-center gap-2 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/25 rounded-xl px-3 py-2 text-left">
+                      <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{erreurAcces}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={accesCharge}
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-slate-950 font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>{accesCharge ? 'Vérification...' : 'Ouvrir mon espace'}</span>
+                  </button>
+
+                  <p className="text-[11px] text-rk-muted font-light">
+                    Code perdu ? Votre Chef de Projet peut vous le redonner par WhatsApp au +237 681 46 29 82.
+                  </p>
+                </form>
+              </div>
+            )}
+
             {/* Aucun projet : état explicite au lieu d'un écran vide */}
-            {projets.length === 0 && (
+            {!ouvertEnPublic && projets.length === 0 && (
               <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16 space-y-4">
                 <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                   <FolderKanban className="w-7 h-7 text-amber-400" />
@@ -224,6 +370,7 @@ export const ClientPortalModal: React.FC = () => {
                       <span>Chef de projet : <strong className="text-white font-medium">{currentProject.chef_de_projet || 'À désigner'}</strong></span>
                       <span>•</span>
                       <span>Livraison cible : <strong className="text-white font-medium">{currentProject.deadline}</strong></span>
+                      <CountdownBadge dateLimite={currentProject.date_limite} prefixe="Délai" compact />
                       <span>•</span>
                       <span>Forfait : <strong className="text-emerald-400 font-medium">{currentProject.forfait || currentProject.budget_estime}</strong></span>
                     </div>
@@ -368,13 +515,14 @@ export const ClientPortalModal: React.FC = () => {
                                     <div className="text-xs font-mono text-rk-muted mt-1 flex items-center gap-1">
                                       <Clock className="w-3 h-3 text-rk-muted" />
                                       <span>Échéance visée : {milestone.echeance}</span>
+                                      <CountdownBadge dateLimite={milestone.date_limite} compact />
                                     </div>
                                   )}
                                 </div>
                               </div>
 
                               <div className="flex items-center gap-2 sm:self-center flex-shrink-0">
-                                {!isDone && (
+                                {!enLectureSeule && !isDone && (
                                   <button
                                     onClick={() => handleValidateMilestone(milestone.id, milestone.titre)}
                                     className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
@@ -384,16 +532,24 @@ export const ClientPortalModal: React.FC = () => {
                                   </button>
                                 )}
 
-                                <button
-                                  onClick={() => {
-                                    setActiveTab('messages');
-                                    setFeedbackType('demande_ajustement');
-                                    setFeedbackText(`Concernant le livrable "${milestone.titre}" : `);
-                                  }}
-                                  className="bg-white/[0.04] hover:bg-white/[0.08] text-rk-text-secondary border border-rk-line-soft px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                                >
-                                  <span>Demander un ajustement</span>
-                                </button>
+                                {!enLectureSeule && (
+                                  <button
+                                    onClick={() => {
+                                      setActiveTab('messages');
+                                      setFeedbackType('demande_ajustement');
+                                      setFeedbackText(`Concernant le livrable "${milestone.titre}" : `);
+                                    }}
+                                    className="bg-white/[0.04] hover:bg-white/[0.08] text-rk-text-secondary border border-rk-line-soft px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                                  >
+                                    <span>Demander un ajustement</span>
+                                  </button>
+                                )}
+
+                                {enLectureSeule && (
+                                  <span className="text-[11px] text-rk-muted font-mono italic">
+                                    Lecture seule — vos validations passent par le Chef de Projet.
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -517,6 +673,7 @@ export const ClientPortalModal: React.FC = () => {
                   </div>
 
                   {/* New Message Input Form */}
+                  {!enLectureSeule && (
                   <form onSubmit={handleSendFeedback} className="p-4 rounded-2xl bg-rk-surface border border-rk-line space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs text-rk-muted">Type de message :</span>
@@ -582,6 +739,17 @@ export const ClientPortalModal: React.FC = () => {
                       </button>
                     </div>
                   </form>
+                  )}
+
+                  {enLectureSeule && (
+                    <div className="p-4 rounded-2xl bg-rk-surface/70 border border-dashed border-rk-line text-center">
+                      <p className="text-xs text-rk-muted font-light">
+                        Votre espace est en lecture seule. Pour valider un livrable ou poser une
+                        question technique, contactez votre Chef de Projet par WhatsApp — il répond
+                        en général le jour même.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

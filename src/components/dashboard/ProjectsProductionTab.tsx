@@ -27,6 +27,7 @@ import {
   Save
 } from 'lucide-react';
 import { EmptyState } from '../ui/EmptyState';
+import CountdownBadge from '../ui/CountdownBadge';
 
 const DEFAULT_JALONS: Array<Pick<ProjectMilestone, 'titre' | 'description'>> = [
   { titre: 'Cadrage & cahier des charges', description: 'Validation du périmètre, des objectifs et des livrables attendus.' },
@@ -91,6 +92,7 @@ export const ProjectsProductionTab: React.FC = () => {
     pole: 'Tech' as Pole,
     forfait: '',
     deadline: '',
+    date_limite: '',
     create_milestones: true,
   });
 
@@ -120,6 +122,7 @@ export const ProjectsProductionTab: React.FC = () => {
       forfait: newProject.forfait || undefined,
       budget_estime: newProject.forfait || '',
       deadline: newProject.deadline || '',
+      date_limite: newProject.date_limite || undefined,
       deliverables: [],
       score: 0,
       statut: 'en_cours',
@@ -133,13 +136,14 @@ export const ProjectsProductionTab: React.FC = () => {
 
     setExpandedProjectId(created.id);
     setIsCreatingProject(false);
-    setNewProject((p) => ({ ...p, client_name: '', client_code: '', service: '', chef_de_projet: '', client_phone: '', client_email: '', forfait: '', deadline: '' }));
+    setNewProject((p) => ({ ...p, client_name: '', client_code: '', service: '', chef_de_projet: '', client_phone: '', client_email: '', forfait: '', deadline: '', date_limite: '' }));
     success(`Projet « ${created.name} » créé.`);
   };
 
   // New milestone form state
   const [newMilestoneTitre, setNewMilestoneTitre] = useState('');
   const [newMilestoneEcheance, setNewMilestoneEcheance] = useState('');
+  const [newMilestoneDateLimite, setNewMilestoneDateLimite] = useState('');
   const [newMilestoneDesc, setNewMilestoneDesc] = useState('');
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
 
@@ -180,11 +184,13 @@ export const ProjectsProductionTab: React.FC = () => {
       titre: newMilestoneTitre.trim(),
       statut: 'en_attente',
       echeance: newMilestoneEcheance.trim() || 'À définir',
+      date_limite: newMilestoneDateLimite || undefined,
       description: newMilestoneDesc.trim() || 'Livrable convenu'
     });
 
     setNewMilestoneTitre('');
     setNewMilestoneEcheance('');
+    setNewMilestoneDateLimite('');
     setNewMilestoneDesc('');
     setIsAddingMilestone(false);
     success('Jalon ajouté au projet.');
@@ -298,6 +304,14 @@ export const ProjectsProductionTab: React.FC = () => {
             <input placeholder="Livraison cible" value={newProject.deadline}
               onChange={(e) => setNewProject((p) => ({ ...p, deadline: e.target.value }))}
               className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
+            <input type="datetime-local" aria-label="Date limite machine (décompte)"
+              value={newProject.date_limite}
+              onChange={(e) => setNewProject((p) => ({ ...p, date_limite: e.target.value }))}
+              className="bg-rk-bg border border-rk-line rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-rk-muted" />
+          </div>
+
+          <div className="bg-rk-bg/60 border border-rk-line-soft rounded-xl px-3 py-2 text-[11px] text-rk-muted">
+            « Livraison cible » est le libellé promis au client (ex : Sous 4 semaines). La <strong className="text-rk-text-secondary">date machine</strong> (à droite) alimente le décompte jours+heures affiché sur les cartes — elle est optionnelle mais recommandeé.
           </div>
 
           <label className="flex items-center gap-2 text-xs text-rk-text-secondary">
@@ -424,6 +438,7 @@ export const ProjectsProductionTab: React.FC = () => {
                         <span>Chef de Projet : <strong className="text-rk-text">{project.chef_de_projet || 'Non affecté'}</strong></span>
                         <span>•</span>
                         <span>Échéance : {project.deadline}</span>
+                        <CountdownBadge dateLimite={project.date_limite} prefixe="Délai" compact />
                       </div>
                     </div>
                   </div>
@@ -466,6 +481,20 @@ export const ProjectsProductionTab: React.FC = () => {
                         <span>Client : <strong className="text-white">{project.client_name}</strong></span>
                         {project.client_phone && (
                           <span className="font-mono text-rk-muted">({project.client_phone})</span>
+                        )}
+                        {project.client_secret && (
+                          <button
+                            type="button"
+                            title="Code d'accès Espace Client — copier"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard?.writeText(project.client_secret || '');
+                              success('Code Espace Client copié.');
+                            }}
+                            className="font-mono text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg cursor-pointer hover:bg-emerald-500/20"
+                          >
+                            Espace Client : {project.client_secret}
+                          </button>
                         )}
                       </div>
 
@@ -534,6 +563,13 @@ export const ProjectsProductionTab: React.FC = () => {
                               onChange={(e) => setNewMilestoneEcheance(e.target.value)}
                               className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-emerald-500/50"
                             />
+                            <input
+                              type="datetime-local"
+                              aria-label="Date limite du jalon (décompte)"
+                              value={newMilestoneDateLimite}
+                              onChange={(e) => setNewMilestoneDateLimite(e.target.value)}
+                              className="px-3 py-2 rounded-xl bg-rk-bg border border-rk-line text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                            />
                           </div>
                           <input
                             type="text"
@@ -590,6 +626,7 @@ export const ProjectsProductionTab: React.FC = () => {
                                   {m.echeance && (
                                     <div className="text-xs font-mono text-rk-muted mt-0.5">
                                       Échéance : {m.echeance}
+                                      <CountdownBadge dateLimite={m.date_limite} compact className="ml-2" />
                                     </div>
                                   )}
                                 </div>

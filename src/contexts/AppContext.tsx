@@ -104,6 +104,8 @@ const mapServerProject = (row: any): Projet => ({
   pole: (row.pole as Pole) || 'Direction',
   budget_estime: row.budget_estime || '',
   deadline: row.deadline || '',
+  date_limite: row.date_limite || undefined,
+  client_secret: row.client_secret || undefined,
   deliverables: Array.isArray(row.deliverables) ? row.deliverables : [],
   score: Number(row.score || 0),
   statut: (row.statut as Projet['statut']) || 'en_cours',
@@ -1605,6 +1607,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       data_type: dataType,
       payload_summary: summary,
       timestamp: new Date().toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      timestamp_iso: new Date().toISOString(),
       status: 'livre' as const,
       clearance_level: 'ALPHA-1' as const,
       hash: '',
@@ -1798,6 +1801,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         pole: taskData.pole || currentUser.pole,
         assigne_nom: taskData.assigned_to || taskData.assignee_name || null,
         echeance,
+        date_limite: taskData.date_limite || '',
       }),
     })
       .then((server) => {
