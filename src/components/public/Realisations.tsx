@@ -6,7 +6,7 @@ import { REALISATION_CATEGORIES, getCategoryLabel } from '../../data/categories'
 import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const Realisations: React.FC = () => {
-  const { realisations, setIsQuoteModalOpen } = useApp();
+  const { realisations, ouvrirWizard } = useApp();
   const [filter, setFilter] = useState<string>('all');
   const onCarouselKey = useCarouselKeyboard();
 
@@ -124,7 +124,7 @@ export const Realisations: React.FC = () => {
                 <div className="pt-6 border-t border-rk-line mt-6 flex items-center justify-between">
                   <span className="text-xs font-mono text-rk-muted">{cs.delay}</span>
                   <button
-                    onClick={() => setIsQuoteModalOpen(true)}
+                    onClick={() => ouvrirWizard('devis', cs.category)}
                     className="text-xs font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <span>Projet similaire</span>

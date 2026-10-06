@@ -21,6 +21,8 @@ export interface PublicLeadPayload {
   message?: string;
   source?: string;
   country?: string;
+  /** Consentement explicite du visiteur (loi 2024/017, art. 41). */
+  consentement: boolean;
 }
 
 export interface PublicLeadResult {

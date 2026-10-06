@@ -14,7 +14,7 @@ export const AgentModal: React.FC = () => {
     setIsAgentModalOpen, 
     selectedPole, 
     setSelectedPole,
-    setIsQuoteModalOpen,
+    ouvrirWizard,
     addAgentReport
   } = useApp();
 
@@ -363,7 +363,7 @@ export const AgentModal: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setIsAgentModalOpen(false);
-                    setIsQuoteModalOpen(true);
+                    ouvrirWizard('devis');
                   }}
                   className="text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1 cursor-pointer"
                 >

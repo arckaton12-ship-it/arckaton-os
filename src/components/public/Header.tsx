@@ -26,7 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export const Header: React.FC = () => {
   const {
-    setIsQuoteModalOpen,
+    ouvrirWizard,
     setIsAgentModalOpen,
     openClientPortal,
     theme,
@@ -66,7 +66,7 @@ export const Header: React.FC = () => {
   const runAction = (action?: NavItem['action']) => {
     close();
     if (action === 'blueprint') setIsBlueprintModalOpen(true);
-    if (action === 'quote') setIsQuoteModalOpen(true);
+    if (action === 'quote') ouvrirWizard('devis');
     if (action === 'advisor') setIsAgentModalOpen(true);
     if (action === 'bat') openClientPortal();
   };
@@ -100,7 +100,7 @@ export const Header: React.FC = () => {
             </a>
 
             <button
-              onClick={() => setIsQuoteModalOpen(true)}
+              onClick={() => ouvrirWizard('devis')}
               className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
             >
               <span>Devis<span className="hidden sm:inline"> gratuit</span></span>

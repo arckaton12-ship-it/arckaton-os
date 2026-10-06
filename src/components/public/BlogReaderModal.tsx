@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const BlogReaderModal: React.FC = () => {
-  const { activeBlogPost, setActiveBlogPost, setIsQuoteModalOpen } = useApp();
+  const { activeBlogPost, setActiveBlogPost, ouvrirWizard } = useApp();
   const dialogRef = useDialogA11y<HTMLDivElement>(!!activeBlogPost, () => setActiveBlogPost(null));
 
   if (!activeBlogPost) return null;
@@ -163,7 +163,7 @@ export const BlogReaderModal: React.FC = () => {
               <button
                 onClick={() => {
                   setActiveBlogPost(null);
-                  setIsQuoteModalOpen(true);
+                  ouvrirWizard('devis');
                 }}
                 className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer transition-all shadow-lg shadow-emerald-500/20 flex-shrink-0"
               >

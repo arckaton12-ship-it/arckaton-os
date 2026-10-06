@@ -36,6 +36,7 @@ describe('P0.3 — relais WhatsApp arbitraire', () => {
         name: 'Jean Testeur',
         phone: '+237690000000',
         message: 'Bonjour',
+        consentement: true,
         // Tentative de relais vers un numero tiers et de collision d'id.
         to_numbers: ['+33600000000', '+15551234567'],
         client_ref: 'lead-fabrique-collision',
@@ -84,6 +85,23 @@ describe('P0.3 — relais WhatsApp arbitraire', () => {
       .send({ message: 'sans identite' });
     expect(res.status).toBe(400);
   });
+
+  it('refuse un lead sans consentement explicite et horodate celui donne', async () => {
+    const sansConsentement = await request(app)
+      .post('/api/leads')
+      .set('X-Forwarded-For', '198.51.100.4')
+      .send({ name: 'Marie', phone: '+237690000002', consentement: false });
+    expect(sansConsentement.status).toBe(400);
+    expect(sansConsentement.body.error).toContain('Consentement');
+
+    // Un `consentement: true` explicite est horodate par le serveur.
+    const avec = await request(app)
+      .post('/api/leads')
+      .set('X-Forwarded-For', '198.51.100.5')
+      .send({ name: 'Marie', phone: '+237690000002', consentement: true });
+    expect(avec.status).toBe(200);
+    expect(avec.body.lead.consentement_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
 });
 
 describe('P0.4 — limitation de debit', () => {
@@ -100,6 +118,7 @@ describe('P0.4 — limitation de debit', () => {
       phone: '+237690000001',
       project_type: 'Site vitrine',
       message: 'test de quota',
+      consentement: true,
     };
 
     for (let i = 0; i < 5; i++) {

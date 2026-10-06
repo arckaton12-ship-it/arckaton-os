@@ -5,7 +5,7 @@ import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { motion } from 'motion/react';
 
 export const AboutApproach: React.FC = () => {
-  const { setIsQuoteModalOpen, setIsAgentModalOpen } = useApp();
+  const { ouvrirWizard, setIsAgentModalOpen } = useApp();
 
   return (
     <section id="apropos" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
@@ -64,7 +64,7 @@ export const AboutApproach: React.FC = () => {
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
-                onClick={() => setIsQuoteModalOpen(true)}
+                onClick={() => ouvrirWizard('devis')}
                 className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3.5 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20"
               >
                 <span>Démarrer un projet avec nous</span>

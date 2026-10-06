@@ -15,8 +15,7 @@ import { AboutApproach } from './AboutApproach';
 import { Faq } from './Faq';
 import { ContactSection } from './ContactSection';
 import { Footer } from './Footer';
-import { QuoteModal } from './QuoteModal';
-import { TrialModal } from './TrialModal';
+import { WizardConseil } from './WizardConseil';
 import { AgentModal } from './AgentModal';
 import { ClientPortalModal } from './ClientPortalModal';
 import { BlueprintModal } from './BlueprintModal';
@@ -53,8 +52,7 @@ export const PublicSite: React.FC = () => {
       <Footer />
 
       {/* Interactive Modals */}
-      <QuoteModal />
-      <TrialModal />
+      <WizardConseil />
       <AgentModal />
       <ClientPortalModal />
       <BlueprintModal />

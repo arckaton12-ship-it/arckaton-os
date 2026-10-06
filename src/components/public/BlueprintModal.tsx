@@ -6,7 +6,7 @@ import { OFFICIAL_KNOWLEDGE } from '../../data/mockData';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 
 export const BlueprintModal: React.FC = () => {
-  const { isBlueprintModalOpen, setIsBlueprintModalOpen, setIsQuoteModalOpen } = useApp();
+  const { isBlueprintModalOpen, setIsBlueprintModalOpen, ouvrirWizard } = useApp();
   const [activeTab, setActiveTab] = useState<'doctrine' | 'sla' | 'arka'>('doctrine');
   const dialogRef = useDialogA11y<HTMLDivElement>(isBlueprintModalOpen, () => setIsBlueprintModalOpen(false));
 
@@ -285,7 +285,7 @@ export const BlueprintModal: React.FC = () => {
               <button
                 onClick={() => {
                   setIsBlueprintModalOpen(false);
-                  setIsQuoteModalOpen(true);
+                  ouvrirWizard('devis');
                 }}
                 className="flex-1 sm:flex-initial bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-md"
               >

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { MessageCircle, FileText, Sparkles } from 'lucide-react';
 
@@ -13,7 +13,7 @@ import { MessageCircle, FileText, Sparkles } from 'lucide-react';
  * code en dur, afin qu'une modification du CMS se repercute ici.
  */
 export const ConversionBar: React.FC = () => {
-  const { setIsQuoteModalOpen, setIsAgentModalOpen, siteConfig } = useApp();
+  const { ouvrirWizard, setIsAgentModalOpen, siteConfig } = useApp();
 
   const numero = siteConfig?.contact?.whatsapp_number?.replace(/[^0-9]/g, '');
   const lienWhatsApp = numero
@@ -32,7 +32,7 @@ export const ConversionBar: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 px-3 py-2.5">
           <button
             type="button"
-            onClick={() => setIsQuoteModalOpen(true)}
+            onClick={() => ouvrirWizard('devis')}
             className={`${actionBase} bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold`}
           >
             <FileText className="w-4 h-4" aria-hidden="true" />
@@ -61,7 +61,7 @@ export const ConversionBar: React.FC = () => {
           ) : (
             <button
               type="button"
-              onClick={() => setIsQuoteModalOpen(true)}
+              onClick={() => ouvrirWizard('devis')}
               className={`${actionBase} bg-white/[0.06] hover:bg-white/[0.12] text-rk-text border border-rk-line`}
             >
               <MessageCircle className="w-4 h-4 text-emerald-400" aria-hidden="true" />

@@ -21,10 +21,13 @@ export const ContactSection: React.FC = () => {
   //ledemande est-elle reellement partie sur le serveur ? On ne promet rien
   // quand ce n'est pas le cas : le visiteur bascule alors sur WhatsApp.
   const [saved, setSaved] = useState(false);
+  // Consentement explicite (loi 2024/017, art. 41) : le serveur refuse
+  // toute capture de coordonnees sans cet accord.
+  const [consent, setConsent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone || isSubmitting) return;
+    if (!name || !phone || !consent || isSubmitting) return;
     setIsSubmitting(true);
 
     const payload = {
@@ -36,6 +39,7 @@ export const ContactSection: React.FC = () => {
       message: message || 'Prise de contact directe depuis le site.',
       source: 'site_v2',
       country,
+      consentement: consent,
     };
 
     try {
@@ -231,6 +235,19 @@ export const ContactSection: React.FC = () => {
                       className="w-full rk-input px-4 py-3 text-sm"
                     />
                   </div>
+
+                  <label className="flex items-start gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-emerald-500"
+                    />
+                    <span className="text-xs text-rk-muted font-light leading-relaxed">
+                      J'autorise Arckaton à me recontacter sur ce numéro pour traiter cette
+                      demande (consentement révocable à tout moment).
+                    </span>
+                  </label>
 
                   <div className="pt-2">
                     <button

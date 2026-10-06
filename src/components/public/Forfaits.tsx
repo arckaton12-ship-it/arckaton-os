@@ -7,7 +7,7 @@ import { formatCurrencyPrice } from '../../utils/currency';
 import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const Forfaits: React.FC = () => {
-  const { setIsQuoteModalOpen, setIsAgentModalOpen, currency, setIsBlueprintModalOpen } = useApp();
+  const { ouvrirWizard, setIsAgentModalOpen, currency, setIsBlueprintModalOpen } = useApp();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const onCarouselKey = useCarouselKeyboard();
 
@@ -164,7 +164,7 @@ export const Forfaits: React.FC = () => {
                 {/* Card CTA Action */}
                 <div className="pt-8 mt-6 border-t border-rk-line">
                   <button
-                    onClick={() => setIsQuoteModalOpen(true)}
+                    onClick={() => ouvrirWizard('devis', f.name)}
                     className={`w-full py-3.5 px-5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
                       isFeatured
                         ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20'

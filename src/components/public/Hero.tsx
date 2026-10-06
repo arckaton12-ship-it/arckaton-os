@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { ArrowUpRight, Sparkles, ShieldCheck, TrendingUp, Star, CheckCircle2, Play, Boxes, Smartphone, Camera, Layers } from 'lucide-react';
+import { ArrowUpRight, Sparkles, ShieldCheck, TrendingUp, Star, CheckCircle2, Play, Boxes, Smartphone, Camera, Layers, CalendarDays } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import heroSystemCubeImg from '../../assets/images/arckaton_system_cube_1789213196858.webp';
 
 export const Hero: React.FC = () => {
-  const { setIsQuoteModalOpen, setIsAgentModalOpen, setIsTrialModalOpen } = useApp();
+  const { ouvrirWizard, setIsAgentModalOpen } = useApp();
   const [activeCockpitTab, setActiveCockpitTab] = useState<'sales' | 'inventory' | 'field'>('sales');
 
   return (
@@ -52,7 +52,7 @@ export const Hero: React.FC = () => {
           {/* Action Call-to-Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
             <button
-              onClick={() => setIsQuoteModalOpen(true)}
+              onClick={() => ouvrirWizard('devis')}
               className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               <span>Demander un devis interactif</span>
@@ -60,11 +60,19 @@ export const Hero: React.FC = () => {
             </button>
 
             <button
-              onClick={() => setIsTrialModalOpen(true)}
+              onClick={() => ouvrirWizard('essai')}
               className="w-full sm:w-auto bg-white/[0.05] hover:bg-white/[0.1] text-rk-text border border-rk-line px-6 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-slate-200" />
               <span>Tester ARKA-PME (30j gratuit)</span>
+            </button>
+
+            <button
+              onClick={() => ouvrirWizard('reservation')}
+              className="w-full sm:w-auto bg-white/[0.03] hover:bg-white/[0.08] text-rk-muted hover:text-white border border-rk-line px-5 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm cursor-pointer"
+            >
+              <CalendarDays className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Réserver un RDV de cadrage</span>
             </button>
 
             <button

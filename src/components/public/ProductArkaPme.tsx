@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import arkaPosTerminalImg from '../../assets/images/arka_pos_terminal_1789213210031.webp';
 
 export const ProductArkaPme: React.FC = () => {
-  const { setIsTrialModalOpen, setIsQuoteModalOpen } = useApp();
+  const { ouvrirWizard } = useApp();
 
   return (
     <section id="produit" className="py-16 sm:py-28 bg-rk-base relative border-t border-rk-line scroll-mt-20 overflow-hidden">
@@ -97,7 +97,7 @@ export const ProductArkaPme: React.FC = () => {
             {/* Trial Trigger CTA */}
             <div className="pt-2 flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => setIsTrialModalOpen(true)}
+                onClick={() => ouvrirWizard('essai')}
                 className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-xs cursor-pointer shadow-lg shadow-emerald-500/20"
               >
                 <Play className="w-3.5 h-3.5 fill-slate-950" />
@@ -105,7 +105,7 @@ export const ProductArkaPme: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setIsQuoteModalOpen(true)}
+                onClick={() => ouvrirWizard('devis', 'Software SaaS ARKA-PME')}
                 className="w-full sm:w-auto bg-white/[0.06] hover:bg-white/[0.1] text-rk-text border border-rk-line px-5 py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Intégrer à un site web</span>

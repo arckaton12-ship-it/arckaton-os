@@ -64,8 +64,9 @@ describe('genererCreneauxDisponibles', () => {
     // week-end, tous sont sur :00 et :30, et tous dans le futur.
     const depart = new Date(Date.UTC(2026, 9, 12, 0, 0, 0)); // lundi 12/10
     const creneaux = __genererCreneauxDisponibles(depart, { joursOuvrables: 10 });
-    expect(creneaux.length).toBe(10 * 22); // 10 jours x 22 creneaux de 30 min
+    expect(creneaux.length).toBe(10 * 21); // 21 departs de 30 min par jour (jusqu'a 17:00 UTC exclusive)
     for (const c of creneaux) {
+      expect(__estHeureOuvrable(c)).toBe(true);
       const jour = new Date(c.getTime() + 60 * 60_000).getUTCDay();
       expect([1, 2, 3, 4, 5]).toContain(jour);
       expect([0, 30]).toContain(c.getUTCMinutes());

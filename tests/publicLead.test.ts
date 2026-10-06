@@ -16,6 +16,7 @@ describe('submitPublicLead', () => {
     phone: '+237681462982',
     project_type: 'Site web vitrine UX/UI (Forfait Synergie)',
     source: 'site_v2',
+    consentement: true,
   };
 
   it('signale un enregistrement reel quand le serveur confirme', async () => {
@@ -41,6 +42,7 @@ describe('submitPublicLead', () => {
     expect(body).not.toHaveProperty('statut');
     expect(body).not.toHaveProperty('client_ref');
     expect(body).not.toHaveProperty('to_numbers');
+    expect(body.consentement).toBe(true);
   });
 
   it('retombe sur un lien WhatsApp local si le serveur refuse (plafond de depot)', async () => {

@@ -244,6 +244,18 @@ describe.skipIf(!baseConfiguree)('contraintes du schema', () => {
     expect(enLignes<{ confdeltype: string }>(data)[0]?.confdeltype).toBe('c');
   });
 
+  it('le consentement d un lead est horodate (migration 005)', async () => {
+    // Loi 2024/017, art. 41 : chaque capture de coordonnees reposes sur
+    // un consentement explicite. La colonne existe et reste nullable
+    // (les leads antérieurs a la migration ne perdent rien).
+    const { data } = await query(
+      `SELECT column_name, is_nullable FROM information_schema.columns
+       WHERE table_name = 'leads' AND column_name = 'consentement_at'`
+    );
+    const col = enLignes<{ column_name: string; is_nullable: string }>(data)[0];
+    expect(col?.column_name).toBe('consentement_at');
+  });
+
   // Ferme le pool pour ne pas laisser de connexion ouverte en fin de
   // suite, sinon vitest signale une sortie en attente.
   afterAll(async () => {
@@ -271,5 +283,21 @@ describe('migration 004 (statique)', () => {
     // peine d'une serialisation silencieusement fausse.
     expect(estColonneJsonb('appointments', 'motif')).toBe(false);
     expect(estColonneJsonb('notifications', 'corps')).toBe(false);
+  });
+});
+
+describe('migration 005 (statique)', () => {
+  const sql = readFileSync('migrations/005_lead_consentement.sql', 'utf8');
+
+  it('ajoute la colonne consentement_at de maniere additive', () => {
+    expect(sql).toMatch(/ADD COLUMN IF NOT EXISTS consentement_at/);
+    expect(sql).toMatch(/TIMESTAMPTZ/);
+    // Additif : aucune suppression, aucun renommage.
+    expect(sql).not.toMatch(/DROP\s+COLUMN/);
+    expect(sql).not.toMatch(/RENAME/);
+  });
+
+  it('n ajoute aucun jsonb ni dependance externe', () => {
+    expect(estColonneJsonb('leads', 'consentement_at')).toBe(false);
   });
 });

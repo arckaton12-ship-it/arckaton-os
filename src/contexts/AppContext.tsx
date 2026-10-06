@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import type { ModeWizard, WizardDlg } from '../wizard/engine';
 import {
   Lead,
   AgentReport,
@@ -227,12 +228,12 @@ interface AppContextType {
   activeClientProjectCode: string | null;
   setActiveClientProjectCode: (code: string | null) => void;
   openClientPortal: (code?: string) => void;
-  isQuoteModalOpen: boolean;
-  setIsQuoteModalOpen: (open: boolean) => void;
-  isTrialModalOpen: boolean;
-  setIsTrialModalOpen: (open: boolean) => void;
   isAgentModalOpen: boolean;
   setIsAgentModalOpen: (open: boolean) => void;
+  // Parcours conseiller (machine a etats partagee Devis/Essai/Reservation/Contact).
+  wizard: WizardDlg;
+  ouvrirWizard: (mode: ModeWizard, besoinInitial?: string) => void;
+  fermerWizard: () => void;
   activeAgentPole: Pole;
   setActiveAgentPole: (pole: Pole) => void;
   selectedPole: Pole;
@@ -462,8 +463,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Modals & Client Portal
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [activeClientProjectCode, setActiveClientProjectCode] = useState<string | null>(null);
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
+  const [wizard, setWizard] = useState<WizardDlg>({ ouvert: false, mode: 'devis', besoinInitial: '' });
+  const ouvrirWizard = useCallback((mode: ModeWizard, besoinInitial = '') => {
+    setWizard({ ouvert: true, mode, besoinInitial });
+  }, []);
+  const fermerWizard = useCallback(() => {
+    setWizard((w) => ({ ...w, ouvert: false }));
+  }, []);
   const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
   const [activeAgentPole, setActiveAgentPole] = useState<Pole>('Direction');
   const [isBlueprintModalOpen, setIsBlueprintModalOpen] = useState(false);
@@ -1113,6 +1119,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         country: newLead.country,
         client_ref: newLead.id,
         to_numbers: recipientPhonesForPole(newLead.pole_assigned),
+        consentement: true,
       }),
     }).catch(() => {});
 
@@ -2114,10 +2121,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activeClientProjectCode,
         setActiveClientProjectCode,
         openClientPortal,
-        isQuoteModalOpen,
-        setIsQuoteModalOpen,
-        isTrialModalOpen,
-        setIsTrialModalOpen,
+        wizard,
+        ouvrirWizard,
+        fermerWizard,
         isAgentModalOpen,
         setIsAgentModalOpen,
         activeAgentPole,

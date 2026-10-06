@@ -165,6 +165,7 @@ interface StoredLead {
   pole_assigned: string;
   country?: string;
   created_at: string;
+  consentement_at?: string | null;
 }
 
 interface StoredReport {
@@ -447,6 +448,7 @@ async function persistLead(lead: StoredLead & { client_ref?: string }): Promise<
     notes: lead.notes || '',
     pole_assigned: lead.pole_assigned,
     country: lead.country || '',
+    consentement_at: lead.consentement_at || null,
   });
   if (error) console.warn("Supabase insert lead:", error.message);
   return !error;
@@ -2959,13 +2961,21 @@ app.post(
   try {
     // `to_numbers` et `client_ref` sont volontairement IGNORES. Ils permettaient
     // de designer le destinataire et de neutraliser l'idempotence de la file.
-    const { name, email, phone, project_type, budget, message, source, country } = req.body || {};
+    const { name, email, phone, project_type, budget, message, source, country, consentement } = req.body || {};
 
     const cleanName = cleanStr(name, 120);
     const cleanPhone = cleanStr(phone, 32);
     if (!cleanName || !cleanPhone) {
       return res.status(400).json({ error: "Nom et téléphone obligatoires" });
     }
+
+    // Consentement explicite (Loi 2024/017, art. 41) : aucune coordonnee
+    // n'est conservee sans l'accord horodate du visiteur. Meme regle que
+    // pour la reservation d'un rendez-vous.
+    if (consentement !== true) {
+      return res.status(400).json({ error: "Consentement requis pour vous recontacter" });
+    }
+    const consentementAt = new Date().toISOString();
 
     const cleanProjectType = cleanStr(project_type, 200) || 'Systeme digital sur mesure';
     const cleanMessage = cleanStr(message, 1000) || 'Demande transmise depuis le site public.';
@@ -2996,7 +3006,8 @@ app.post(
       notes: '',
       pole_assigned: poleAssigned,
       country: cleanCountry,
-      created_at: 'À l\'instant'
+      created_at: 'À l\'instant',
+      consentement_at: consentementAt
     };
 
     // Persistance durable (Supabase si configuré, sinon mémoire)
@@ -3192,9 +3203,11 @@ export function genererCreneauxDisponibles(
     );
     if (jour.getUTCDay() === 0 || jour.getUTCDay() === 6) continue;
     trouves++;
-    // 08:00 Douala = 07:00 UTC (journee identique en date), dernier depart 18:00 = 17:00 UTC.
+    // 08:00 Douala = 07:00 UTC (journee identique en date), dernier depart
+    // 18:00 = 17:00 UTC. Un depart a 17:30 enverrait la fin a 18:00 apres
+    // 18:30, donc hors PMA : on ne genere que :00 et :30 jusqu'a 17:00 UTC.
     for (let h = 7; h <= 17; h++) {
-      for (const min of [0, 30]) {
+      for (const min of h === 17 ? [0] : [0, 30]) {
         const t = jour.getTime() + (h * 60 + min) * 60_000;
         // Strictement apres le delai : un creneau a exactement une heure
         // serait refuse par validerDemandeRdv (« a plus d une heure »).
@@ -3519,6 +3532,45 @@ app.post("/api/appointments",
     } catch (err: any) {
       console.error('Erreur rendez-vous:', err);
       res.status(500).json({ error: 'Erreur enregistrement du rendez-vous' });
+    }
+  }
+);
+
+app.get(
+  "/api/appointments/creneaux",
+  rateLimit({ windowMs: 60_000, max: 30, scope: 'appointments:creneaux', message: 'Trop de demandes de créneaux. Réessayez dans une minute.' }),
+  async (req, res) => {
+    try {
+      const motif = cleanStr(req.query.motif, 200);
+      if (!motif) return res.status(400).json({ error: 'Motif requis pour proposer des créneaux' });
+
+      // Le pole est deduit du motif (regle partagee avec POST /api/appointments
+      // et /api/leads) : le visiteur ne route jamais son creneau.
+      const pole = deduirePolePublique(motif);
+
+      // Horizon propose : 5 jours ouvrables (reste du jour + 4 suivants).
+      const depart: Date = new Date();
+      let libres = genererCreneauxDisponibles(depart, { joursOuvrables: 5 });
+
+      const sb = getSupabase();
+      if (sb) {
+        // Capacite de 1 RDV actif par creneau et par pole ; on ecarte les
+        // creneaux deja poses (demande ou confirme) sur l'horizon propose.
+        const resPrise = await sb
+          .from('appointments')
+          .select('debut_utc')
+          .eq('pole', pole)
+          .in('statut', ['demande', 'confirme']);
+        if (resPrise && resPrise.data) {
+          const pris = new Set((enLignes<{ debut_utc: string }>(resPrise.data) || []).map((r) => r.debut_utc));
+          libres = libres.filter((c) => !pris.has(c.toISOString()));
+        }
+      }
+
+      res.json({ pole, motif, creneaux: libres.map((c) => c.toISOString()) });
+    } catch (err) {
+      console.error('Erreur calcul créneaux:', err);
+      res.status(500).json({ error: 'Erreur calcul des créneaux' });
     }
   }
 );
