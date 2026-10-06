@@ -225,6 +225,46 @@
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
+/* Même grille, mais le motif défile très lentement en diagonale : les fonds
+   « systèmes » (organigramme, console) suggèrent des flux en mouvement sans
+   gêner la lecture. */
+.bg-blueprint-grid-animated {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  animation: rk-grid-scroll 26s linear infinite;
+}
+@keyframes rk-grid-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: 40px 40px; }
+}
+
+/* Liaison verticale entre niveaux de l'organigramme : un point lumineux
+   parcourt le trait pour figurer un paquet qui transite entre membres. */
+.rk-connector-flow {
+  position: relative;
+}
+.rk-connector-flow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #34d399;
+  box-shadow: 0 0 10px 2px rgba(52, 211, 153, 0.55);
+  animation: rk-connector-travel 2.6s ease-in-out infinite;
+}
+@keyframes rk-connector-travel {
+  0%   { top: 0; opacity: 0; }
+  14%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { top: calc(100% - 6px); opacity: 0; }
+}
+
 .bg-blueprint-dots {
   background-size: 24px 24px;
   background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
@@ -396,7 +436,9 @@ html.theme-light header,
 
 /* Blueprint Grid in Light Mode: Crisp Fine Slate Rules */
 html.theme-light .bg-blueprint-grid,
-.theme-light .bg-blueprint-grid {
+.theme-light .bg-blueprint-grid,
+html.theme-light .bg-blueprint-grid-animated,
+.theme-light .bg-blueprint-grid-animated {
   background-image: 
     linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px) !important;

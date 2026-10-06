@@ -127,9 +127,14 @@ export interface ChannelMessage {
   channel_id: string;
   sender_name: string;
   sender_role: string;
+  sender_id?: string;
   pole: Pole;
   content: string;
   created_at: string;
+  /** Faux quand le message est resté local (serveur injoignable). */
+  synchro?: boolean;
+  /** Scénario de démonstration (échange simulé entre membres). */
+  simule?: boolean;
 }
 
 export interface ForfaitData {

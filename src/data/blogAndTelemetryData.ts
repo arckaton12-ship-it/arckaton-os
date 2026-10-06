@@ -1,4 +1,8 @@
 import { BlogPost, DataTransferEvent, UniversalSiteConfig } from '../types';
+import heroSystemCubeImg from '../assets/images/arckaton_system_cube_1789213196858.webp';
+import arkaPosTerminalImg from '../assets/images/arka_pos_terminal_1789213210031.webp';
+import fieldProductionCamImg from '../assets/images/field_production_cam_1789213222736.webp';
+import polesNetworkHubImg from '../assets/images/poles_network_hub_1789213238339.webp';
 
 export const DEFAULT_SITE_CONFIG: UniversalSiteConfig = {
   announcement: {
@@ -55,7 +59,7 @@ Résultats livrés en 48 heures :
     author_name: 'Boris W.',
     author_role: 'Directeur des Opérations & Terrain',
     date: '10 Septembre 2026',
-    image: 'https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?auto=format&fit=crop&w=1200&q=80',
+    image: fieldProductionCamImg,
     tags: ['Terrain', 'Yaoundé', 'Shooting 4K', 'Mokolo', 'Commerce Local'],
     featured: true,
     field_spec: {
@@ -88,7 +92,7 @@ En 45 jours d'exploitation :
     author_name: 'Patrice M.',
     author_role: 'Directeur Général Arckaton',
     date: '06 Septembre 2026',
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+    image: heroSystemCubeImg,
     tags: ['E-commerce', 'Mobile Money', 'ROI', 'Yaoundé', 'Maison Kotto'],
     featured: true,
     client_quote: {
@@ -118,7 +122,7 @@ Le temps de clôture de caisse quotidien est passé de 3h15 à 12 minutes préci
     author_name: 'Yannick K.',
     author_role: 'Tech Lead & Architecte SaaS',
     date: '01 Septembre 2026',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80',
+    image: arkaPosTerminalImg,
     tags: ['ARKA-PME', 'Offline-First', 'Douala', 'Gestion Stock', 'Logistique'],
     featured: false,
     client_quote: {
@@ -147,7 +151,7 @@ Chez Arckaton, notre charte d'ingénierie repose sur 4 piliers stricts :
     author_name: 'Arthur N.',
     author_role: 'Lead Développeur Full-Stack',
     date: '28 Août 2026',
-    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80',
+    image: polesNetworkHubImg,
     tags: ['Architecture', 'Performance', 'Webhooks', 'MoMo API', 'Souveraineté'],
     featured: false,
   },

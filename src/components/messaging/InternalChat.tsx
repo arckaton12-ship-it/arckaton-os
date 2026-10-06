@@ -13,6 +13,7 @@ import {
   Clock,
   ShieldCheck,
   Trash2,
+  RefreshCw,
   X,
   Play
 } from 'lucide-react';
@@ -67,7 +68,7 @@ const SIM_SCENARIOS: Array<{ id: string; label: string; hint: string; steps: str
 ];
 
 export const InternalChat: React.FC = () => {
-  const { messages, sendMessage, osMembers, simulateExchange, setActiveChannel, deleteMessage } = useApp();
+  const { messages, sendMessage, osMembers, simulateExchange, setActiveChannel, deleteMessage, retryMessage } = useApp();
   const { user } = useAuth();
 
   const [channel, setChannel] = useState<string>('c-general');
@@ -282,6 +283,25 @@ export const InternalChat: React.FC = () => {
                           : 'bg-rk-bg text-rk-text border border-rk-line rounded-tl-none'
                       }`}>
                         {m.content}
+                        {m.synchro === false && (
+                          <div className={`mt-2 pt-2 border-t text-[11px] font-mono flex items-center gap-2 ${
+                            isMe ? 'border-white/20' : 'border-rk-line'
+                          }`}>
+                            <span className={isMe ? 'text-blue-100' : 'text-amber-300'}>● non synchronisé</span>
+                            <button
+                              type="button"
+                              onClick={() => void retryMessage(m.id)}
+                              title="Réessayer l'envoi au serveur"
+                              aria-label="Réessayer d'envoyer ce message"
+                              className={`flex items-center gap-1 underline hover:no-underline cursor-pointer ${
+                                isMe ? 'text-white' : 'text-rk-text-secondary hover:text-white'
+                              }`}
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                              Réessayer
+                            </button>
+                          </div>
+                        )}
                       </div>
                       {parMoi && (
                         <button

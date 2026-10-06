@@ -193,6 +193,7 @@ interface AppContextType {
   messages: ChannelMessage[];
   sendMessage: (channelId: string, content: string) => void;
   deleteMessage: (id: string) => Promise<void>;
+  retryMessage: (id: string) => Promise<void>;
   // Canal affiché : la messagerie le signale pour que le rafraîchissement
   // automatique suive le canal que le membre regarde.
   activeChannel: string;
@@ -526,15 +527,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const writeContent = async (kind: string, slug: string, data: any, title?: string) => {
     setContentStatus('saving');
     try {
-      const res = await fetch(`/api/content/${kind}/${encodeURIComponent(slug)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...bearerHeaders() },
-        body: JSON.stringify({ data, title, published: true }),
+      // `apiWrite` renouvelle la session sur 401 avant d'abandonner : une
+      // session expirée ne doit plus faire « perdre » une édition du site.
+      await apiWrite(`/api/content/${kind}/${encodeURIComponent(slug)}`, 'PUT', {
+        data,
+        title,
+        published: true,
       });
-      if (!res.ok) {
-        const detail = await res.json().catch(() => ({} as any));
-        throw new Error(detail?.error || 'HTTP ' + res.status);
-      }
       setContentStatus('live');
       return true;
     } catch (err) {
@@ -547,11 +546,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const removeContent = async (kind: string, slug: string) => {
     setContentStatus('saving');
     try {
-      const res = await fetch(`/api/content/${kind}/${encodeURIComponent(slug)}`, {
-        method: 'DELETE',
-        headers: bearerHeaders(),
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      await apiWrite(`/api/content/${kind}/${encodeURIComponent(slug)}`, 'DELETE');
       setContentStatus('live');
       return true;
     } catch (err) {
@@ -686,11 +681,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     void removeContent('temoignage', id);
   };
 
-  const bearerHeaders = () => {
-    const t = localStorage.getItem('arckaton_os_token');
-    return t ? { Authorization: `Bearer ${t}` } : {};
-  };
-
   // ---- Synchronisation temps réel du contenu (supabase via serveur) ----
   const refreshContent = async () => {
     try {
@@ -707,9 +697,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // `persistContent` appelle cette fonction juste apres avoir enregistre
       // un brouillon : celui-ci etait ecrase dans le state et dans le
       // localStorage, donc disparaissait de l'editeur.
-      const res = await fetch('/api/content', { headers: bearerHeaders() });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
+      // `apiRequest` porte le jeton et le renouvelle sur 401, sans en-tete
+      // manuel supplementaire. Public (pas de jeton) = contenu publie ;
+      // CMS connecte = brouillons compris.
+      const data = await apiRequest<any>('/api/content', { retries: 1 });
       const hasLive =
         Boolean(data.config) ||
         (Array.isArray(data.forfaits) && data.forfaits.length > 0) ||
@@ -755,12 +746,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   ) => {
     setContentStatus('saving');
     try {
-      const res = await fetch(`/api/content/${kind}/${slug}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...bearerHeaders() },
-        body: JSON.stringify({ data, published: opts?.published, title: opts?.title }),
+      await apiWrite(`/api/content/${kind}/${slug}`, 'PUT', {
+        data,
+        published: opts?.published,
+        title: opts?.title,
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
       await refreshContent();
     } catch (err) {
       setContentStatus('local');
@@ -778,15 +768,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ];
     setContentStatus('saving');
     try {
-      const res = await fetch('/api/content/bulk', {
+      const json = await apiRequest<any>('/api/content/bulk', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...bearerHeaders() },
         body: JSON.stringify({ items }),
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const json = await res.json();
       await refreshContent();
-      return json.imported || items.length;
+      return json?.imported ?? items.length;
     } catch (err) {
       setContentStatus('local');
       throw err;
@@ -991,6 +978,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (purgeInProgress) return;
     localStorage.setItem('arckaton_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  // Retour de connexion : les messages restés locaux repartent au serveur.
+  // Throttlé à 15 s pour ne pas marteler une API injoignable à la saisie.
+  const dernierEssaiSyncRef = useRef(0);
+  useEffect(() => {
+    if (purgeInProgress) return;
+    const reprendre = () => {
+      const maintenant = Date.now();
+      if (maintenant - dernierEssaiSyncRef.current < 15000) return;
+      dernierEssaiSyncRef.current = maintenant;
+      const pendantes = messages.filter((m) => m.synchro === false);
+      for (const m of pendantes) void retryMessage(m.id);
+    };
+    if (typeof navigator === 'undefined' || navigator.onLine) reprendre();
+    window.addEventListener('online', reprendre);
+    return () => window.removeEventListener('online', reprendre);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
@@ -1670,12 +1675,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshMessages = useCallback(async (canal: string) => {
     try {
       const data = await apiRequest<ChannelMessage[]>(`/api/messages?canal=${encodeURIComponent(canal)}`);
-      setColisMessages(data || []);
-      setMessages(data || []);
+      const serveur = data || [];
+      setColisMessages(serveur);
+      // Les messages restés locaux (synchro=false) ne doivent pas être
+      // écrasés par le retour du serveur : on les conserve en tête de liste.
+      setMessages((prev) => {
+        const pendantes = prev.filter((m) => m.synchro === false);
+        const fusion = [...serveur];
+        for (const p of pendantes) {
+          if (!fusion.some((m) => m.id === p.id)) fusion.push(p);
+        }
+        return fusion;
+      });
     } catch (err) {
       console.warn('Messages non rafraîchis, cache local conservé:', err);
     }
   }, []);
+
+  // Re-envoi d'un message resté local (hors ligne) vers le serveur. En cas
+  // de succès, l'identifiant serveur remplace l'identifiant local : le
+  // doublon n'apparaîtra pas au prochain GET.
+  const retryMessage = useCallback(async (id: string) => {
+    const m = messages.find((x) => x.id === id);
+    if (!m) return;
+    try {
+      const server = await apiRequest<ChannelMessage>('/api/messages', {
+        method: 'POST',
+        body: JSON.stringify({ canal: m.channel_id, contenu: m.content, simule: Boolean(m.simule) }),
+      });
+      setMessages((prev) => prev.map((x) => (x.id === id ? { ...server, synchro: true } : x)));
+    } catch (err) {
+      console.warn('Re-synchronisation du message impossible pour le moment:', err);
+    }
+  }, [messages]);
 
   // Retirer un message envoye par erreur. Le serveur refuse si l auteur
   // n est pas le membre connecte et n est pas de la direction ; on retire
@@ -1886,21 +1918,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     content: string
   ) => {
     const now = new Date();
+    // `simule` marque les scénarios de démonstration pour les distinguer
+    // d'un vrai message d'équipe (expediteur = membre de la session).
+    const estSimulation = author.id !== currentUser.id;
     const newMsg: ChannelMessage = {
       id: `m-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
       channel_id: channelId,
       sender_name: author.name,
       sender_role: author.role || 'Membre Agence',
+      sender_id: author.id,
       pole: author.pole || currentUser.pole,
       content,
       created_at: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      synchro: true,
+      simule: estSimulation,
     };
     setMessages((prev) => [...prev, newMsg]);
 
-    // Le message part au serveur, sinon il ne reste que dans ce navigateur.
-    // `simule` marque les scénarios de démonstration pour les distinguer
-    // d'un vrai message d'équipe.
-    const estSimulation = author.id !== currentUser.id;
+    // Le message part au serveur, sinon il ne resterait que dans ce
+    // navigateur. Souci : si le serveur refuse ou est injoignable, on NE
+    // retire PAS le message — il reste affiché, persisté en localStorage et
+    // marqué « non synchronisé », avec un bouton pour le re-envoyer. Avant,
+    // on le supprimait silencieusement : l'utilisateur croyait que l'envoi
+    // était impossible et il n'y avait plus aucun historique.
     apiRequest<ChannelMessage>('/api/messages', {
       method: 'POST',
       body: JSON.stringify({
@@ -1909,10 +1949,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         simule: estSimulation,
       }),
     })
-      .then((server) => setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, ...server } : m))))
+      .then((server) => setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, ...server, synchro: true } : m))))
       .catch((err) => {
-        console.error('Message non envoyé au serveur, retrait local:', err);
-        setMessages((prev) => prev.filter((m) => m.id !== newMsg.id));
+        console.warn('Message non synchronisé avec le serveur, conservé localement:', err);
+        setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, synchro: false } : m)));
       });
 
     // Fil automatique : tout échange de message est tracé
@@ -2097,6 +2137,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         messages: scopedMessages,
         sendMessage,
         deleteMessage,
+        retryMessage,
         activeChannel,
         setActiveChannel,
         notifications: scopedNotifications,

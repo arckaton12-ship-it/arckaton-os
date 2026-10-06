@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import fallbackImage from '../../assets/images/poles_network_hub_1789213238339.webp';
 
 type SmartImageProps = Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
   src: string;
@@ -34,11 +35,17 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   sizes,
   ...rest
 }) => {
-  const estUnsplash = UNSPLASH.test(src);
+  const [enErreur, setEnErreur] = useState(false);
+  useEffect(() => setEnErreur(false), [src]);
+
+  const estUnsplash = UNSPLASH.test(src) && !enErreur;
   const srcSet = estUnsplash
     ? LARGEURS.map((w) => `${optimisee(src, w)} ${w}w`).join(', ')
     : undefined;
-  const source = srcSet ? optimisee(src, 1280) : src;
+  // Une URL injoignable (CDN bloqué, image supprimée) ne doit jamais laisser
+  // d'icône de fichier cassé : on bascule sur une visuelle local, toujours
+  // embarquée dans le bundle, plutôt que sur un trou gris.
+  const source = enErreur || !src ? fallbackImage : srcSet ? optimisee(src, 1280) : src;
 
   return (
     <img
@@ -49,6 +56,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
       loading={priority ? 'eager' : 'lazy'}
       fetchPriority={priority ? 'high' : 'auto'}
       decoding="async"
+      onError={() => setEnErreur(true)}
       {...rest}
     />
   );

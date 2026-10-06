@@ -75,7 +75,7 @@ const NiveauBadge: React.FC<{
 
 const Connecteur: React.FC = () => (
   <div className="w-full flex justify-center my-6 relative z-0" aria-hidden="true">
-    <div className="w-0.5 h-12 bg-gradient-to-b from-emerald-400 via-blue-400 to-indigo-500 relative">
+    <div className="rk-connector-flow w-0.5 h-12 bg-gradient-to-b from-emerald-400 via-blue-400 to-indigo-500">
       <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-300 shadow-md shadow-emerald-400" />
     </div>
   </div>
@@ -281,8 +281,9 @@ export const OrgChart: React.FC = () => {
           
           {/* Main Visual Hierarchy Canvas */}
           <div className="bg-rk-chrome border border-rk-line rounded-3xl p-6 sm:p-8 relative overflow-hidden">
-            {/* Background Grid Pattern */}
-            <div className="absolute inset-0 bg-blueprint-grid opacity-20 pointer-events-none" />
+            {/* Background Grid Pattern défilant : les flux inter-pôles sont
+                suggérés par le mouvement, la télémétrie les trace réellement. */}
+            <div className="absolute inset-0 bg-blueprint-grid-animated opacity-20 pointer-events-none" />
 
             <NiveauBadge
               niveau={0}

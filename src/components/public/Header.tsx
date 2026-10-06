@@ -34,6 +34,7 @@ export const Header: React.FC = () => {
     currency,
     setCurrency,
     setIsBlueprintModalOpen,
+    siteConfig,
   } = useApp();
   const { canBat } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -71,10 +72,31 @@ export const Header: React.FC = () => {
     if (action === 'bat') openClientPortal();
   };
 
+  // Bandeau d'annonce supérieur, piloté par le CMS (table content_items).
+  // L'éditeur de site l'active/le désactive et change son texte ; cette
+  // barre est le seul endroit où il est rendu sur le site public.
+  const annonce = siteConfig?.announcement;
+  const afficherAnnonce = Boolean(annonce?.enabled && annonce?.text);
+
   return (
     <>
       {/* Barre supérieure épurée : marque + CTA + burger */}
       <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-rk-base/90 border-b border-rk-line">
+        {afficherAnnonce && (
+          <a
+            href={annonce.target_url || '#'}
+            onClick={close}
+            className="block bg-emerald-500 text-slate-950 px-4 py-2 text-center text-xs font-medium hover:bg-emerald-400 transition-colors"
+          >
+            {annonce.badge && (
+              <span className="font-mono uppercase tracking-wider font-bold mr-2">{annonce.badge}</span>
+            )}
+            <span className="font-light">{annonce.text}</span>
+            {annonce.button_text && (
+              <span className="font-bold underline decoration-2 underline-offset-2 ml-2">{annonce.button_text} →</span>
+            )}
+          </a>
+        )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
           <a href="#" onClick={close} className="flex items-center gap-3 group min-w-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-serif text-xl font-bold text-slate-950 transition-transform duration-300 group-hover:scale-105 shrink-0">
@@ -127,7 +149,7 @@ export const Header: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[60] lg:z-40"
+            className="fixed inset-0 z-[60]"
           >
             <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={close} />
 
