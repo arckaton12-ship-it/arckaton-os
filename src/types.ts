@@ -342,6 +342,7 @@ export interface Realisation {
   points: string[];
   delay: string;
   badgeAccent?: string;
+  published?: boolean;
 }
 
 // Témoignages clients (éditables via CMS)

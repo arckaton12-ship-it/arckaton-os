@@ -9,7 +9,7 @@ import { ShieldCheck, Smartphone, Clock } from 'lucide-react';
  * CMS est vide, le bandeau disparait au lieu d'afficher des chiffres inventes.
  */
 export const TrustStrip: React.FC = () => {
-  const { realisations, temoignages } = useApp();
+  const { realisationsPubliees: realisations, temoignages } = useApp();
 
   const nbRealisations = realisations.length;
   const nbClients = temoignages.length;

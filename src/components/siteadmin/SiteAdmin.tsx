@@ -45,6 +45,7 @@ export const SiteAdmin: React.FC = () => {
     addRealisation,
     updateRealisation,
     deleteRealisation,
+    setRealisationPublished,
     temoignages,
     addTemoignage,
     updateTemoignage,
@@ -111,6 +112,7 @@ export const SiteAdmin: React.FC = () => {
     subMetric: '',
     points: [],
     delay: '',
+    published: true,
   });
 
   // Témoignages : modals & forms
@@ -212,10 +214,18 @@ export const SiteAdmin: React.FC = () => {
     e.preventDefault();
     if (editingRealisation) {
       updateRealisation(editingRealisation.id, realForm);
-      triggerToast(`Étude de cas "${realForm.name}" mise à jour en direct !`);
+      triggerToast(
+        realForm.published
+          ? `Étude de cas "${realForm.name}" mise à jour et publiée en direct !`
+          : `Étude de cas "${realForm.name}" enregistrée en brouillon (visible uniquement dans l'OS).`
+      );
     } else {
       addRealisation(realForm);
-      triggerToast('Nouvelle réalisation publiée dans la section Réalisations !');
+      triggerToast(
+        realForm.published
+          ? 'Nouvelle réalisation publiée dans la section Réalisations !'
+          : "Nouvelle réalisation enregistrée en brouillon (visible uniquement dans l'OS)."
+      );
     }
     setIsRealModalOpen(false);
     setEditingRealisation(null);
@@ -234,6 +244,7 @@ export const SiteAdmin: React.FC = () => {
       subMetric: '',
       points: [],
       delay: '',
+      published: true,
     });
     setIsRealModalOpen(true);
   };
@@ -251,6 +262,7 @@ export const SiteAdmin: React.FC = () => {
       subMetric: r.subMetric,
       points: r.points,
       delay: r.delay,
+      published: r.published !== false,
     });
     setIsRealModalOpen(true);
   };
@@ -1008,7 +1020,7 @@ export const SiteAdmin: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="font-serif text-xl font-bold text-white">Études de Cas & Réalisations</h3>
-              <p className="text-xs text-rk-muted mt-1">Ces dossiers clients s'affichent dans la section « Réalisations » du site public, avec métriques chiffrées.</p>
+              <p className="text-xs text-rk-muted mt-1">Ces dossiers clients s'affichent dans la section « Réalisations » du site public, avec métriques chiffrées. Les brouillons restent invisibles sur le site tant que vous ne les publiez pas.</p>
             </div>
             <button
               onClick={openNewRealModal}
@@ -1030,6 +1042,11 @@ export const SiteAdmin: React.FC = () => {
                     <span className="text-xs font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                       {r.categoryLabel}
                     </span>
+                    {r.published === false && (
+                      <span className="text-xs font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">
+                        Brouillon
+                      </span>
+                    )}
                     <span className="text-xs font-mono text-rk-muted">{r.forfait}</span>
                   </div>
                   <h4 className="font-serif text-base font-bold text-white mt-1 leading-snug">{r.name}</h4>
@@ -1039,6 +1056,14 @@ export const SiteAdmin: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-auto">
+                  <button
+                    onClick={() => setRealisationPublished(r.id, r.published === false)}
+                    title={r.published === false ? 'Publier sur le site' : 'Repasser en brouillon'}
+                    className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-emerald-400 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    {r.published === false ? <Eye className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                    <span>{r.published === false ? 'Publier' : 'Brouillon'}</span>
+                  </button>
                   <button
                     onClick={() => openEditRealModal(r)}
                     className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-emerald-400 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -1081,7 +1106,11 @@ export const SiteAdmin: React.FC = () => {
                 <h3 className="font-serif text-2xl font-bold text-white mb-1">
                   {editingRealisation ? 'Modifier la Réalisation' : 'Ajouter une Réalisation'}
                 </h3>
-                <p className="text-xs text-rk-muted mb-6">Publiée instantanément sur la vitrine Réalisations.</p>
+                <p className="text-xs text-rk-muted mb-6">
+                  {realForm.published
+                    ? 'Publiée instantanément sur la vitrine Réalisations — décochez ci-dessous pour garder un brouillon.'
+                    : "Brouillon enregistré : visible uniquement dans l'OS, cochez « Publier » pour l'afficher sur le site."}
+                </p>
 
                 <form onSubmit={saveRealisation} className="space-y-4">
                   <div>
@@ -1147,11 +1176,27 @@ export const SiteAdmin: React.FC = () => {
                     />
                   </div>
 
+                  <label className="flex items-center gap-3 bg-rk-bg border border-rk-line-soft rounded-xl p-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={realForm.published}
+                      onChange={(e) => setRealForm({ ...realForm, published: e.target.checked })}
+                      className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                    />
+                    <span className="text-xs text-rk-text">
+                      {realForm.published ? (
+                        <span className="flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-emerald-400" /> Publiée sur le site public</span>
+                      ) : (
+                        <span className="flex items-center gap-2"><Lock className="w-3.5 h-3.5 text-amber-400" /> Gardée en brouillon (visible uniquement dans l'OS)</span>
+                      )}
+                    </span>
+                  </label>
+
                   <div className="pt-4 flex items-center justify-end gap-3">
                     <button type="button" onClick={() => setIsRealModalOpen(false)} className="px-4 py-2 text-xs text-rk-muted hover:text-white">Annuler</button>
                     <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
                       <Save className="w-3.5 h-3.5" />
-                      <span>{editingRealisation ? "Mettre à jour" : "Publier la réalisation"}</span>
+                      <span>{editingRealisation ? "Mettre à jour" : (realForm.published ? "Publier la réalisation" : "Enregistrer en brouillon")}</span>
                     </button>
                   </div>
                 </form>

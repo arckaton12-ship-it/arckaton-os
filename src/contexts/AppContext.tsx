@@ -293,9 +293,11 @@ interface AppContextType {
 
   // CMS Contenu temps réel (supabase via serveur)
   realisations: Realisation[];
+  realisationsPubliees: Realisation[];
   updateRealisation: (id: string, data: Partial<Realisation>) => void;
   addRealisation: (data: Omit<Realisation, 'id'>) => void;
   deleteRealisation: (id: string) => void;
+  setRealisationPublished: (id: string, published: boolean) => void;
   temoignages: Temoignage[];
   updateTemoignage: (id: string, data: Partial<Temoignage>) => void;
   addTemoignage: (data: Omit<Temoignage, 'id'>) => void;
@@ -526,7 +528,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Volontairement sans refreshContent() apres l'ecriture : le state vient
   // d etre mis a jour localement, un rafraichissement le remplacerait sous
   // les doigts de l utilisateur pendant qu il tape.
-  const writeContent = async (kind: string, slug: string, data: any, title?: string) => {
+  const writeContent = async (kind: string, slug: string, data: any, title?: string, published = true) => {
     setContentStatus('saving');
     try {
       // `apiWrite` renouvelle la session sur 401 avant d'abandonner : une
@@ -534,7 +536,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await apiWrite(`/api/content/${kind}/${encodeURIComponent(slug)}`, 'PUT', {
         data,
         title,
-        published: true,
+        published,
       });
       setContentStatus('live');
       return true;
@@ -650,16 +652,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!cible) return;
     const next = { ...cible, ...data };
     saveRealisations(realisations.map((r) => (r.id === id ? next : r)));
-    void writeContent('realisation', next.id, next, next.name);
+    void writeContent('realisation', next.id, next, next.name, next.published !== false);
   };
   const addRealisation = (data: Omit<Realisation, 'id'>) => {
-    const created = { ...data, id: `real-${Date.now()}` };
+    const created = { ...data, published: data.published !== false, id: `real-${Date.now()}` };
     saveRealisations([created, ...realisations]);
-    void writeContent('realisation', created.id, created, created.name);
+    void writeContent('realisation', created.id, created, created.name, created.published);
   };
   const deleteRealisation = (id: string) => {
     saveRealisations(realisations.filter((r) => r.id !== id));
     void removeContent('realisation', id);
+  };
+  const setRealisationPublished = (id: string, published: boolean) => {
+    const cible = realisations.find((r) => r.id === id);
+    if (!cible) return;
+    const next = { ...cible, published };
+    saveRealisations(realisations.map((r) => (r.id === id ? next : r)));
+    void writeContent('realisation', next.id, next, next.name, published);
   };
 
   const saveTemoignages = (next: Temoignage[]) => {
@@ -2206,9 +2215,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     requestCopilotTask,
     clearCopilotTask,
         realisations,
+        realisationsPubliees: realisations.filter((r) => r.published !== false),
         updateRealisation,
         addRealisation,
         deleteRealisation,
+        setRealisationPublished,
         temoignages,
         updateTemoignage,
         addTemoignage,

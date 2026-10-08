@@ -6,7 +6,7 @@ import { REALISATION_CATEGORIES, getCategoryLabel } from '../../data/categories'
 import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
 
 export const Realisations: React.FC = () => {
-  const { realisations, ouvrirWizard } = useApp();
+  const { realisationsPubliees: realisations, ouvrirWizard } = useApp();
   const [filter, setFilter] = useState<string>('all');
   const onCarouselKey = useCarouselKeyboard();
 
