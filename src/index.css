@@ -774,4 +774,23 @@ html.theme-light .bg-emerald-500\/10,
   50% { box-shadow: 0 0 0 4px rgba(234, 88, 12, 0); }
 }
 
+/* =========================================================
+   ACCESSIBILITE : etat de focus clavier visible partout.
+   Sans cela, la navigation au clavier (Tab) est un pari dans
+   beaucoup d'ecrans. Le theme jour utilise le meme jeton.
+   ========================================================= */
+:focus-visible {
+  outline: 2px solid var(--color-rk-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@supports not selector(:focus-visible) {
+  :focus {
+    outline: 2px solid var(--color-rk-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
 

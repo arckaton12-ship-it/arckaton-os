@@ -162,7 +162,19 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Pipeline Leads */}
-          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelectTab('leads')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectTab('leads');
+              }
+            }}
+            title="Ouvrir le CRM & Devis"
+            className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3 cursor-pointer hover:border-blue-500/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Pipeline Commercial</span>
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
@@ -212,7 +224,19 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 3: Sorties terrain réelles */}
-          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelectTab('projects')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectTab('projects');
+              }
+            }}
+            title="Ouvrir la production & validation BAT"
+            className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3 cursor-pointer hover:border-amber-500/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Sorties Terrain</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
@@ -240,7 +264,19 @@ export const OverviewTab: React.FC<Props> = ({ onSelectTab }) => {
           </div>
 
           {/* Card 4: Tâches & Santé Pôles */}
-          <div className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelectTab('tasks')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectTab('tasks');
+              }
+            }}
+            title="Ouvrir le tableau Kanban"
+            className="rk-interactive bg-rk-panel border border-rk-line rounded-2xl p-5 space-y-3 cursor-pointer hover:border-purple-500/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/60"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-rk-muted">Tâches & Pôles</span>
               <div className="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">

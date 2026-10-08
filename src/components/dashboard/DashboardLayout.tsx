@@ -21,7 +21,8 @@ import {
   FolderKanban,
   Search,
   LogOut,
-  CalendarDays
+  CalendarDays,
+  Keyboard
 } from 'lucide-react';
 import { CommandPalette, type PaletteItem } from './CommandPalette';
 import { OverviewTab } from './OverviewTab';
@@ -40,7 +41,7 @@ import { AgendaTab } from './AgendaTab';
 import { LoginPanel } from '../auth/LoginPanel';
 
 export const DashboardLayout: React.FC = () => {
-  const { setMode, notifications, projets } = useApp();
+  const { setMode, notifications, projets, leads, osMembers } = useApp();
   const { user, role, isSiteEditor, isAdmin, logout, isAuthenticated, loading } = useAuth();
 
   const [activeTab, setActiveTab] = useState<
@@ -50,6 +51,11 @@ export const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+  // Raccourcis clavier : appui sur `G` (préfixe) puis une lettre navigue,
+  // `?` ouvre l'aide. Un préfixe inutilisé s'éteint de lui-même après 2 s.
+  const [prefixActif, setPrefixActif] = useState<string | null>(null);
+  const [aideOuverte, setAideOuverte] = useState(false);
 
   // Sections repliables de la barre laterale : l'utilisateur peut masquer
   // celles qu'il n'utilise pas. L'etat est memorise ; par defaut tout est
@@ -85,6 +91,71 @@ export const DashboardLayout: React.FC = () => {
     window.addEventListener('keydown', surRaccourci);
     return () => window.removeEventListener('keydown', surRaccourci);
   }, []);
+
+  // Préfixe `G` puis lettre : le raccourci expire seul, sans intervention.
+  useEffect(() => {
+    if (prefixActif === null) return;
+    const id = window.setTimeout(() => setPrefixActif(null), 2000);
+    return () => window.clearTimeout(id);
+  }, [prefixActif]);
+
+  const naviguerRaccourci = (cible: string) => {
+    if (cible === 'public') setMode('public');
+    else if (cible === 'notifications') setIsNotificationsOpen(true);
+    else goToTab(cible);
+  };
+
+  // Raccourcis clavier sans modificateur : `G` + lettre et aide `?`.
+  // Ignore en pleine saisie (champ de formulaire) pour ne pas voler la frappe.
+  useEffect(() => {
+    const surTouche = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const cible = e.target as HTMLElement | null;
+      if (cible && (cible.tagName === 'INPUT' || cible.tagName === 'TEXTAREA' || cible.tagName === 'SELECT' || cible.isContentEditable)) return;
+
+      if (e.key === 'Escape') {
+        if (prefixActif !== null) setPrefixActif(null);
+        setAideOuverte(false);
+        return;
+      }
+      if (e.key === '?') {
+        e.preventDefault();
+        setAideOuverte((v) => !v);
+        return;
+      }
+
+      const k = e.key.toLowerCase();
+      if (prefixActif === null) {
+        if (k === 'g') {
+          e.preventDefault();
+          setPrefixActif('g');
+        }
+        return;
+      }
+
+      const suivants: Record<string, string> = {
+        p: 'projects',
+        c: 'crm',
+        t: 'tasks',
+        a: 'agenda',
+        m: 'messaging',
+        o: 'orgchart',
+        h: 'members',
+        s: 'settings',
+        i: 'copilot',
+        n: 'notifications',
+        u: 'public',
+      };
+      if (suivants[k]) {
+        e.preventDefault();
+        setPrefixActif(null);
+        naviguerRaccourci(suivants[k]);
+      }
+    };
+    window.addEventListener('keydown', surTouche);
+    return () => window.removeEventListener('keydown', surTouche);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefixActif, aideOuverte]);
 
   // Navigation centralisee : sidebar, notifications, vue d'ensemble. Les
   // liens internes serveur arrivent parfois sous forme d'URL (`/os?onglet=agenda`)
@@ -141,7 +212,7 @@ export const DashboardLayout: React.FC = () => {
   const navItems = [
     { id: 'overview' as const, label: "Vue d'ensemble", icon: LayoutDashboard, badge: null, adminOnly: false },
     { id: 'projects' as const, label: "Projets & Production", icon: FolderKanban, badge: projets.length ? projets.length.toString() : null, adminOnly: false },
-    { id: 'orgchart' as const, label: "Organigramme (17 Postes)", icon: Users, badge: null, adminOnly: false },
+    { id: 'orgchart' as const, label: osMembers.length > 0 ? `Équipe & Organigramme (${osMembers.length})` : 'Équipe & Organigramme', icon: Users, badge: null, adminOnly: false },
     { id: 'tasks' as const, label: "Tableau Kanban", icon: CheckSquare, badge: null, adminOnly: false },
     { id: 'crm' as const, label: "CRM & Devis / Ventes", icon: Briefcase, badge: null, adminOnly: false },
     { id: 'agenda' as const, label: "Agenda & RDV", icon: CalendarDays, badge: null, adminOnly: false },
@@ -195,7 +266,39 @@ export const DashboardLayout: React.FC = () => {
   );
 
   // Commandes de la palette : navigation entre sections + actions rapides.
+  // On ajoute les entrées de données réelles (projets, prospects, membres)
+  // pour que la recherche trouve un client ou un projet par son nom : ce sont
+  // des comptes/entrées de la base, jamais des valeurs inventées. Limité à 8
+  // par type pour garder la liste légère.
+  const paletteDonnees: PaletteItem[] = [
+    ...projets.slice(0, 8).map((p) => ({
+      id: `projet-${p.id}`,
+      label: `Projet ${p.client_code ? p.client_code + ' — ' : ''}${p.name}`,
+      group: 'Projets & Production',
+      hint: p.client_code ?? p.pole,
+      icon: FolderKanban,
+      run: () => goToTab('projects'),
+    })),
+    ...leads.slice(0, 8).map((l) => ({
+      id: `lead-${l.id}`,
+      label: `Prospect ${l.name}${l.project_type ? ' — ' + l.project_type : ''}`,
+      group: 'CRM & Devis',
+      hint: l.statut,
+      icon: Briefcase,
+      run: () => goToTab('crm'),
+    })),
+    ...osMembers.slice(0, 8).map((m) => ({
+      id: `membre-${m.id}`,
+      label: `${m.name} · ${m.pole}`,
+      group: 'Équipe & Habilitations',
+      hint: m.poste_titre ?? m.role,
+      icon: Users,
+      run: () => goToTab('members'),
+    })),
+  ];
+
   const paletteItems: PaletteItem[] = [
+    ...paletteDonnees,
     ...navItems.map((item) => ({
       id: `nav-${item.id}`,
       label: item.label,
@@ -450,6 +553,17 @@ export const DashboardLayout: React.FC = () => {
               <kbd className="font-mono text-xs border border-rk-line-soft rounded px-1.5 py-0.5">⌘K</kbd>
             </button>
 
+            <button
+              onClick={() => setAideOuverte(true)}
+              className="hidden lg:flex items-center gap-1.5 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl text-xs text-rk-muted hover:text-white transition-colors cursor-pointer"
+              aria-label="Aide sur les raccourcis clavier (?)"
+              title="Raccourcis clavier — appuyer sur ?"
+            >
+              <Keyboard className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Raccourcis</span>
+              <kbd className="font-mono text-xs border border-rk-line-soft rounded px-1.5 py-0.5">?</kbd>
+            </button>
+
             {/* Session Membre */}
             <div className="flex items-center gap-2 bg-rk-panel border border-rk-line px-3 py-1.5 rounded-xl">
               <div className="hidden md:block text-right">
@@ -516,6 +630,94 @@ export const DashboardLayout: React.FC = () => {
         onNavigate={goToTab}
         onClose={() => setIsNotificationsOpen(false)}
       />
+
+      {/* Indication du préfixe G : rappelle les destinations disponibles */}
+      {prefixActif === 'g' && (
+        <div
+          role="status"
+          className="fixed top-5 left-1/2 -translate-x-1/2 z-[90] bg-rk-chrome border border-blue-500/40 rounded-2xl shadow-2xl px-5 py-3 text-xs font-mono space-y-1.5 animate-fadeIn max-w-[92vw]"
+        >
+          <div className="flex items-center gap-2 text-blue-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            <span className="font-bold text-white">G +</span>
+            <span>choisissez une lettre</span>
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-rk-text-secondary">
+            <span>[P] Projets</span>
+            <span>[C] CRM</span>
+            <span>[T] Kanban</span>
+            <span>[A] Agenda</span>
+            <span>[M] Messagerie</span>
+            <span>[O] Organigramme</span>
+            <span>[H] Membres</span>
+            <span>[I] Copilote</span>
+            <span>[N] Notifs</span>
+            <span>[S] Paramètres</span>
+            <span>[U] Site public</span>
+          </div>
+        </div>
+      )}
+
+      {/* Aide Raccourcis Clavier : modale légère, fermeture par Échap / clic */}
+      {aideOuverte && (
+        <div
+          className="fixed inset-0 z-[85] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onMouseDown={() => setAideOuverte(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Raccourcis clavier Arckaton OS"
+        >
+          <div
+            className="w-full max-w-md bg-rk-panel border border-rk-line rounded-2xl shadow-2xl overflow-hidden"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-rk-line flex items-center justify-between bg-rk-bg">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+                  <Keyboard className="w-4 h-4" aria-hidden="true" />
+                </div>
+                <h3 className="font-serif text-base font-bold text-white">Raccourcis clavier</h3>
+              </div>
+              <button
+                onClick={() => setAideOuverte(false)}
+                aria-label="Fermer l'aide"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-rk-muted hover:text-white flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </div>
+            <div className="p-6 space-y-3 max-h-[70dvh] overflow-y-auto">
+              {[
+                { keys: '?', action: 'Ouvrir / fermer cette aide' },
+                { keys: '⌘K / Ctrl+K', action: 'Palette de commandes' },
+                { keys: 'G puis P', action: 'Projets & Production' },
+                { keys: 'G puis C', action: 'CRM & Devis' },
+                { keys: 'G puis T', action: 'Tableau Kanban' },
+                { keys: 'G puis A', action: 'Agenda & RDV' },
+                { keys: 'G puis M', action: 'Messagerie interne' },
+                { keys: 'G puis O', action: 'Équipe & Organigramme' },
+                { keys: 'G puis H', action: 'Membres & Habilitations' },
+                { keys: 'G puis I', action: 'Copilote IA' },
+                { keys: 'G puis N', action: 'Notifications' },
+                { keys: 'G puis S', action: 'Paramètres & Grille' },
+                { keys: 'G puis U', action: 'Voir le site public' },
+                { keys: 'Échap', action: 'Fermer modales / annuler G' },
+              ].map((r) => (
+                <div key={r.keys} className="flex items-center justify-between gap-4 text-xs">
+                  <span className="text-rk-text-secondary">{r.action}</span>
+                  <kbd className="font-mono text-rk-text bg-rk-bg border border-rk-line-soft rounded px-2 py-1 whitespace-nowrap">
+                    {r.keys}
+                  </kbd>
+                </div>
+              ))}
+              <p className="text-[11px] text-rk-muted font-mono pt-2 border-t border-rk-line-soft">
+                Astuce : « G » puis la lettre dans les 2 secondes. Les raccourcis sont
+                ignorés pendant la saisie d'un champ.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <CommandPalette
         isOpen={isPaletteOpen}

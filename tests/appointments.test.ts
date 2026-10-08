@@ -197,11 +197,11 @@ describe('POST /api/appointments (mode degrade, sans base)', () => {
   });
 
   it('refuse un creneau deja pris (409)', async () => {
-    const premier = await request(app).post('/api/appointments').send(corps({}, 2));
+    const premier = await request(app).post('/api/appointments').send(corps({}, 7));
     expect(premier.status).toBe(201);
     const second = await request(app)
       .post('/api/appointments')
-      .send(corps({ cle_idempotence: 'autre-cle' }, 2));
+      .send(corps({ cle_idempotence: 'autre-cle' }, 7));
     expect(second.status).toBe(409);
     expect(second.body.creneaux.length).toBeGreaterThan(0);
   });
@@ -210,11 +210,11 @@ describe('POST /api/appointments (mode degrade, sans base)', () => {
     const cle = 'mon-rejeu-1';
     const premier = await request(app)
       .post('/api/appointments')
-      .send(corps({ cle_idempotence: cle }, 3));
+      .send(corps({ cle_idempotence: cle }, 14));
     expect(premier.status).toBe(201);
     const rejeu = await request(app)
       .post('/api/appointments')
-      .send(corps({ cle_idempotence: cle }, 3));
+      .send(corps({ cle_idempotence: cle }, 14));
     expect(rejeu.status).toBe(200);
     expect(rejeu.body.rdv.rdv_ref).toBe(premier.body.rdv.rdv_ref);
   });

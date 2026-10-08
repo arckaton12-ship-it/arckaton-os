@@ -13,7 +13,9 @@ import {
   Briefcase,
   GripVertical,
   Users,
-  FilterX
+  FilterX,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { useDialogA11y } from '../../hooks/useDialogA11y';
 import CountdownBadge from '../ui/CountdownBadge';
@@ -37,6 +39,7 @@ export const KanbanBoard: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pleinEcran, setPleinEcran] = useState(false);
   const dialogRef = useDialogA11y<HTMLDivElement>(isModalOpen, () => setIsModalOpen(false));
   const [dragOver, setDragOver] = useState<TaskStatus | null>(null);
 
@@ -152,7 +155,7 @@ export const KanbanBoard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className={`space-y-6 animate-fadeIn ${pleinEcran ? 'fixed inset-0 z-50 bg-rk-bg overflow-y-auto p-3 sm:p-6' : ''}`}>
       {/* En-tête */}
       <div className="bg-rk-panel border border-rk-line p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -184,6 +187,16 @@ export const KanbanBoard: React.FC = () => {
         >
           <Plus className="w-4 h-4" />
           <span>Créer une Tâche</span>
+        </button>
+
+        <button
+          onClick={() => setPleinEcran((v) => !v)}
+          className="bg-white/5 hover:bg-white/10 text-rk-text-secondary hover:text-white border border-rk-line px-3.5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+          title={pleinEcran ? 'Quitter le mode focus' : 'Mode focus plein écran'}
+          aria-pressed={pleinEcran}
+        >
+          {pleinEcran ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          <span className="hidden sm:inline">{pleinEcran ? 'Réduire' : 'Focus'}</span>
         </button>
       </div>
 
@@ -259,7 +272,8 @@ export const KanbanBoard: React.FC = () => {
         </div>
       </div>
 
-      {/* Charge par membre */}
+      {/* Charge par membre (masquée en mode focus : place au tableau) */}
+      {!pleinEcran && (
       <div className="bg-rk-panel border border-rk-line rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <Users className="w-4 h-4 text-blue-400" />
@@ -312,6 +326,7 @@ export const KanbanBoard: React.FC = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Colonnes */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">

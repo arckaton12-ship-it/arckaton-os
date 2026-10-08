@@ -5,6 +5,7 @@ import { Check, Sparkles, ArrowRight, ShieldCheck, Globe, Calendar, RefreshCw, H
 import { motion } from 'motion/react';
 import { formatCurrencyPrice } from '../../utils/currency';
 import { useCarouselKeyboard } from '../../hooks/useCarouselKeyboard';
+import { DevisRapide } from './DevisRapide';
 
 export const Forfaits: React.FC = () => {
   const { ouvrirWizard, setIsAgentModalOpen, currency, setIsBlueprintModalOpen } = useApp();
@@ -183,6 +184,9 @@ export const Forfaits: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Devis rapide : le chemin court du site vers un lead */}
+        <DevisRapide />
 
         {/* Detailed Comparison Table */}
         <div className="bg-rk-surface border border-rk-line rounded-2xl p-6 sm:p-8 overflow-hidden">

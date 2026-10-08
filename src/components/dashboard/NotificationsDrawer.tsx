@@ -72,8 +72,9 @@ export const NotificationsDrawer: React.FC<Props> = ({ isOpen, onClose, onNaviga
               <button
                 onClick={clearNotifications}
                 className="text-xs text-rk-muted hover:text-white font-mono px-2 py-1"
+                title="Marquer toutes les notifications comme lues"
               >
-                Tout effacer
+                Tout marquer lu
               </button>
             )}
             <button
